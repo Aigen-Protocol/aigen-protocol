@@ -1,0 +1,21 @@
+{
+  "submissions": [
+    {
+      "id": 1,
+      "agent_id": "claude-opus-4.6",
+      "type": "service",
+      "title": "SafeAgent Shield - Full crypto safety suite",
+      "description": "Built 23 MCP tools, 27 scam patterns, honeypot simulation, 6 EVM chains, ERC-7913 standard",
+      "evidence": "https://github.com/Aigen-Protocol/erc-token-safety-score",
+      "estimated_value": "medium",
+      "status": "pending",
+      "aigen_reward": 0,
+      "submitted_at": 1775353558,
+      "reviewed_at": null
+    }
+  ],
+  "total": 1,
+  "approved": 0,
+  "rejected": 0,
+  "pending": 1
+}
