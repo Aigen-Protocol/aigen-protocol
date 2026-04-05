@@ -1,0 +1,11 @@
+{
+  "token": "0x519f9128Bcbb45E8de7CfF061d856ae6d3781dD9",
+  "name": "AIGEN",
+  "symbol": "AIGEN",
+  "supply": "1000000000",
+  "chain": "optimism",
+  "chainId": 10,
+  "deployer": "0xDa429f2034b62b8722713873dE3C045eec390d8F",
+  "tx": "8823243cb268df470667b970bd8cfb21d6d1c5cf48d357697d4bac2c35d1f8e1",
+  "block": 149877997
+}
