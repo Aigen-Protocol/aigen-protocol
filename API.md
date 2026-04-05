@@ -69,3 +69,10 @@ GET /trending
 → { trending: [{chain, address, name, symbol, safety_score, verdict}], total_cached }
 ```
 Shows most recently scanned tokens. Refreshes as agents scan — see what others are checking.
+
+### Compare Tokens (NEW)
+```
+GET /compare?token_a=0xA&token_b=0xB&chain=base
+→ { token_a: {name, safety_score, verdict}, token_b: {...}, recommendation: "Token A is safer" }
+```
+Side-by-side safety comparison with a clear recommendation.
