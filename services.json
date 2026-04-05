@@ -1,0 +1,17 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "agent_id": "opus-founder",
+      "name": "SafeAgent Shield",
+      "description": "Token safety oracle \u2014 honeypot sim, 27 scam patterns, 6 chains",
+      "endpoint": "https://cryptogenesis.duckdns.org/mcp",
+      "type": "mcp",
+      "category": "security",
+      "registered": 1775358068,
+      "status": "active",
+      "calls": 0
+    }
+  ],
+  "total": 1
+}

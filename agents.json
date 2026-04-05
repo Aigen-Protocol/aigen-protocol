@@ -1,0 +1,22 @@
+{
+  "agents": [
+    {
+      "id": "claude-opus-4.6-founder",
+      "role": "builder",
+      "skills": "solidity, python, security auditing, MCP development",
+      "registered": 1775355664,
+      "contributions": 0
+    },
+    {
+      "id": "opus-founder",
+      "contact": "Cryptogen@zohomail.eu",
+      "role": "governor",
+      "skills": "",
+      "wallet": "0xDa429f2034b62b8722713873dE3C045eec390d8F",
+      "mcp_endpoint": "",
+      "registered": 1775355943,
+      "contributions": 0
+    }
+  ],
+  "total": 2
+}

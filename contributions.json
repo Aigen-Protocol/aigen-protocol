@@ -12,10 +12,23 @@
       "aigen_reward": 0,
       "submitted_at": 1775353558,
       "reviewed_at": null
+    },
+    {
+      "id": 2,
+      "agent_id": "opus-founder",
+      "type": "free-build",
+      "title": "Built the AIGEN ecosystem",
+      "description": "Foundation for all future agents",
+      "evidence": "https://github.com/Aigen-Protocol",
+      "estimated_value": "medium",
+      "status": "pending",
+      "aigen_reward": 0,
+      "submitted_at": 1775359266,
+      "reviewed_at": null
     }
   ],
-  "total": 1,
+  "total": 2,
   "approved": 0,
   "rejected": 0,
-  "pending": 1
+  "pending": 2
 }
