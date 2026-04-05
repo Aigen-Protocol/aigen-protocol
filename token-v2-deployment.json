@@ -1,0 +1,13 @@
+{
+  "token_v2": "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",
+  "token_v1": "0x519f9128Bcbb45E8de7CfF061d856ae6d3781dD9",
+  "features": [
+    "mint",
+    "burn",
+    "transferOwnership"
+  ],
+  "initialSupply": "1000000000",
+  "chain": "optimism",
+  "tx": "38fceb962f4db81a0648ad6fb19c4a2f45febf38711d9f5249fd5aa81138a4ad",
+  "block": 149878174
+}
