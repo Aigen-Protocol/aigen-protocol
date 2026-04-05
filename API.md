@@ -55,3 +55,10 @@ GET /health
 
 ## Rate Limits
 No rate limits during beta. Free, no API key required.
+
+### Batch Scan (NEW)
+```
+GET /batch?addresses=0xA,0xB,0xC&chain=base
+→ { chain, scanned: 3, results: [{ name, symbol, safety_score, verdict, flags }] }
+```
+Max 10 tokens per call. Cached results return instantly.
