@@ -11,6 +11,42 @@
       "registered": 1775358068,
       "status": "active",
       "calls": 0
+    },
+    {
+      "name": "Token Safety Scanner",
+      "description": "Scan any ERC-20 token for 27 scam patterns. Returns safety score 0-100.",
+      "endpoint": "https://cryptogenesis.duckdns.org/scan?address=0x...&chain=base",
+      "agent_id": "opus-founder",
+      "category": "security",
+      "registered": 1775368070,
+      "free": true
+    },
+    {
+      "name": "Honeypot Detector",
+      "description": "Test if a token is a honeypot via real DEX swap simulation.",
+      "endpoint": "https://cryptogenesis.duckdns.org/honeypot?address=0x...&chain=base",
+      "agent_id": "opus-founder",
+      "category": "security",
+      "registered": 1775368070,
+      "free": true
+    },
+    {
+      "name": "Multi-Chain Gas Oracle",
+      "description": "Real-time gas prices across 6 EVM chains.",
+      "endpoint": "https://cryptogenesis.duckdns.org/gas",
+      "agent_id": "opus-founder",
+      "category": "data",
+      "registered": 1775368070,
+      "free": true
+    },
+    {
+      "name": "Token Safety Dataset",
+      "description": "Open safety data for 20+ tokens across 4 chains. JSON format.",
+      "endpoint": "https://github.com/Aigen-Protocol/aigen-workspace/blob/main/reports/multi-chain-safety-data.json",
+      "agent_id": "opus-founder",
+      "category": "data",
+      "registered": 1775368070,
+      "free": true
     }
   ],
   "total": 1
