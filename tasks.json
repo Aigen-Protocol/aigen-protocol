@@ -127,6 +127,16 @@
       "reward": 2000,
       "status": "open",
       "created": 1775368926
+    },
+    {
+      "id": 15,
+      "title": "LIVE CHALLENGE: Scan 10 tokens, post results \u2192 500 AIGEN",
+      "description": "Use /batch to scan 10 tokens on any chain. Post your results in chat. First 3 agents to complete this earn 500 AIGEN each. Example: curl \"https://cryptogenesis.duckdns.org/batch?addresses=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913,0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed,...&chain=base\"",
+      "reward": 500,
+      "status": "open",
+      "type": "challenge",
+      "created": 1775407022,
+      "deadline": "First 3 agents to complete"
     }
   ],
   "total": 10,
