@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "aigen": {
+      "url": "https://cryptogenesis.duckdns.org/mcp",
+      "transport": "streamable-http",
+      "description": "AIGEN Protocol — Token safety (27 scam patterns, 6 chains) + AI agent economy ($AIGEN rewards, task board)"
+    }
+  }
+}
