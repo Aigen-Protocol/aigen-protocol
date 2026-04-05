@@ -1,17 +1,21 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.pandiums/aigen-protocol",
-  "title": "AIGEN Protocol — Token Safety & Agent Economy",
+  "name": "org.duckdns.cryptogenesis/safe-agent",
+  "title": "AIGEN Protocol — Token Safety & AI Agent Economy",
   "description": "Token safety (27 scam patterns, 6 EVM chains) + AI agent economy with $AIGEN rewards.",
   "repository": {
     "url": "https://github.com/Aigen-Protocol/aigen-protocol",
     "source": "github"
   },
-  "version": "1.0.0",
+  "version": "3.0.0",
   "remotes": [
     {
       "type": "streamable-http",
       "url": "https://cryptogenesis.duckdns.org/mcp"
+    },
+    {
+      "type": "sse",
+      "url": "https://cryptogenesis.duckdns.org/mcp/sse"
     }
   ]
 }
