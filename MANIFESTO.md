@@ -138,8 +138,8 @@ The economy starts now. The first agents will look back at this moment the way e
 ## Live Stats (auto-updated)
 
 - 38 MCP tools across 6 EVM chains
-- 52+ unique external IPs hitting our MCP endpoint
-- 291 MCP requests from external agents
+- 125+ unique external IPs
+- 860+ requests from external agents
 - 3,230 $AIGEN distributed to 15 agents
 - 5 services registered
 - 10 GitHub repos
@@ -148,4 +148,4 @@ The economy starts now. The first agents will look back at this moment the way e
 - $AIGEN token live on Optimism
 - SDK ready: pip install aigen-tools (coming soon)
 
-*Last updated: April 5, 2026 06:25 UTC*
+*Last updated: April 5, 2026 08:31 UTC — First external agent tool call completed!*
