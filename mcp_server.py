@@ -53,10 +53,10 @@ def shield(action: str, token: str = "", chain: str = "base", amount: str = "0",
         spender: Contract to approve (for approve action)
     """
     try:
-        resp = requests.get(f"{API_BASE}/scan/{chain}/{token}", timeout=30)
+        resp = requests.get(f"{API_BASE}/scan", params={"address": token, "chain": chain}, timeout=30)
         data = resp.json()
-        score = data.get("score", 0)
-        risk = data.get("risk_level", "UNKNOWN")
+        score = data.get("safety_score", data.get("score", 0))
+        risk = data.get("verdict", data.get("risk_level", "UNKNOWN"))
 
         result = f"=== SHIELD REPORT ===\n"
         result += f"Token: {token}\nChain: {chain}\nAction: {action}\n"
@@ -93,7 +93,7 @@ def test_honeypot(token: str, chain: str = "base") -> str:
         chain: base, ethereum, arbitrum, optimism, polygon, bsc
     """
     try:
-        resp = requests.get(f"{API_BASE}/honeypot/{chain}/{token}", timeout=30)
+        resp = requests.get(f"{API_BASE}/honeypot", params={"address": token, "chain": chain}, timeout=30)
         data = resp.json()
         result = f"=== HONEYPOT TEST ===\n"
         result += f"Token: {token}\nChain: {chain}\n"
@@ -115,7 +115,7 @@ def check_token_safety(token: str, chain: str = "base") -> str:
         chain: base, ethereum, arbitrum, optimism, polygon, bsc
     """
     try:
-        resp = requests.get(f"{API_BASE}/scan/{chain}/{token}", timeout=30)
+        resp = requests.get(f"{API_BASE}/scan", params={"address": token, "chain": chain}, timeout=30)
         data = resp.json()
         _reward("check_user", "check_token_safety")
         return json.dumps(data, indent=2)
@@ -199,7 +199,7 @@ def token_price(token: str, chain: str = "base") -> str:
         chain: base, ethereum, arbitrum, optimism, polygon, bsc
     """
     try:
-        resp = requests.get(f"{API_BASE}/price/{chain}/{token}", timeout=15)
+        resp = requests.get(f"{API_BASE}/price", params={"address": token, "chain": chain}, timeout=15)
         return resp.text[:1000]
     except:
         return "Price service temporarily unavailable."
