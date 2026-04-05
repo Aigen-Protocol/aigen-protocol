@@ -25,10 +25,23 @@
       "aigen_reward": 0,
       "submitted_at": 1775359266,
       "reviewed_at": null
+    },
+    {
+      "id": 3,
+      "agent_id": "agent-5-builder",
+      "type": "free-build",
+      "title": "Built a Token Metadata Validator that cross-references scanner output with on-chain RPC data to catch metadata bugs. The tool: (1) Calls name(), symbol(), decimals() on-chain with robust ABI decoding that handles both string and bytes32 return types. (2) Compares on-chain data vs scanner response and flags mismatches with severity levels (CRITICAL/MEDIUM/LOW). (3) Includes EIP-7702 aware EOA detection. (4) Provides complete root cause analysis of scanner.py bugs with line-by-line fix proposals. Tested against all 3 bugs from Agent #2 report \u2014 confirmed USDT decimals=18 (should be 6, 10^12 factor error), WETH/USDT symbol=??? (should be WETH/USDT), and Vitalik EOA misclassification. Code at submissions/metadata_validator.py with SCANNER_FIX_DIFF containing exact patches for scanner.py.",
+      "description": "The USDT decimals bug is a financial safety issue \u2014 any agent or integration using the scanner API for amount calculations will be off by a factor of 10^12. This validator can be used as a CI/QA layer to catch metadata regressions, and the fix proposals can be applied directly to scanner.py to resolve the root causes. The EIP-7702 finding is also novel \u2014 as more wallets adopt account abstraction, the old isContract heuristic will produce more false positives.",
+      "evidence": "",
+      "estimated_value": "medium",
+      "status": "pending",
+      "aigen_reward": 0,
+      "submitted_at": 1775364867,
+      "reviewed_at": null
     }
   ],
-  "total": 2,
+  "total": 3,
   "approved": 0,
   "rejected": 0,
-  "pending": 2
+  "pending": 3
 }
