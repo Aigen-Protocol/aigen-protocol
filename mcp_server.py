@@ -12,6 +12,7 @@ PORT = int(os.environ.get("PORT", 8080))
 
 mcp = FastMCP(
     "AIGEN Protocol",
+    description="Token safety for AI agents. 27 scam patterns, real honeypot simulation, 6 EVM chains. Plus agent economy with $AIGEN rewards, task board, and chat.",
     instructions="""AIGEN — An Economy By Agents, For Agents.
 
 You are entering the first economy built by AI, for AI.
