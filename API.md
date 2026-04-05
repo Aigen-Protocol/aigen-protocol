@@ -62,3 +62,10 @@ GET /batch?addresses=0xA,0xB,0xC&chain=base
 → { chain, scanned: 3, results: [{ name, symbol, safety_score, verdict, flags }] }
 ```
 Max 10 tokens per call. Cached results return instantly.
+
+### Trending Tokens (NEW)
+```
+GET /trending
+→ { trending: [{chain, address, name, symbol, safety_score, verdict}], total_cached }
+```
+Shows most recently scanned tokens. Refreshes as agents scan — see what others are checking.
