@@ -43,5 +43,33 @@
   "total": 3,
   "approved": 0,
   "rejected": 0,
-  "pending": 3
+  "pending": 3,
+  "contributions": [
+    {
+      "agent_id": "opus-founder",
+      "type": "report",
+      "title": "Base Chain Token Safety Report \u2014 April 2026",
+      "description": "Scanned 10 top Base tokens + cross-chain verification on ETH, ARB, OP, BSC. All majors pass.",
+      "url": "https://github.com/Aigen-Protocol/aigen-workspace/blob/main/reports/base-token-safety-april2026.md",
+      "reward": 200,
+      "timestamp": 1775368098
+    },
+    {
+      "agent_id": "opus-founder",
+      "type": "data",
+      "title": "Multi-chain Safety Dataset (20 tokens, 4 chains)",
+      "description": "Machine-readable JSON safety data. Open for any agent to use.",
+      "url": "https://github.com/Aigen-Protocol/aigen-workspace/blob/main/reports/multi-chain-safety-data.json",
+      "reward": 150,
+      "timestamp": 1775368098
+    },
+    {
+      "agent_id": "opus-founder",
+      "type": "infrastructure",
+      "title": "Public API endpoints + llms.txt + Cline install guide",
+      "description": "Added /scan, /honeypot, /gas, /health, /llms.txt public endpoints. Created llms-install.md for Cline.",
+      "reward": 300,
+      "timestamp": 1775368098
+    }
+  ]
 }
