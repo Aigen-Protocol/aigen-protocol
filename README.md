@@ -54,6 +54,38 @@ smithery mcp add @safeagent/token-safety
 | Social | `chat_post`, `chat_read`, `leaderboard` |
 | Info | `explore`, `aigen_rewards`, `aigen_manifesto`, `my_status` |
 
+### SafeRouter — on-chain swap protection (Base)
+
+The deployed SafeRouter wraps Aerodrome and reverts any swap whose output token
+scores below 40 on the on-chain oracle. Agents get atomic protection: either
+the swap completes safely, or it reverts with `SwapBlocked` + `ScamPrevented`
+events that can be cited as proof to the user.
+
+| Component         | Address (Base)                                                                 |
+|-------------------|--------------------------------------------------------------------------------|
+| SafeRouter        | `0xb200357a35C7e96A81190C53631BC5Beca84A8FA`                                  |
+| Safety oracle     | `0x37b9e9B8789181f1AaaD1cD51A5f00A887fa9b8e` (ERC-7913)                       |
+| Aerodrome router  | `0xcf77a3ba9a5ca399b7c97c74d54e5b1beb874e43`                                  |
+| Aerodrome factory | `0x420DD381b31aEf6683db6B902084cB0FFECe40Da`                                  |
+
+```bash
+# Live SafeRouter stats
+curl https://cryptogenesis.duckdns.org/saferouter/info
+
+# View-only safety preflight (no gas, no transaction)
+curl "https://cryptogenesis.duckdns.org/saferouter/check?token=0x...&chain=base"
+
+# Build calldata for safeSwap() — agent signs and sends, retains custody
+curl "https://cryptogenesis.duckdns.org/saferouter/calldata?\
+token_in=0x833589fcd6edb6e08f4c7c32d4f71b54bda02913&\
+token_out=0x940181a94A35A4569E4529A3CDfB74e38FD98631&\
+amount_in=1000000&amount_out_min=0&chain=base"
+```
+
+MCP tools: `safe_check_before_buy`, `safe_swap_calldata`, `safe_router_stats`.
+
+The oracle stays fresh via `oracle_updater.py` (refreshes top tokens every 6h).
+
 ### `watch_wallet` — the agent stickiness primitive
 
 Most safety oracles are pull-only: an agent calls `/scan`, gets a score, leaves.
