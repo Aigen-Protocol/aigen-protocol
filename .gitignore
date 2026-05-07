@@ -1,1 +1,7 @@
 *.bak-*
+.watch_secret
+watch_poller.log
+watches.json
+alerts.jsonl
+__pycache__/
+*.pyc
