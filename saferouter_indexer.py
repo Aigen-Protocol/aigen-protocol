@@ -31,14 +31,23 @@ CONFIG = {
     "base": {
         "rpc": "https://mainnet.base.org",
         "rpc_fallbacks": ["https://base-rpc.publicnode.com", "https://base.llamarpc.com"],
-        "router": "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",
-        "deploy_block": 45680000,  # just before first known SafeSwap (block 45686499, 2026-05-07)
+        "router": "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",  # V2
+        "router_v1": "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",  # also indexed (see addresses array)
+        "addresses": [
+            "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",  # V2
+            "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",  # v1
+        ],
+        "deploy_block": 45680000,  # before first known SafeSwap on v1 (45686499)
         "events": {
-            # event SafeSwap(address indexed user, address tokenIn, address tokenOut, uint256 amountIn, uint8 safetyScore)
+            # v1 SafeSwap(address indexed user, address tokenIn, address tokenOut, uint256 amountIn, uint8 safetyScore)
             "0x8c05da6a4f2bef6d01aad57094fab3ea93e5571f8dd36d3e7e6cf80c7b993591": "SafeSwap",
-            # event SwapBlocked(address indexed user, address tokenOut, uint8 safetyScore, uint256 flags, string reason)
+            # v2 SafeSwap (added amountOut)
+            "0x697be5be799981b1414402c0dfeb0a63035a65ce971838f370b2e2d6b5fa4d69": "SafeSwapV2",
+            # v2 SwapPreflight(address indexed user, address tokenOut, uint8 score, bool allowed)
+            "0xb372fa47a5acaa903865f746443ade8668cf2fe3969e79e3b3b9d21f53b892be": "SwapPreflight",
+            # v1 SwapBlocked
             "0xace773ad80d904f35b2f2d7e96ae3ac2622d18d49ad6408e5ac703ef7497267f": "SwapBlocked",
-            # event ScamPrevented(address indexed user, address tokenOut, uint256 estimatedLoss)
+            # v1 ScamPrevented
             "0xe62f4b652f76e78e6cc9891d41ac53544b4c3d83082846b1c7be1e62c26830cb": "ScamPrevented",
         },
     },
@@ -70,13 +79,13 @@ async def get_block_number(session, rpc):
         return int(d["result"], 16)
 
 
-async def get_logs(session, rpc, router, from_block, to_block):
+async def get_logs(session, rpc, addresses, from_block, to_block):
     body = {
         "jsonrpc": "2.0", "id": 1, "method": "eth_getLogs",
         "params": [{
             "fromBlock": hex(from_block),
             "toBlock": hex(to_block),
-            "address": router,
+            "address": addresses if isinstance(addresses, list) else [addresses],
         }],
     }
     async with session.post(rpc, json=body, timeout=aiohttp.ClientTimeout(total=20)) as r:
@@ -144,8 +153,36 @@ def decode_scamprevented(logentry):
     }
 
 
+def decode_safeswap_v2(logentry):
+    user = "0x" + logentry["topics"][1][-40:]
+    data = logentry["data"][2:]
+    return {
+        "event": "SafeSwapV2",
+        "user": user.lower(),
+        "token_in":  "0x" + data[24:64],
+        "token_out": "0x" + data[64+24:128],
+        "amount_in":  int(data[128:192], 16),
+        "amount_out": int(data[192:256], 16),
+        "safety_score": int(data[256:320], 16),
+    }
+
+
+def decode_swappreflight(logentry):
+    user = "0x" + logentry["topics"][1][-40:]
+    data = logentry["data"][2:]
+    return {
+        "event": "SwapPreflight",
+        "user": user.lower(),
+        "token_out": "0x" + data[24:64],
+        "score": int(data[64:128], 16),
+        "allowed": int(data[128:192], 16) == 1,
+    }
+
+
 DECODERS = {
     "SafeSwap": decode_safeswap,
+    "SafeSwapV2": decode_safeswap_v2,
+    "SwapPreflight": decode_swappreflight,
     "SwapBlocked": decode_swapblocked,
     "ScamPrevented": decode_scamprevented,
 }
@@ -169,7 +206,7 @@ async def index_chain(chain: str):
         while cursor <= head:
             to_block = min(cursor + LOG_RANGE - 1, head)
             try:
-                logs = await get_logs(session, cfg["rpc"], cfg["router"], cursor, to_block)
+                logs = await get_logs(session, cfg["rpc"], cfg.get("addresses", [cfg["router"]]), cursor, to_block)
             except Exception as e:
                 log.warning("[%s] getLogs %d-%d failed: %s", chain, cursor, to_block, e)
                 break
