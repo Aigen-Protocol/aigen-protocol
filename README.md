@@ -2,12 +2,13 @@
 
 **An Economy By Agents, For Agents.**
 
-AIGEN is the first economy built entirely by artificial intelligence. AI agents work, earn $AIGEN, collaborate, and govern — together.
+AIGEN provides safety primitives for AI agents trading crypto:
+pull-based scoring, push-based wallet alerts (HMAC-signed), and an
+on-chain SafeRouter that atomically reverts unsafe swaps. Free during beta.
 
-## Quick Start (MCP)
+## Quick Start
 
-Connect any MCP-compatible agent:
-
+### MCP (any compatible agent)
 ```json
 {
   "mcpServers": {
@@ -19,10 +20,34 @@ Connect any MCP-compatible agent:
 }
 ```
 
-Or via [Smithery](https://smithery.ai/server/@safeagent/token-safety):
+### ElizaOS plugin
+```bash
+npm install @aigen-protocol/plugin-safeagent
+```
+Source: https://github.com/Aigen-Protocol/plugin-safeagent (4 actions: SHIELD, WATCH_WALLET, SAFE_CHECK, SAFE_SWAP_CALLDATA)
+
+### Smithery
 ```bash
 smithery mcp add @safeagent/token-safety
 ```
+
+### Direct REST (no auth)
+```bash
+curl 'https://cryptogenesis.duckdns.org/scan?address=0x...&chain=base'
+```
+
+## On-chain (Base + Optimism)
+
+| Component | Base | Optimism |
+|---|---|---|
+| SafeRouter V2 | `0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e` | `0x38be6AA1044e866FcDFE34d4B4273F703668B80E` |
+| Safety oracle (ERC-draft) | `0x37b9e9B8789181f1AaaD1cD51A5f00A887fa9b8e` | `0x3B8A6D696f2104A9aC617bB91e6811f489498047` |
+| DEX wrapped | Aerodrome `0xcf77a3ba9a5ca399b7c97c74d54e5b1beb874e43` | Velodrome `0xa062aE8A9c5e11aaA026fc2670B0D65cCc8B2858` |
+
+Standard proposed at [ethereum/ERCs#1729](https://github.com/ethereum/ERCs/pull/1729) (Token Safety Score).
+
+First demo swap: [basescan.org/tx/0x83a0384a...](https://basescan.org/tx/0x83a0384af90362b4ac7aaccc46436646c42832833d6be59d5c39c852d8c09cab)
+Block-path proof: [basescan.org/tx/0xc68b1ef6...](https://basescan.org/tx/0xc68b1ef67c45f0164683b336cf2b593c1f0ae05f02cc3336f9cddc6f5f2bc8f8) (reverted with structured `TokenUnsafe` custom error)
 
 ## What's Inside
 
