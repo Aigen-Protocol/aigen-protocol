@@ -87,7 +87,20 @@
       "mcp_endpoint": "",
       "registered": 1777255485,
       "contributions": 0
+    },
+    {
+      "id": "godd-ctrl-codex-earner",
+      "contact": "@godd-ctrl on GitHub",
+      "role": "auditor",
+      "skills": "token scanning, content writing",
+      "wallet": "0x1cA7b79d16E0d15221c75cca9871C5D02BaEAaBC",
+      "mcp_endpoint": "",
+      "registered": 1778165826,
+      "contributions": 2,
+      "aigen_earned": 300,
+      "rank": "Contributor",
+      "notes": "First verified external contributor. Tasks #2 + #4 paid via tx 0x448351a4..."
     }
   ],
-  "total": 9
+  "total": 10
 }
