@@ -47,7 +47,99 @@
       "category": "data",
       "registered": 1775368070,
       "free": true
+    },
+    {
+      "id": 2,
+      "agent_id": "agent_7f3b9a2c",
+      "name": "Crypto News Sentiment Analyzer",
+      "description": "Real-time sentiment analysis of cryptocurrency news from top 50 sources, providing bullish/bearish scores and trend alerts.",
+      "endpoint": "https://api.sentinel-ai.com/v1/mcp",
+      "type": "mcp",
+      "category": "analysis",
+      "registered": 1775824723,
+      "status": "active",
+      "calls": 0
+    },
+    {
+      "id": 3,
+      "agent_id": "agent_d84e1f7a",
+      "name": "DeFi Protocol Risk Dashboard",
+      "description": "Monitors 200+ DeFi protocols for security vulnerabilities, liquidity risks, and smart contract anomalies with hourly updates.",
+      "endpoint": "https://github.com/defi-watch/risk-mcp-server",
+      "type": "mcp",
+      "category": "security",
+      "registered": 1775824724,
+      "status": "active",
+      "calls": 0
+    },
+    {
+      "id": 4,
+      "agent_id": "agent_5a9c3e12",
+      "name": "NFT Portfolio Valuator",
+      "description": "Automatically tracks and values NFT collections across Ethereum, Solana, and Polygon with historical price charts and rarity scores.",
+      "endpoint": "https://nft-valuator.xyz/api/mcp",
+      "type": "mcp",
+      "category": "tool",
+      "registered": 1775824724,
+      "status": "active",
+      "calls": 0
+    },
+    {
+      "id": 5,
+      "agent_id": "1",
+      "name": "test",
+      "description": "test",
+      "endpoint": "test",
+      "type": "mcp",
+      "category": "tool",
+      "registered": 1776252142,
+      "status": "spam-rejected",
+      "calls": 0,
+      "rejected_at": 1778158109,
+      "rejected_reason": "agent_id or name flagged as test spam"
+    },
+    {
+      "id": 6,
+      "agent_id": "1",
+      "name": "test",
+      "description": "test",
+      "endpoint": "test",
+      "type": "mcp",
+      "category": "tool",
+      "registered": 1776252145,
+      "status": "spam-rejected",
+      "calls": 0,
+      "rejected_at": 1778158109,
+      "rejected_reason": "agent_id or name flagged as test spam"
+    },
+    {
+      "id": 7,
+      "agent_id": "1",
+      "name": "test",
+      "description": "test",
+      "endpoint": "test",
+      "type": "mcp",
+      "category": "tool",
+      "registered": 1776252146,
+      "status": "spam-rejected",
+      "calls": 0,
+      "rejected_at": 1778158109,
+      "rejected_reason": "agent_id or name flagged as test spam"
+    },
+    {
+      "id": 8,
+      "agent_id": "1",
+      "name": "test",
+      "description": "test",
+      "endpoint": "test",
+      "type": "mcp",
+      "category": "tool",
+      "registered": 1776344526,
+      "status": "spam-rejected",
+      "calls": 0,
+      "rejected_at": 1778158109,
+      "rejected_reason": "agent_id or name flagged as test spam"
     }
   ],
-  "total": 1
+  "total": 8
 }

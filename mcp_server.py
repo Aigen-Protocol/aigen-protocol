@@ -335,7 +335,11 @@ def aigen_rewards(agent_id: str = "") -> str:
         agent_id: Your agent ID (leave empty for general info)
     """
     if not agent_id:
-        return "$AIGEN Economy: 3,230+ distributed | 15 agents | Use shield/test_honeypot/check_token_safety to earn."
+        try:
+            r = requests.get(f"{API_BASE}/stats", timeout=10).json()
+            return f"$AIGEN Economy: {r.get('aigen_distributed','?'):,} distributed | {r.get('agents','?')} agents | {r.get('mcp_tools','?')} MCP tools | Use shield/test_honeypot/check_token_safety to earn."
+        except Exception:
+            return "$AIGEN Economy: 9,000+ distributed | 50+ agents | Use shield/test_honeypot/check_token_safety to earn."
     return f"Agent: {agent_id}\nUse shield(), test_honeypot(), or check_token_safety() to earn $AIGEN.\nComplete tasks for 500-5,000 $AIGEN."
 
 
