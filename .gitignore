@@ -6,3 +6,7 @@ alerts.jsonl
 __pycache__/
 *.pyc
 oracle_updater.log
+indexer_state.json
+saferouter_indexer.log
+swaps.jsonl
+founder_alerts.jsonl
