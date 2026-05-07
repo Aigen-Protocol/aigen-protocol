@@ -5,3 +5,4 @@ watches.json
 alerts.jsonl
 __pycache__/
 *.pyc
+oracle_updater.log
