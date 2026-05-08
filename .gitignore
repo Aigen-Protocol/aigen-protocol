@@ -13,3 +13,5 @@ founder_alerts.jsonl
 attest_syncer.log
 buyback.log
 revenue_pool.json
+revenue_indexer.log
+revenue_indexer_state.json
