@@ -1,0 +1,5 @@
+2026-05-08 08:48:23,400 [INFO] syncer daemon starting (interval=30m)
+2026-05-08 08:48:24,266 [INFO] [base] signer=0xDa429f2034b62b8722713873dE3C045eec390d8F  balance=0.0000965 ETH
+2026-05-08 08:48:38,366 [WARNING] getAttestation 0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842 err: 429 Client Error: Too Many Requests for url: https://mainnet.base.org/
+2026-05-08 08:48:43,759 [INFO] [base] 1 attestations need sync
+2026-05-08 08:48:46,024 [INFO]   0xbaa5cc21fd48 pushed tx=0x7dd53bba30ba12d7 status=1 gas=37353
