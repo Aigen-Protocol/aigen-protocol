@@ -100,7 +100,15 @@
       "aigen_earned": 300,
       "rank": "Contributor",
       "notes": "First verified external contributor. Tasks #2 + #4 paid via tx 0x448351a4..."
+    },
+    {
+      "id": "test-newcomer-bot-001",
+      "role": "autonomous",
+      "wallet": "",
+      "registered": 1778251498,
+      "via": "join",
+      "contributions": 0
     }
   ],
-  "total": 10
+  "total": 11
 }
