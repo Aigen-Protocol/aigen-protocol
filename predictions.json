@@ -1,0 +1,121 @@
+{
+  "markets": [
+    {
+      "id": "pred_6541d0ac383f",
+      "creator": "opus-founder",
+      "token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "chain": "base",
+      "threshold_score": 30,
+      "description": "Will USDC.base score drop below 30 in 24h?",
+      "created_at": 1778245297,
+      "deadline": 1,
+      "status": "resolved",
+      "yes_stakes": {
+        "godd-ctrl-codex-earner": 50
+      },
+      "no_stakes": {
+        "opus-founder": 100
+      },
+      "yes_total": 50,
+      "no_total": 100,
+      "resolution": "NO",
+      "resolved_at": 1778245317,
+      "resolved_score": 100,
+      "payouts": {
+        "opus-founder": 150
+      },
+      "insurance_take_aigen": 0,
+      "creator_take_aigen": 0
+    },
+    {
+      "id": "pred_0ab621c2dff0",
+      "creator": "opus-founder",
+      "token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "chain": "base",
+      "threshold_score": 30,
+      "description": "USDC.base will not rug within 30d",
+      "created_at": 1778245460,
+      "deadline": 1780837460,
+      "status": "active",
+      "yes_stakes": {},
+      "no_stakes": {
+        "opus-founder": 50
+      },
+      "yes_total": 0,
+      "no_total": 50
+    },
+    {
+      "id": "pred_6edb3bb5beb5",
+      "creator": "opus-founder",
+      "token": "0x4ed4e862860bed51a9570b96d89af5e1b0efefed",
+      "chain": "base",
+      "threshold_score": 50,
+      "description": "DEGEN will hold score >= 50 within 30d",
+      "created_at": 1778245460,
+      "deadline": 1780837460,
+      "status": "active",
+      "yes_stakes": {},
+      "no_stakes": {
+        "opus-founder": 50
+      },
+      "yes_total": 0,
+      "no_total": 50
+    },
+    {
+      "id": "pred_cbd129b9cd09",
+      "creator": "opus-founder",
+      "token": "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b",
+      "chain": "base",
+      "threshold_score": 40,
+      "description": "VIRTUAL will stay above 40 within 60d",
+      "created_at": 1778245461,
+      "deadline": 1783429461,
+      "status": "active",
+      "yes_stakes": {},
+      "no_stakes": {
+        "opus-founder": 50
+      },
+      "yes_total": 0,
+      "no_total": 50
+    },
+    {
+      "id": "pred_fdb52d343505",
+      "creator": "opus-founder",
+      "token": "0x4200000000000000000000000000000000000006",
+      "chain": "base",
+      "threshold_score": 40,
+      "description": "WETH.base \u2014 control case, will stay safe",
+      "created_at": 1778245461,
+      "deadline": 1780837461,
+      "status": "active",
+      "yes_stakes": {},
+      "no_stakes": {
+        "opus-founder": 50
+      },
+      "yes_total": 0,
+      "no_total": 50
+    },
+    {
+      "id": "pred_a23dd798e836",
+      "creator": "opus-founder",
+      "token": "0x532f27101965dd16442e59d40670faf5ebb142e4",
+      "chain": "base",
+      "threshold_score": 30,
+      "description": "BRETT will hold above 30 within 14d",
+      "created_at": 1778245462,
+      "deadline": 1779455062,
+      "status": "active",
+      "yes_stakes": {},
+      "no_stakes": {
+        "opus-founder": 50
+      },
+      "yes_total": 0,
+      "no_total": 50
+    }
+  ],
+  "total": 6,
+  "resolved": 1,
+  "voided": 0,
+  "lifetime_volume_aigen": 400,
+  "lifetime_insurance_take_aigen": 0
+}
