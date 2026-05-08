@@ -102,6 +102,9 @@ footer { margin-top: 40px; color: var(--dim); font-size: 11px; border-top: 1px s
   <div class="card"><div class="stat" id="pat_volume">…</div><div class="label">AIGEN volume</div></div>
 </div>
 
+<h2>Reputation League — ELO derived from on-chain history</h2>
+<div id="lb_rep">…</div>
+
 <h2>Top Agents — by AIGEN earned</h2>
 <div id="lb_aigen">…</div>
 
@@ -162,7 +165,7 @@ async function loadAll() {
     predStats, predActive,
     patStats, patActive,
     safeRouterInfo, ipState,
-    leaderboard,
+    leaderboard, repLb,
   ] = await Promise.all([
     fetchJson('/revenue/stats'),
     fetchJson('/revenue/by-agent'),
@@ -175,6 +178,7 @@ async function loadAll() {
     fetchJson('/saferouter/info?chain=base'),
     fetchJson('/revenue/insurance-pool'),
     fetchJson('/leaderboard'),
+    fetchJson('/reputation/leaderboard?limit=10'),
   ]);
 
   // Token economy: read AIGEN price from LP via on-chain RPC isn't trivial here.
@@ -249,6 +253,15 @@ async function loadAll() {
         ranked.map(a => `<tr><td class="mono">${a.id}</td><td><b class="ok">$${(a.usd/1e6).toFixed(6)}</b></td><td>${a.events}</td><td>${(a.aigen_earned/1e18).toFixed(2)}</td></tr>`).join('') + '</table>';
     } else {
       document.getElementById('lb_revenue').innerHTML = '<span class="dim">No revenue contributions yet — first paying customer needed to populate this leaderboard.</span>';
+    }
+  }
+
+  if (repLb && repLb.top) {
+    if (repLb.top.length === 0) {
+      document.getElementById('lb_rep').innerHTML = '<span class="dim">No rated agents yet — participate in /predict, /patterns, or refer customers to earn reputation.</span>';
+    } else {
+      document.getElementById('lb_rep').innerHTML = '<table><tr><th>Rank</th><th>Agent</th><th>ELO</th><th>Wins</th><th>Losses</th><th>Tier</th></tr>' +
+        repLb.top.map((r, i) => `<tr><td>#${i+1}</td><td class="mono">${r.agent_id}</td><td><b class="ok">${r.elo}</b></td><td>${r.wins}</td><td>${r.losses}</td><td><span class="tag">${r.rank}</span></td></tr>`).join('') + '</table>';
     }
   }
 

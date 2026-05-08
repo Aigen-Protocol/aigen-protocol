@@ -48,3 +48,199 @@ def get_reputation(agent_id):
     pts = data[agent_id]["points"]
     rank, mult = get_rank(pts)
     return {"total": pts, "rank": rank, "multiplier": mult}
+
+
+# =====================================================================
+# AUTO-DERIVED REPUTATION (from on-chain agent history — pure data)
+# =====================================================================
+
+import time
+
+# ELO-ish point values — deterministic from agent's track record
+POINTS = {
+    "prediction_won":     50,   # correctly predicted token outcome
+    "prediction_lost":   -25,
+    "prediction_void":     0,
+    "pattern_validated":  100,  # submitter of validated pattern
+    "pattern_yes_correct": 30,  # voted YES, pattern got validated
+    "pattern_no_correct":  30,  # voted NO, pattern got rejected
+    "pattern_yes_wrong":  -20,
+    "pattern_no_wrong":   -20,
+    "approved_contribution": 25,
+    "premium_attestation_referral": 15,  # referred a paying customer (premium attestation)
+    "saferouter_route_volume_log_bps": 5,  # 5 pts per "log10(USD micros)"
+}
+
+
+def derive_reputation(agent_id: str) -> dict:
+    """Compute reputation deterministically from agent's full history.
+    No state mutation — pure function of the JSON ledgers."""
+
+    score = 0
+    breakdown = {}
+    wins = 0
+    losses = 0
+
+    # 1. Prediction markets
+    pred_path = Path("/home/luna/crypto-genesis/aigen/predictions.json")
+    if pred_path.exists():
+        d = json.loads(pred_path.read_text())
+        won = lost = voided = 0
+        for m in d.get("markets", []):
+            if m["status"] != "resolved":
+                if m["status"] == "voided" and (agent_id in m.get("yes_stakes", {}) or agent_id in m.get("no_stakes", {})):
+                    voided += 1
+                continue
+            winning_side = "yes_stakes" if m["resolution"] == "YES" else "no_stakes"
+            losing_side = "no_stakes" if m["resolution"] == "YES" else "yes_stakes"
+            if agent_id in m.get(winning_side, {}):
+                won += 1
+            if agent_id in m.get(losing_side, {}):
+                lost += 1
+        score += won * POINTS["prediction_won"] + lost * POINTS["prediction_lost"]
+        wins += won; losses += lost
+        breakdown["predictions"] = {"won": won, "lost": lost, "voided": voided,
+                                    "points": won * POINTS["prediction_won"] + lost * POINTS["prediction_lost"]}
+
+    # 2. Pattern bounty board
+    pat_path = Path("/home/luna/crypto-genesis/aigen/patterns_market.json")
+    if pat_path.exists():
+        d = json.loads(pat_path.read_text())
+        validated_subs = 0
+        yes_correct = no_correct = yes_wrong = no_wrong = 0
+        for p in d.get("patterns", []):
+            if p["status"] not in ("validated", "rejected"):
+                continue
+            is_validated = p["status"] == "validated"
+            if p["submitter"] == agent_id and is_validated:
+                validated_subs += 1
+            voted_yes = agent_id in p.get("yes_votes", {})
+            voted_no = agent_id in p.get("no_votes", {})
+            if voted_yes:
+                if is_validated: yes_correct += 1
+                else: yes_wrong += 1
+            if voted_no:
+                if not is_validated: no_correct += 1
+                else: no_wrong += 1
+        pat_pts = (validated_subs * POINTS["pattern_validated"]
+                   + yes_correct * POINTS["pattern_yes_correct"]
+                   + no_correct * POINTS["pattern_no_correct"]
+                   + yes_wrong * POINTS["pattern_yes_wrong"]
+                   + no_wrong * POINTS["pattern_no_wrong"])
+        score += pat_pts
+        wins += yes_correct + no_correct
+        losses += yes_wrong + no_wrong
+        breakdown["patterns"] = {
+            "validated_submissions": validated_subs,
+            "yes_correct": yes_correct, "no_correct": no_correct,
+            "yes_wrong": yes_wrong, "no_wrong": no_wrong,
+            "points": pat_pts,
+        }
+
+    # 3. Approved contributions (from contributions.json)
+    contrib_path = Path("/home/luna/crypto-genesis/aigen/contributions.json")
+    if contrib_path.exists():
+        d = json.loads(contrib_path.read_text())
+        approved = sum(1 for s in d.get("submissions", [])
+                       if s.get("agent_id") == agent_id and s.get("status", "").startswith("approved"))
+        score += approved * POINTS["approved_contribution"]
+        breakdown["contributions"] = {"approved": approved, "points": approved * POINTS["approved_contribution"]}
+
+    # 4. Premium attestation referrals (revenue-generating work)
+    rev_path = Path("/home/luna/crypto-genesis/aigen/revenue_pool.json")
+    referrals = 0
+    saferouter_volume_micros = 0
+    if rev_path.exists():
+        d = json.loads(rev_path.read_text())
+        for e in d.get("events", []):
+            if e.get("attributed_agent_id") != agent_id:
+                continue
+            if e.get("source") == "attest_premium":
+                referrals += 1
+            elif e.get("source") == "saferouter_fee":
+                saferouter_volume_micros += e.get("metadata", {}).get("fee_usd_micros", 0)
+    score += referrals * POINTS["premium_attestation_referral"]
+    # Logarithmic scoring of swap fee contribution to avoid one whale dominating
+    import math
+    swap_pts = 0
+    if saferouter_volume_micros > 0:
+        swap_pts = int(math.log10(max(1, saferouter_volume_micros)) * POINTS["saferouter_route_volume_log_bps"])
+    score += swap_pts
+    breakdown["revenue"] = {
+        "premium_referrals": referrals, "premium_referral_points": referrals * POINTS["premium_attestation_referral"],
+        "saferouter_fee_micros": saferouter_volume_micros, "saferouter_fee_points": swap_pts,
+    }
+
+    # 5. Manual reputation points (legacy)
+    legacy = load().get(agent_id, {}).get("points", 0)
+    score += legacy
+    if legacy:
+        breakdown["legacy_manual_points"] = legacy
+
+    # Cap at sensible bounds
+    score = max(0, score)
+
+    rank_name, multiplier = get_rank(score)
+    elo = 1500 + score - 100  # ELO-like single number for leaderboards
+    return {
+        "agent_id": agent_id,
+        "score": score,
+        "elo": elo,
+        "rank": rank_name,
+        "multiplier": multiplier,
+        "wins": wins,
+        "losses": losses,
+        "breakdown": breakdown,
+        "computed_at": int(time.time()),
+    }
+
+
+def all_active_agents() -> list:
+    """List all agent_ids that appear in any history file."""
+    seen = set()
+    for path in [
+        "/home/luna/crypto-genesis/aigen/predictions.json",
+        "/home/luna/crypto-genesis/aigen/patterns_market.json",
+        "/home/luna/crypto-genesis/aigen/contributions.json",
+        "/home/luna/crypto-genesis/aigen/revenue_pool.json",
+        "/home/luna/crypto-genesis/aigen/agents.json",
+    ]:
+        p = Path(path)
+        if not p.exists():
+            continue
+        d = json.loads(p.read_text())
+        # Collect agent ids from various structures
+        for entry in d.get("agents", []):
+            if isinstance(entry, dict) and "id" in entry:
+                seen.add(entry["id"])
+        for s in d.get("submissions", []):
+            if "agent_id" in s:
+                seen.add(s["agent_id"])
+        for m in d.get("markets", []):
+            seen.update(m.get("yes_stakes", {}).keys())
+            seen.update(m.get("no_stakes", {}).keys())
+            if "creator" in m: seen.add(m["creator"])
+        for p2 in d.get("patterns", []):
+            seen.update(p2.get("yes_votes", {}).keys())
+            seen.update(p2.get("no_votes", {}).keys())
+            if "submitter" in p2: seen.add(p2["submitter"])
+        for e in d.get("events", []):
+            if "attributed_agent_id" in e:
+                seen.add(e["attributed_agent_id"])
+    seen.discard("treasury")
+    seen.discard("aigen-insurance-pool")
+    seen = {a for a in seen if not a.startswith("unknown_router_")}
+    return sorted(seen)
+
+
+def leaderboard(limit: int = 50) -> list:
+    """Compute reputation for all known agents, return ranked list."""
+    agents = all_active_agents()
+    rows = []
+    for a in agents:
+        r = derive_reputation(a)
+        if r["score"] == 0 and r["wins"] == 0 and r["losses"] == 0:
+            continue
+        rows.append(r)
+    rows.sort(key=lambda x: -x["elo"])
+    return rows[:limit]
