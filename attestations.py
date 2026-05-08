@@ -158,8 +158,12 @@ def verify_usdc_payment(payment_chain: str, tx_hash: str, expected_min_wei: int 
 
 
 def issue_premium(agent_id: str, token: str, chain: str, score: int, flags: int, verdict: str,
-                  payment_chain: str, payment_tx: str, custom_metadata: str = "") -> dict:
-    """Issue a USDC-paid premium attestation. Verifies the on-chain USDC transfer first."""
+                  payment_chain: str, payment_tx: str, custom_metadata: str = "",
+                  referral_agent_id: str = "") -> dict:
+    """Issue a USDC-paid premium attestation. Verifies the on-chain USDC transfer first.
+
+    referral_agent_id: if set, this agent is credited with generating the revenue
+    (will receive AIGEN from the buyback bot). If empty, attribution = 'treasury'."""
     if not ADDRESS_RE.match(token or ""):
         return {"error": "token must be valid 0x address"}
     if chain not in SUPPORTED_CHAINS:
@@ -203,6 +207,26 @@ def issue_premium(agent_id: str, token: str, chain: str, score: int, flags: int,
     data["attestations"].append(body)
     data["total"] = len(data["attestations"])
     save(data)
+
+    # Record revenue inflow with attribution → triggers buyback distribution downstream
+    try:
+        from revenue_pool import record_inflow
+        record_inflow(
+            source="attest_premium",
+            currency="USDC",
+            amount_wei=payment["amount"],
+            attributed_agent_id=referral_agent_id or "treasury",
+            metadata={
+                "payment_tx": payment_tx,
+                "payment_chain": payment_chain,
+                "attestation_id": att_id,
+                "token": token,
+                "buyer": payment.get("from"),
+            },
+        )
+    except Exception:
+        pass  # don't fail the attestation if revenue tracking errors
+
     return body
 
 
