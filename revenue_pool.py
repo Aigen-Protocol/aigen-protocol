@@ -97,12 +97,14 @@ def record_inflow(source: str, currency: str, amount_wei: int,
         "aigen_earned_wei": 0,
     })
     a["events_count"] = a.get("events_count", 0) + 1
-    # Convert all to USD micros (6 dec) for aggregation
+    # Aggregate USD value (6 dec micros)
     if currency == "USDC":
         a["usd_value_generated_micros"] += amount_wei
     elif currency in ("ETH", "WETH"):
-        # rough conversion: 1 ETH ≈ $2400 → wei to USD micros
         a["usd_value_generated_micros"] += amount_wei * 2400 // 10**12  # 18-12=6
+    elif metadata and "fee_usd_micros" in metadata:
+        # TOKEN or other — caller did the pricing already
+        a["usd_value_generated_micros"] += int(metadata["fee_usd_micros"])
 
     save(d)
     return event
