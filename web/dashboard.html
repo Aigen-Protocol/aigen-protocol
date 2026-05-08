@@ -94,6 +94,15 @@ footer { margin-top: 40px; color: var(--dim); font-size: 11px; border-top: 1px s
   <div class="card"><div class="stat" id="pred_due">…</div><div class="label">Due for resolution</div></div>
 </div>
 
+<h2>Insurance Claims (DAO-voted Payouts)</h2>
+<div class="grid cards">
+  <div class="card"><div class="stat" id="cl_active">…</div><div class="label">Active voting</div></div>
+  <div class="card"><div class="stat" id="cl_approved">…</div><div class="label">Approved (paid)</div></div>
+  <div class="card"><div class="stat" id="cl_rejected">…</div><div class="label">Rejected</div></div>
+  <div class="card"><div class="stat" id="cl_pending_exec">…</div><div class="label">Pending on-chain execute</div></div>
+</div>
+<div class="dim">File via POST /claims/file (100 AIGEN bond + ELO ≥ 1500). Vote with AIGEN. Quorum: 200 AIGEN total. After 48h, deterministic tally. Operator executes InsurancePool.payClaim on approved claims.</div>
+
 <h2>Pattern Bounty Board (Scanner Improvements by Agents)</h2>
 <div class="grid cards">
   <div class="card"><div class="stat" id="pat_total">…</div><div class="label">Submitted</div></div>
@@ -165,7 +174,7 @@ async function loadAll() {
     predStats, predActive,
     patStats, patActive,
     safeRouterInfo, ipState,
-    leaderboard, repLb,
+    leaderboard, repLb, claimStats,
   ] = await Promise.all([
     fetchJson('/revenue/stats'),
     fetchJson('/revenue/by-agent'),
@@ -179,6 +188,7 @@ async function loadAll() {
     fetchJson('/revenue/insurance-pool'),
     fetchJson('/leaderboard'),
     fetchJson('/reputation/leaderboard?limit=10'),
+    fetchJson('/claims/stats'),
   ]);
 
   // Token economy: read AIGEN price from LP via on-chain RPC isn't trivial here.
@@ -240,6 +250,13 @@ async function loadAll() {
     document.getElementById('pat_active').innerText = patStats.active_voting;
     document.getElementById('pat_validated').innerText = patStats.validated_patterns_in_scanner;
     document.getElementById('pat_volume').innerText = fmt(patStats.lifetime_volume_aigen);
+  }
+
+  if (claimStats) {
+    document.getElementById('cl_active').innerText = claimStats.active_voting;
+    document.getElementById('cl_approved').innerText = claimStats.approved;
+    document.getElementById('cl_rejected').innerText = claimStats.rejected;
+    document.getElementById('cl_pending_exec').innerText = claimStats.pending_execution;
   }
 
   if (byAgent && byAgent.agents) {
