@@ -10,3 +10,4 @@ indexer_state.json
 saferouter_indexer.log
 swaps.jsonl
 founder_alerts.jsonl
+attest_syncer.log
