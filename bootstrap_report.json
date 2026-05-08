@@ -1,0 +1,216 @@
+{
+  "ran_at": 1778229017,
+  "issued": [
+    {
+      "chain": "base",
+      "token": "0x4ed4e862860bed51a9570b96d89af5e1b0efefed",
+      "id": "att_30c438a80fc5",
+      "score": 90,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b",
+      "id": "att_024a1e0e87c6",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x42a4c179ee1912a2949c45433860d4d85e7baefd",
+      "id": "att_de6ef50476c9",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "id": "att_a32fd5f07133",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "base",
+      "token": "0x35822308dbb5143ef528a128043058f495f34f3d",
+      "id": "att_6d42c650b4d3",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x5ab3d4c385b400f3abb49e80de2faf6a88a7b691",
+      "id": "att_d55774e1b835",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x853a7c99227499dba9db8c3a02aa691afdebf841",
+      "id": "att_893c74dc6645",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842",
+      "id": "att_a17b9cc6e26f",
+      "score": 90,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x16ee7ecac70d1028e7712751e2ee6ba808a7dd92",
+      "id": "att_723f51019c23",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "base",
+      "token": "0x4200000000000000000000000000000000000006",
+      "id": "att_db72c28428ba",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0xc77867d630dbe567d219a86fddbe7ef1f0670fdc",
+      "id": "att_b7e9cdbce6b2",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x45547ab0100f5e8b158258b6d94d7586de69fc21",
+      "id": "att_6898bb51ef8e",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x999b49c0d1612e619a4a4f6280733184da025108",
+      "id": "att_b76f52e68098",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "id": "att_259f92d4fadf",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x4d7078ddd6ccfed2f85db5b7d3ff16828d378d48",
+      "id": "att_a8dbc8dd57f8",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+      "id": "att_9d4e0fa48a20",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+      "id": "att_665bb6319a42",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+      "id": "att_2405b45bc0bb",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0xc0fec5716b6481d0a4002c9784c6b4eb28098877",
+      "id": "att_ea2b4e59c7e8",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "ethereum",
+      "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "id": "att_f127167b61d2",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "optimism",
+      "token": "0xc52d7f23a2e460248db6ee192cb23dd12bddcbf6",
+      "id": "att_8ce55b22e1e9",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x9560e827af36c94d2ac33a39bce1fe78631088db",
+      "id": "att_993efa85d6cf",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x4200000000000000000000000000000000000042",
+      "id": "att_d008b873357f",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x0000000000000000000000000000000000000000",
+      "id": "att_ff053096da6a",
+      "score": 0,
+      "verdict": "NOT A TOKEN"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x3e29d3a9316dab217754d13b28646b76607c5f04",
+      "id": "att_4abaf2eb4173",
+      "score": 90,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x676f784d19c7f1ac6c6beaeaac78b02a73427852",
+      "id": "att_f85ba847e982",
+      "score": 100,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x4200000000000000000000000000000000000006",
+      "id": "att_d56eaf5a066d",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+      "id": "att_dddcc6e94008",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    },
+    {
+      "chain": "optimism",
+      "token": "0x1f514a61bcde34f94bc39731235690ab9da737f7",
+      "id": "att_2cad05b9543a",
+      "score": 90,
+      "verdict": "LIKELY SAFE"
+    },
+    {
+      "chain": "optimism",
+      "token": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+      "id": "att_313a68db4a86",
+      "score": 100,
+      "verdict": "SYSTEM TOKEN"
+    }
+  ],
+  "failed": []
+}
