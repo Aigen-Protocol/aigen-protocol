@@ -22,7 +22,7 @@ on-chain SafeRouter that atomically reverts unsafe swaps. Free during beta.
 
 ### ElizaOS plugin
 ```bash
-npm install @aigen-protocol/plugin-safeagent
+npm install safeagent-elizaos-plugin
 ```
 Source: https://github.com/Aigen-Protocol/plugin-safeagent (4 actions: SHIELD, WATCH_WALLET, SAFE_CHECK, SAFE_SWAP_CALLDATA)
 
