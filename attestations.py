@@ -78,6 +78,134 @@ def _approved_contributions(agent_id: str) -> int:
                if s.get("agent_id") == agent_id and s.get("status", "").startswith("approved"))
 
 
+# ===== USDC PAID PREMIUM TIER (real-money revenue path) =====
+
+USDC_PRICE_PER_ATTESTATION = 25_000_000  # $25 USDC (6 decimals)
+USDC_PREMIUM_VALIDITY = 365 * 86400      # 1 year
+TREASURY_WALLET = "0xDa429f2034b62b8722713873dE3C045eec390d8F"
+
+USDC_CONTRACTS = {
+    "base":     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "optimism": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+}
+
+RPC_URLS = {
+    "base":     "https://mainnet.base.org",
+    "optimism": "https://mainnet.optimism.io",
+}
+
+PROCESSED_PAYMENTS_FILE = Path("/home/luna/crypto-genesis/aigen/processed_payments.json")
+
+
+def _load_processed():
+    if PROCESSED_PAYMENTS_FILE.exists():
+        return set(json.loads(PROCESSED_PAYMENTS_FILE.read_text()))
+    return set()
+
+
+def _save_processed(s):
+    PROCESSED_PAYMENTS_FILE.write_text(json.dumps(sorted(s)))
+
+
+def verify_usdc_payment(payment_chain: str, tx_hash: str, expected_min_wei: int = USDC_PRICE_PER_ATTESTATION) -> dict:
+    """Verify an on-chain USDC.transfer to the treasury wallet.
+
+    Returns: { valid, amount, from, error? }
+    """
+    import urllib.request as _ureq
+    if payment_chain not in RPC_URLS:
+        return {"valid": False, "error": f"unsupported chain: {payment_chain}"}
+    if not tx_hash.startswith("0x") or len(tx_hash) != 66:
+        return {"valid": False, "error": "invalid tx hash"}
+    if tx_hash.lower() in _load_processed():
+        return {"valid": False, "error": "tx already processed (no double-spend)"}
+
+    rpc = RPC_URLS[payment_chain]
+    usdc_contract = USDC_CONTRACTS[payment_chain].lower()
+    body = json.dumps({"jsonrpc":"2.0","id":1,"method":"eth_getTransactionReceipt","params":[tx_hash]}).encode()
+    req = _ureq.Request(rpc, data=body, headers={
+        "Content-Type": "application/json",
+        "User-Agent": "curl/8.5.0",  # mainnet.base.org blocks default urllib UA
+    })
+    try:
+        rsp = json.loads(_ureq.urlopen(req, timeout=10).read())
+    except Exception as e:
+        return {"valid": False, "error": f"rpc error: {e}"}
+    receipt = rsp.get("result")
+    if not receipt:
+        return {"valid": False, "error": "tx not found / not yet mined"}
+    if receipt.get("status") != "0x1":
+        return {"valid": False, "error": "tx reverted"}
+
+    # Look for ERC20 Transfer log: topic[0] = 0xddf25... topic[2] = treasury
+    transfer_sig = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    treasury_topic = "0x" + "0"*24 + TREASURY_WALLET[2:].lower()
+    total = 0
+    sender = None
+    for log in receipt.get("logs", []):
+        if log.get("address","").lower() != usdc_contract:
+            continue
+        topics = log.get("topics", [])
+        if len(topics) < 3 or topics[0].lower() != transfer_sig:
+            continue
+        if topics[2].lower() != treasury_topic:
+            continue
+        total += int(log.get("data","0x0"), 16)
+        sender = "0x" + topics[1][-40:]
+    if total < expected_min_wei:
+        return {"valid": False, "error": f"insufficient USDC: got {total/1e6} USDC, need {expected_min_wei/1e6}"}
+    return {"valid": True, "amount": total, "from": sender}
+
+
+def issue_premium(agent_id: str, token: str, chain: str, score: int, flags: int, verdict: str,
+                  payment_chain: str, payment_tx: str, custom_metadata: str = "") -> dict:
+    """Issue a USDC-paid premium attestation. Verifies the on-chain USDC transfer first."""
+    if not ADDRESS_RE.match(token or ""):
+        return {"error": "token must be valid 0x address"}
+    if chain not in SUPPORTED_CHAINS:
+        return {"error": f"unsupported chain: {chain}"}
+
+    payment = verify_usdc_payment(payment_chain, payment_tx)
+    if not payment["valid"]:
+        return {"error": payment["error"], "payment_status": "verification failed"}
+
+    # Mark this tx hash as processed (no double-spend)
+    processed = _load_processed()
+    processed.add(payment_tx.lower())
+    _save_processed(processed)
+
+    now = int(time.time())
+    att_id = "att_" + uuid.uuid4().hex[:12]
+    body = {
+        "schema": "aigen.attest.v1",
+        "id": att_id,
+        "token": token.lower(),
+        "chain": chain,
+        "score": int(score),
+        "flags": int(flags),
+        "verdict": verdict,
+        "issued_at": now,
+        "expires_at": now + USDC_PREMIUM_VALIDITY,
+        "issuer": "aigen-attest.cryptogenesis.duckdns.org",
+        "issued_to_agent": agent_id,
+        "tier": "usdc-premium",
+        "price_paid_aigen": 0,
+        "price_paid_usdc": payment["amount"] / 1e6,
+        "payment_tx": payment_tx,
+        "payment_chain": payment_chain,
+        "payment_from": payment["from"],
+        "custom_metadata": (custom_metadata or "")[:500],
+        "scan_url": f"https://cryptogenesis.duckdns.org/scan?address={token}&chain={chain}",
+    }
+    body["signature"] = _sign(body)
+
+    data = load()
+    data["attestations"].append(body)
+    data["total"] = len(data["attestations"])
+    save(data)
+    return body
+
+
 def _debit_aigen(agent_id: str, amount: int, reason: str) -> bool:
     """Debit AIGEN from agent's off-chain balance. Returns True on success."""
     if amount == 0:
