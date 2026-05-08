@@ -32,10 +32,10 @@ CONFIG = {
         "rpc": "https://mainnet.base.org",
         "rpc_fallbacks": ["https://base-rpc.publicnode.com", "https://base.llamarpc.com"],
         "router": "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",  # V2
-        "router_v1": "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",  # also indexed (see addresses array)
+        "router_v1": "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",
         "addresses": [
-            "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",  # V2
-            "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",  # v1
+            "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",  # V2 base
+            "0xb200357a35C7e96A81190C53631BC5Beca84A8FA",  # v1 base
         ],
         "deploy_block": 45680000,  # before first known SafeSwap on v1 (45686499)
         "events": {
@@ -49,6 +49,17 @@ CONFIG = {
             "0xace773ad80d904f35b2f2d7e96ae3ac2622d18d49ad6408e5ac703ef7497267f": "SwapBlocked",
             # v1 ScamPrevented
             "0xe62f4b652f76e78e6cc9891d41ac53544b4c3d83082846b1c7be1e62c26830cb": "ScamPrevented",
+        },
+    },
+    "optimism": {
+        "rpc": "https://mainnet.optimism.io",
+        "rpc_fallbacks": [],
+        "router": "0x38be6AA1044e866FcDFE34d4B4273F703668B80E",  # V2 OP
+        "addresses": ["0x38be6AA1044e866FcDFE34d4B4273F703668B80E"],
+        "deploy_block": 151287000,  # block 151287236 deploy, lookback ~minimal
+        "events": {
+            "0x697be5be799981b1414402c0dfeb0a63035a65ce971838f370b2e2d6b5fa4d69": "SafeSwapV2",
+            "0xb372fa47a5acaa903865f746443ade8668cf2fe3969e79e3b3b9d21f53b892be": "SwapPreflight",
         },
     },
 }
