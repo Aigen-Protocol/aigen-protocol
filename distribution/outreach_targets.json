@@ -1,0 +1,205 @@
+[
+  {
+    "chain": "base",
+    "token": "0x4ed4e862860bed51a9570b96d89af5e1b0efefed",
+    "name": "Degen",
+    "symbol": "DEGEN",
+    "websites": [
+      "https://www.degen.tips/",
+      "https://farcaster.xyz/~/channel/degen"
+    ],
+    "socials": [
+      {
+        "url": "https://twitter.com/degentokenbase",
+        "type": "twitter"
+      },
+      {
+        "url": "https://t.me/degentokenbase",
+        "type": "telegram"
+      }
+    ],
+    "score": 90
+  },
+  {
+    "chain": "base",
+    "token": "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b",
+    "name": "Virtual Protocol",
+    "symbol": "VIRTUAL",
+    "websites": [
+      "http://virtuals.io/",
+      "https://whitepaper.virtuals.io/"
+    ],
+    "socials": [
+      {
+        "url": "https://twitter.com/virtuals_io",
+        "type": "twitter"
+      },
+      {
+        "url": "https://t.me/virtuals",
+        "type": "telegram"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "base",
+    "token": "0x5ab3d4c385b400f3abb49e80de2faf6a88a7b691",
+    "name": "FLock.io",
+    "symbol": "FLOCK",
+    "websites": [],
+    "socials": [
+      {
+        "url": "https://x.com/flock_io",
+        "type": "twitter"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "base",
+    "token": "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842",
+    "name": "Morpho Token",
+    "symbol": "MORPHO",
+    "websites": [
+      "https://morpho.org/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/morpho",
+        "type": "twitter"
+      }
+    ],
+    "score": 90
+  },
+  {
+    "chain": "base",
+    "token": "0x16ee7ecac70d1028e7712751e2ee6ba808a7dd92",
+    "name": "Sport.fun",
+    "symbol": "FUN",
+    "websites": [
+      "https://www.sport.fun/",
+      "https://docs.sport.fun/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/footballdotfun",
+        "type": "twitter"
+      },
+      {
+        "url": "https://discord.com/invite/footballdotfun",
+        "type": "discord"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0xc77867d630dbe567d219a86fddbe7ef1f0670fdc",
+    "name": "Aliens",
+    "symbol": "ALIENS",
+    "websites": [
+      "https://aliensog.com/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/aliens__x?s=21",
+        "type": "twitter"
+      },
+      {
+        "url": "https://t.me/aliens_portal",
+        "type": "telegram"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0x45547ab0100f5e8b158258b6d94d7586de69fc21",
+    "name": "Mystery",
+    "symbol": "MYSTERY",
+    "websites": [
+      "https://mysterymattfurie.com/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/MysteryRiderEth",
+        "type": "twitter"
+      },
+      {
+        "url": "https://t.me/MysteryMattFurie",
+        "type": "telegram"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0x999b49c0d1612e619a4a4f6280733184da025108",
+    "name": "SLOP",
+    "symbol": "SLOP",
+    "websites": [
+      "https://slonks.xyz",
+      "https://slonks.xyz/whitepaper",
+      "https://howdy.chat/c/slonks"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/michaelhirsch",
+        "type": "twitter"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0x4d7078ddd6ccfed2f85db5b7d3ff16828d378d48",
+    "name": "Gensyn",
+    "symbol": "AI",
+    "websites": [
+      "https://gensyn.network/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/GensynFND",
+        "type": "twitter"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+    "name": "Pepe",
+    "symbol": "PEPE",
+    "websites": [
+      "https://www.pepe.vip/"
+    ],
+    "socials": [
+      {
+        "url": "https://twitter.com/pepecoineth",
+        "type": "twitter"
+      }
+    ],
+    "score": 100
+  },
+  {
+    "chain": "ethereum",
+    "token": "0xc0fec5716b6481d0a4002c9784c6b4eb28098877",
+    "name": "Hantavirus",
+    "symbol": "HANTA",
+    "websites": [
+      "https://hantaviruserc.site/"
+    ],
+    "socials": [
+      {
+        "url": "https://x.com/i/communities/2030777747245809970",
+        "type": "twitter"
+      },
+      {
+        "url": "https://t.me/hantaviruseth",
+        "type": "telegram"
+      }
+    ],
+    "score": 100
+  }
+]
