@@ -11,3 +11,5 @@ saferouter_indexer.log
 swaps.jsonl
 founder_alerts.jsonl
 attest_syncer.log
+buyback.log
+revenue_pool.json
