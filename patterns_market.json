@@ -1,0 +1,78 @@
+{
+  "patterns": [
+    {
+      "id": "pat_14d9e1888a1b",
+      "submitter": "opus-founder",
+      "name": "ERC20 transfer (too broad)",
+      "regex": "function transfer\\s*\\(",
+      "severity": "LOW",
+      "description": "Detects ANY ERC20 transfer function \u2014 too broad, should be rejected",
+      "must_match_tokens": [
+        "0x4ed4e862860bed51a9570b96d89af5e1b0efefed"
+      ],
+      "chain": "base",
+      "status": "rejected",
+      "voting_deadline": 1,
+      "submitted_at": 1778246183,
+      "submitter_stake": 50,
+      "yes_votes": {
+        "opus-founder": 50
+      },
+      "no_votes": {
+        "godd-ctrl-codex-earner": 30
+      },
+      "yes_total": 50,
+      "no_total": 30,
+      "validation": {
+        "verdict": "REJECTED",
+        "true_positives": 0,
+        "false_negatives": 1,
+        "false_positives": 13,
+        "safe_corpus_size": 29,
+        "must_match_results": {
+          "0x4ed4e862860bed51a9570b96d89af5e1b0efefed": "MISS"
+        },
+        "safe_results": {
+          "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": "OK",
+          "0x4ed4e862860bed51a9570b96d89af5e1b0efefed": "OK",
+          "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b": "OK",
+          "0x42a4c179ee1912a2949c45433860d4d85e7baefd": "FALSE POSITIVE",
+          "0x35822308dbb5143ef528a128043058f495f34f3d": "FALSE POSITIVE",
+          "0x5ab3d4c385b400f3abb49e80de2faf6a88a7b691": "OK",
+          "0x853a7c99227499dba9db8c3a02aa691afdebf841": "OK",
+          "0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842": "OK",
+          "0x16ee7ecac70d1028e7712751e2ee6ba808a7dd92": "OK",
+          "0x4200000000000000000000000000000000000006": "FALSE POSITIVE",
+          "0xc77867d630dbe567d219a86fddbe7ef1f0670fdc": "FALSE POSITIVE",
+          "0x45547ab0100f5e8b158258b6d94d7586de69fc21": "OK",
+          "0x999b49c0d1612e619a4a4f6280733184da025108": "OK",
+          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": "FALSE POSITIVE",
+          "0x4d7078ddd6ccfed2f85db5b7d3ff16828d378d48": "OK",
+          "0x6982508145454ce325ddbe47a25d4ec3d2311933": "FALSE POSITIVE",
+          "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": "FALSE POSITIVE",
+          "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984": "FALSE POSITIVE",
+          "0xc0fec5716b6481d0a4002c9784c6b4eb28098877": "FALSE POSITIVE",
+          "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "OK",
+          "0xc52d7f23a2e460248db6ee192cb23dd12bddcbf6": "FALSE POSITIVE",
+          "0x9560e827af36c94d2ac33a39bce1fe78631088db": "OK",
+          "0x4200000000000000000000000000000000000042": "FALSE POSITIVE",
+          "0x3e29d3a9316dab217754d13b28646b76607c5f04": "OK",
+          "0x676f784d19c7f1ac6c6beaeaac78b02a73427852": "OK",
+          "0x0b2c639c533813f4aa9d7837caf62653d097ff85": "OK",
+          "0x1f514a61bcde34f94bc39731235690ab9da737f7": "OK",
+          "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": "FALSE POSITIVE"
+        }
+      },
+      "resolved_at": 1778246237,
+      "payouts": {
+        "godd-ctrl-codex-earner": 80
+      },
+      "insurance_take_aigen": 0,
+      "submitter_bonus_aigen": 0
+    }
+  ],
+  "total": 1,
+  "validated": 0,
+  "rejected": 1,
+  "lifetime_volume_aigen": 80
+}
