@@ -33,7 +33,10 @@ TREASURY_SHARE_BPS = 3000   # 30% to treasury (operations, future buybacks)
 # Buyback economics
 BUYBACK_THRESHOLD_USDC = 2_000_000   # 2 USDC (6 dec) accumulated → trigger buyback
                                       # Lowered from realistic $50 because we're tiny
+BUYBACK_THRESHOLD_WETH = 500_000_000_000_000   # 0.0005 WETH (~$1.20 @ $2400)
 MIN_AGENT_REWARD_AIGEN = 1            # don't reward less than 1 AIGEN per attribution
+BUYBACK_POKER_BOUNTY_AIGEN = 10       # off-chain credit to whoever pokes a successful buyback
+                                      # (encourages permissionless triggering)
 
 
 def load() -> dict:

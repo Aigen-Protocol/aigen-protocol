@@ -45,6 +45,8 @@ QUORUM_AIGEN = 200                # total YES + NO needed for valid resolution
 DEFAULT_VOTING_HOURS = 48
 APPROVAL_FEE_BPS = 500            # 5% of approved amount → filer (paid in claimed token by operator post-execute)
 INSURANCE_REFRESH_BPS = 50        # 0.5% of loser pool → refresh fund (off-chain marker for now)
+EXECUTOR_TIP_AIGEN = 5            # off-chain AIGEN credit to whoever pokes /execute on an approved claim
+                                  # (gas paid by treasury wallet; tip rewards the agent that triggers it)
 
 
 def load() -> dict:
@@ -282,15 +284,23 @@ def resolve(claim_id: str) -> dict:
     return {"error": "claim not found"}
 
 
-def mark_executed(claim_id: str, execution_tx: str):
-    """Operator: marks an approved claim as on-chain executed.
-    Called by /claims/{id}/execute REST endpoint after payClaim succeeds."""
+def mark_executed(claim_id: str, execution_tx: str, executor_agent_id: str = ""):
+    """Marks an approved claim as on-chain executed.
+    Called by /claims/{id}/execute REST endpoint after payClaim succeeds.
+
+    If executor_agent_id is provided, credits EXECUTOR_TIP_AIGEN to that agent
+    as a permissionless-poker reward (encourages anyone in the network to
+    trigger execution of approved claims so we're not the bottleneck)."""
     d = load()
     for c in d["claims"]:
         if c["id"] == claim_id:
             c["execution_tx"] = execution_tx
             c["executed_at"] = int(time.time())
             c["status"] = "executed"
+            if executor_agent_id and len(executor_agent_id.strip()) >= 2:
+                c["executor_agent_id"] = executor_agent_id
+                c["executor_tip_aigen"] = EXECUTOR_TIP_AIGEN
+                _credit(executor_agent_id, EXECUTOR_TIP_AIGEN, f"execute-claim-{claim_id}")
             save(d)
             return c
     return None
