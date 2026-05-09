@@ -74,6 +74,21 @@ def cycle_resolve_patterns() -> int:
     return n
 
 
+def cycle_resolve_missions() -> int:
+    sys.path.insert(0, "/home/luna/crypto-genesis/aigen")
+    from missions import list_due_for_resolution
+    due = list_due_for_resolution()
+    n = 0
+    for m in due:
+        r = _http("POST", f"/missions/{m['id']}/resolve")
+        if r.get("ok"):
+            log.info("  missions: %s → %s", m["id"], r.get("outcome") or r.get("winner"))
+            n += 1
+        else:
+            log.warning("  missions: %s skipped: %s", m["id"], r.get("error"))
+    return n
+
+
 def cycle_resolve_claims() -> int:
     sys.path.insert(0, "/home/luna/crypto-genesis/aigen")
     from claims import list_due
@@ -120,9 +135,10 @@ def cycle():
     pa = cycle_resolve_patterns()
     c = cycle_resolve_claims()
     e = cycle_execute_claims()
+    mi = cycle_resolve_missions()
     b = cycle_buyback_poke()
-    log.info("cycle done: predictions=%d patterns=%d claims_resolved=%d claims_executed=%d buyback_poked=%d",
-             p, pa, c, e, b)
+    log.info("cycle done: predictions=%d patterns=%d claims_resolved=%d claims_executed=%d missions_resolved=%d buyback_poked=%d",
+             p, pa, c, e, mi, b)
 
 
 def main():

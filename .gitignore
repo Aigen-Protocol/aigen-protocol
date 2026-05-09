@@ -17,3 +17,4 @@ revenue_indexer.log
 revenue_indexer_state.json
 autopilot.log
 join_log.json
+missions.json
