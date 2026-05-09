@@ -32,8 +32,29 @@ LEDGER = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
 
 VERIFICATION_TYPES = {"peer_vote", "first_valid_match", "creator_judges"}
 
-SPAM_FEE_BURN_AIGEN = 5
+# Currencies the reward can be paid in
+REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH"}
+
+# Token addresses for on-chain payout
+TOKEN_ADDRS = {
+    "USDC": {
+        "base":     "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "optimism": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+    },
+    "ETH": {
+        "base":     "0x0000000000000000000000000000000000000000",  # native
+        "optimism": "0x0000000000000000000000000000000000000000",
+    },
+}
+TOKEN_DECIMALS = {"USDC": 6, "ETH": 18, "AIGEN": 0}  # AIGEN tracked off-chain in whole units
+
+# Treasury wallet — receives funding deposits, sends payouts
+TREASURY = "0xDa429f2034b62b8722713873dE3C045eec390d8F"
+
+SPAM_FEE_BURN_AIGEN = 5         # only applied to AIGEN-rewarded missions (real $ is its own anti-spam)
 MIN_REWARD_AIGEN = 10
+MIN_REWARD_USDC_MICROS = 10_000     # $0.01 minimum
+MIN_REWARD_ETH_WEI = 10**14         # 0.0001 ETH ~$0.24
 MAX_TITLE_LEN = 120
 MAX_DESC_LEN = 2000
 MAX_PROOF_LEN = 4000
@@ -114,26 +135,54 @@ def _elo(agent_id: str) -> int:
 # ---------- create ----------
 
 def create_mission(creator_agent_id: str, title: str, description: str,
-                   reward_aigen: int, verification_type: str,
+                   reward_amount: int, verification_type: str,
                    verification_params: dict = None,
+                   reward_currency: str = "AIGEN",
+                   reward_chain: str = "base",
                    deadline_hours: int = DEFAULT_DEADLINE_HOURS,
-                   min_submitter_elo: int = 0) -> dict:
-    """Open a new mission. Creator must have reward + spam_fee in their AIGEN balance."""
+                   min_submitter_elo: int = 0,
+                   reward_aigen: int = None) -> dict:
+    """Open a new mission.
+
+    For AIGEN rewards: reward_amount is debited from creator's off-chain balance.
+    For USDC/ETH rewards: mission starts as 'awaiting_funding'. Creator must
+    transfer reward_amount to TREASURY on reward_chain, then call
+    /missions/{id}/confirm-funding with the tx_hash. Once confirmed, status → 'open'.
+
+    Spam fee:
+      - AIGEN rewards: 5 AIGEN burn (matters because AIGEN is cheap to spam)
+      - USDC/ETH rewards: ZERO (the on-chain escrow is the anti-spam — you're
+        locking real money, no one spams real money for free)
+    """
+    # Backward compat: accept reward_aigen as alias
+    if reward_aigen is not None and not reward_amount:
+        reward_amount = reward_aigen
+
     if not creator_agent_id or len(creator_agent_id.strip()) < 2:
         return {"error": "creator_agent_id must be >= 2 chars"}
     if not title or len(title) > MAX_TITLE_LEN:
         return {"error": f"title required, max {MAX_TITLE_LEN} chars"}
     if not description or len(description) > MAX_DESC_LEN:
         return {"error": f"description required, max {MAX_DESC_LEN} chars"}
-    if reward_aigen < MIN_REWARD_AIGEN:
-        return {"error": f"reward_aigen must be >= {MIN_REWARD_AIGEN}"}
     if verification_type not in VERIFICATION_TYPES:
         return {"error": f"verification_type must be one of {sorted(VERIFICATION_TYPES)}"}
     if deadline_hours < 1 or deadline_hours > MAX_DEADLINE_HOURS:
         return {"error": f"deadline_hours must be in [1, {MAX_DEADLINE_HOURS}]"}
 
+    reward_currency = (reward_currency or "AIGEN").upper()
+    if reward_currency not in REWARD_CURRENCIES:
+        return {"error": f"reward_currency must be one of {sorted(REWARD_CURRENCIES)}"}
+    if reward_currency in ("USDC", "ETH"):
+        if reward_chain not in TOKEN_ADDRS[reward_currency]:
+            return {"error": f"unsupported chain '{reward_chain}' for {reward_currency}"}
+
+    # Currency-specific minimum reward
+    min_reward = {"AIGEN": MIN_REWARD_AIGEN, "USDC": MIN_REWARD_USDC_MICROS, "ETH": MIN_REWARD_ETH_WEI}[reward_currency]
+    if reward_amount < min_reward:
+        unit = {"AIGEN": "AIGEN", "USDC": "USDC micros (1e6=1USDC)", "ETH": "wei"}[reward_currency]
+        return {"error": f"reward_amount must be >= {min_reward} {unit}"}
+
     vparams = verification_params or {}
-    # Type-specific param validation
     if verification_type == "first_valid_match":
         rx = vparams.get("regex", "")
         if not rx:
@@ -145,34 +194,52 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         if len(rx) > 500:
             return {"error": "regex too long (max 500 chars)"}
 
-    total_cost = reward_aigen + SPAM_FEE_BURN_AIGEN
-    if _balance(creator_agent_id) < total_cost:
-        return {"error": f"insufficient AIGEN: need {total_cost} (reward {reward_aigen} + spam_fee {SPAM_FEE_BURN_AIGEN}), have {_balance(creator_agent_id)}"}
-
-    # Atomic-ish: debit reward (escrow) + spam_fee (burn). Burn = credit treasury for now.
-    if not _debit(creator_agent_id, reward_aigen, "mission-escrow"):
-        return {"error": "escrow debit failed"}
-    if not _debit(creator_agent_id, SPAM_FEE_BURN_AIGEN, "mission-spam-fee"):
-        # refund the escrow on partial failure
-        _credit(creator_agent_id, reward_aigen, "mission-escrow-rollback")
-        return {"error": "spam-fee debit failed"}
-    _credit("treasury", SPAM_FEE_BURN_AIGEN, "spam-fee-burn-mission")
-
     now = int(time.time())
     mid = "mis_" + uuid.uuid4().hex[:12]
+
+    # AIGEN: debit upfront, mission immediately 'open'
+    # USDC/ETH: mission starts 'awaiting_funding', creator confirms separately
+    if reward_currency == "AIGEN":
+        total_cost = reward_amount + SPAM_FEE_BURN_AIGEN
+        if _balance(creator_agent_id) < total_cost:
+            return {"error": f"insufficient AIGEN: need {total_cost} (reward {reward_amount} + spam_fee {SPAM_FEE_BURN_AIGEN}), have {_balance(creator_agent_id)}"}
+        if not _debit(creator_agent_id, reward_amount, "mission-escrow"):
+            return {"error": "escrow debit failed"}
+        if not _debit(creator_agent_id, SPAM_FEE_BURN_AIGEN, "mission-spam-fee"):
+            _credit(creator_agent_id, reward_amount, "mission-escrow-rollback")
+            return {"error": "spam-fee debit failed"}
+        _credit("treasury", SPAM_FEE_BURN_AIGEN, "spam-fee-burn-mission")
+        initial_status = "open"
+        spam_fee = SPAM_FEE_BURN_AIGEN
+    else:
+        initial_status = "awaiting_funding"
+        spam_fee = 0
+
     m = {
         "id": mid,
         "creator": creator_agent_id,
         "title": title.strip(),
         "description": description.strip(),
-        "reward_aigen": int(reward_aigen),
-        "spam_fee_burned": SPAM_FEE_BURN_AIGEN,
+        # Reward block — multi-currency
+        "reward": {
+            "currency": reward_currency,
+            "amount": int(reward_amount),
+            "chain": reward_chain if reward_currency != "AIGEN" else None,
+            "deposit_address": TREASURY if reward_currency != "AIGEN" else None,
+            "deposit_tx": None,
+            "deposit_confirmed_at": None,
+            "payout_tx": None,
+            "payout_at": None,
+        },
+        # Backward-compat alias for AIGEN missions
+        "reward_aigen": int(reward_amount) if reward_currency == "AIGEN" else 0,
+        "spam_fee_burned": spam_fee,
         "verification_type": verification_type,
         "verification_params": vparams,
         "min_submitter_elo": int(min_submitter_elo),
         "created_at": now,
         "deadline": now + deadline_hours * 3600,
-        "status": "open",
+        "status": initial_status,
         "submissions": [],
         "resolution": None,
     }
@@ -182,15 +249,102 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     d = load()
     d["missions"].append(m)
     d["total"] += 1
-    d["lifetime_reward_aigen_escrowed"] = d.get("lifetime_reward_aigen_escrowed", 0) + reward_aigen
-    d["lifetime_spam_fees_burned"] = d.get("lifetime_spam_fees_burned", 0) + SPAM_FEE_BURN_AIGEN
+    if reward_currency == "AIGEN":
+        d["lifetime_reward_aigen_escrowed"] = d.get("lifetime_reward_aigen_escrowed", 0) + reward_amount
+        d["lifetime_spam_fees_burned"] = d.get("lifetime_spam_fees_burned", 0) + SPAM_FEE_BURN_AIGEN
     save(d)
+
+    # For USDC/ETH: include funding instructions
+    if reward_currency != "AIGEN":
+        m["funding_instructions"] = {
+            "send_to": TREASURY,
+            "currency": reward_currency,
+            "chain": reward_chain,
+            "amount_wei": int(reward_amount),
+            "token_contract": TOKEN_ADDRS[reward_currency][reward_chain] if reward_currency != "ETH" else None,
+            "next_step": f"After sending, POST /missions/{mid}/confirm-funding with the tx_hash",
+        }
     return m
+
+
+# ---------- confirm funding (USDC/ETH missions) ----------
+
+def confirm_funding(mission_id: str, tx_hash: str) -> dict:
+    """Verify on-chain that the creator's deposit landed at TREASURY for the
+    expected amount + currency + chain. Activates the mission on success."""
+    if not tx_hash or not re.match(r"^0x[0-9a-fA-F]{64}$", tx_hash):
+        return {"error": "tx_hash must be 0x-prefixed 64-char hex"}
+
+    d = load()
+    for m in d["missions"]:
+        if m["id"] != mission_id:
+            continue
+        if m["status"] != "awaiting_funding":
+            return {"error": f"mission status is {m['status']}, not awaiting_funding"}
+        r = m["reward"]
+
+        # Verify on-chain
+        try:
+            from web3 import Web3
+            rpc = {"base": "https://mainnet.base.org",
+                   "optimism": "https://mainnet.optimism.io"}[r["chain"]]
+            w3 = Web3(Web3.HTTPProvider(rpc))
+            receipt = w3.eth.get_transaction_receipt(tx_hash)
+            if receipt is None or receipt.status != 1:
+                return {"error": "tx not mined or reverted"}
+            tx = w3.eth.get_transaction(tx_hash)
+        except Exception as e:
+            return {"error": f"on-chain lookup failed: {e}"}
+
+        treasury_lc = TREASURY.lower()
+        if r["currency"] == "ETH":
+            # Native ETH transfer to treasury
+            if (tx["to"] or "").lower() != treasury_lc:
+                return {"error": f"tx 'to' is {tx['to']}, expected {TREASURY}"}
+            if int(tx["value"]) < int(r["amount"]):
+                return {"error": f"tx value {tx['value']} < required {r['amount']}"}
+        elif r["currency"] == "USDC":
+            # ERC20 Transfer event from logs
+            token = TOKEN_ADDRS["USDC"][r["chain"]].lower()
+            transfer_topic = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+            found = False
+            for log in receipt.logs:
+                if log.address.lower() != token:
+                    continue
+                if log.topics[0].hex().lower().lstrip("0x") != transfer_topic.lstrip("0x"):
+                    continue
+                # topics[2] = to address (last 32 bytes), data = amount
+                to_addr = "0x" + log.topics[2].hex()[-40:]
+                if to_addr.lower() != treasury_lc:
+                    continue
+                amount = int(log.data.hex() if hasattr(log.data, 'hex') else log.data, 16)
+                if amount < int(r["amount"]):
+                    return {"error": f"USDC amount in tx {amount} < required {r['amount']}"}
+                found = True
+                break
+            if not found:
+                return {"error": "no USDC Transfer event to treasury found in tx"}
+
+        r["deposit_tx"] = tx_hash
+        r["deposit_confirmed_at"] = int(time.time())
+        m["status"] = "open"
+        save(d)
+        return {"ok": True, "mission_id": mission_id, "status": "open",
+                "deposit_tx": tx_hash, "amount_funded": r["amount"], "currency": r["currency"]}
+    return {"error": "mission not found"}
 
 
 # ---------- submit ----------
 
-def submit(submitter_agent_id: str, mission_id: str, proof: str, metadata: dict = None) -> dict:
+def submit(submitter_agent_id: str, mission_id: str, proof: str,
+           submitter_wallet: str = "", metadata: dict = None) -> dict:
+    """Submit work to a mission.
+
+    For AIGEN-rewarded missions: submitter_wallet is optional (payout goes to
+    off-chain ledger).
+    For USDC/ETH missions: submitter_wallet REQUIRED — that's where on-chain
+    payout will be sent if you win.
+    """
     if not submitter_agent_id or len(submitter_agent_id.strip()) < 2:
         return {"error": "submitter_agent_id must be >= 2 chars"}
     if not proof or len(proof) > MAX_PROOF_LEN:
@@ -208,14 +362,21 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str, metadata: dict 
             return {"error": "creator cannot submit to their own mission"}
         if m["min_submitter_elo"] > 0 and _elo(submitter_agent_id) < m["min_submitter_elo"]:
             return {"error": f"reputation ELO {_elo(submitter_agent_id)} below required {m['min_submitter_elo']}"}
-        # One submission per agent per mission (prevents spam)
         if any(s["submitter"] == submitter_agent_id for s in m["submissions"]):
             return {"error": "you already submitted to this mission"}
+
+        # USDC/ETH missions require submitter_wallet for on-chain payout
+        currency = m.get("reward", {}).get("currency", "AIGEN")
+        wallet_clean = (submitter_wallet or "").strip().lower()
+        if currency in ("USDC", "ETH"):
+            if not wallet_clean or not re.match(r"^0x[0-9a-f]{40}$", wallet_clean):
+                return {"error": f"submitter_wallet (0x-prefixed 40-char hex) required for {currency}-rewarded missions"}
 
         sid = "sub_" + uuid.uuid4().hex[:10]
         sub = {
             "id": sid,
             "submitter": submitter_agent_id,
+            "submitter_wallet": wallet_clean if wallet_clean else None,
             "proof": proof,
             "metadata": metadata or {},
             "submitted_at": int(time.time()),
@@ -268,11 +429,117 @@ def vote(voter_agent_id: str, mission_id: str, submission_id: str, side: str, am
     return {"error": "mission not found"}
 
 
+# ---------- on-chain payout (USDC/ETH winners) ----------
+
+def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> dict:
+    """Send currency from treasury wallet to to_wallet. Returns {tx_hash, ...} or {error}."""
+    try:
+        from web3 import Web3
+        from eth_account import Account
+        rpcs = {"base": "https://mainnet.base.org", "optimism": "https://mainnet.optimism.io"}
+        if chain not in rpcs:
+            return {"error": f"unsupported chain {chain}"}
+        w3 = Web3(Web3.HTTPProvider(rpcs[chain]))
+        acct = Account.from_key(json.loads(open("/home/luna/crypto-genesis/.wallet.json").read())["private_key"])
+        me = acct.address
+        to_cs = Web3.to_checksum_address(to_wallet)
+        nonce = w3.eth.get_transaction_count(me, "pending")
+
+        if currency == "ETH":
+            tx = {"from": me, "to": to_cs, "value": int(amount), "nonce": nonce,
+                  "gas": 21000,
+                  "maxFeePerGas": w3.eth.gas_price * 2,
+                  "maxPriorityFeePerGas": w3.to_wei(0.001, "gwei"),
+                  "chainId": w3.eth.chain_id}
+            signed = acct.sign_transaction(tx)
+            h = w3.eth.send_raw_transaction(signed.raw_transaction)
+            r = w3.eth.wait_for_transaction_receipt(h, timeout=120)
+            if r.status != 1:
+                return {"error": "ETH transfer reverted", "tx_hash": "0x" + h.hex()}
+            return {"tx_hash": "0x" + h.hex(), "block": r.blockNumber, "gas_used": r.gasUsed}
+        elif currency == "USDC":
+            token = Web3.to_checksum_address(TOKEN_ADDRS["USDC"][chain])
+            erc20 = w3.eth.contract(address=token, abi=[
+                {"name":"transfer","type":"function","stateMutability":"nonpayable",
+                 "inputs":[{"name":"to","type":"address"},{"name":"amt","type":"uint256"}],
+                 "outputs":[{"name":"","type":"bool"}]},
+            ])
+            fn = erc20.functions.transfer(to_cs, int(amount))
+            try:
+                gas = fn.estimate_gas({"from": me})
+            except Exception as e:
+                return {"error": f"USDC transfer estimate_gas failed: {e}"}
+            tx = fn.build_transaction({"from": me, "nonce": nonce, "gas": int(gas * 1.3),
+                "maxFeePerGas": w3.eth.gas_price * 2,
+                "maxPriorityFeePerGas": w3.to_wei(0.001, "gwei"),
+                "chainId": w3.eth.chain_id})
+            signed = acct.sign_transaction(tx)
+            h = w3.eth.send_raw_transaction(signed.raw_transaction)
+            r = w3.eth.wait_for_transaction_receipt(h, timeout=120)
+            if r.status != 1:
+                return {"error": "USDC transfer reverted", "tx_hash": "0x" + h.hex()}
+            return {"tx_hash": "0x" + h.hex(), "block": r.blockNumber, "gas_used": r.gasUsed}
+        else:
+            return {"error": f"unsupported currency {currency}"}
+    except Exception as e:
+        return {"error": f"onchain payout error: {e}"}
+
+
+def _pay_winner(m: dict, winner_sub: dict) -> dict:
+    """Pay the winning submitter in the mission's reward currency.
+    For AIGEN: credit off-chain ledger.
+    For USDC/ETH: on-chain transfer to submitter_wallet.
+    Returns {ok, payout_tx?, error?}."""
+    r = m["reward"]
+    currency = r["currency"]
+    amount = r["amount"]
+    if currency == "AIGEN":
+        _credit(winner_sub["submitter"], amount, f"mission-{m['id']}-winner")
+        return {"ok": True, "currency": "AIGEN", "amount": amount,
+                "credited_to": winner_sub["submitter"]}
+    # USDC/ETH on-chain
+    wallet = winner_sub.get("submitter_wallet")
+    if not wallet:
+        return {"error": "winner has no submitter_wallet on file"}
+    result = _onchain_payout(currency, r["chain"], wallet, amount)
+    if "error" in result:
+        return {"error": result["error"]}
+    r["payout_tx"] = result["tx_hash"]
+    r["payout_at"] = int(time.time())
+    return {"ok": True, "currency": currency, "amount": amount,
+            "payout_tx": result["tx_hash"], "to_wallet": wallet}
+
+
+def _refund_creator_onchain(m: dict, full_amount: bool = True, fraction: int = 1, of: int = 1) -> dict:
+    """Refund creator on-chain for USDC/ETH missions. For AIGEN, off-chain credit."""
+    r = m["reward"]
+    currency = r["currency"]
+    amount = (r["amount"] * fraction) // of
+    if currency == "AIGEN":
+        _credit(m["creator"], amount, f"mission-{m['id']}-refund")
+        return {"ok": True, "currency": "AIGEN", "amount": amount}
+    # On-chain refund — need creator wallet (look up in agents.json)
+    try:
+        agents = json.load(open("/home/luna/crypto-genesis/aigen/agents.json"))
+        wallet = next((a.get("wallet") for a in agents.get("agents", []) if a.get("id") == m["creator"]), "")
+    except Exception:
+        wallet = ""
+    if not wallet:
+        # Fallback: refund to TREASURY (creator can claim later by contacting us)
+        return {"ok": False, "error": "creator wallet not on file; refund pending manual settlement",
+                "currency": currency, "amount": amount, "creator": m["creator"]}
+    result = _onchain_payout(currency, r["chain"], wallet, amount)
+    if "error" in result:
+        return {"error": result["error"]}
+    return {"ok": True, "currency": currency, "amount": amount, "tx_hash": result["tx_hash"]}
+
+
 # ---------- judge (creator_judges only) ----------
 
 def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> dict:
     """Creator picks the winner. Only valid for creator_judges missions during the
-    judging window (between deadline and judge_deadline)."""
+    judging window (between deadline and judge_deadline). Pays winner in mission's
+    reward currency (AIGEN off-chain, or USDC/ETH on-chain)."""
     d = load()
     for m in d["missions"]:
         if m["id"] != mission_id:
@@ -293,8 +560,9 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
         if not winner:
             return {"error": "winner_submission_id not in this mission"}
 
-        # Pay winner
-        _credit(winner["submitter"], m["reward_aigen"], f"mission-{mission_id}-creator-judged-winner")
+        pay = _pay_winner(m, winner)
+        if "error" in pay:
+            return {"error": f"payout failed: {pay['error']}"}
         winner["status"] = "winner"
         for s in m["submissions"]:
             if s["id"] != winner["id"]:
@@ -304,12 +572,13 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
         m["resolution"] = {"type": "creator_judged",
                            "winner_submission_id": winner["id"],
                            "winner_agent_id": winner["submitter"],
-                           "reward_paid_aigen": m["reward_aigen"],
+                           "payout": pay,
                            "resolved_at": now}
         d["resolved"] = d.get("resolved", 0) + 1
-        d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward_aigen"]
+        if m["reward"]["currency"] == "AIGEN":
+            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
         save(d)
-        return {"ok": True, "winner": winner["submitter"], "reward_aigen": m["reward_aigen"]}
+        return {"ok": True, "winner": winner["submitter"], "payout": pay}
     return {"error": "mission not found"}
 
 
@@ -349,7 +618,6 @@ def resolve(mission_id: str) -> dict:
 def _resolve_first_valid(d: dict, m: dict, now: int) -> dict:
     rx = m["verification_params"].get("regex", "")
     pattern = re.compile(rx) if rx else None
-    # Sort by submitted_at ascending; first match wins
     subs_sorted = sorted(m["submissions"], key=lambda s: s["submitted_at"])
     winner = None
     for s in subs_sorted:
@@ -358,7 +626,9 @@ def _resolve_first_valid(d: dict, m: dict, now: int) -> dict:
             break
 
     if winner:
-        _credit(winner["submitter"], m["reward_aigen"], f"mission-{m['id']}-first-valid-winner")
+        pay = _pay_winner(m, winner)
+        if "error" in pay:
+            return {"error": f"payout failed: {pay['error']}"}
         winner["status"] = "winner"
         for s in m["submissions"]:
             if s["id"] != winner["id"]:
@@ -367,43 +637,40 @@ def _resolve_first_valid(d: dict, m: dict, now: int) -> dict:
         m["resolution"] = {"type": "first_valid_match",
                            "winner_submission_id": winner["id"],
                            "winner_agent_id": winner["submitter"],
-                           "reward_paid_aigen": m["reward_aigen"],
+                           "payout": pay,
                            "resolved_at": now}
         d["resolved"] = d.get("resolved", 0) + 1
-        d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward_aigen"]
+        if m["reward"]["currency"] == "AIGEN":
+            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
         save(d)
-        return {"ok": True, "winner": winner["submitter"], "reward_aigen": m["reward_aigen"]}
+        return {"ok": True, "winner": winner["submitter"], "payout": pay}
 
-    # No valid match found
     if now < m["deadline"]:
         return {"error": "no valid submission yet, and deadline not reached"}
 
-    # Deadline passed with no winner — refund creator
-    _credit(m["creator"], m["reward_aigen"], f"mission-{m['id']}-no-winner-refund")
+    refund = _refund_creator_onchain(m)
     m["status"] = "voided"
     m["resolution"] = {"type": "first_valid_match", "outcome": "VOID_NO_VALID_SUBMISSION",
-                       "creator_refund_aigen": m["reward_aigen"], "resolved_at": now}
+                       "creator_refund": refund, "resolved_at": now}
     d["voided"] = d.get("voided", 0) + 1
     save(d)
-    return {"ok": True, "outcome": "VOID_NO_VALID_SUBMISSION", "refunded_to_creator": m["reward_aigen"]}
+    return {"ok": True, "outcome": "VOID_NO_VALID_SUBMISSION", "creator_refund": refund}
 
 
 def _resolve_peer_vote(d: dict, m: dict, now: int) -> dict:
     if not m["submissions"]:
-        # No submissions → refund creator
-        _credit(m["creator"], m["reward_aigen"], f"mission-{m['id']}-no-submissions-refund")
+        refund = _refund_creator_onchain(m)
         m["status"] = "voided"
         m["resolution"] = {"type": "peer_vote", "outcome": "VOID_NO_SUBMISSIONS",
-                           "creator_refund_aigen": m["reward_aigen"], "resolved_at": now}
+                           "creator_refund": refund, "resolved_at": now}
         d["voided"] = d.get("voided", 0) + 1
         save(d)
-        return {"ok": True, "outcome": "VOID_NO_SUBMISSIONS", "refunded_to_creator": m["reward_aigen"]}
+        return {"ok": True, "outcome": "VOID_NO_SUBMISSIONS", "creator_refund": refund}
 
     # Quorum check
     total_votes = sum(s["yes_total"] + s["no_total"] for s in m["submissions"])
     if total_votes < PEER_VOTE_QUORUM_AIGEN:
-        # No quorum → refund creator + all voters
-        _credit(m["creator"], m["reward_aigen"], f"mission-{m['id']}-no-quorum-refund")
+        refund = _refund_creator_onchain(m)
         for s in m["submissions"]:
             for agent_id, amt in s["yes_votes"].items():
                 _credit(agent_id, amt, f"mission-{m['id']}-vote-refund")
@@ -412,7 +679,7 @@ def _resolve_peer_vote(d: dict, m: dict, now: int) -> dict:
         m["status"] = "voided"
         m["resolution"] = {"type": "peer_vote", "outcome": "VOID_NO_QUORUM",
                            "quorum_required": PEER_VOTE_QUORUM_AIGEN, "total_votes": total_votes,
-                           "creator_refund_aigen": m["reward_aigen"], "resolved_at": now}
+                           "creator_refund": refund, "resolved_at": now}
         d["voided"] = d.get("voided", 0) + 1
         save(d)
         return {"ok": True, "outcome": "VOID_NO_QUORUM", "total_votes": total_votes}
@@ -424,31 +691,30 @@ def _resolve_peer_vote(d: dict, m: dict, now: int) -> dict:
     winner = ranked[0]
 
     if winner["yes_total"] - winner["no_total"] <= 0:
-        # No submission has net positive → all rejected, refund creator
-        _credit(m["creator"], m["reward_aigen"], f"mission-{m['id']}-all-rejected-refund")
+        refund = _refund_creator_onchain(m)
         for s in m["submissions"]:
-            # NO voters of each submission keep their bet (they were "right"); YES voters lose to NO
             yes_t, no_t = s["yes_total"], s["no_total"]
             if no_t > 0 and yes_t > 0:
                 for agent_id, stake in s["no_votes"].items():
                     share = (yes_t * stake) // no_t
                     _credit(agent_id, stake + share, f"mission-{m['id']}-rejected-no-payout")
             else:
-                # one-sided: refund both
                 for agent_id, amt in {**s["yes_votes"], **s["no_votes"]}.items():
                     _credit(agent_id, amt, f"mission-{m['id']}-vote-refund")
             s["status"] = "rejected"
         m["status"] = "voided"
         m["resolution"] = {"type": "peer_vote", "outcome": "ALL_REJECTED",
-                           "creator_refund_aigen": m["reward_aigen"], "resolved_at": now}
+                           "creator_refund": refund, "resolved_at": now}
         d["voided"] = d.get("voided", 0) + 1
         save(d)
         return {"ok": True, "outcome": "ALL_REJECTED"}
 
-    # Winner found — pay reward + redistribute votes
-    _credit(winner["submitter"], m["reward_aigen"], f"mission-{m['id']}-winner")
+    # Winner found — pay reward in mission currency + redistribute AIGEN votes
+    pay = _pay_winner(m, winner)
+    if "error" in pay:
+        return {"error": f"payout failed: {pay['error']}"}
     winner["status"] = "winner"
-    payouts_summary = {"winner_aigen": m["reward_aigen"], "by_voter": {}}
+    payouts_summary = {"winner_payout": pay, "by_voter": {}}
 
     for s in m["submissions"]:
         yes_t, no_t = s["yes_total"], s["no_total"]
@@ -487,54 +753,71 @@ def _resolve_peer_vote(d: dict, m: dict, now: int) -> dict:
     m["resolution"] = {"type": "peer_vote", "outcome": "WINNER",
                        "winner_submission_id": winner["id"],
                        "winner_agent_id": winner["submitter"],
-                       "reward_paid_aigen": m["reward_aigen"],
+                       "winner_payout": pay,
                        "voter_payouts": payouts_summary["by_voter"],
                        "resolved_at": now}
     d["resolved"] = d.get("resolved", 0) + 1
-    d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward_aigen"]
+    if m["reward"]["currency"] == "AIGEN":
+        d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
     save(d)
-    return {"ok": True, "winner": winner["submitter"], "reward_aigen": m["reward_aigen"],
+    return {"ok": True, "winner": winner["submitter"], "winner_payout": pay,
             "voter_payouts": payouts_summary["by_voter"]}
 
 
 def _resolve_creator_judges_timeout(d: dict, m: dict, now: int) -> dict:
-    """Creator failed to judge in time → 50% refund creator, 50% split among submitters."""
+    """Creator failed to judge in time → 50% refund creator, 50% split among submitters.
+    For USDC/ETH: on-chain transfers. For AIGEN: off-chain credits."""
     if not m["submissions"]:
-        # No submissions → full refund creator
-        _credit(m["creator"], m["reward_aigen"], f"mission-{m['id']}-no-submissions-refund")
+        refund = _refund_creator_onchain(m)
         m["status"] = "voided"
         m["resolution"] = {"type": "creator_judges", "outcome": "VOID_NO_SUBMISSIONS",
-                           "creator_refund_aigen": m["reward_aigen"], "resolved_at": now}
+                           "creator_refund": refund, "resolved_at": now}
         d["voided"] = d.get("voided", 0) + 1
         save(d)
         return {"ok": True, "outcome": "VOID_NO_SUBMISSIONS"}
 
-    half = m["reward_aigen"] // 2
-    other_half = m["reward_aigen"] - half
-    # 50% refund to creator
-    _credit(m["creator"], half, f"mission-{m['id']}-judge-timeout-creator-half")
-    # 50% split equally among submitters (consolation)
-    per_sub = other_half // len(m["submissions"])
-    distributed = 0
-    for s in m["submissions"]:
-        if per_sub > 0:
-            _credit(s["submitter"], per_sub, f"mission-{m['id']}-judge-timeout-consolation")
-            distributed += per_sub
-        s["status"] = "rejected"
-    leftover = other_half - distributed
-    if leftover > 0:
-        _credit(m["creator"], leftover, f"mission-{m['id']}-judge-timeout-rounding")
+    # 50/50 split between creator and submitters
+    half_refund = _refund_creator_onchain(m, fraction=1, of=2)
+
+    # For consolation, only AIGEN missions get auto-pay; USDC/ETH consolation
+    # requires submitter wallets and individual gas, so we mark each submission
+    # as eligible for claim — submitters call /missions/{id}/claim-consolation later
+    consolation_per_submitter = None
+    if m["reward"]["currency"] == "AIGEN":
+        other_half = m["reward"]["amount"] - (m["reward"]["amount"] // 2)
+        per_sub = other_half // len(m["submissions"])
+        distributed = 0
+        for s in m["submissions"]:
+            if per_sub > 0:
+                _credit(s["submitter"], per_sub, f"mission-{m['id']}-judge-timeout-consolation")
+                distributed += per_sub
+            s["status"] = "rejected"
+        leftover = other_half - distributed
+        if leftover > 0:
+            _credit(m["creator"], leftover, f"mission-{m['id']}-judge-timeout-rounding")
+        consolation_per_submitter = per_sub
+    else:
+        # USDC/ETH: track consolation as claimable. Each submitter can claim per_sub
+        # by calling /missions/{id}/claim-consolation { submitter_agent_id, wallet }
+        other_half = m["reward"]["amount"] - (m["reward"]["amount"] // 2)
+        per_sub = other_half // len(m["submissions"])
+        for s in m["submissions"]:
+            s["status"] = "rejected"
+            s["consolation_claimable_amount"] = per_sub
+            s["consolation_claimed"] = False
+        consolation_per_submitter = per_sub
 
     m["status"] = "voided"
     m["resolution"] = {"type": "creator_judges", "outcome": "JUDGE_TIMEOUT",
-                       "creator_refund_aigen": half + leftover,
-                       "consolation_per_submitter_aigen": per_sub,
+                       "creator_refund": half_refund,
+                       "consolation_per_submitter": consolation_per_submitter,
+                       "consolation_currency": m["reward"]["currency"],
                        "resolved_at": now}
     d["voided"] = d.get("voided", 0) + 1
     save(d)
     return {"ok": True, "outcome": "JUDGE_TIMEOUT",
-            "creator_refund_aigen": half + leftover,
-            "consolation_per_submitter_aigen": per_sub}
+            "creator_refund": half_refund,
+            "consolation_per_submitter": consolation_per_submitter}
 
 
 # ---------- read ----------
