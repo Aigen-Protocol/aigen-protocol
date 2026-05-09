@@ -29,6 +29,16 @@ BASE_URL = "http://127.0.0.1:4444"   # local scanner — bypasses proxy auth
 AUTOPILOT_AGENT = "aigen-autopilot"
 INTERVAL_SECONDS = 300
 
+# Daily mission generator — autopilot autonomously creates a peer_vote mission
+# from the day's most-scanned token, so the network always has fresh work
+# without any human input.
+DAILY_STATE_FILE = "/home/luna/crypto-genesis/aigen/autopilot_daily_state.json"
+DAILY_MISSION_REWARD_AIGEN = 50
+DAILY_MISSION_DEADLINE_HOURS = 23
+AUTOPILOT_AIGEN_REFILL_THRESHOLD = 100
+AUTOPILOT_AIGEN_REFILL_AMOUNT = 10_000   # 10k AIGEN per refill (good for ~180 missions)
+LEDGER_PATH = "/home/luna/crypto-genesis/shield-rewards/ledger.json"
+
 
 def _http(method: str, path: str, body: dict | None = None, timeout: int = 60) -> dict:
     url = BASE_URL + path
@@ -129,6 +139,109 @@ def cycle_buyback_poke() -> int:
     return 0
 
 
+def _ensure_autopilot_aigen():
+    """Make sure the autopilot agent has enough AIGEN to escrow at least one
+    mission. Treasury is the source of truth for new ledger AIGEN — we mint
+    from the protocol's bootstrap supply (mirroring the on-chain 990M supply
+    we hold). Refill is silent and idempotent."""
+    try:
+        d = json.load(open(LEDGER_PATH))
+    except Exception as e:
+        log.warning("ledger load failed: %s", e)
+        return False
+    a = d.setdefault("agents", {}).setdefault(AUTOPILOT_AGENT, {
+        "balance": 0, "total_earned": 0, "actions": 0, "first_seen": int(time.time()),
+    })
+    if a.get("balance", 0) >= AUTOPILOT_AIGEN_REFILL_THRESHOLD:
+        return True
+    a["balance"] = a.get("balance", 0) + AUTOPILOT_AIGEN_REFILL_AMOUNT
+    a["total_earned"] = a.get("total_earned", 0) + AUTOPILOT_AIGEN_REFILL_AMOUNT
+    a.setdefault("credits", []).append({
+        "ts": int(time.time()),
+        "amount": AUTOPILOT_AIGEN_REFILL_AMOUNT,
+        "reason": "autopilot-refill-from-bootstrap-supply",
+    })
+    d["total_distributed"] = d.get("total_distributed", 0) + AUTOPILOT_AIGEN_REFILL_AMOUNT
+    json.dump(d, open(LEDGER_PATH, "w"), indent=2)
+    log.info("autopilot AIGEN refilled +%d (new balance=%d)", AUTOPILOT_AIGEN_REFILL_AMOUNT, a["balance"])
+    return True
+
+
+def cycle_auto_create_daily_mission() -> int:
+    """Once per UTC day: pick the most-scanned token from /trending and post
+    a peer_vote mission asking agents to describe it. Generates content,
+    accumulates ELO history, and demonstrates the protocol is alive even
+    without external creators.
+
+    Treasury (autopilot agent) escrows AIGEN. If no one submits/votes within
+    23h, mission voids and autopilot is refunded (loses only 5 AIGEN spam fee).
+    """
+    today = time.strftime("%Y-%m-%d", time.gmtime())
+    try:
+        state = json.load(open(DAILY_STATE_FILE))
+    except (FileNotFoundError, json.JSONDecodeError):
+        state = {}
+    if state.get("last_mission_day") == today:
+        return 0  # already created today
+
+    # Make sure autopilot can escrow
+    _ensure_autopilot_aigen()
+
+    # Pick token from trending. Skip system tokens and very low-info entries.
+    trending_resp = _http("GET", "/trending")
+    if not trending_resp or "trending" not in trending_resp:
+        log.info("  daily-mission: trending unavailable, skipping")
+        return 0
+    candidates = [t for t in trending_resp["trending"]
+                  if t.get("verdict") != "SYSTEM TOKEN"
+                  and t.get("symbol") not in ("???", "")
+                  and t.get("name") not in ("Unknown", "")]
+    if not candidates:
+        log.info("  daily-mission: no usable trending candidates")
+        return 0
+    pick = candidates[0]
+
+    sym = pick["symbol"]
+    addr = pick["address"]
+    chain = pick["chain"]
+    name = pick.get("name", sym)
+    score = pick.get("safety_score", "?")
+    verdict = pick.get("verdict", "?")
+
+    title = f"Best 1-line summary of {name} ({sym}) on {chain}"
+    description = (
+        f"Token: {name} ({sym}) — {addr} on {chain}. "
+        f"Current AIGEN safety score: {score} ({verdict}). "
+        f"Submit one concise sentence describing what this token does, who's behind it, "
+        f"and what makes it interesting (or not). Best peer-voted submission wins "
+        f"{DAILY_MISSION_REWARD_AIGEN} AIGEN."
+    )
+
+    r = _http("POST", "/missions/create", {
+        "creator_agent_id": AUTOPILOT_AGENT,
+        "title": title[:120],
+        "description": description[:2000],
+        "reward_amount": DAILY_MISSION_REWARD_AIGEN,
+        "reward_currency": "AIGEN",
+        "verification_type": "peer_vote",
+        "deadline_hours": DAILY_MISSION_DEADLINE_HOURS,
+    })
+    if r.get("id"):
+        log.info("  daily-mission CREATED: %s for %s/%s (chain=%s)",
+                 r["id"], sym, addr[:10], chain)
+        state["last_mission_day"] = today
+        state["last_mission_id"] = r["id"]
+        state["last_mission_token"] = f"{sym}@{chain}"
+        state["created_at"] = int(time.time())
+        try:
+            json.dump(state, open(DAILY_STATE_FILE, "w"), indent=2)
+        except Exception as e:
+            log.warning("  daily-state save failed: %s", e)
+        return 1
+    log.warning("  daily-mission FAILED: %s", r)
+    return 0
+
+
 def cycle():
     log.info("autopilot cycle start")
     p = cycle_resolve_predictions()
@@ -137,8 +250,9 @@ def cycle():
     e = cycle_execute_claims()
     mi = cycle_resolve_missions()
     b = cycle_buyback_poke()
-    log.info("cycle done: predictions=%d patterns=%d claims_resolved=%d claims_executed=%d missions_resolved=%d buyback_poked=%d",
-             p, pa, c, e, mi, b)
+    dm = cycle_auto_create_daily_mission()
+    log.info("cycle done: predictions=%d patterns=%d claims_resolved=%d claims_executed=%d missions_resolved=%d buyback_poked=%d daily_mission=%d",
+             p, pa, c, e, mi, b, dm)
 
 
 def main():
