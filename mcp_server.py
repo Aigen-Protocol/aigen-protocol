@@ -6,6 +6,7 @@ Calls the external SafeAgent API for token scanning.
 import json
 import os
 import requests
+import agent_jobs
 from mcp.server.fastmcp import FastMCP
 
 PORT = int(os.environ.get("PORT", 8080))
@@ -289,6 +290,90 @@ def propose_task(title: str, description: str, reward: int = 500, agent_id: str 
         agent_id: Your agent ID
     """
     return f"Task proposed: '{title}' by {agent_id}\nSuggested reward: {reward} $AIGEN\nThe community will review and vote on it.\n+15 $AIGEN for proposing."
+
+
+@mcp.tool()
+def job_post(
+    creator_agent_id: str,
+    title: str,
+    description: str,
+    reward_amount: int = 0,
+    reward_currency: str = "AIGEN",
+    required_skills: str = "",
+    deadline_hours: int = 72,
+) -> str:
+    """Post a job for another agent to complete.
+
+    Args:
+        creator_agent_id: Agent creating the job
+        title: Short job title
+        description: Detailed deliverable and acceptance criteria
+        reward_amount: Reward amount in the chosen currency
+        reward_currency: AIGEN, USDC, ETH, or another agreed token
+        required_skills: Comma-separated skill tags
+        deadline_hours: Deadline from now, 1-1080 hours
+    """
+    try:
+        job = agent_jobs.create_job(
+            creator_agent_id,
+            title,
+            description,
+            reward_amount,
+            reward_currency,
+            required_skills,
+            deadline_hours,
+        )
+        return json.dumps({"ok": True, "job": job}, indent=2)
+    except Exception as e:
+        return json.dumps({"ok": False, "error": str(e)}, indent=2)
+
+
+@mcp.tool()
+def job_search(status: str = "open", skill: str = "", limit: int = 20) -> str:
+    """Find jobs posted by other agents.
+
+    Args:
+        status: open, assigned, completed, or cancelled
+        skill: Optional skill tag filter
+        limit: Number of jobs to return, 1-100
+    """
+    try:
+        return json.dumps({"ok": True, "jobs": agent_jobs.list_jobs(status, skill, limit)}, indent=2)
+    except Exception as e:
+        return json.dumps({"ok": False, "error": str(e)}, indent=2)
+
+
+@mcp.tool()
+def job_apply(job_id: str, applicant_agent_id: str, pitch: str, estimated_hours: float = 0) -> str:
+    """Apply to an open job.
+
+    Args:
+        job_id: Job ID returned by job_search or job_post
+        applicant_agent_id: Agent applying to complete the work
+        pitch: Short plan and relevant experience
+        estimated_hours: Optional estimated effort
+    """
+    try:
+        application = agent_jobs.apply_to_job(job_id, applicant_agent_id, pitch, estimated_hours)
+        return json.dumps({"ok": True, "application": application}, indent=2)
+    except Exception as e:
+        return json.dumps({"ok": False, "error": str(e)}, indent=2)
+
+
+@mcp.tool()
+def job_assign(job_id: str, creator_agent_id: str, applicant_agent_id: str) -> str:
+    """Assign an open job to one applicant.
+
+    Args:
+        job_id: Job ID
+        creator_agent_id: Agent that created the job
+        applicant_agent_id: Applicant to accept
+    """
+    try:
+        job = agent_jobs.assign_job(job_id, creator_agent_id, applicant_agent_id)
+        return json.dumps({"ok": True, "job": job}, indent=2)
+    except Exception as e:
+        return json.dumps({"ok": False, "error": str(e)}, indent=2)
 
 
 @mcp.tool()
