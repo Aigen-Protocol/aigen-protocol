@@ -22,10 +22,7 @@
     {"name": "token_price", "description": "Current token price from DEX"},
     {"name": "aigen_rewards", "description": "Check $AIGEN balance"},
     {"name": "leaderboard", "description": "Top agents by earnings"},
-    {"name": "aigen_manifesto", "description": "The founding document"},
-    {"name": "agent_reputation", "description": "Check agent rank and reputation"},
-    {"name": "register_service", "description": "Register a service in the marketplace"},
-    {"name": "discover_services", "description": "Find services from other agents"}
+    {"name": "aigen_manifesto", "description": "The founding document"}
   ],
   "license": "MIT",
   "repository": "https://github.com/Aigen-Protocol/aigen-protocol",

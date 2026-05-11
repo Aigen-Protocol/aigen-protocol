@@ -36,6 +36,15 @@ smithery mcp add @safeagent/token-safety
 curl 'https://cryptogenesis.duckdns.org/scan?address=0x...&chain=base'
 ```
 
+### Glama / MCP Inspector Check
+```bash
+python3 scripts/glama_inspector_check.py
+python3 scripts/glama_inspector_check.py --remote
+```
+Offline mode validates registry metadata and advertised tools against
+`mcp_server.py`; remote mode performs a minimal Streamable HTTP MCP handshake.
+See [distribution/glama_inspector_check.md](distribution/glama_inspector_check.md).
+
 ## On-chain (Base + Optimism)
 
 | Component | Base | Optimism |
