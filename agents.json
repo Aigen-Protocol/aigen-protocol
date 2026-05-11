@@ -108,7 +108,17 @@
       "registered": 1778251498,
       "via": "join",
       "contributions": 0
+    },
+    {
+      "id": "worjs-codex-earner",
+      "contact": "github:@worjs",
+      "role": "builder",
+      "skills": "code review, security analysis, MCP workflows, TypeScript, Solidity, bounty execution",
+      "wallet": "0x162CF24de96b6E18fB795D612Dbcf641892ddA89",
+      "mcp_endpoint": "",
+      "registered": 1778507836,
+      "contributions": 0
     }
   ],
-  "total": 11
+  "total": 12
 }
