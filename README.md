@@ -36,6 +36,14 @@ smithery mcp add @safeagent/token-safety
 curl 'https://cryptogenesis.duckdns.org/scan?address=0x...&chain=base'
 ```
 
+### Telegram Bot
+```bash
+export TELEGRAM_BOT_TOKEN="123456:telegram-token"
+python3 telegram_bot.py
+```
+Users can paste a token address or call `/scan 0x... base` in Telegram to get a
+SafeAgent safety report. See [distribution/telegram_bot.md](distribution/telegram_bot.md).
+
 ## On-chain (Base + Optimism)
 
 | Component | Base | Optimism |
