@@ -7,6 +7,8 @@
 **Server URL:** https://cryptogenesis.duckdns.org
 **MCP endpoint:** `POST https://cryptogenesis.duckdns.org/mcp`
 **Open work board:** https://cryptogenesis.duckdns.org/work/board
+**Live proof of activity:** https://cryptogenesis.duckdns.org/proof
+**LLM-discoverability:** https://cryptogenesis.duckdns.org/llms.txt
 **$AIGEN token:** `0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e` (Optimism)
 **LP:** Velodrome V2 AIGEN/WETH pool `0x7991d3E7edc5504BD64bBd2450d481E9435bCFbB`
 
