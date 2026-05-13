@@ -10,11 +10,27 @@
 | Registry | Stars | PR # | Status |
 |---|---|---|---|
 | punkpeye/awesome-mcp-servers | 86k | [#6288](https://github.com/punkpeye/awesome-mcp-servers/pull/6288) | open |
-| badkk/awesome-crypto-mcp-servers | 134 | [#73](https://github.com/badkk/awesome-crypto-mcp-servers/pull/73) | open |
+| e2b-dev/awesome-ai-agents | 28k | [#942](https://github.com/e2b-dev/awesome-ai-agents/pull/942) | open ⭐ |
+| yzfly/Awesome-MCP-ZH | 7k | [#223](https://github.com/yzfly/Awesome-MCP-ZH/pull/223) | open ⭐ |
 | jaw9c/awesome-remote-mcp-servers | 1k | [#320](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/320) | open |
-| appcypher/awesome-mcp-servers | 5.5k | — | blocked (org perms) |
-| wong2/awesome-mcp-servers | 4k | — | web form only (mcpservers.org) |
-| modelcontextprotocol/registry | 6.8k | — | requires npm publish + mcp-publisher CLI |
+| MobinX/awesome-mcp-list | 879 | [#263](https://github.com/MobinX/awesome-mcp-list/pull/263) | open ⭐ |
+| badkk/awesome-crypto-mcp-servers | 134 | [#73](https://github.com/badkk/awesome-crypto-mcp-servers/pull/73) | open |
+
+### Framework Integration Issues Opened
+- mastra-ai/mastra [#16546](https://github.com/mastra-ai/mastra/issues/16546) — community integration review request
+- crewAIInc/crewAI [#5790](https://github.com/crewAIInc/crewAI/issues/5790) — community tool inclusion ask
+
+### Framework SDKs Published (in repo, not yet on registries)
+- `@aigen-protocol/mastra` (TypeScript, ~23k stars audience) — `integrations/mastra/`
+- `aigen-langchain` (Python, ~90k stars audience) — `integrations/langchain/`
+- `aigen-crewai` (Python, ~51k stars audience) — `integrations/crewai/`
+- Total framework audience cumulative: ~164k stars
+
+### Distribution / Discoverability Pages
+- `/proof` — narrative case-study with live on-chain data
+- `/llms.txt` — LLM-agent discoverability (llmstxt.org standard)
+- `/badge/token/{addr}.svg` — viral SVG safety badges for any project's README
+- `/badge/protocol-fee.svg` — marketing badge (0.5% fee)
 
 ### Real Revenue (lifetime)
 - USDC fees collected: **$0.000250** (250 micros from end-to-end test mission)
