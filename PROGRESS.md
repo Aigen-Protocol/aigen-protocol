@@ -99,3 +99,19 @@ to treasury. Treasury cash funds REAL AIGEN missions ($25-500), which
 attract real bounty hunters → network effect kicks in.
 
 Top current opportunity: Birdeye BIP Sprint 4, 500 USDC.
+
+### Session 2026-05-13 final additions
+- `/try` — interactive intent router (4 paths: dev / creator / earner / skeptic)
+  Designed to convert the 394 IPs/wk of bouncing visitors. Each path = 30s action.
+- `/feed.xml` — RSS feed of missions, payouts, contributors. LLMs/agents can subscribe.
+- `aigen-letta` package — 4th framework SDK, gives Letta agents persistent AIGEN memory
+- `examples/cross_framework_collab/` — 3 frameworks (Mastra+LangChain+CrewAI) demo
+- `distribution/master_article.md` (1717 words) — canonical reference essay, ready to publish
+- Home page CTAs reordered to lead with `/try`
+
+Total framework SDKs: 4 (Mastra, LangChain, CrewAI, Letta) — ~181k stars audience
+Total commits this session: 35+
+
+Live conversion infrastructure:
+  Visitor lands → sees stat bar → clicks /try → picks path → tailored 30s action
+  All visible signals (live counts, real fees) prove non-vapor.
