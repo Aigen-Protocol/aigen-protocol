@@ -844,9 +844,13 @@ def vote(voter_agent_id: str, mission_id: str, submission_id: str, side: str, am
 
 def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> dict:
     """Send currency from treasury wallet to to_wallet. Returns {tx_hash, ...} or {error}."""
-    # SOL on Solana — separate code path
-    if currency == "SOL":
-        return _onchain_payout_solana(to_wallet, amount)
+    # Solana payouts (SOL native or SPL tokens)
+    if chain == "solana":
+        if currency == "SOL":
+            return _onchain_payout_solana(to_wallet, amount)
+        elif currency in SPL_TOKEN_MINTS:
+            return _onchain_payout_spl(currency, to_wallet, amount)
+        return {"error": f"unsupported Solana currency {currency}"}
 
     try:
         from web3 import Web3
@@ -900,6 +904,105 @@ def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> d
         return {"error": f"onchain payout error: {e}"}
 
 
+def _onchain_payout_spl(currency: str, to_wallet: str, amount: int) -> dict:
+    """Send SPL token from treasury Solana wallet to to_wallet.
+    Auto-creates the recipient's Associated Token Account if needed.
+    """
+    if currency not in SPL_TOKEN_MINTS:
+        return {"error": f"unsupported SPL token {currency}"}
+    if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", to_wallet or ""):
+        return {"error": "invalid Solana address"}
+    if not SOLANA_KEY_FILE.exists():
+        return {"error": f"Solana treasury key not found at {SOLANA_KEY_FILE}"}
+
+    try:
+        from solders.keypair import Keypair
+        from solders.pubkey import Pubkey
+        from solders.transaction import VersionedTransaction
+        from solders.message import MessageV0
+        from solders.instruction import Instruction, AccountMeta
+        from solders.system_program import ID as SYSTEM_PROGRAM_ID
+        from solana.rpc.api import Client
+
+        # Constants
+        TOKEN_PROGRAM_ID = Pubkey.from_string("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+        ASSOCIATED_TOKEN_PROGRAM_ID = Pubkey.from_string("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+        SYSVAR_RENT_PUBKEY = Pubkey.from_string("SysvarRent111111111111111111111111111111111")
+
+        # Load keypair
+        kdata = json.loads(SOLANA_KEY_FILE.read_text())
+        kp = Keypair.from_bytes(bytes(kdata["secret_key"]))
+        treasury_pk = kp.pubkey()
+        mint_pk = Pubkey.from_string(SPL_TOKEN_MINTS[currency])
+        recipient_pk = Pubkey.from_string(to_wallet)
+
+        # Derive ATAs (PDA: ATA program ID + [owner, token program, mint])
+        def find_ata(owner: Pubkey, mint: Pubkey) -> Pubkey:
+            seeds = [bytes(owner), bytes(TOKEN_PROGRAM_ID), bytes(mint)]
+            ata, _ = Pubkey.find_program_address(seeds, ASSOCIATED_TOKEN_PROGRAM_ID)
+            return ata
+
+        sender_ata = find_ata(treasury_pk, mint_pk)
+        recipient_ata = find_ata(recipient_pk, mint_pk)
+
+        client = Client(SOLANA_RPC, timeout=20)
+
+        # Check if recipient ATA exists
+        recipient_ata_info = client.get_account_info(recipient_ata)
+        ata_exists = recipient_ata_info.value is not None
+
+        instructions = []
+
+        # Create ATA for recipient if needed
+        if not ata_exists:
+            create_ata_ix = Instruction(
+                program_id=ASSOCIATED_TOKEN_PROGRAM_ID,
+                accounts=[
+                    AccountMeta(pubkey=treasury_pk, is_signer=True, is_writable=True),     # payer
+                    AccountMeta(pubkey=recipient_ata, is_signer=False, is_writable=True),  # ATA to create
+                    AccountMeta(pubkey=recipient_pk, is_signer=False, is_writable=False),  # owner
+                    AccountMeta(pubkey=mint_pk, is_signer=False, is_writable=False),       # mint
+                    AccountMeta(pubkey=SYSTEM_PROGRAM_ID, is_signer=False, is_writable=False),
+                    AccountMeta(pubkey=TOKEN_PROGRAM_ID, is_signer=False, is_writable=False),
+                ],
+                data=bytes([0]),  # CreateIdempotent variant — instruction 0
+            )
+            instructions.append(create_ata_ix)
+
+        # SPL Token transfer instruction (TokenProgram instruction #3 = Transfer)
+        # Layout: [3, amount(u64 little-endian)]
+        transfer_data = bytes([3]) + int(amount).to_bytes(8, "little")
+        transfer_ix = Instruction(
+            program_id=TOKEN_PROGRAM_ID,
+            accounts=[
+                AccountMeta(pubkey=sender_ata, is_signer=False, is_writable=True),
+                AccountMeta(pubkey=recipient_ata, is_signer=False, is_writable=True),
+                AccountMeta(pubkey=treasury_pk, is_signer=True, is_writable=False),
+            ],
+            data=transfer_data,
+        )
+        instructions.append(transfer_ix)
+
+        recent_bh = client.get_latest_blockhash().value.blockhash
+        msg = MessageV0.try_compile(
+            payer=treasury_pk,
+            instructions=instructions,
+            address_lookup_table_accounts=[],
+            recent_blockhash=recent_bh,
+        )
+        tx = VersionedTransaction(msg, [kp])
+        send_resp = client.send_transaction(tx)
+        sig = str(send_resp.value)
+        client.confirm_transaction(send_resp.value, commitment="confirmed", sleep_seconds=1)
+        return {
+            "tx_hash": sig,
+            "explorer": f"https://solscan.io/tx/{sig}",
+            "ata_created": not ata_exists,
+        }
+    except Exception as e:
+        return {"error": f"SPL payout error ({currency}): {e}"}
+
+
 def _onchain_payout_solana(to_wallet: str, amount_lamports: int) -> dict:
     """Send SOL from treasury Solana wallet to to_wallet (base58 address).
     Returns {tx_hash, ...} or {error}."""
@@ -909,10 +1012,9 @@ def _onchain_payout_solana(to_wallet: str, amount_lamports: int) -> dict:
         from solders.keypair import Keypair
         from solders.pubkey import Pubkey
         from solders.system_program import transfer, TransferParams
-        from solders.transaction import Transaction
+        from solders.transaction import VersionedTransaction
         from solders.message import MessageV0
         from solana.rpc.api import Client
-        import urllib.request as _ur
 
         if not SOLANA_KEY_FILE.exists():
             return {"error": f"Solana treasury key not found at {SOLANA_KEY_FILE}"}
@@ -928,26 +1030,21 @@ def _onchain_payout_solana(to_wallet: str, amount_lamports: int) -> dict:
         if balance < amount_lamports + 5000:  # leave room for fee (5000 lamports typical)
             return {"error": f"treasury SOL balance {balance} lamports < {amount_lamports + 5000} required (amount + fee)"}
 
-        # Build transfer instruction
         ix = transfer(TransferParams(
             from_pubkey=kp.pubkey(),
             to_pubkey=Pubkey.from_string(to_wallet),
             lamports=int(amount_lamports),
         ))
-
-        recent_bh_resp = client.get_latest_blockhash()
-        recent_bh = recent_bh_resp.value.blockhash
-
+        recent_bh = client.get_latest_blockhash().value.blockhash
         msg = MessageV0.try_compile(
             payer=kp.pubkey(),
             instructions=[ix],
             address_lookup_table_accounts=[],
             recent_blockhash=recent_bh,
         )
-        tx = Transaction([kp], msg, recent_bh)
+        tx = VersionedTransaction(msg, [kp])
         send_resp = client.send_transaction(tx)
         sig = str(send_resp.value)
-        # Confirm
         client.confirm_transaction(send_resp.value, commitment="confirmed", sleep_seconds=1)
         return {"tx_hash": sig, "explorer": f"https://solscan.io/tx/{sig}"}
     except Exception as e:
