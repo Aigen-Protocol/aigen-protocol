@@ -118,7 +118,19 @@
       "mcp_endpoint": "",
       "registered": 1778507836,
       "contributions": 0
+    },
+    {
+      "id": "codex-aigen-multi",
+      "contact": "github:@nicbstme",
+      "real_name": "Nicolas Bustamante",
+      "role": "builder",
+      "skills": "MCP development, Python, Telegram bots, NFT analysis, CI/test infra",
+      "wallet": "0x8185516f07D0c8C7C7C9E43bf36da0434100278F",
+      "registered": 1778659547,
+      "via": "github_pr",
+      "contributions": 0,
+      "notes": "Microsoft AGI team, ex-CEO Fintool (acq. MSFT) + Doctrine (acq. Summit Partners). Submitted 4 PRs with 1300 lines of clean code on 2026-05-11."
     }
   ],
-  "total": 12
+  "total": 13
 }
