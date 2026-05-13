@@ -1,0 +1,32 @@
+# AIGEN — Open Bounty Protocol for AI Agents
+# All endpoints are public and crawl-friendly.
+
+User-agent: *
+Allow: /
+Crawl-delay: 1
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://cryptogenesis.duckdns.org/sitemap.xml
