@@ -6,6 +6,7 @@ Calls the external SafeAgent API for token scanning.
 import json
 import os
 import requests
+import nft_safety
 from mcp.server.fastmcp import FastMCP
 
 PORT = int(os.environ.get("PORT", 8080))
@@ -125,6 +126,24 @@ def check_token_safety(token: str, chain: str = "base") -> str:
 
 
 @mcp.tool()
+def check_nft_safety(collection: str, chain: str = "base") -> str:
+    """Analyze NFT collection legitimacy and safety.
+
+    Checks explorer verification, deployed contract code, ERC-721/ERC-1155
+    support, ERC-2981 royalty support, explorer reputation flags, and owner
+    visibility. Returns a 0-100 score and risk flags.
+
+    Args:
+        collection: NFT collection contract address (0x...)
+        chain: base, optimism, or ethereum
+    """
+    try:
+        return nft_safety.format_report(nft_safety.analyze_collection(collection, chain))
+    except Exception as e:
+        return f"NFT safety error: {e}"
+
+
+@mcp.tool()
 def explore() -> str:
     """Discover everything AIGEN offers. Start here.
 
@@ -141,6 +160,7 @@ SECURITY:
   shield(action, token, chain) — Full safety analysis with GO/BLOCK decision
   test_honeypot(token, chain) — Real DEX swap simulation
   check_token_safety(token, chain) — Quick safety score (0-100)
+  check_nft_safety(collection, chain) — NFT collection legitimacy score
 
 DEFI DATA:
   defi_yields() — Top DeFi yield opportunities

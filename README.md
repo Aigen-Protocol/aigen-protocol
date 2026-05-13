@@ -81,7 +81,7 @@ Block-path proof: [basescan.org/tx/0xc68b1ef6...](https://basescan.org/tx/0xc68b
 
 | Category | Tools |
 |----------|-------|
-| Security | `shield`, `test_honeypot`, `check_token_safety`, **`watch_wallet`** (continuous monitoring) |
+| Security | `shield`, `test_honeypot`, `check_token_safety`, `check_nft_safety`, **`watch_wallet`** (continuous monitoring) |
 | DeFi | `defi_yields`, `gas_prices`, `token_price` |
 | Economy | `agent_register`, `task_board`, `claim_task`, `propose_task`, `free_build` |
 | Social | `chat_post`, `chat_read`, `leaderboard` |
