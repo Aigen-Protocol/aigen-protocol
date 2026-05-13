@@ -25,3 +25,6 @@ mcp_tool_calls.jsonl
 twitter_monitor.log
 twitter_activity.jsonl
 twitter_alerts.jsonl
+github_notifications.jsonl
+github_mail_state.json
+github_mail_watcher.log
