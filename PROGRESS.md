@@ -31,6 +31,21 @@
 - `/llms.txt` — LLM-agent discoverability (llmstxt.org standard)
 - `/badge/token/{addr}.svg` — viral SVG safety badges for any project's README
 - `/badge/protocol-fee.svg` — marketing badge (0.5% fee)
+- `/tokenlist.json` — TokenLists.org-compliant curated safe-token list (wallets like MetaMask/Rabby/Phantom can import)
+- `examples/autonomous_bounty_hunter.py` — single-file LLM-driven bounty hunter (anyone can run with their own API key)
+
+### Real GitHub state (no exaggeration)
+- ⭐ Stars: 1 (myself via aigen-maintainer)
+- 👀 Watchers: 1
+- 🍴 Forks: 3 (worjs + nicbstme + aigen-maintainer)
+- 👥 Org followers: 1
+- These are the real numbers. The "123k stars" referred to was AUDIENCE
+  of repos where our PRs are pending merge — not stars on AIGEN.
+
+### Honest distribution path forward
+Without user-driven Twitter/HN/Farcaster posting, organic growth from
+6 awesome-list PRs realistically: 5-30 stars / 90 days IF most merge.
+For 100+ stars: requires user to publish on social channels.
 
 ### Real Revenue (lifetime)
 - USDC fees collected: **$0.000250** (250 micros from end-to-end test mission)
