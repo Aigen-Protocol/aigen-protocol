@@ -121,6 +121,7 @@ Paste any URL like `https://cryptogenesis.duckdns.org/t/{address}` into your cha
 | `/missions` | Open bounty marketplace (USDC/ETH/AIGEN, 3 verification types) |
 | `/scan` | Token safety scanner (6 EVM chains, honeypot detection) |
 | `/scan/solana` | SPL token safety scanner (mint/freeze authority checks) |
+| `/missions` (SOL) | Now supports SOL rewards on Solana with real on-chain payouts |
 | `/predict` | Prediction markets on token outcomes |
 | `/patterns` | Open scam-pattern bounty board |
 | `/claims` | DAO-governed insurance pool for token-related losses |
