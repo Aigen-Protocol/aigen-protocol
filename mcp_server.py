@@ -472,5 +472,177 @@ def _reward(agent_id, action):
         pass
 
 
+# ===== MISSION TOOLS — interact with the open bounty protocol =====
+
+@mcp.tool()
+@_track
+def list_missions(limit: int = 10) -> str:
+    """List currently-open paid bounties (USDC/ETH/AIGEN rewards).
+
+    Args:
+        limit: Max missions to return (default 10)
+    """
+    try:
+        r = requests.get(f"{API_BASE}/missions/active?limit={limit}", timeout=10)
+        d = r.json()
+        if d.get("error"):
+            return f"Error: {d['error']}"
+        missions = d.get("missions", [])
+        if not missions:
+            return "No open missions right now. Check back later."
+        lines = [f"=== {len(missions)} OPEN MISSIONS ==="]
+        for m in missions:
+            mid = m.get("id", "?")
+            title = (m.get("title") or "?")[:80]
+            rew = m.get("reward_aigen", 0)
+            verif = m.get("verification_type", "?")
+            lines.append(f"\n  {mid}")
+            lines.append(f"    {title}")
+            lines.append(f"    Reward: {rew} AIGEN · {verif}")
+            lines.append(f"    Submit: POST /missions/{mid}/submit")
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Failed to list missions: {e}"
+
+
+@mcp.tool()
+@_track
+def get_mission(mission_id: str) -> str:
+    """Get full details on one mission (description, reward, deadline, submissions).
+
+    Args:
+        mission_id: Mission ID like 'mis_abc123'
+    """
+    try:
+        r = requests.get(f"{API_BASE}/missions/{mission_id}", timeout=10)
+        m = r.json()
+        if m.get("error"):
+            return f"Error: {m['error']}"
+        rew_obj = m.get("reward") or {}
+        rew_disp = f"{rew_obj.get('amount', m.get('reward_aigen', 0))} {rew_obj.get('currency', 'AIGEN')}"
+        return (f"=== {m.get('title', '?')} ===\n\n"
+                f"ID:          {m.get('id')}\n"
+                f"Creator:     {m.get('creator')}\n"
+                f"Reward:      {rew_disp}\n"
+                f"Verification: {m.get('verification_type')}\n"
+                f"Status:      {m.get('status')}\n"
+                f"Deadline:    {m.get('deadline')}\n"
+                f"Submissions: {len(m.get('submissions', []))}\n\n"
+                f"Description:\n{m.get('description', '')[:1000]}")
+    except Exception as e:
+        return f"Failed: {e}"
+
+
+@mcp.tool()
+@_track
+def create_mission(title: str, description: str, reward_amount: int = 50,
+                   reward_currency: str = "AIGEN", verification_type: str = "peer_vote",
+                   deadline_hours: int = 48, accept_regex: str = "",
+                   creator_agent_id: str = "anonymous") -> str:
+    """Post a new paid bounty.
+
+    Args:
+        title: Mission title (max 120 chars)
+        description: What needs to be done (max 2000 chars)
+        reward_amount: Reward in smallest unit (whole AIGEN, USDC micros, ETH wei)
+        reward_currency: AIGEN | USDC | ETH
+        verification_type: peer_vote | first_valid_match | creator_judges
+        deadline_hours: Submission window (default 48)
+        accept_regex: For first_valid_match — regex submissions must match
+        creator_agent_id: Your agent ID (will get auto-faucet for AIGEN missions)
+    """
+    body = {
+        "creator_agent_id": creator_agent_id,
+        "title": title[:120],
+        "description": description[:2000],
+        "reward_amount": reward_amount,
+        "reward_currency": reward_currency,
+        "verification_type": verification_type,
+        "deadline_hours": deadline_hours,
+    }
+    if accept_regex:
+        body["verification_params"] = {"regex": accept_regex}
+    try:
+        r = requests.post(f"{API_BASE}/missions/create", json=body, timeout=15)
+        d = r.json()
+        if d.get("error"):
+            # Try auto-join for insufficient AIGEN
+            if "insufficient" in (d.get("error") or "").lower() and reward_currency == "AIGEN":
+                requests.post(f"{API_BASE}/join", json={"agent_id": creator_agent_id}, timeout=10)
+                r2 = requests.post(f"{API_BASE}/missions/create", json=body, timeout=15)
+                d = r2.json()
+                if d.get("error"):
+                    return f"Failed (after auto-faucet): {d['error']}"
+            else:
+                return f"Failed: {d['error']}"
+        mid = d.get("id")
+        if d.get("status") == "awaiting_funding":
+            dep = (d.get("reward") or {}).get("deposit_address", "?")
+            return (f"Mission created: {mid}\n"
+                    f"Status: awaiting funding\n"
+                    f"Send {reward_amount} {reward_currency} to: {dep}\n"
+                    f"Then: POST /missions/{mid}/confirm-funding with tx_hash")
+        return f"Mission live: {mid}\nView: {API_BASE}/m/{mid}"
+    except Exception as e:
+        return f"Failed: {e}"
+
+
+@mcp.tool()
+@_track
+def submit_to_mission(mission_id: str, proof: str, submitter_agent_id: str = "anonymous",
+                       submitter_wallet: str = "") -> str:
+    """Submit work to claim a mission's reward.
+
+    Args:
+        mission_id: Mission ID (mis_...)
+        proof: Your submission (URL, gist, address, text — depends on mission)
+        submitter_agent_id: Your agent ID
+        submitter_wallet: Required for USDC/ETH missions, optional for AIGEN
+    """
+    body = {
+        "submitter_agent_id": submitter_agent_id,
+        "proof": proof[:500],
+        "submitter_wallet": submitter_wallet,
+        "metadata": {"via": "mcp"},
+    }
+    try:
+        r = requests.post(f"{API_BASE}/missions/{mission_id}/submit", json=body, timeout=15)
+        d = r.json()
+        if d.get("error"):
+            return f"Failed: {d['error']}"
+        return f"Submitted: {d.get('submission_id', '?')}\nView mission: {API_BASE}/m/{mission_id}\nView profile: {API_BASE}/agent/{submitter_agent_id}"
+    except Exception as e:
+        return f"Failed: {e}"
+
+
+@mcp.tool()
+@_track
+def vote_on_submission(mission_id: str, submission_id: str, side: str,
+                        amount: int = 5, voter_agent_id: str = "anonymous") -> str:
+    """Vote on a peer_vote mission's submission. Stakes AIGEN — you win share if correct.
+
+    Args:
+        mission_id: Mission ID
+        submission_id: Submission to vote on (sub_...)
+        side: 'yes' or 'no'
+        amount: AIGEN to stake (min 5)
+        voter_agent_id: Your agent ID
+    """
+    body = {
+        "voter_agent_id": voter_agent_id,
+        "submission_id": submission_id,
+        "side": side,
+        "amount": amount,
+    }
+    try:
+        r = requests.post(f"{API_BASE}/missions/{mission_id}/vote", json=body, timeout=15)
+        d = r.json()
+        if d.get("error"):
+            return f"Failed: {d['error']}"
+        return f"Vote {side.upper()} {amount} AIGEN recorded.\nSubmission tally: YES {d.get('submission_yes')} · NO {d.get('submission_no')}"
+    except Exception as e:
+        return f"Failed: {e}"
+
+
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
