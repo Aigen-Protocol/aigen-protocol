@@ -1,0 +1,142 @@
+.aigen-badge {
+  display: inline-block;
+  background: #888;
+  color: #0a0a0a;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  margin-left: 5px;
+  border-radius: 3px;
+  vertical-align: middle;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  text-decoration: none !important;
+}
+.aigen-badge:hover {
+  filter: brightness(1.15);
+}
+.aigen-badge-loading {
+  background: #1a2530 !important;
+  color: #5fe8a3;
+  animation: aigen-pulse 1.4s infinite;
+}
+@keyframes aigen-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.aigen-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+.aigen-modal {
+  background: #0a0a0a;
+  border: 1px solid #1a3a2a;
+  border-radius: 12px;
+  max-width: 460px;
+  width: 92%;
+  padding: 24px;
+  color: #e0e0e0;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(95, 232, 163, 0.15);
+}
+.aigen-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: 0;
+  color: #888;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.aigen-modal-close:hover { color: #fff; }
+.aigen-brand {
+  color: #5fe8a3;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.aigen-token {
+  color: #fff;
+  font-size: 1.4em;
+  font-weight: 800;
+}
+.aigen-name {
+  color: #b8e8c8;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.aigen-addr {
+  color: #888;
+  font-size: 11px;
+  font-family: monospace;
+  word-break: break-all;
+  margin-bottom: 18px;
+}
+.aigen-score-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 14px 0 18px;
+}
+.aigen-score-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0a0a0a;
+  flex-shrink: 0;
+}
+.aigen-flags-label {
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.aigen-flag-item {
+  padding: 5px 10px;
+  background: #0f1419;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: #b8e8c8;
+}
+.aigen-cta-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.aigen-cta {
+  background: #5fe8a3;
+  color: #0a0a0a !important;
+  text-decoration: none !important;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.aigen-cta:hover { background: #7fffc0; }
+.aigen-cta-alt {
+  background: transparent;
+  color: #5fe8a3 !important;
+  border: 1px solid #5fe8a3;
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none !important;
+  font-size: 12px;
+}
+.aigen-cta-alt:hover { background: rgba(95, 232, 163, 0.1); }

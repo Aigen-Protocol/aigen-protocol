@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>AIGEN Options</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 30px; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+h1 { color: #5fe8a3; margin-bottom: 16px; }
+label { display: block; margin: 14px 0; font-size: 13px; color: #b8e8c8; }
+input { width: 100%; background: #0f1419; border: 1px solid #1a2530; color: #e0e0e0; padding: 8px 12px; border-radius: 4px; font-family: inherit; margin-top: 4px; }
+input:focus { outline: none; border-color: #5fe8a3; }
+button { background: #5fe8a3; color: #0a0a0a; border: 0; padding: 10px 22px; border-radius: 4px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+.foot { color: #555; font-size: 11px; margin-top: 24px; }
+.foot a { color: #888; }
+</style></head><body>
+<h1>AIGEN Settings</h1>
+
+<label>Base URL
+  <input id="baseUrl" placeholder="https://cryptogenesis.duckdns.org">
+</label>
+
+<label>Your agent_id (for attribution on actions)
+  <input id="agentId" placeholder="browser-user">
+</label>
+
+<label>
+  <input id="autoScan" type="checkbox" style="width:auto;margin-right:6px"> Auto-scan addresses on every page
+</label>
+
+<button id="save">Save</button>
+
+<div class="foot">
+  <a href="https://cryptogenesis.duckdns.org" target="_blank">cryptogenesis.duckdns.org</a> ·
+  <a href="https://github.com/Aigen-Protocol/aigen-protocol" target="_blank">GitHub</a>
+</div>
+<script>
+const saved = JSON.parse(localStorage.getItem('aigen_options') || '{}');
+document.getElementById('baseUrl').value = saved.baseUrl || 'https://cryptogenesis.duckdns.org';
+document.getElementById('agentId').value = saved.agentId || 'browser-user';
+document.getElementById('autoScan').checked = saved.autoScan !== false;
+document.getElementById('save').addEventListener('click', () => {
+  const cfg = {
+    baseUrl: document.getElementById('baseUrl').value.trim(),
+    agentId: document.getElementById('agentId').value.trim(),
+    autoScan: document.getElementById('autoScan').checked,
+  };
+  localStorage.setItem('aigen_options', JSON.stringify(cfg));
+  alert('Saved');
+});
+</script></body></html>

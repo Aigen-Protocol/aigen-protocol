@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>AIGEN</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background: #0a0a0a; color: #e0e0e0; width: 280px; padding: 16px; line-height: 1.4; }
+h1 { font-size: 14px; color: #5fe8a3; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.subtitle { color: #888; font-size: 11px; margin-bottom: 12px; }
+input { width: 100%; background: #0f1419; border: 1px solid #1a2530; color: #e0e0e0; padding: 7px 10px; border-radius: 4px; font-family: inherit; font-size: 12px; margin-bottom: 8px; }
+input:focus { outline: none; border-color: #5fe8a3; }
+button { background: #5fe8a3; color: #0a0a0a; border: 0; padding: 8px 12px; border-radius: 4px; font-family: inherit; font-weight: 700; font-size: 12px; cursor: pointer; width: 100%; margin-bottom: 6px; }
+button:hover { background: #7fffc0; }
+button.alt { background: transparent; color: #888; border: 1px solid #1a2530; }
+button.alt:hover { background: #0f1419; color: #5fe8a3; border-color: #5fe8a3; }
+#result { margin-top: 10px; font-size: 11px; padding: 8px; border-radius: 4px; display: none; }
+.r-ok { background: #0a3a25; color: #5fe8a3; }
+.r-err { background: #3a0a0a; color: #ef4444; }
+.foot { margin-top: 12px; font-size: 10px; color: #555; text-align: center; }
+.foot a { color: #888; text-decoration: none; }
+</style></head><body>
+<h1>● AIGEN</h1>
+<div class="subtitle">Open Bounty Protocol · 0.5% fee</div>
+
+<input id="addr" placeholder="0x... (or paste any address)" autofocus>
+<button id="scanBtn">Scan</button>
+<button class="alt" id="rescanBtn">Re-scan this page</button>
+<button class="alt" id="missionsBtn">Browse missions</button>
+<button class="alt" id="meBtn">My dashboard</button>
+
+<div id="result"></div>
+
+<div class="foot">
+  <a href="https://cryptogenesis.duckdns.org" target="_blank">cryptogenesis.duckdns.org</a>
+</div>
+<script src="popup.js"></script>
+</body></html>

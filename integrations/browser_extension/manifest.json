@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "AIGEN — Token Safety Inline",
+  "short_name": "AIGEN",
+  "version": "0.1.0",
+  "description": "Auto-scan token addresses on any webpage. Inline safety badges on Etherscan, Solscan, DexScreener, GeckoTerminal, etc. Free, no API key.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://cryptogenesis.duckdns.org/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AIGEN — scan any address"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html"
+}
