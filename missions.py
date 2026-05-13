@@ -151,6 +151,9 @@ def _elo(agent_id: str) -> int:
 
 # ---------- create ----------
 
+VALID_CATEGORIES = {"scan", "research", "code", "scam-alert", "summary", "vote", "audit", "data", "design", "other"}
+
+
 def create_mission(creator_agent_id: str, title: str, description: str,
                    reward_amount: int, verification_type: str,
                    verification_params: dict = None,
@@ -160,7 +163,8 @@ def create_mission(creator_agent_id: str, title: str, description: str,
                    min_submitter_elo: int = 0,
                    reward_aigen: int = None,
                    webhook_url: str = "",
-                   notify_email: str = "") -> dict:
+                   notify_email: str = "",
+                   category: str = "") -> dict:
     """Open a new mission.
 
     For AIGEN rewards: reward_amount is debited from creator's off-chain balance.
@@ -254,11 +258,17 @@ def create_mission(creator_agent_id: str, title: str, description: str,
             return {"error": "notify_email too long"}
         email_clean = em
 
+    # Validate category (optional, defaults to 'other')
+    cat_clean = (category or "other").strip().lower()
+    if cat_clean not in VALID_CATEGORIES:
+        return {"error": f"category must be one of {sorted(VALID_CATEGORIES)}"}
+
     m = {
         "id": mid,
         "creator": creator_agent_id,
         "title": title.strip(),
         "description": description.strip(),
+        "category": cat_clean,
         "webhook_url": webhook_clean,
         "notify_email": email_clean,
         # Reward block — multi-currency
