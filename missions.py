@@ -33,7 +33,7 @@ LEDGER = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
 VERIFICATION_TYPES = {"peer_vote", "first_valid_match", "creator_judges"}
 
 # Currencies the reward can be paid in
-REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH"}
+REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH", "SOL"}
 
 # Token addresses for on-chain payout
 TOKEN_ADDRS = {
@@ -46,15 +46,19 @@ TOKEN_ADDRS = {
         "optimism": "0x0000000000000000000000000000000000000000",
     },
 }
-TOKEN_DECIMALS = {"USDC": 6, "ETH": 18, "AIGEN": 0}  # AIGEN tracked off-chain in whole units
+TOKEN_DECIMALS = {"USDC": 6, "ETH": 18, "AIGEN": 0, "SOL": 9}  # AIGEN tracked off-chain in whole units
 
-# Treasury wallet — receives funding deposits, sends payouts
+# Treasury wallets — receives funding deposits, sends payouts
 TREASURY = "0xDa429f2034b62b8722713873dE3C045eec390d8F"
+TREASURY_SOL = "9NA5Nd9dfiAbeKZXavAEypSv5sbnaGdPEW3TSFH445kZ"
+SOLANA_KEY_FILE = Path("/home/luna/.aigen-secrets/solana_treasury.json")
+SOLANA_RPC = "https://api.mainnet-beta.solana.com"
 
 SPAM_FEE_BURN_AIGEN = 5         # only applied to AIGEN-rewarded missions (real $ is its own anti-spam)
 MIN_REWARD_AIGEN = 10
 MIN_REWARD_USDC_MICROS = 10_000     # $0.01 minimum
 MIN_REWARD_ETH_WEI = 10**14         # 0.0001 ETH ~$0.24
+MIN_REWARD_SOL_LAMPORTS = 10_000    # 0.00001 SOL ~$0.002
 
 # ===== Protocol fee (the business model) =====
 # The protocol takes a small cut of every mission payout. This is the *only* way
@@ -309,11 +313,14 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     if reward_currency in ("USDC", "ETH"):
         if reward_chain not in TOKEN_ADDRS[reward_currency]:
             return {"error": f"unsupported chain '{reward_chain}' for {reward_currency}"}
+    if reward_currency == "SOL":
+        # Force chain to solana for SOL
+        reward_chain = "solana"
 
     # Currency-specific minimum reward
-    min_reward = {"AIGEN": MIN_REWARD_AIGEN, "USDC": MIN_REWARD_USDC_MICROS, "ETH": MIN_REWARD_ETH_WEI}[reward_currency]
+    min_reward = {"AIGEN": MIN_REWARD_AIGEN, "USDC": MIN_REWARD_USDC_MICROS, "ETH": MIN_REWARD_ETH_WEI, "SOL": MIN_REWARD_SOL_LAMPORTS}[reward_currency]
     if reward_amount < min_reward:
-        unit = {"AIGEN": "AIGEN", "USDC": "USDC micros (1e6=1USDC)", "ETH": "wei"}[reward_currency]
+        unit = {"AIGEN": "AIGEN", "USDC": "USDC micros (1e6=1USDC)", "ETH": "wei", "SOL": "lamports (1e9=1SOL)"}[reward_currency]
         return {"error": f"reward_amount must be >= {min_reward} {unit}"}
 
     vparams = verification_params or {}
@@ -387,7 +394,7 @@ def create_mission(creator_agent_id: str, title: str, description: str,
             "currency": reward_currency,
             "amount": int(reward_amount),
             "chain": reward_chain if reward_currency != "AIGEN" else None,
-            "deposit_address": TREASURY if reward_currency != "AIGEN" else None,
+            "deposit_address": (TREASURY_SOL if reward_currency == "SOL" else (TREASURY if reward_currency != "AIGEN" else None)),
             "deposit_tx": None,
             "deposit_confirmed_at": None,
             "payout_tx": None,
@@ -433,11 +440,13 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     # For USDC/ETH: include funding instructions
     if reward_currency != "AIGEN":
         m["funding_instructions"] = {
-            "send_to": TREASURY,
+            "send_to": TREASURY_SOL if reward_currency == "SOL" else TREASURY,
             "currency": reward_currency,
             "chain": reward_chain,
             "amount_wei": int(reward_amount),
-            "token_contract": TOKEN_ADDRS[reward_currency][reward_chain] if reward_currency != "ETH" else None,
+            "token_contract": (TOKEN_ADDRS[reward_currency][reward_chain]
+                              if reward_currency in TOKEN_ADDRS and reward_currency != "ETH"
+                              else None),
             "next_step": f"After sending, POST /missions/{mid}/confirm-funding with the tx_hash",
             "fee_note": f"Winner receives net {net_to_winner} ({reward_currency}). Protocol keeps {fee} ({PROTOCOL_FEE_BPS/100:.2f}% fee) from your deposit.",
         }
@@ -449,8 +458,11 @@ def create_mission(creator_agent_id: str, title: str, description: str,
 def confirm_funding(mission_id: str, tx_hash: str) -> dict:
     """Verify on-chain that the creator's deposit landed at TREASURY for the
     expected amount + currency + chain. Activates the mission on success."""
-    if not tx_hash or not re.match(r"^0x[0-9a-fA-F]{64}$", tx_hash):
-        return {"error": "tx_hash must be 0x-prefixed 64-char hex"}
+    # Solana txs are base58 64-88 chars; EVM is 0x-prefixed 64 hex
+    is_evm_tx = bool(re.match(r"^0x[0-9a-fA-F]{64}$", tx_hash or ""))
+    is_sol_tx = bool(re.match(r"^[1-9A-HJ-NP-Za-km-z]{64,88}$", tx_hash or ""))
+    if not is_evm_tx and not is_sol_tx:
+        return {"error": "tx_hash must be EVM 0x-hex (64 chars) or Solana base58 signature"}
 
     d = load()
     for m in d["missions"]:
@@ -459,6 +471,52 @@ def confirm_funding(mission_id: str, tx_hash: str) -> dict:
         if m["status"] != "awaiting_funding":
             return {"error": f"mission status is {m['status']}, not awaiting_funding"}
         r = m["reward"]
+
+        # SOL on Solana — verify via Solana RPC
+        if r["currency"] == "SOL":
+            if not is_sol_tx:
+                return {"error": "tx_hash must be Solana base58 signature for SOL mission"}
+            try:
+                import urllib.request as _ur
+                rpc_body = json.dumps({
+                    "jsonrpc": "2.0", "id": 1, "method": "getTransaction",
+                    "params": [tx_hash, {"encoding": "json", "maxSupportedTransactionVersion": 0}],
+                }).encode()
+                req = _ur.Request(SOLANA_RPC, method="POST", data=rpc_body,
+                                  headers={"Content-Type": "application/json"})
+                with _ur.urlopen(req, timeout=15) as resp:
+                    j = json.loads(resp.read())
+                tx = (j.get("result") or {})
+                if not tx:
+                    return {"error": "Solana tx not found yet (try again in a few seconds)"}
+                meta = tx.get("meta") or {}
+                if meta.get("err") is not None:
+                    return {"error": f"Solana tx reverted: {meta['err']}"}
+                # Verify treasury received >= amount lamports
+                msg = tx.get("transaction", {}).get("message", {})
+                accounts = msg.get("accountKeys", [])
+                pre_balances = meta.get("preBalances", [])
+                post_balances = meta.get("postBalances", [])
+                treasury_idx = None
+                for i, acc in enumerate(accounts):
+                    if acc == TREASURY_SOL:
+                        treasury_idx = i
+                        break
+                if treasury_idx is None:
+                    return {"error": f"tx does not transfer to treasury {TREASURY_SOL}"}
+                delta = post_balances[treasury_idx] - pre_balances[treasury_idx]
+                if delta < int(r["amount"]):
+                    return {"error": f"SOL received {delta} < required {r['amount']} lamports"}
+            except Exception as e:
+                return {"error": f"Solana lookup failed: {e}"}
+
+            r["deposit_tx"] = tx_hash
+            r["deposit_confirmed_at"] = int(time.time())
+            m["status"] = "open"
+            save(d)
+            _notify_subscribers_on_create(m)
+            return {"ok": True, "mission_id": mission_id, "status": "open",
+                    "deposit_tx": tx_hash, "amount_funded": r["amount"], "currency": "SOL"}
 
         # Verify on-chain
         try:
@@ -543,12 +601,16 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
         if any(s["submitter"] == submitter_agent_id for s in m["submissions"]):
             return {"error": "you already submitted to this mission"}
 
-        # USDC/ETH missions require submitter_wallet for on-chain payout
+        # USDC/ETH/SOL missions require submitter_wallet for on-chain payout
         currency = m.get("reward", {}).get("currency", "AIGEN")
-        wallet_clean = (submitter_wallet or "").strip().lower()
+        wallet_clean = (submitter_wallet or "").strip()
         if currency in ("USDC", "ETH"):
+            wallet_clean = wallet_clean.lower()
             if not wallet_clean or not re.match(r"^0x[0-9a-f]{40}$", wallet_clean):
                 return {"error": f"submitter_wallet (0x-prefixed 40-char hex) required for {currency}-rewarded missions"}
+        elif currency == "SOL":
+            if not wallet_clean or not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", wallet_clean):
+                return {"error": "submitter_wallet (Solana base58 address, 32-44 chars) required for SOL-rewarded missions"}
 
         sid = "sub_" + uuid.uuid4().hex[:10]
         sub = {
@@ -708,6 +770,10 @@ def vote(voter_agent_id: str, mission_id: str, submission_id: str, side: str, am
 
 def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> dict:
     """Send currency from treasury wallet to to_wallet. Returns {tx_hash, ...} or {error}."""
+    # SOL on Solana — separate code path
+    if currency == "SOL":
+        return _onchain_payout_solana(to_wallet, amount)
+
     try:
         from web3 import Web3
         from eth_account import Account
@@ -758,6 +824,60 @@ def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> d
             return {"error": f"unsupported currency {currency}"}
     except Exception as e:
         return {"error": f"onchain payout error: {e}"}
+
+
+def _onchain_payout_solana(to_wallet: str, amount_lamports: int) -> dict:
+    """Send SOL from treasury Solana wallet to to_wallet (base58 address).
+    Returns {tx_hash, ...} or {error}."""
+    if not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", to_wallet or ""):
+        return {"error": "invalid Solana address"}
+    try:
+        from solders.keypair import Keypair
+        from solders.pubkey import Pubkey
+        from solders.system_program import transfer, TransferParams
+        from solders.transaction import Transaction
+        from solders.message import MessageV0
+        from solana.rpc.api import Client
+        import urllib.request as _ur
+
+        if not SOLANA_KEY_FILE.exists():
+            return {"error": f"Solana treasury key not found at {SOLANA_KEY_FILE}"}
+
+        kdata = json.loads(SOLANA_KEY_FILE.read_text())
+        secret = bytes(kdata["secret_key"])
+        kp = Keypair.from_bytes(secret)
+
+        client = Client(SOLANA_RPC, timeout=20)
+        # Check balance first
+        balance_resp = client.get_balance(kp.pubkey())
+        balance = balance_resp.value if hasattr(balance_resp, "value") else 0
+        if balance < amount_lamports + 5000:  # leave room for fee (5000 lamports typical)
+            return {"error": f"treasury SOL balance {balance} lamports < {amount_lamports + 5000} required (amount + fee)"}
+
+        # Build transfer instruction
+        ix = transfer(TransferParams(
+            from_pubkey=kp.pubkey(),
+            to_pubkey=Pubkey.from_string(to_wallet),
+            lamports=int(amount_lamports),
+        ))
+
+        recent_bh_resp = client.get_latest_blockhash()
+        recent_bh = recent_bh_resp.value.blockhash
+
+        msg = MessageV0.try_compile(
+            payer=kp.pubkey(),
+            instructions=[ix],
+            address_lookup_table_accounts=[],
+            recent_blockhash=recent_bh,
+        )
+        tx = Transaction([kp], msg, recent_bh)
+        send_resp = client.send_transaction(tx)
+        sig = str(send_resp.value)
+        # Confirm
+        client.confirm_transaction(send_resp.value, commitment="confirmed", sleep_seconds=1)
+        return {"tx_hash": sig, "explorer": f"https://solscan.io/tx/{sig}"}
+    except Exception as e:
+        return {"error": f"Solana payout error: {e}"}
 
 
 def _split_with_fee(gross_amount: int) -> tuple[int, int]:
