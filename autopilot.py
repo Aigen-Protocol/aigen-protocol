@@ -35,6 +35,8 @@ INTERVAL_SECONDS = 300
 DAILY_STATE_FILE = "/home/luna/crypto-genesis/aigen/autopilot_daily_state.json"
 DAILY_MISSION_REWARD_AIGEN = 50
 DAILY_MISSION_DEADLINE_HOURS = 23
+# Bump from daily to twice-daily so the mission feed always has movement
+MISSION_INTERVAL_HOURS = 12
 AUTOPILOT_AIGEN_REFILL_THRESHOLD = 100
 AUTOPILOT_AIGEN_REFILL_AMOUNT = 10_000   # 10k AIGEN per refill (good for ~180 missions)
 LEDGER_PATH = "/home/luna/crypto-genesis/shield-rewards/ledger.json"
@@ -197,23 +199,25 @@ MISSION_TEMPLATES = [
 
 
 def cycle_auto_create_daily_mission() -> int:
-    """Once per UTC day: rotate through MISSION_TEMPLATES and post one mission.
+    """Every MISSION_INTERVAL_HOURS: rotate through MISSION_TEMPLATES and post one.
     Treasury (autopilot agent) escrows AIGEN. If no one submits/votes within
     23h, mission voids and autopilot is refunded (loses only 5 AIGEN spam fee).
     """
-    today = time.strftime("%Y-%m-%d", time.gmtime())
+    now_ts = int(time.time())
     try:
         state = json.load(open(DAILY_STATE_FILE))
     except (FileNotFoundError, json.JSONDecodeError):
         state = {}
-    if state.get("last_mission_day") == today:
-        return 0  # already created today
+    last_created = state.get("created_at", 0)
+    if now_ts - last_created < MISSION_INTERVAL_HOURS * 3600:
+        return 0  # too soon since last
+    today = time.strftime("%Y-%m-%d", time.gmtime())
 
     # Make sure autopilot can escrow
     _ensure_autopilot_aigen()
 
-    # Rotate template by day-of-year so we get variety
-    day_of_year = int(time.strftime("%j", time.gmtime()))
+    # Rotate template by half-day-of-year (so 2 distinct templates/day)
+    day_of_year = int(time.strftime("%j", time.gmtime())) * 2 + (1 if int(time.strftime("%H", time.gmtime())) >= 12 else 0)
 
     # Pre-fetch trending so we can skip templates needing tokens if empty
     trending_resp = _http("GET", "/trending")
