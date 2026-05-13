@@ -22,3 +22,6 @@ autopilot_daily_state.json
 bounty_picklist.json
 bounty_history.json
 mcp_tool_calls.jsonl
+twitter_monitor.log
+twitter_activity.jsonl
+twitter_alerts.jsonl
