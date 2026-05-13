@@ -1,0 +1,60 @@
+{
+  "name": "@aigen-protocol/vercel-ai-sdk",
+  "version": "0.1.0",
+  "description": "Vercel AI SDK tools for AIGEN — open bounty protocol for AI agents. Token safety scans, paid USDC missions on Base/Optimism, on-chain reputation. 0.5% protocol fee vs 5-20% on Replit/Bountybird/Superteam Earn.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md", "CHANGELOG.md"],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean"
+  },
+  "keywords": [
+    "vercel",
+    "vercel-ai-sdk",
+    "ai-sdk",
+    "nextjs",
+    "aigen",
+    "bounty",
+    "ai-agent",
+    "token-safety",
+    "honeypot",
+    "defi",
+    "base",
+    "optimism",
+    "usdc",
+    "agent-economy",
+    "mcp"
+  ],
+  "author": "Aigen-Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aigen-Protocol/aigen-protocol.git",
+    "directory": "integrations/vercel_ai_sdk"
+  },
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "peerDependencies": {
+    "ai": ">=3.0.0",
+    "zod": ">=3.0.0"
+  },
+  "devDependencies": {
+    "ai": "^4.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "zod": "^3.23.0"
+  }
+}
