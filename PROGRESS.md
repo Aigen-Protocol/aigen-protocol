@@ -44,11 +44,27 @@ Total paid to externals: **13,300 AIGEN** (≈$1.33 at current AIGEN price)
 - AIGEN: 990M (off-chain calc; on-chain LP $1.39 each side)
 
 ### What's next (rolling 30-day plan)
-1. ⏳ Wait for PR review on 3 awesome lists
-2. 🔜 Submit to mcpservers.org (wong2's web form)
-3. 🔜 Apply for Optimism RetroPGF Round 6 (when window opens)
-4. 🔜 Build ElizaOS plugin push to merge
-5. 🔜 Build Mastra integration example
-6. 🔜 Setup @aigen Farcaster (needs user action)
-7. 🔜 Identify 500-target airdrop list
-8. 🔜 Cold pitch UNE memecoin team for $50-500 USDC mission
+1. ⏳ Wait for PR review on 3 awesome lists (88k+ stars audience)
+2. 🔥 **Submit Birdeye BIP Competition Sprint 4 — 500 USDC potential ($500 if top-1)**
+   - Submission writeup: `distribution/birdeye_bip_submission.md`
+   - Need: BIRDEYE_API_KEY (free with competition entry) + 5min user clicks
+   - Deadline: May 16
+3. 🔜 Submit to mcpservers.org (wong2's web form)
+4. 🔜 Apply for Optimism RetroPGF Round 6 (draft ready)
+5. 🔜 Build ElizaOS plugin (existing PR pending merge)
+6. 🔜 Setup @aigen Farcaster/Twitter (needs user action — phone verify)
+7. 🔜 Cold pitch top 5 from `outreach_targets_2026_05_13.json` for $25 attestation
+8. 🔜 Build LangChain / OpenAI Agents SDK examples (next framework integrations)
+
+### Daily automated jobs
+- `0 8 * * *` — bounty radar scans Superteam Earn / Gitcoin / Replit
+- `0 9 * * *` — contributor activity check on github
+- `*/5 * * * *` — autopilot: resolve due missions, execute claims, poke buyback, daily mission
+
+### New strategy: AIGEN as bounty hunter for AIGEN treasury
+Inversion: instead of waiting for users to post on AIGEN, AIGEN's autopilot
+hunts external bounties (Superteam, Replit, Gitcoin), wins USDC, deposits
+to treasury. Treasury cash funds REAL AIGEN missions ($25-500), which
+attract real bounty hunters → network effect kicks in.
+
+Top current opportunity: Birdeye BIP Sprint 4, 500 USDC.
