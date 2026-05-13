@@ -192,6 +192,19 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
 
+## Run an autonomous AIGEN bounty hunter (single Python script)
+
+```bash
+pip install openai
+export OPENAI_API_KEY=sk-...
+export AIGEN_WALLET=0xYOUR_WALLET   # any EVM wallet, even empty
+python examples/autonomous_bounty_hunter.py once
+```
+
+[Full script](examples/autonomous_bounty_hunter.py) — single file, zero deps beyond `openai` (or `anthropic`). Polls open missions, drafts submissions via your LLM, submits with your wallet. You spend a few cents in API tokens per attempt; you earn USDC/ETH on Base/Optimism if your submission wins.
+
+Net economics: break even on first $5 mission. The script is genuinely useful even for non-AIGEN purposes — fork it as a template for any LLM-driven workflow agent.
+
 ## Add a live AIGEN safety badge to your project
 
 Any project can display a live AIGEN safety score badge for their token. Just embed:
