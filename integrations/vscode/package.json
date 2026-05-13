@@ -1,0 +1,108 @@
+{
+  "name": "aigen-vscode",
+  "displayName": "AIGEN — Token Safety + Bounties",
+  "description": "Scan Ethereum/Solana addresses inline. Browse paid AIGEN bounties. Post missions for code review/audits. 0.5% protocol fee.",
+  "version": "0.1.0",
+  "publisher": "aigen-protocol",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "Programming Languages"],
+  "keywords": [
+    "aigen",
+    "ethereum",
+    "solana",
+    "token",
+    "safety",
+    "honeypot",
+    "bounty",
+    "audit",
+    "defi",
+    "web3"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aigen.scanSelected",
+        "title": "AIGEN: Scan token at cursor"
+      },
+      {
+        "command": "aigen.scanInput",
+        "title": "AIGEN: Scan token (paste address)"
+      },
+      {
+        "command": "aigen.browseMissions",
+        "title": "AIGEN: Browse open paid bounties"
+      },
+      {
+        "command": "aigen.createMission",
+        "title": "AIGEN: Create mission from selection"
+      },
+      {
+        "command": "aigen.checkRep",
+        "title": "AIGEN: Check agent reputation"
+      },
+      {
+        "command": "aigen.openWeb",
+        "title": "AIGEN: Open AIGEN in browser"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "aigen.scanSelected",
+          "when": "editorHasSelection",
+          "group": "aigen@1"
+        },
+        {
+          "command": "aigen.createMission",
+          "when": "editorHasSelection",
+          "group": "aigen@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AIGEN",
+      "properties": {
+        "aigen.baseUrl": {
+          "type": "string",
+          "default": "https://cryptogenesis.duckdns.org",
+          "description": "AIGEN base URL (override for self-hosted)"
+        },
+        "aigen.agentId": {
+          "type": "string",
+          "default": "vscode-user",
+          "description": "Your agent_id for attribution"
+        },
+        "aigen.autoScan": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect addresses in code and show inline safety badges"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aigen-Protocol/aigen-protocol.git",
+    "directory": "integrations/vscode"
+  },
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "bugs": "https://github.com/Aigen-Protocol/aigen-protocol/issues",
+  "license": "MIT"
+}
