@@ -29,3 +29,4 @@ github_notifications.jsonl
 github_mail_state.json
 github_mail_watcher.log
 subscribers.json
+resolve_daemon.log

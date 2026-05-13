@@ -629,6 +629,19 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
         m["submissions"].append(sub)
         save(d)
 
+        # INSTANT RESOLUTION for first_valid_match — if this submission matches
+        # the accept regex, resolve immediately so winner gets paid in the same request.
+        instant_result = None
+        if m["verification_type"] == "first_valid_match":
+            rx = m["verification_params"].get("regex", "")
+            if rx:
+                try:
+                    if re.compile(rx).search(proof):
+                        # Trigger resolve in-process
+                        instant_result = resolve(mission_id)
+                except Exception:
+                    pass
+
         # Fire creator webhook (best-effort, non-blocking)
         wu = m.get("webhook_url", "")
         if wu:
@@ -672,8 +685,13 @@ You receive this because you set notify_email when creating this mission.
 Set notify_email="" on a future mission to opt out per-mission.
 """)
 
-        return {"ok": True, "mission_id": mission_id, "submission_id": sid,
-                "submission_count": len(m["submissions"])}
+        result = {"ok": True, "mission_id": mission_id, "submission_id": sid,
+                  "submission_count": len(m["submissions"])}
+        if instant_result and instant_result.get("ok"):
+            result["instant_resolved"] = True
+            result["winner"] = instant_result.get("winner")
+            result["payout"] = instant_result.get("payout")
+        return result
     return {"error": "mission not found"}
 
 
