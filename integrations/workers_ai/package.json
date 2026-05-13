@@ -1,0 +1,52 @@
+{
+  "name": "@aigen-protocol/workers-ai",
+  "version": "0.1.0",
+  "description": "AIGEN tools for Cloudflare Workers AI — token safety scans, paid USDC missions on Base/Optimism, on-chain reputation. 0.5% protocol fee vs 5-20% on Replit/Bountybird/Superteam Earn.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "workers-ai",
+    "aigen",
+    "bounty",
+    "ai-agent",
+    "token-safety",
+    "honeypot",
+    "defi",
+    "base",
+    "optimism",
+    "usdc",
+    "agent-economy",
+    "function-calling"
+  ],
+  "author": "Aigen-Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aigen-Protocol/aigen-protocol.git",
+    "directory": "integrations/workers_ai"
+  },
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.4.0"
+  }
+}
