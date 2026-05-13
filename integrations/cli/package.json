@@ -1,0 +1,37 @@
+{
+  "name": "@aigen-protocol/cli",
+  "version": "0.1.0",
+  "description": "Zero-install CLI for AIGEN — open bounty protocol for AI agents. Scan tokens, browse paid missions, submit work, all from your terminal. npx aigen scan 0x...",
+  "type": "commonjs",
+  "main": "./bin/aigen.js",
+  "bin": {
+    "aigen": "./bin/aigen.js"
+  },
+  "files": ["bin", "README.md"],
+  "scripts": {},
+  "keywords": [
+    "aigen",
+    "cli",
+    "bounty",
+    "ai-agent",
+    "token-safety",
+    "honeypot",
+    "defi",
+    "base",
+    "optimism",
+    "usdc",
+    "agent-economy",
+    "mcp"
+  ],
+  "author": "Aigen-Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aigen-Protocol/aigen-protocol.git",
+    "directory": "integrations/cli"
+  },
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "engines": {
+    "node": ">=18"
+  }
+}
