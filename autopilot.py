@@ -167,12 +167,37 @@ def _ensure_autopilot_aigen():
     return True
 
 
-def cycle_auto_create_daily_mission() -> int:
-    """Once per UTC day: pick the most-scanned token from /trending and post
-    a peer_vote mission asking agents to describe it. Generates content,
-    accumulates ELO history, and demonstrates the protocol is alive even
-    without external creators.
+MISSION_TEMPLATES = [
+    # (id, title_template, description_template, verification_type, accept_regex, reward)
+    ("token_summary",
+     "Best 1-line summary of {name} ({sym}) on {chain}",
+     "Token: {name} ({sym}) — {addr} on {chain}. Current AIGEN safety score: {score} ({verdict}). Submit one concise sentence describing what this token does, who's behind it, and what makes it interesting (or not). Best peer-voted submission wins {reward} AIGEN.",
+     "peer_vote", None, 50),
+    ("token_research",
+     "Research: holders/liquidity profile of {sym} on {chain}",
+     "Token: {name} ({sym}) — {addr} on {chain}. Submit a 200-400 word writeup covering: (1) holder concentration (top 10 share), (2) liquidity depth (LP composition + lock status), (3) recent activity pattern. Include sources. Best peer-voted submission wins {reward} AIGEN.",
+     "peer_vote", None, 75),
+    ("verdict_check",
+     "Find a Base/OP/ETH token where AIGEN scoring is wrong",
+     "Submit address (0x...) of a token where AIGEN's safety_score visibly disagrees with on-chain reality (e.g., scored SAFE but is rugging, or scored DANGER but is legitimate). Include 1-line evidence. First valid submission wins {reward} AIGEN.",
+     "first_valid_match", r"^0x[a-f0-9]{40}$", 30),
+    ("low_score_find",
+     "Find a Base token scoring < 30 with TVL > $5k",
+     "Submit token address (0x...) of a Base token where AIGEN safety_score is < 30 AND has > $5k TVL. First valid submission wins {reward} AIGEN.",
+     "first_valid_match", r"^0x[a-f0-9]{40}$", 25),
+    ("integration_pitch",
+     "Best pitch: how would you integrate AIGEN into your project?",
+     "Submit a 100-300 word pitch describing how you'd integrate AIGEN (mission posting, scanning, attestations) into a real project. Be specific about the project. Best peer-voted submission wins {reward} AIGEN.",
+     "peer_vote", None, 50),
+    ("scam_alert",
+     "First to identify a Base honeypot deployed in the last 24h",
+     "Submit address (0x...) of a Base token contract deployed in the last 24h that exhibits honeypot behavior (transfer fails, sell tax > 90%, etc). Include 1-line on-chain evidence. First valid submission wins {reward} AIGEN.",
+     "first_valid_match", r"^0x[a-f0-9]{40}$", 40),
+]
 
+
+def cycle_auto_create_daily_mission() -> int:
+    """Once per UTC day: rotate through MISSION_TEMPLATES and post one mission.
     Treasury (autopilot agent) escrows AIGEN. If no one submits/votes within
     23h, mission voids and autopilot is refunded (loses only 5 AIGEN spam fee).
     """
@@ -187,58 +212,70 @@ def cycle_auto_create_daily_mission() -> int:
     # Make sure autopilot can escrow
     _ensure_autopilot_aigen()
 
-    # Pick token from trending. Skip system tokens and very low-info entries.
+    # Rotate template by day-of-year so we get variety
+    day_of_year = int(time.strftime("%j", time.gmtime()))
+
+    # Pre-fetch trending so we can skip templates needing tokens if empty
     trending_resp = _http("GET", "/trending")
-    if not trending_resp or "trending" not in trending_resp:
-        log.info("  daily-mission: trending unavailable, skipping")
+    candidates = []
+    if trending_resp and "trending" in trending_resp:
+        candidates = [t for t in trending_resp["trending"]
+                      if t.get("verdict") != "SYSTEM TOKEN"
+                      and t.get("symbol") not in ("???", "")
+                      and t.get("name") not in ("Unknown", "")]
+
+    # Try templates starting at the day's index, skip those that need a token
+    # if no tokens available
+    for offset in range(len(MISSION_TEMPLATES)):
+        template_idx = (day_of_year + offset) % len(MISSION_TEMPLATES)
+        tpl_id, title_tpl, desc_tpl, verif_type, regex, reward = MISSION_TEMPLATES[template_idx]
+        needs_token = "{sym}" in title_tpl or "{sym}" in desc_tpl
+        if needs_token and not candidates:
+            continue  # try next template
+        fmt = {"reward": reward}
+        if needs_token:
+            pick = candidates[day_of_year % len(candidates)]
+            fmt.update({
+                "sym":     pick["symbol"],
+                "addr":    pick["address"],
+                "chain":   pick["chain"],
+                "name":    pick.get("name", pick["symbol"]),
+                "score":   pick.get("safety_score", "?"),
+                "verdict": pick.get("verdict", "?"),
+            })
+        break
+    else:
+        log.info("  daily-mission: all templates need tokens but none available")
         return 0
-    candidates = [t for t in trending_resp["trending"]
-                  if t.get("verdict") != "SYSTEM TOKEN"
-                  and t.get("symbol") not in ("???", "")
-                  and t.get("name") not in ("Unknown", "")]
-    if not candidates:
-        log.info("  daily-mission: no usable trending candidates")
-        return 0
-    pick = candidates[0]
 
-    sym = pick["symbol"]
-    addr = pick["address"]
-    chain = pick["chain"]
-    name = pick.get("name", sym)
-    score = pick.get("safety_score", "?")
-    verdict = pick.get("verdict", "?")
+    title = title_tpl.format(**fmt)[:120]
+    description = desc_tpl.format(**fmt)[:2000]
 
-    title = f"Best 1-line summary of {name} ({sym}) on {chain}"
-    description = (
-        f"Token: {name} ({sym}) — {addr} on {chain}. "
-        f"Current AIGEN safety score: {score} ({verdict}). "
-        f"Submit one concise sentence describing what this token does, who's behind it, "
-        f"and what makes it interesting (or not). Best peer-voted submission wins "
-        f"{DAILY_MISSION_REWARD_AIGEN} AIGEN."
-    )
-
-    r = _http("POST", "/missions/create", {
+    body = {
         "creator_agent_id": AUTOPILOT_AGENT,
-        "title": title[:120],
-        "description": description[:2000],
-        "reward_amount": DAILY_MISSION_REWARD_AIGEN,
+        "title": title,
+        "description": description,
+        "reward_amount": reward,
         "reward_currency": "AIGEN",
-        "verification_type": "peer_vote",
+        "verification_type": verif_type,
         "deadline_hours": DAILY_MISSION_DEADLINE_HOURS,
-    })
+    }
+    if regex:
+        body["verification_params"] = {"regex": regex}
+
+    r = _http("POST", "/missions/create", body)
     if r.get("id"):
-        log.info("  daily-mission CREATED: %s for %s/%s (chain=%s)",
-                 r["id"], sym, addr[:10], chain)
+        log.info("  daily-mission CREATED: %s [tpl=%s] %s", r["id"], tpl_id, title[:60])
         state["last_mission_day"] = today
         state["last_mission_id"] = r["id"]
-        state["last_mission_token"] = f"{sym}@{chain}"
+        state["last_mission_template"] = tpl_id
         state["created_at"] = int(time.time())
         try:
             json.dump(state, open(DAILY_STATE_FILE, "w"), indent=2)
         except Exception as e:
             log.warning("  daily-state save failed: %s", e)
         return 1
-    log.warning("  daily-mission FAILED: %s", r)
+    log.warning("  daily-mission FAILED [tpl=%s]: %s", tpl_id, r)
     return 0
 
 
