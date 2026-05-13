@@ -1,0 +1,113 @@
+name: AIGEN Token Safety Scan
+description: Scan a token contract for safety issues using the AIGEN open bounty protocol. Free, no auth, returns 0-100 score plus flags.
+author: Aigen-Protocol
+branding:
+  icon: shield
+  color: green
+
+inputs:
+  address:
+    description: Token contract address (0x... 40 hex chars)
+    required: true
+  chain:
+    description: 'Chain to scan on: base, ethereum, optimism, arbitrum, polygon, bsc'
+    required: false
+    default: base
+  fail-below:
+    description: 'Fail the workflow if safety_score is below this threshold (0-100). Set 0 to never fail.'
+    required: false
+    default: '0'
+  comment-on-pr:
+    description: 'Post the scan result as a PR comment (requires GITHUB_TOKEN with write access).'
+    required: false
+    default: 'false'
+
+outputs:
+  score:
+    description: Safety score (0-100)
+    value: ${{ steps.scan.outputs.score }}
+  verdict:
+    description: 'Verdict label: LIKELY SAFE, MODERATE RISK, HIGH RISK, VERY HIGH RISK, UNKNOWN'
+    value: ${{ steps.scan.outputs.verdict }}
+  flags-count:
+    description: Number of flags detected
+    value: ${{ steps.scan.outputs.flags_count }}
+  share-url:
+    description: Shareable URL for the scan result
+    value: ${{ steps.scan.outputs.share_url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run AIGEN scan
+      id: scan
+      shell: bash
+      env:
+        ADDRESS: ${{ inputs.address }}
+        CHAIN: ${{ inputs.chain }}
+        FAIL_BELOW: ${{ inputs.fail-below }}
+      run: |
+        echo "Scanning ${ADDRESS} on ${CHAIN}..."
+
+        RESPONSE=$(curl -sf "https://cryptogenesis.duckdns.org/scan?address=${ADDRESS}&chain=${CHAIN}" || echo '{"error":"network"}')
+
+        SCORE=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('safety_score', 0))")
+        VERDICT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('verdict', 'unknown'))")
+        FLAGS_COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('flags', [])))")
+        TOKEN_NAME=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('token',{}) or {}; print(t.get('name','?'))")
+        TOKEN_SYMBOL=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); t=d.get('token',{}) or {}; print(t.get('symbol','?'))")
+        SHARE_URL="https://cryptogenesis.duckdns.org/t/${ADDRESS}?chain=${CHAIN}"
+
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+        echo "verdict=$VERDICT" >> $GITHUB_OUTPUT
+        echo "flags_count=$FLAGS_COUNT" >> $GITHUB_OUTPUT
+        echo "share_url=$SHARE_URL" >> $GITHUB_OUTPUT
+
+        echo ""
+        echo "═══ AIGEN Token Safety Scan ═══"
+        echo "Token:    $TOKEN_NAME ($TOKEN_SYMBOL)"
+        echo "Address:  $ADDRESS"
+        echo "Chain:    $CHAIN"
+        echo "Score:    $SCORE / 100"
+        echo "Verdict:  $VERDICT"
+        echo "Flags:    $FLAGS_COUNT"
+        echo "Details:  $SHARE_URL"
+        echo "════════════════════════════════"
+
+        if [ "$FAIL_BELOW" -gt "0" ] && [ "$SCORE" -lt "$FAIL_BELOW" ]; then
+          echo ""
+          echo "❌ Safety score $SCORE is below threshold $FAIL_BELOW — failing workflow."
+          exit 1
+        fi
+
+        # Save full result for next step
+        echo "$RESPONSE" > /tmp/aigen_scan.json
+
+    - name: Comment on PR (optional)
+      if: inputs.comment-on-pr == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ env.GITHUB_TOKEN }}
+        ADDRESS: ${{ inputs.address }}
+        CHAIN: ${{ inputs.chain }}
+        SCORE: ${{ steps.scan.outputs.score }}
+        VERDICT: ${{ steps.scan.outputs.verdict }}
+        FLAGS_COUNT: ${{ steps.scan.outputs.flags_count }}
+        SHARE_URL: ${{ steps.scan.outputs.share_url }}
+        REPO: ${{ github.repository }}
+        PR_NUM: ${{ github.event.pull_request.number }}
+      run: |
+        if [ -z "$GH_TOKEN" ]; then
+          echo "GITHUB_TOKEN not set — skipping PR comment"
+          exit 0
+        fi
+
+        BODY="### 🛡️ AIGEN Token Safety Scan\n\n| Field | Value |\n|---|---|\n| **Address** | \`${ADDRESS}\` |\n| **Chain** | ${CHAIN} |\n| **Score** | ${SCORE} / 100 |\n| **Verdict** | ${VERDICT} |\n| **Flags** | ${FLAGS_COUNT} |\n\n[See full scan →](${SHARE_URL})\n\n*Scanned by [AIGEN Open Bounty Protocol](https://cryptogenesis.duckdns.org). 0.5% protocol fee for paid missions.*"
+
+        # POST comment
+        curl -sf -X POST \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/${REPO}/issues/${PR_NUM}/comments" \
+          -d "{\"body\": \"$(printf '%s' "$BODY" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read())[1:-1])')\"}" \
+          > /dev/null && echo "Posted PR comment" || echo "PR comment failed"

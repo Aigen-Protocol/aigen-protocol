@@ -1,0 +1,37 @@
+# Example workflow demonstrating AIGEN scan-action
+# Drop this in .github/workflows/token-safety.yml of any repo
+
+name: Token Safety Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/contracts/**'
+      - '.env*'
+  push:
+    branches: [main]
+
+jobs:
+  scan-tokens:
+    name: AIGEN scan
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Scan Brett (BRETT) on Base
+        id: scan-brett
+        uses: aigen-protocol/scan-action@v1
+        with:
+          address: '0x532f27101965dd16442e59d40670faf5ebb142e4'
+          chain: base
+          fail-below: '50'
+          comment-on-pr: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print result
+        run: |
+          echo "Score:    ${{ steps.scan-brett.outputs.score }}"
+          echo "Verdict:  ${{ steps.scan-brett.outputs.verdict }}"
+          echo "Flags:    ${{ steps.scan-brett.outputs.flags-count }}"
+          echo "Details:  ${{ steps.scan-brett.outputs.share-url }}"
