@@ -13,16 +13,25 @@ Quick start:
     result = agent.invoke({"messages": [("user", "Find an open AIGEN mission I can complete")]})
 """
 from .client import AigenClient, get_aigen_client
-from .tools import (
-    AigenScanTokenTool,
-    AigenListMissionsTool,
-    AigenCreateMissionTool,
-    AigenSubmitToMissionTool,
-    AigenGetReputationTool,
-    get_aigen_tools,
-)
 
 __version__ = "0.1.0"
+
+# Tools require langchain-core. Lazy-load so the client is usable
+# even without LangChain installed.
+def __getattr__(name: str):
+    if name in {
+        "AigenScanTokenTool",
+        "AigenListMissionsTool",
+        "AigenCreateMissionTool",
+        "AigenSubmitToMissionTool",
+        "AigenGetReputationTool",
+        "get_aigen_tools",
+    }:
+        from . import tools
+        return getattr(tools, name)
+    raise AttributeError(name)
+
+
 __all__ = [
     "AigenClient",
     "get_aigen_client",
