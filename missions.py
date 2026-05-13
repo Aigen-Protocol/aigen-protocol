@@ -153,6 +153,117 @@ def _elo(agent_id: str) -> int:
 
 VALID_CATEGORIES = {"scan", "research", "code", "scam-alert", "summary", "vote", "audit", "data", "design", "other"}
 
+SUBSCRIBERS_FILE = Path("/home/luna/crypto-genesis/aigen/subscribers.json")
+
+
+def _subs_load() -> dict:
+    if SUBSCRIBERS_FILE.exists():
+        try:
+            return json.loads(SUBSCRIBERS_FILE.read_text())
+        except Exception:
+            return {"subscribers": []}
+    return {"subscribers": []}
+
+
+def _subs_save(d: dict):
+    SUBSCRIBERS_FILE.write_text(json.dumps(d, indent=2))
+
+
+def subscribe(email: str = "", webhook_url: str = "", category: str = "all") -> dict:
+    """Subscribe to 'new mission posted' notifications. Provide email and/or
+    webhook_url. Filter by category (or 'all' for everything).
+    """
+    if not email and not webhook_url:
+        return {"error": "provide email or webhook_url"}
+
+    em = ""
+    if email:
+        em = email.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", em):
+            return {"error": "invalid email"}
+
+    wu = ""
+    if webhook_url:
+        wu = webhook_url.strip()
+        if not (wu.startswith("https://") or wu.startswith("http://")):
+            return {"error": "webhook_url must start with http:// or https://"}
+
+    cat = (category or "all").strip().lower()
+    if cat != "all" and cat not in VALID_CATEGORIES:
+        return {"error": f"category must be 'all' or one of {sorted(VALID_CATEGORIES)}"}
+
+    d = _subs_load()
+    # Idempotent — dedupe by email+webhook combo
+    for s in d["subscribers"]:
+        if s.get("email") == em and s.get("webhook_url") == wu and s.get("category") == cat:
+            return {"ok": True, "already_subscribed": True, "subscriber_id": s.get("id")}
+
+    sub_id = "subs_" + uuid.uuid4().hex[:10]
+    d["subscribers"].append({
+        "id": sub_id,
+        "email": em,
+        "webhook_url": wu,
+        "category": cat,
+        "subscribed_at": int(time.time()),
+    })
+    _subs_save(d)
+    return {"ok": True, "subscriber_id": sub_id, "subscriber_count": len(d["subscribers"])}
+
+
+def unsubscribe(subscriber_id: str) -> dict:
+    d = _subs_load()
+    before = len(d["subscribers"])
+    d["subscribers"] = [s for s in d["subscribers"] if s.get("id") != subscriber_id]
+    after = len(d["subscribers"])
+    _subs_save(d)
+    return {"ok": True, "removed": before - after}
+
+
+def _notify_subscribers_on_create(m: dict):
+    """Fire webhooks/emails to subscribers when a new mission is created.
+    Best-effort, non-blocking."""
+    d = _subs_load()
+    cat = m.get("category", "other")
+    mid = m.get("id")
+    title = m.get("title", "")
+    rew = m.get("reward", {}) or {}
+    rew_disp = f"{rew.get('amount', m.get('reward_aigen', 0))} {rew.get('currency', 'AIGEN')}"
+
+    payload = {
+        "event": "mission.created",
+        "mission_id": mid,
+        "mission_title": title,
+        "category": cat,
+        "reward": rew_disp,
+        "verification_type": m.get("verification_type"),
+        "deadline": m.get("deadline"),
+        "view_url": f"https://cryptogenesis.duckdns.org/m/{mid}",
+    }
+
+    for sub in d.get("subscribers", []):
+        if sub.get("category") != "all" and sub.get("category") != cat:
+            continue
+        if sub.get("webhook_url"):
+            _fire_webhook(sub["webhook_url"], payload)
+        if sub.get("email"):
+            _send_email(sub["email"],
+                f"[AIGEN] New {cat} mission: {title[:50]}",
+                f"""A new AIGEN mission was just posted that matches your subscription:
+
+  {title}
+  Category: {cat}
+  Reward:   {rew_disp}
+  Verification: {m.get('verification_type')}
+
+View on AIGEN:
+https://cryptogenesis.duckdns.org/m/{mid}
+
+To unsubscribe: visit https://cryptogenesis.duckdns.org/subscribe
+or POST /subscribe/unsubscribe with subscriber_id={sub.get('id')}
+
+— AIGEN Protocol
+""")
+
 
 def create_mission(creator_agent_id: str, title: str, description: str,
                    reward_amount: int, verification_type: str,
@@ -305,6 +416,10 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         d["lifetime_spam_fees_burned"] = d.get("lifetime_spam_fees_burned", 0) + SPAM_FEE_BURN_AIGEN
     save(d)
 
+    # Notify subscribers (only if mission is open, not awaiting_funding)
+    if initial_status == "open":
+        _notify_subscribers_on_create(m)
+
     # Compute and expose protocol fee split — transparent to creator/winner at creation time
     net_to_winner, fee = _split_with_fee(reward_amount)
     m["fee_quote"] = {
@@ -391,6 +506,7 @@ def confirm_funding(mission_id: str, tx_hash: str) -> dict:
         r["deposit_confirmed_at"] = int(time.time())
         m["status"] = "open"
         save(d)
+        _notify_subscribers_on_create(m)
         return {"ok": True, "mission_id": mission_id, "status": "open",
                 "deposit_tx": tx_hash, "amount_funded": r["amount"], "currency": r["currency"]}
     return {"error": "mission not found"}
