@@ -1,0 +1,399 @@
+[
+  {
+    "name": "MultichainZ",
+    "tvl": 53444.42734128905,
+    "category": "Lending",
+    "chains": [
+      "Plume Mainnet",
+      "Ethereum",
+      "Base",
+      "Arbitrum"
+    ],
+    "twitter": "MultichainZ_",
+    "url": "https://dapp.multichainz.com/",
+    "description": "Omnichain money markets for Real-World Assets and Liquid Staking Derivatives"
+  },
+  {
+    "name": "DegenPrime",
+    "tvl": 54368.91994869139,
+    "category": "Leveraged Farming",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "DegenPrimeDefi",
+    "url": "https://www.degenprime.io",
+    "description": "DegenPrime is the community-driven Prime Brokerage for the Based Degen. Here you lend, or trade and LP Base\u2019s most prominent meme- and AI coins, with up to 10X leverage"
+  },
+  {
+    "name": "9mm V2",
+    "tvl": 55369.43606318989,
+    "category": "Dexs",
+    "chains": [
+      "Pulse",
+      "Base",
+      "Sonic"
+    ],
+    "twitter": "9mm_pro",
+    "url": "https://dex.9mm.pro/",
+    "description": "9MM Pro is a suite of user-friendly protocols designed to revolutionize the decentralized finance (DeFi) landscape across multiple blockchains"
+  },
+  {
+    "name": "Singularity Finance",
+    "tvl": 58594.0990588791,
+    "category": "Yield",
+    "chains": [
+      "Ethereum",
+      "Base",
+      "Binance"
+    ],
+    "twitter": "Singularity_Fi",
+    "url": "https://singularityfinance.ai/",
+    "description": "Singularity Finance is a DeFi platform of the Artificial Superintelligence Alliance that connects capital, AI-agent startups, and ASI:Chain Pods, serving as its financial layer for discovery, yield, i"
+  },
+  {
+    "name": "maxAPY",
+    "tvl": 59003.864289009434,
+    "category": "Yield Aggregator",
+    "chains": [
+      "Base",
+      "Ethereum",
+      "Polygon"
+    ],
+    "twitter": "max_apy",
+    "url": "https://app.maxapy.io",
+    "description": "maxAPY is DeFi on autopilot: a meta-aggregator protocol that automates DeFi yield optimization across hundreds of curated strategies from every major protocol. Through advanced algorithms, it continuo"
+  },
+  {
+    "name": "Thesauros",
+    "tvl": 59648.94861233562,
+    "category": "Yield",
+    "chains": [
+      "Arbitrum",
+      "Base"
+    ],
+    "twitter": "thesauros_io",
+    "url": "https://thesauros.io",
+    "description": "Thesauros is a decentralized yield protocol focused on optimizing stablecoin liquidity across multiple on-chain markets. It continuously allocates deposits into diversified lending and liquidity venue"
+  },
+  {
+    "name": "Yusan",
+    "tvl": 60793.96469355846,
+    "category": "Lending",
+    "chains": [
+      "ICP",
+      "Ethereum",
+      "Bitcoin",
+      "Doge",
+      "Base",
+      "Arbitrum"
+    ],
+    "twitter": "yusandotfi",
+    "url": "https://yusan.fi/",
+    "description": "Yusan is a cross-chain lending protocol. Borrow against assets on Bitcoin, Ethereum, Doge, Base, Arbitrum, and the Internet Computer."
+  },
+  {
+    "name": "Sobal",
+    "tvl": 61328.45978552989,
+    "category": "Dexs",
+    "chains": [
+      "Base",
+      "Neon"
+    ],
+    "twitter": "sobalfi",
+    "url": "",
+    "description": "Sobal is a decentralized asset management platform, or in simple terms, a DEX that utilizes Balancer V2's powerful and flexible smart contracts, providing an unparalleled DeFi experience for builders,"
+  },
+  {
+    "name": "Astaria V2",
+    "tvl": 62474.260497387666,
+    "category": "Lending",
+    "chains": [
+      "Base",
+      "Ethereum"
+    ],
+    "twitter": "AstariaXYZ",
+    "url": "",
+    "description": "Astaria is an oracle-less, intent-based, fixed-rate lending protocol supporting unlimited loan durations for any asset"
+  },
+  {
+    "name": "Alvara",
+    "tvl": 62754.29108422194,
+    "category": "Yield Aggregator",
+    "chains": [
+      "Ethereum",
+      "Base"
+    ],
+    "twitter": "AlvaraProtocol",
+    "url": "https://alvara.xyz",
+    "description": "Alvara is an on-chain basket/fund management protocol built around the ERC-7621 basket token standard"
+  },
+  {
+    "name": "SwapBased Concentrated Liquidity",
+    "tvl": 65131.50803594151,
+    "category": "Dexs",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "swap_based",
+    "url": "https://swapbased.finance/#/swap",
+    "description": "Concentrated Liquidity AMM on Base"
+  },
+  {
+    "name": "BunnySwap",
+    "tvl": 67411.43329478428,
+    "category": "Dexs",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "friendtech",
+    "url": "https://www.friend.tech/",
+    "description": "FT native DEX"
+  },
+  {
+    "name": "Gridex",
+    "tvl": 67650.04622569033,
+    "category": "Dexs",
+    "chains": [
+      "Arbitrum",
+      "Linea",
+      "Polygon",
+      "Base",
+      "Optimism"
+    ],
+    "twitter": "GridexProtocol",
+    "url": "",
+    "description": "The first fully on-chain order book protocol for the Ethereum ecosystem. The protocol is powered by the Grid Marker Order Book (GMOB) and Grid Price Linear Movement (GPLM) algorithm, enabling low fee "
+  },
+  {
+    "name": "Hyperdrive",
+    "tvl": 68040.68470142377,
+    "category": "Yield",
+    "chains": [
+      "Ethereum",
+      "Linea",
+      "xDai",
+      "Base"
+    ],
+    "twitter": "HyperVueFDN",
+    "url": "",
+    "description": "Hyperdrive is a novel AMM for traders to obtain fixed rates or boosted variable yields."
+  },
+  {
+    "name": "Raindex",
+    "tvl": 70348.422222261,
+    "category": "Dexs",
+    "chains": [
+      "Base",
+      "Flare",
+      "Binance",
+      "Ethereum",
+      "Polygon",
+      "Arbitrum",
+      "Linea"
+    ],
+    "twitter": "rainprotocol",
+    "url": "https://rainlang.xyz/",
+    "description": "Raindex allows anyone to write, deploy and manage token trading strategies, written in Rainlang, on any EVM network."
+  },
+  {
+    "name": "HorizonDEX",
+    "tvl": 70764.74495603848,
+    "category": "Dexs",
+    "chains": [
+      "Linea",
+      "Base"
+    ],
+    "twitter": "horizondex_io",
+    "url": "https://horizondex.io",
+    "description": "HorizonDEX is a Concantrated Liquidity DEX which let users allocate liqudiity within a custom price range, enabling traders to maximize their efficiency and minimize slippage"
+  },
+  {
+    "name": "Aloe",
+    "tvl": 75336.89962690817,
+    "category": "Lending",
+    "chains": [
+      "Arbitrum",
+      "Optimism",
+      "Base",
+      "Linea",
+      "Ethereum"
+    ],
+    "twitter": "aloecapital",
+    "url": "",
+    "description": "Aloe is a permissionless lending protocol built on Uniswap, featuring risk-isolated pools, dynamic LTVs, and ultra-efficient liquidations."
+  },
+  {
+    "name": "Cybro",
+    "tvl": 75493.97203461625,
+    "category": "Yield Aggregator",
+    "chains": [
+      "Arbitrum",
+      "Blast",
+      "Base",
+      "Binance"
+    ],
+    "twitter": "Cybro_io",
+    "url": "https://app.cybro.io",
+    "description": "CYBRO is an AI-powered multichain earn markeplace"
+  },
+  {
+    "name": "IcecreamSwap V2",
+    "tvl": 76223.31373072826,
+    "category": "Dexs",
+    "chains": [
+      "Neon",
+      "CORE",
+      "BOB",
+      "XDC",
+      "Blast",
+      "Dogechain",
+      "ShimmerEVM",
+      "Base",
+      "Scroll",
+      "Telos",
+      "LightLink",
+      "Taiko",
+      "Fuse",
+      "Bitgert"
+    ],
+    "twitter": "icecream_swap",
+    "url": "https://icecreamswap.com/",
+    "description": "The first Swap on the Bitgert (Brise) Blockchain"
+  },
+  {
+    "name": "SparkleX",
+    "tvl": 78165.69852644134,
+    "category": "Yield",
+    "chains": [
+      "Ethereum",
+      "Base",
+      "Binance"
+    ],
+    "twitter": "sparklexai",
+    "url": "https://sparklex.ai/",
+    "description": "SparkleX is an intelligent omnichain yield network that leverages AI to maximize your yields effortlessly across all blockchains."
+  },
+  {
+    "name": "E3",
+    "tvl": 79344.03549809771,
+    "category": "Dexs",
+    "chains": [
+      "Base",
+      "Fantom",
+      "Arbitrum"
+    ],
+    "twitter": "ftm1337",
+    "url": "https://eliteness.network/e3",
+    "description": "E3 is a Dex offering zero-slippage trading and capital efficiency through its 'Bucket' model and concentrated liquidity."
+  },
+  {
+    "name": "Infusion",
+    "tvl": 85438.23735948706,
+    "category": "Dexs",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "infusionfinance",
+    "url": "",
+    "description": "Infusion is a new AMM protocol that introduces a new standard for the base liquidity layer."
+  },
+  {
+    "name": "2THICK",
+    "tvl": 85568.14630149576,
+    "category": "Dexs",
+    "chains": [
+      "Sonic",
+      "Base",
+      "Fantom"
+    ],
+    "twitter": "FTM1337",
+    "url": "https://eliteness.network/thick",
+    "description": "Protocol-agnostic Concentrated Liquidity Self-incentivizing AMM, now with Dynamic Trade Fee & Strategic TickSpacing based optimizations"
+  },
+  {
+    "name": "BakerFi",
+    "tvl": 86061.46628962262,
+    "category": "Liquid Staking",
+    "chains": [
+      "Base",
+      "Ethereum",
+      "Arbitrum"
+    ],
+    "twitter": "bakerfi_",
+    "url": "https://bakerfi.ai",
+    "description": "Skip the DeFi complexity with BakerFi's intelligent AI agents that work 24/7 to maximize your crypto portfolio returns while maintaining security and minimizing risks."
+  },
+  {
+    "name": "KIM Exchange V2",
+    "tvl": 89050.08240923131,
+    "category": "Dexs",
+    "chains": [
+      "Mode",
+      "Base"
+    ],
+    "twitter": "kimprotocol",
+    "url": "https://kim.exchange",
+    "description": "Native DEX for the Mode Network with staking modules to incentivize LPs"
+  },
+  {
+    "name": "Javsphere",
+    "tvl": 89498.91659328336,
+    "category": "Derivatives",
+    "chains": [
+      "Base",
+      "DeFiChain EVM",
+      "DefiChain"
+    ],
+    "twitter": "Javsphere",
+    "url": "https://javsphere.com/",
+    "description": "Javsphere is enhancing decentralized finance (DeFi) with innovative solutions powered by the JAV Token. Serving as the platform\u2019s utility token, JAV underpins LeverageX, a decentralized leverage tradi"
+  },
+  {
+    "name": "Virtus Protocol CL",
+    "tvl": 93378.33000321152,
+    "category": "Dexs",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "VirtusCEO",
+    "url": "https://virtus-protocol.com",
+    "description": "A governance-driven DEX on Base with integrated multichain swaps."
+  },
+  {
+    "name": "Sail.Money",
+    "tvl": 93919.56974774822,
+    "category": "Yield",
+    "chains": [
+      "Arbitrum",
+      "Base",
+      "Ethereum"
+    ],
+    "twitter": "SaildotMoney",
+    "url": "https://sail.money/",
+    "description": "Sail is a non-custodial personal AI agent that manages stablecoins across DeFi protocols and networks, automatically reallocating capital to optimize risk-adjusted yield while helping protect capital "
+  },
+  {
+    "name": "Autopilot",
+    "tvl": 96052.96233407415,
+    "category": "Yield Aggregator",
+    "chains": [
+      "Base"
+    ],
+    "twitter": "AutoPilot_xyz",
+    "url": "https://theautopilot.xyz/app",
+    "description": " Autopilot is an on-chain automation system for veAERO holders.It manages voting, claiming, and swapping across epochs with no manual input required"
+  },
+  {
+    "name": "Jasper Vault",
+    "tvl": 97225.25062776892,
+    "category": "Options",
+    "chains": [
+      "Arbitrum",
+      "Base",
+      "Bitlayer"
+    ],
+    "twitter": "jaspervault",
+    "url": "https://www.jaspervault.io/",
+    "description": "Jasper Vault is a peer-to-peer interoperable options protocol. Jasper Vault's mission is to revolutionize the decentralised finance (DeFi) options space by making it simpler, safer, and more efficient"
+  }
+]
