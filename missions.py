@@ -159,7 +159,8 @@ def create_mission(creator_agent_id: str, title: str, description: str,
                    deadline_hours: int = DEFAULT_DEADLINE_HOURS,
                    min_submitter_elo: int = 0,
                    reward_aigen: int = None,
-                   webhook_url: str = "") -> dict:
+                   webhook_url: str = "",
+                   notify_email: str = "") -> dict:
     """Open a new mission.
 
     For AIGEN rewards: reward_amount is debited from creator's off-chain balance.
@@ -243,12 +244,23 @@ def create_mission(creator_agent_id: str, title: str, description: str,
             return {"error": "webhook_url too long (max 500)"}
         webhook_clean = wu
 
+    # Validate email (optional)
+    email_clean = ""
+    if notify_email:
+        em = notify_email.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", em):
+            return {"error": "notify_email is not a valid email"}
+        if len(em) > 200:
+            return {"error": "notify_email too long"}
+        email_clean = em
+
     m = {
         "id": mid,
         "creator": creator_agent_id,
         "title": title.strip(),
         "description": description.strip(),
         "webhook_url": webhook_clean,
+        "notify_email": email_clean,
         # Reward block — multi-currency
         "reward": {
             "currency": reward_currency,
@@ -444,6 +456,34 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
                 "view_url": f"https://cryptogenesis.duckdns.org/m/{mission_id}",
             })
 
+        # Fire creator email
+        em = m.get("notify_email", "")
+        if em:
+            _send_email(em,
+                f"[AIGEN] New submission to your mission: {m.get('title','?')[:50]}",
+                f"""Hi,
+
+A new submission landed on your AIGEN mission "{m.get('title')}":
+
+  Mission:     {mission_id}
+  Submitter:   {submitter_agent_id}
+  Submitted:   {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(sub['submitted_at']))}
+  Submission:  {sid}
+  Proof:       {proof[:400]}
+
+Total submissions on this mission: {len(m["submissions"])}
+
+View on AIGEN:
+https://cryptogenesis.duckdns.org/m/{mission_id}
+
+Submitter profile:
+https://cryptogenesis.duckdns.org/agent/{submitter_agent_id}
+
+— AIGEN Protocol
+You receive this because you set notify_email when creating this mission.
+Set notify_email="" on a future mission to opt out per-mission.
+""")
+
         return {"ok": True, "mission_id": mission_id, "submission_id": sid,
                 "submission_count": len(m["submissions"])}
     return {"error": "mission not found"}
@@ -461,6 +501,42 @@ def _fire_webhook(url: str, payload: dict):
                                                   "User-Agent": "aigen-webhook/1.0",
                                                   "X-AIGEN-Event": payload.get("event", "")})
             urllib.request.urlopen(req, timeout=5)
+        except Exception:
+            pass
+    threading.Thread(target=_do, daemon=True).start()
+
+
+_ZOHO_USER = "Cryptogen@zohomail.eu"
+_ZOHO_PASS_FILE = "/home/luna/crypto-genesis/credentials/zoho_mail.txt"
+
+
+def _send_email(to_addr: str, subject: str, body: str):
+    """Send notification email via Zoho SMTP. Non-blocking, swallows errors."""
+    import threading
+    def _do():
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            # Read password
+            try:
+                content = open(_ZOHO_PASS_FILE).read()
+                pw = ""
+                for line in content.splitlines():
+                    if "Password:" in line:
+                        pw = line.split("Password:", 1)[1].strip()
+                        break
+                if not pw:
+                    return
+            except Exception:
+                return
+            msg = MIMEText(body, "plain", "utf-8")
+            msg["Subject"] = subject
+            msg["From"] = f"AIGEN Protocol <{_ZOHO_USER}>"
+            msg["To"] = to_addr
+            with smtplib.SMTP("smtp.zoho.eu", 587, timeout=15) as smtp:
+                smtp.starttls()
+                smtp.login(_ZOHO_USER, pw)
+                smtp.sendmail(_ZOHO_USER, [to_addr], msg.as_string())
         except Exception:
             pass
     threading.Thread(target=_do, daemon=True).start()
