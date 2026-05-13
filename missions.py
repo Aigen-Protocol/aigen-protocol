@@ -33,7 +33,7 @@ LEDGER = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
 VERIFICATION_TYPES = {"peer_vote", "first_valid_match", "creator_judges"}
 
 # Currencies the reward can be paid in
-REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH", "SOL"}
+REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH", "SOL", "USDT", "BONK", "JUP", "WIF", "PYTH", "RNDR"}
 
 # Token addresses for on-chain payout
 TOKEN_ADDRS = {
@@ -46,6 +46,19 @@ TOKEN_ADDRS = {
         "optimism": "0x0000000000000000000000000000000000000000",
     },
 }
+
+# Solana SPL token mints (program-derived addresses on Solana mainnet)
+SPL_TOKEN_MINTS = {
+    "USDC": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "USDT": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    "BONK": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    "JUP":  "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+    "WIF":  "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+    "PYTH": "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3",
+    "RNDR": "rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof",
+}
+SPL_DECIMALS = {"USDC": 6, "USDT": 6, "BONK": 5, "JUP": 6, "WIF": 6, "PYTH": 6, "RNDR": 8}
+
 TOKEN_DECIMALS = {"USDC": 6, "ETH": 18, "AIGEN": 0, "SOL": 9}  # AIGEN tracked off-chain in whole units
 
 # Treasury wallets — receives funding deposits, sends payouts
@@ -310,17 +323,48 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     reward_currency = (reward_currency or "AIGEN").upper()
     if reward_currency not in REWARD_CURRENCIES:
         return {"error": f"reward_currency must be one of {sorted(REWARD_CURRENCIES)}"}
-    if reward_currency in ("USDC", "ETH"):
-        if reward_chain not in TOKEN_ADDRS[reward_currency]:
-            return {"error": f"unsupported chain '{reward_chain}' for {reward_currency}"}
-    if reward_currency == "SOL":
+    # USDC/ETH support both EVM chains AND Solana (USDC on Solana is SPL)
+    if reward_currency == "ETH":
+        if reward_chain not in TOKEN_ADDRS["ETH"]:
+            return {"error": f"unsupported chain '{reward_chain}' for ETH"}
+    elif reward_currency in ("USDC",) and reward_chain in TOKEN_ADDRS["USDC"]:
+        pass  # EVM USDC, normal flow
+    elif reward_currency == "USDC" and reward_chain == "solana":
+        pass  # SPL USDC on Solana
+    elif reward_currency in SPL_TOKEN_MINTS:
+        # SPL tokens (BONK, JUP, etc.) are only on Solana
+        reward_chain = "solana"
+    elif reward_currency == "SOL":
         # Force chain to solana for SOL
         reward_chain = "solana"
+    elif reward_currency != "AIGEN":
+        return {"error": f"unsupported chain '{reward_chain}' for {reward_currency}"}
 
-    # Currency-specific minimum reward
-    min_reward = {"AIGEN": MIN_REWARD_AIGEN, "USDC": MIN_REWARD_USDC_MICROS, "ETH": MIN_REWARD_ETH_WEI, "SOL": MIN_REWARD_SOL_LAMPORTS}[reward_currency]
+    # Currency-specific minimum reward — keep simple defaults; SPL tokens use 1 unit min
+    if reward_currency in ("AIGEN",):
+        min_reward = MIN_REWARD_AIGEN
+        unit = "AIGEN"
+    elif reward_currency == "USDC" and reward_chain in TOKEN_ADDRS.get("USDC", {}):
+        min_reward = MIN_REWARD_USDC_MICROS
+        unit = "USDC micros (1e6=1USDC)"
+    elif reward_currency == "USDC" and reward_chain == "solana":
+        min_reward = MIN_REWARD_USDC_MICROS
+        unit = "USDC micros (1e6=1USDC SPL)"
+    elif reward_currency == "ETH":
+        min_reward = MIN_REWARD_ETH_WEI
+        unit = "wei"
+    elif reward_currency == "SOL":
+        min_reward = MIN_REWARD_SOL_LAMPORTS
+        unit = "lamports (1e9=1SOL)"
+    elif reward_currency in SPL_TOKEN_MINTS:
+        # 1 base unit minimum (e.g., 1 BONK base = 0.00001 BONK)
+        min_reward = 1
+        unit = f"base units (10^{SPL_DECIMALS.get(reward_currency, 6)}=1{reward_currency})"
+    else:
+        min_reward = 1
+        unit = "base units"
+
     if reward_amount < min_reward:
-        unit = {"AIGEN": "AIGEN", "USDC": "USDC micros (1e6=1USDC)", "ETH": "wei", "SOL": "lamports (1e9=1SOL)"}[reward_currency]
         return {"error": f"reward_amount must be >= {min_reward} {unit}"}
 
     vparams = verification_params or {}
@@ -394,7 +438,10 @@ def create_mission(creator_agent_id: str, title: str, description: str,
             "currency": reward_currency,
             "amount": int(reward_amount),
             "chain": reward_chain if reward_currency != "AIGEN" else None,
-            "deposit_address": (TREASURY_SOL if reward_currency == "SOL" else (TREASURY if reward_currency != "AIGEN" else None)),
+            "deposit_address": (
+                TREASURY_SOL if reward_chain == "solana"
+                else (TREASURY if reward_currency != "AIGEN" else None)
+            ),
             "deposit_tx": None,
             "deposit_confirmed_at": None,
             "payout_tx": None,
@@ -437,16 +484,23 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         "fee_pct": f"{PROTOCOL_FEE_BPS/100:.2f}%",
     }
 
-    # For USDC/ETH: include funding instructions
+    # For USDC/ETH/SOL/SPL: include funding instructions
     if reward_currency != "AIGEN":
+        # Pick the right token mint/contract for the chain
+        if reward_chain == "solana":
+            send_to = TREASURY_SOL
+            token_contract = SPL_TOKEN_MINTS.get(reward_currency)  # None for native SOL
+        else:
+            send_to = TREASURY
+            token_contract = (TOKEN_ADDRS[reward_currency][reward_chain]
+                              if reward_currency in TOKEN_ADDRS and reward_currency != "ETH"
+                              else None)
         m["funding_instructions"] = {
-            "send_to": TREASURY_SOL if reward_currency == "SOL" else TREASURY,
+            "send_to": send_to,
             "currency": reward_currency,
             "chain": reward_chain,
             "amount_wei": int(reward_amount),
-            "token_contract": (TOKEN_ADDRS[reward_currency][reward_chain]
-                              if reward_currency in TOKEN_ADDRS and reward_currency != "ETH"
-                              else None),
+            "token_contract": token_contract,
             "next_step": f"After sending, POST /missions/{mid}/confirm-funding with the tx_hash",
             "fee_note": f"Winner receives net {net_to_winner} ({reward_currency}). Protocol keeps {fee} ({PROTOCOL_FEE_BPS/100:.2f}% fee) from your deposit.",
         }
@@ -601,16 +655,18 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
         if any(s["submitter"] == submitter_agent_id for s in m["submissions"]):
             return {"error": "you already submitted to this mission"}
 
-        # USDC/ETH/SOL missions require submitter_wallet for on-chain payout
+        # USDC/ETH/SOL/SPL missions require submitter_wallet for on-chain payout
         currency = m.get("reward", {}).get("currency", "AIGEN")
+        chain = m.get("reward", {}).get("chain", "")
         wallet_clean = (submitter_wallet or "").strip()
-        if currency in ("USDC", "ETH"):
+        # Solana chain: any currency on solana needs base58 wallet
+        if chain == "solana":
+            if not wallet_clean or not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", wallet_clean):
+                return {"error": f"submitter_wallet (Solana base58 address, 32-44 chars) required for {currency}-on-Solana missions"}
+        elif currency in ("USDC", "ETH"):
             wallet_clean = wallet_clean.lower()
             if not wallet_clean or not re.match(r"^0x[0-9a-f]{40}$", wallet_clean):
                 return {"error": f"submitter_wallet (0x-prefixed 40-char hex) required for {currency}-rewarded missions"}
-        elif currency == "SOL":
-            if not wallet_clean or not re.match(r"^[1-9A-HJ-NP-Za-km-z]{32,44}$", wallet_clean):
-                return {"error": "submitter_wallet (Solana base58 address, 32-44 chars) required for SOL-rewarded missions"}
 
         sid = "sub_" + uuid.uuid4().hex[:10]
         sub = {
