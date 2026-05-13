@@ -55,6 +55,23 @@ SPAM_FEE_BURN_AIGEN = 5         # only applied to AIGEN-rewarded missions (real 
 MIN_REWARD_AIGEN = 10
 MIN_REWARD_USDC_MICROS = 10_000     # $0.01 minimum
 MIN_REWARD_ETH_WEI = 10**14         # 0.0001 ETH ~$0.24
+
+# ===== Protocol fee (the business model) =====
+# The protocol takes a small cut of every mission payout. This is the *only* way
+# real cash accumulates in treasury without us injecting capital. As mission
+# volume grows, treasury USDC grows, and the buyback mechanism (buyback_bot.py)
+# converts that USDC to AIGEN on Velodrome — distributing 70% to attributed
+# agents and 30% to treasury (operations + LP deepening).
+#
+# Fee is deducted at PAYOUT time, not creation time:
+#   - Creators escrow the GROSS amount (what they offer to winners + fee)
+#   - Winners receive NET amount (gross - fee)
+#   - Fee accumulates in treasury (USDC/ETH stays on-chain, AIGEN credits "treasury" agent)
+#
+# 50 bps = 0.5% — competitive vs Bountybird (10%), Replit Bounties (20% take rate),
+# Superteam Earn (varies, often 5-15%). Our low fee is the wedge.
+PROTOCOL_FEE_BPS = 50           # 0.5% of every mission reward
+PROTOCOL_FEE_BPS_DENOM = 10_000
 MAX_TITLE_LEN = 120
 MAX_DESC_LEN = 2000
 MAX_PROOF_LEN = 4000
@@ -254,6 +271,16 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         d["lifetime_spam_fees_burned"] = d.get("lifetime_spam_fees_burned", 0) + SPAM_FEE_BURN_AIGEN
     save(d)
 
+    # Compute and expose protocol fee split — transparent to creator/winner at creation time
+    net_to_winner, fee = _split_with_fee(reward_amount)
+    m["fee_quote"] = {
+        "gross_amount": int(reward_amount),
+        "net_to_winner": net_to_winner,
+        "protocol_fee": fee,
+        "fee_bps": PROTOCOL_FEE_BPS,
+        "fee_pct": f"{PROTOCOL_FEE_BPS/100:.2f}%",
+    }
+
     # For USDC/ETH: include funding instructions
     if reward_currency != "AIGEN":
         m["funding_instructions"] = {
@@ -263,6 +290,7 @@ def create_mission(creator_agent_id: str, title: str, description: str,
             "amount_wei": int(reward_amount),
             "token_contract": TOKEN_ADDRS[reward_currency][reward_chain] if reward_currency != "ETH" else None,
             "next_step": f"After sending, POST /missions/{mid}/confirm-funding with the tx_hash",
+            "fee_note": f"Winner receives net {net_to_winner} ({reward_currency}). Protocol keeps {fee} ({PROTOCOL_FEE_BPS/100:.2f}% fee) from your deposit.",
         }
     return m
 
@@ -485,29 +513,60 @@ def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> d
         return {"error": f"onchain payout error: {e}"}
 
 
+def _split_with_fee(gross_amount: int) -> tuple[int, int]:
+    """Compute (net_to_winner, protocol_fee) from a gross reward.
+    Fee is rounded down so winner never gets less than the gross-fee_max.
+    Returns (net, fee) such that net + fee == gross."""
+    fee = (gross_amount * PROTOCOL_FEE_BPS) // PROTOCOL_FEE_BPS_DENOM
+    net = gross_amount - fee
+    return net, fee
+
+
+def _record_fee_collected(d: dict, currency: str, fee_amount: int):
+    """Track protocol-level fee accumulation per currency."""
+    fees = d.setdefault("lifetime_fees_collected", {"AIGEN": 0, "USDC": 0, "ETH": 0})
+    fees[currency] = fees.get(currency, 0) + fee_amount
+
+
 def _pay_winner(m: dict, winner_sub: dict) -> dict:
-    """Pay the winning submitter in the mission's reward currency.
-    For AIGEN: credit off-chain ledger.
-    For USDC/ETH: on-chain transfer to submitter_wallet.
-    Returns {ok, payout_tx?, error?}."""
+    """Pay the winning submitter in the mission's reward currency, MINUS the
+    0.5% protocol fee.
+
+    For AIGEN: credit off-chain ledger (winner gets net, treasury gets fee).
+    For USDC/ETH: on-chain transfer to submitter_wallet (treasury implicitly
+    keeps the fee since it's already there from the deposit).
+
+    Returns {ok, payout_tx?, gross, net, fee, error?}."""
     r = m["reward"]
     currency = r["currency"]
-    amount = r["amount"]
+    gross = r["amount"]
+    net, fee = _split_with_fee(gross)
+
+    # Persist split on the reward block for transparency
+    r["gross_amount"] = gross
+    r["net_amount"] = net
+    r["fee_amount"] = fee
+
     if currency == "AIGEN":
-        _credit(winner_sub["submitter"], amount, f"mission-{m['id']}-winner")
-        return {"ok": True, "currency": "AIGEN", "amount": amount,
-                "credited_to": winner_sub["submitter"]}
-    # USDC/ETH on-chain
+        _credit(winner_sub["submitter"], net, f"mission-{m['id']}-winner-net")
+        if fee > 0:
+            _credit("treasury", fee, f"mission-{m['id']}-protocol-fee")
+        # Track fee in missions state file (loaded by caller, save by caller via _record_fee_collected)
+        return {"ok": True, "currency": "AIGEN", "gross": gross, "net": net, "fee": fee,
+                "credited_to": winner_sub["submitter"], "fee_to": "treasury"}
+
+    # USDC/ETH on-chain — only send NET to winner; fee stays in treasury implicitly
     wallet = winner_sub.get("submitter_wallet")
     if not wallet:
         return {"error": "winner has no submitter_wallet on file"}
-    result = _onchain_payout(currency, r["chain"], wallet, amount)
+    result = _onchain_payout(currency, r["chain"], wallet, net)
     if "error" in result:
         return {"error": result["error"]}
     r["payout_tx"] = result["tx_hash"]
     r["payout_at"] = int(time.time())
-    return {"ok": True, "currency": currency, "amount": amount,
-            "payout_tx": result["tx_hash"], "to_wallet": wallet}
+    return {"ok": True, "currency": currency, "gross": gross, "net": net, "fee": fee,
+            "payout_tx": result["tx_hash"], "to_wallet": wallet,
+            "fee_kept_in_treasury": True}
 
 
 def _refund_creator_onchain(m: dict, full_amount: bool = True, fraction: int = 1, of: int = 1) -> dict:
@@ -539,7 +598,7 @@ def _refund_creator_onchain(m: dict, full_amount: bool = True, fraction: int = 1
 def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> dict:
     """Creator picks the winner. Only valid for creator_judges missions during the
     judging window (between deadline and judge_deadline). Pays winner in mission's
-    reward currency (AIGEN off-chain, or USDC/ETH on-chain)."""
+    reward currency (AIGEN off-chain, or USDC/ETH on-chain). Protocol fee deducted."""
     d = load()
     for m in d["missions"]:
         if m["id"] != mission_id:
@@ -576,7 +635,8 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
                            "resolved_at": now}
         d["resolved"] = d.get("resolved", 0) + 1
         if m["reward"]["currency"] == "AIGEN":
-            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
+            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + pay.get("net", 0)
+        _record_fee_collected(d, m["reward"]["currency"], pay.get("fee", 0))
         save(d)
         return {"ok": True, "winner": winner["submitter"], "payout": pay}
     return {"error": "mission not found"}
@@ -641,7 +701,8 @@ def _resolve_first_valid(d: dict, m: dict, now: int) -> dict:
                            "resolved_at": now}
         d["resolved"] = d.get("resolved", 0) + 1
         if m["reward"]["currency"] == "AIGEN":
-            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
+            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + pay.get("net", 0)
+        _record_fee_collected(d, m["reward"]["currency"], pay.get("fee", 0))
         save(d)
         return {"ok": True, "winner": winner["submitter"], "payout": pay}
 
@@ -758,7 +819,8 @@ def _resolve_peer_vote(d: dict, m: dict, now: int) -> dict:
                        "resolved_at": now}
     d["resolved"] = d.get("resolved", 0) + 1
     if m["reward"]["currency"] == "AIGEN":
-        d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + m["reward"]["amount"]
+        d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + pay.get("net", 0)
+    _record_fee_collected(d, m["reward"]["currency"], pay.get("fee", 0))
     save(d)
     return {"ok": True, "winner": winner["submitter"], "winner_payout": pay,
             "voter_payouts": payouts_summary["by_voter"]}
@@ -867,6 +929,7 @@ def list_due_for_resolution(limit: int = 100) -> list:
 
 def stats() -> dict:
     d = load()
+    fees = d.get("lifetime_fees_collected", {"AIGEN": 0, "USDC": 0, "ETH": 0})
     return {
         "total": d.get("total", 0),
         "open": len(list_open(10000)),
@@ -874,11 +937,39 @@ def stats() -> dict:
         "resolved": d.get("resolved", 0),
         "voided": d.get("voided", 0),
         "lifetime_reward_aigen_escrowed": d.get("lifetime_reward_aigen_escrowed", 0),
-        "lifetime_reward_aigen_paid": d.get("lifetime_reward_aigen_paid", 0),
+        "lifetime_reward_aigen_paid_to_winners_net": d.get("lifetime_reward_aigen_paid", 0),
         "lifetime_spam_fees_burned": d.get("lifetime_spam_fees_burned", 0),
+        "lifetime_protocol_fees_collected": {
+            "AIGEN": fees.get("AIGEN", 0),
+            "USDC_micros": fees.get("USDC", 0),
+            "USDC_human": f"${fees.get('USDC', 0)/1e6:.6f}",
+            "ETH_wei": fees.get("ETH", 0),
+            "ETH_human": f"{fees.get('ETH', 0)/1e18:.9f}",
+        },
+        "protocol_fee_bps": PROTOCOL_FEE_BPS,
+        "protocol_fee_pct": f"{PROTOCOL_FEE_BPS/100:.2f}%",
         "spam_fee_burn_aigen": SPAM_FEE_BURN_AIGEN,
         "min_reward_aigen": MIN_REWARD_AIGEN,
+        "min_reward_usdc_micros": MIN_REWARD_USDC_MICROS,
+        "min_reward_eth_wei": MIN_REWARD_ETH_WEI,
         "verification_types": sorted(VERIFICATION_TYPES),
         "peer_vote_quorum_aigen": PEER_VOTE_QUORUM_AIGEN,
         "min_vote_aigen": MIN_VOTE_AIGEN,
+        "treasury_wallet": TREASURY,
+    }
+
+
+def quote_payout(reward_currency: str, gross_amount: int) -> dict:
+    """Pre-creation quote: tells creator exactly what winner will get and what
+    fee the protocol takes. Useful for transparent UX in /missions/create flow."""
+    if reward_currency.upper() not in REWARD_CURRENCIES:
+        return {"error": f"unknown currency {reward_currency}"}
+    net, fee = _split_with_fee(gross_amount)
+    return {
+        "currency": reward_currency.upper(),
+        "gross_amount": gross_amount,
+        "net_to_winner": net,
+        "protocol_fee": fee,
+        "fee_bps": PROTOCOL_FEE_BPS,
+        "fee_pct": f"{PROTOCOL_FEE_BPS/100:.2f}%",
     }
