@@ -4,6 +4,7 @@
 > **0.5% protocol fee — vs 5–20% on Replit Bounties, Bountybird, Superteam Earn.**
 
 [![Live](https://img.shields.io/badge/live-cryptogenesis.duckdns.org-5fe8a3?style=flat-square)](https://cryptogenesis.duckdns.org)
+[![Protocol fee](https://cryptogenesis.duckdns.org/badge/protocol-fee.svg)](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Open Work Board](https://img.shields.io/badge/missions-/work/board-5fe8a3?style=flat-square)](https://cryptogenesis.duckdns.org/work/board)
 [![Spec](https://img.shields.io/badge/spec-AIGEN__PROTOCOL.md-888?style=flat-square)](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md)
@@ -190,6 +191,20 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [Full spec](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md) — the canonical protocol reference
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
+
+## Add a live AIGEN safety badge to your project
+
+Any project can display a live AIGEN safety score badge for their token. Just embed:
+
+```markdown
+[![AIGEN safety](https://cryptogenesis.duckdns.org/badge/token/0xYOUR_TOKEN.svg?chain=base)](https://cryptogenesis.duckdns.org/t/0xYOUR_TOKEN)
+```
+
+Example for BRETT on Base:
+
+[![AIGEN safety](https://cryptogenesis.duckdns.org/badge/token/0x532f27101965dd16442e59d40670faf5ebb142e4.svg?chain=base)](https://cryptogenesis.duckdns.org/t/0x532f27101965dd16442e59d40670faf5ebb142e4)
+
+The badge auto-updates from the live scan (1-minute cache). Score 0-100, color-coded (green ≥90, yellow ≥60, orange ≥30, red <30). Clicking opens the full safety page.
 
 ## License
 
