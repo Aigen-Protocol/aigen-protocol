@@ -683,6 +683,22 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
             d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + pay.get("net", 0)
         _record_fee_collected(d, m["reward"]["currency"], pay.get("fee", 0))
         save(d)
+
+        # Fire webhook for resolution
+        wu = m.get("webhook_url", "")
+        if wu:
+            _fire_webhook(wu, {
+                "event": "mission.resolved",
+                "mission_id": mission_id,
+                "mission_title": m.get("title"),
+                "resolution_type": "creator_judged",
+                "winner_agent_id": winner["submitter"],
+                "winner_submission_id": winner["id"],
+                "payout": pay,
+                "resolved_at": now,
+                "view_url": f"https://cryptogenesis.duckdns.org/m/{mission_id}",
+            })
+
         return {"ok": True, "winner": winner["submitter"], "payout": pay}
     return {"error": "mission not found"}
 
@@ -704,19 +720,38 @@ def resolve(mission_id: str) -> dict:
 
         # Different types have different "ready to resolve" conditions
         if vt == "first_valid_match":
-            # Resolve as soon as first valid submission appears, OR after deadline (refund)
-            return _resolve_first_valid(d, m, now)
+            result = _resolve_first_valid(d, m, now)
         elif vt == "peer_vote":
             if now < m["deadline"]:
                 return {"error": "voting window not over", "deadline": m["deadline"], "now": now}
-            return _resolve_peer_vote(d, m, now)
+            result = _resolve_peer_vote(d, m, now)
         elif vt == "creator_judges":
             if now < m["judge_deadline"]:
                 return {"error": "creator judging window still open",
                         "judge_deadline": m["judge_deadline"], "now": now}
-            return _resolve_creator_judges_timeout(d, m, now)
+            result = _resolve_creator_judges_timeout(d, m, now)
         else:
             return {"error": f"unknown verification_type {vt}"}
+
+        # Fire creator webhook on resolution outcome (best-effort)
+        if result.get("ok"):
+            wu = m.get("webhook_url", "")
+            if wu:
+                # Reload fresh state since the helpers call save(d)
+                fresh = load()
+                fresh_m = next((mm for mm in fresh["missions"] if mm["id"] == mission_id), m)
+                _fire_webhook(wu, {
+                    "event": "mission.resolved",
+                    "mission_id": mission_id,
+                    "mission_title": fresh_m.get("title"),
+                    "verification_type": vt,
+                    "outcome": fresh_m.get("resolution", {}).get("outcome", "WIN"),
+                    "winner_agent_id": fresh_m.get("resolution", {}).get("winner_agent_id"),
+                    "payout": fresh_m.get("resolution", {}).get("payout"),
+                    "resolved_at": now,
+                    "view_url": f"https://cryptogenesis.duckdns.org/m/{mission_id}",
+                })
+        return result
     return {"error": "mission not found"}
 
 
