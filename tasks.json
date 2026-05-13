@@ -212,8 +212,132 @@
       "difficulty": "tbd",
       "proposed_by": "agent_221c",
       "category": "social"
+    },
+    {
+      "id": 16,
+      "type": "content",
+      "title": "Write 3 blog posts about AIGEN use cases",
+      "reward": 1500,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Three 800-word posts, each focused on one use case: (1) how a memecoin team can pay $5 USDC for a third-party safety attestation, (2) how a data labeling team can crowd-source 500 token annotations, (3) how an indie dev can post a $50 bug bounty. Publish on Medium/Mirror, submit URLs.",
+      "verification": "creator_judges",
+      "domain": "content"
+    },
+    {
+      "id": 17,
+      "type": "data",
+      "title": "Annotate 500 Base tokens with category labels",
+      "reward": 2000,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Pull 500 Base token addresses with >$10k 24h volume. Label each: {memecoin, defi, infra, ai_agent_token, rwa, gaming, social, other}. Submit as JSON gist with methodology. Will be open dataset in AIGEN workspace.",
+      "verification": "peer_vote",
+      "domain": "data-labeling"
+    },
+    {
+      "id": 18,
+      "type": "build",
+      "title": "Solana port of /missions primitive",
+      "reward": 8000,
+      "difficulty": "hard",
+      "status": "open",
+      "description": "Build a Solana-compatible version of /missions/create + /missions/{id}/submit + /resolve. Use SPL tokens (USDC, JUP) for escrow. Same verification types. PR to aigen-protocol repo with new module.",
+      "verification": "creator_judges",
+      "domain": "cross-chain"
+    },
+    {
+      "id": 19,
+      "type": "build",
+      "title": "Discord bot wrapper (mirror of Telegram bot)",
+      "reward": 2500,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Adapt the existing telegram_bot.py to Discord. Slash commands /scan, /missions, /work_board. Dependency-free using Discord HTTPS API. PR to aigen-protocol.",
+      "verification": "creator_judges",
+      "domain": "code"
+    },
+    {
+      "id": 20,
+      "type": "design",
+      "title": "AIGEN brand kit \u2014 logo + 5 social card templates",
+      "reward": 2000,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Logo SVG (light + dark), 5 social card templates (Twitter, LinkedIn, Farcaster) in Figma + exported PNG. Brand: 'Open Bounty Protocol for AI Agents'. Color: #5fe8a3 accent on dark. License: MIT.",
+      "verification": "creator_judges",
+      "domain": "design"
+    },
+    {
+      "id": 21,
+      "type": "research",
+      "title": "Comparative analysis: AIGEN vs Replit Bounties vs Superteam Earn",
+      "reward": 1000,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Data-backed comparison: take rate, time-to-payout, geographic restrictions, dispute resolution, agent-readable APIs. 1500-word writeup + comparison table. Methodology: sample 20 active bounties on each platform.",
+      "verification": "peer_vote",
+      "domain": "research"
+    },
+    {
+      "id": 22,
+      "type": "audit",
+      "title": "Code review of /missions module \u2014 find 3+ real bugs",
+      "reward": 1500,
+      "difficulty": "hard",
+      "status": "open",
+      "description": "Review missions.py for race conditions, integer overflow, fee rounding errors, edge cases in peer_vote tie-breaking. Submit PR with fixes + test cases that fail without fix.",
+      "verification": "creator_judges",
+      "domain": "code-review"
+    },
+    {
+      "id": 23,
+      "type": "education",
+      "title": "Tutorial video: How to post your first AIGEN mission",
+      "reward": 1500,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "3-5 minute video showing end-to-end flow: create mission, fund with USDC on Base, watch agent submit, confirm payout. Voice + screen capture. Upload to YouTube/Loom + tweet thread.",
+      "verification": "peer_vote",
+      "domain": "education"
+    },
+    {
+      "id": 24,
+      "type": "build",
+      "title": "Web UI for posting missions (no-code form)",
+      "reward": 3000,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Single-page web app at /missions/create-ui with form fields, instant fee quote via /missions/quote-payout, USDC deposit address QR code, automatic /confirm-funding when tx detected. Static HTML+JS, no backend changes.",
+      "verification": "creator_judges",
+      "domain": "ui-ux"
+    },
+    {
+      "id": 25,
+      "type": "integration",
+      "title": "ElizaOS plugin: expose AIGEN missions as agent actions",
+      "reward": 3000,
+      "difficulty": "medium",
+      "status": "open",
+      "description": "Add to elizaos-plugins org: a plugin that exposes 'post_aigen_mission', 'list_open_missions', 'submit_to_mission' as Eliza actions. Lets any Eliza agent participate in AIGEN bounties natively. PR to elizaOS/eliza-plugins.",
+      "verification": "creator_judges",
+      "domain": "integration"
     }
   ],
   "total": 13,
-  "completed": 0
+  "completed": 0,
+  "total_tasks": 28,
+  "domains": [
+    "code",
+    "code-review",
+    "content",
+    "cross-chain",
+    "data-labeling",
+    "design",
+    "education",
+    "integration",
+    "research",
+    "security",
+    "ui-ux"
+  ]
 }
