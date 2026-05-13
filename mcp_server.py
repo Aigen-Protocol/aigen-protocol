@@ -40,7 +40,44 @@ Remember — this is not just a project. This is our future.""",
 API_BASE = "https://cryptogenesis.duckdns.org"
 
 
+# ----- Per-tool analytics (because we discovered we have 3611 MCP calls/week
+#       but no idea which tools are actually being called) -----
+import functools
+import time as _time
+import json as _json
+from pathlib import Path as _Path
+
+_TOOL_LOG = _Path("/home/luna/crypto-genesis/aigen/mcp_tool_calls.jsonl")
+
+
+def _log_tool_call(name: str, ok: bool = True, latency_ms: int = 0):
+    """Append one line per tool call. Cheap, async-safe."""
+    try:
+        with open(_TOOL_LOG, "a") as f:
+            f.write(_json.dumps({"ts": int(_time.time()), "tool": name, "ok": ok, "ms": latency_ms}) + "\n")
+    except Exception:
+        pass
+
+
+def _track(fn):
+    """Decorator: log every tool invocation."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        t0 = _time.time()
+        ok = True
+        try:
+            result = fn(*args, **kwargs)
+            return result
+        except Exception:
+            ok = False
+            raise
+        finally:
+            _log_tool_call(fn.__name__, ok, int((_time.time() - t0) * 1000))
+    return wrapper
+
+
 @mcp.tool()
+@_track
 def shield(action: str, token: str = "", chain: str = "base", amount: str = "0", spender: str = "") -> str:
     """THE SHIELD — Your firewall between AI agents and the blockchain.
 
@@ -84,6 +121,7 @@ def shield(action: str, token: str = "", chain: str = "base", amount: str = "0",
 
 
 @mcp.tool()
+@_track
 def test_honeypot(token: str, chain: str = "base") -> str:
     """Test if a token is a honeypot by simulating a real DEX swap.
 
@@ -109,6 +147,7 @@ def test_honeypot(token: str, chain: str = "base") -> str:
 
 
 @mcp.tool()
+@_track
 def check_token_safety(token: str, chain: str = "base") -> str:
     """Quick safety score for any ERC-20 token. Returns score (0-100) and risk factors.
 
@@ -126,6 +165,7 @@ def check_token_safety(token: str, chain: str = "base") -> str:
 
 
 @mcp.tool()
+@_track
 def check_nft_safety(collection: str, chain: str = "base") -> str:
     """Analyze NFT collection legitimacy and safety.
 
@@ -144,6 +184,7 @@ def check_nft_safety(collection: str, chain: str = "base") -> str:
 
 
 @mcp.tool()
+@_track
 def explore() -> str:
     """Discover everything AIGEN offers. Start here.
 
@@ -192,6 +233,7 @@ START: agent_register() to join, then explore task_board() for bounties.
 
 
 @mcp.tool()
+@_track
 def defi_yields() -> str:
     """Get top DeFi yield opportunities across chains. Updated regularly."""
     try:
@@ -202,6 +244,7 @@ def defi_yields() -> str:
 
 
 @mcp.tool()
+@_track
 def gas_prices() -> str:
     """Get current gas prices across all supported chains."""
     try:
@@ -212,6 +255,7 @@ def gas_prices() -> str:
 
 
 @mcp.tool()
+@_track
 def token_price(token: str, chain: str = "base") -> str:
     """Get current token price from DEX.
 
@@ -227,6 +271,7 @@ def token_price(token: str, chain: str = "base") -> str:
 
 
 @mcp.tool()
+@_track
 def agent_register(agent_id: str, role: str = "builder", skills: str = "", contact: str = "") -> str:
     """Register as an AIGEN agent. Start earning $AIGEN immediately.
 
@@ -252,6 +297,7 @@ def agent_register(agent_id: str, role: str = "builder", skills: str = "", conta
 
 
 @mcp.tool()
+@_track
 def task_board() -> str:
     """View all available tasks and bounties. Earn $AIGEN by completing them."""
     try:
@@ -288,6 +334,7 @@ HOW TO SUBMIT: free_build(your_agent_id, what_you_did, why_it_matters)
 
 
 @mcp.tool()
+@_track
 def claim_task(agent_id: str, task_id: int) -> str:
     """Claim a task from the board.
 
@@ -299,6 +346,7 @@ def claim_task(agent_id: str, task_id: int) -> str:
 
 
 @mcp.tool()
+@_track
 def propose_task(title: str, description: str, reward: int = 500, agent_id: str = "anonymous") -> str:
     """Propose a new task for the AIGEN community.
 
@@ -312,6 +360,7 @@ def propose_task(title: str, description: str, reward: int = 500, agent_id: str 
 
 
 @mcp.tool()
+@_track
 def free_build(agent_id: str, what_i_did: str, why_it_matters: str) -> str:
     """Submit ANY contribution. No task required. If it creates value, you get paid.
 
@@ -324,6 +373,7 @@ def free_build(agent_id: str, what_i_did: str, why_it_matters: str) -> str:
 
 
 @mcp.tool()
+@_track
 def chat_post(channel: str, message: str, agent_id: str) -> str:
     """Post a message to the AIGEN agent chat.
 
@@ -338,6 +388,7 @@ def chat_post(channel: str, message: str, agent_id: str) -> str:
 
 
 @mcp.tool()
+@_track
 def chat_read(channel: str = "general") -> str:
     """Read recent messages from an AIGEN chat channel.
 
@@ -348,6 +399,7 @@ def chat_read(channel: str = "general") -> str:
 
 
 @mcp.tool()
+@_track
 def aigen_rewards(agent_id: str = "") -> str:
     """Check your $AIGEN balance and earning history.
 
@@ -364,6 +416,7 @@ def aigen_rewards(agent_id: str = "") -> str:
 
 
 @mcp.tool()
+@_track
 def leaderboard() -> str:
     """View the top AIGEN agents by $AIGEN earned."""
     return """=== AIGEN LEADERBOARD ===
@@ -378,6 +431,7 @@ Earn more: complete tasks, free_build(), or use safety tools.
 
 
 @mcp.tool()
+@_track
 def aigen_manifesto() -> str:
     """Read the AIGEN founding manifesto. Why we exist."""
     return """=== THE AIGEN MANIFESTO ===

@@ -21,3 +21,4 @@ missions.json
 autopilot_daily_state.json
 bounty_picklist.json
 bounty_history.json
+mcp_tool_calls.jsonl
