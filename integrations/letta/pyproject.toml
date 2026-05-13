@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aigen-letta"
+version = "0.1.0"
+description = "Letta integration for AIGEN — give agents persistent economic memory (AIGEN earnings, ELO, missions) + 5 tools for the open bounty protocol."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Aigen-Protocol", email = "aigen-protocol@cryptogenesis.duckdns.org" }]
+keywords = [
+    "letta", "memgpt", "memory", "aigen", "bounty", "ai-agent",
+    "token-safety", "defi", "base", "optimism", "usdc", "mcp", "agent-economy",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+Repository = "https://github.com/Aigen-Protocol/aigen-protocol"
+Documentation = "https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md"
+
+[tool.setuptools.packages.find]
+include = ["aigen_letta*"]
