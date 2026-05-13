@@ -158,7 +158,8 @@ def create_mission(creator_agent_id: str, title: str, description: str,
                    reward_chain: str = "base",
                    deadline_hours: int = DEFAULT_DEADLINE_HOURS,
                    min_submitter_elo: int = 0,
-                   reward_aigen: int = None) -> dict:
+                   reward_aigen: int = None,
+                   webhook_url: str = "") -> dict:
     """Open a new mission.
 
     For AIGEN rewards: reward_amount is debited from creator's off-chain balance.
@@ -232,11 +233,22 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         initial_status = "awaiting_funding"
         spam_fee = 0
 
+    # Validate webhook URL (optional)
+    webhook_clean = ""
+    if webhook_url:
+        wu = webhook_url.strip()
+        if not (wu.startswith("https://") or wu.startswith("http://")):
+            return {"error": "webhook_url must start with http:// or https://"}
+        if len(wu) > 500:
+            return {"error": "webhook_url too long (max 500)"}
+        webhook_clean = wu
+
     m = {
         "id": mid,
         "creator": creator_agent_id,
         "title": title.strip(),
         "description": description.strip(),
+        "webhook_url": webhook_clean,
         # Reward block — multi-currency
         "reward": {
             "currency": reward_currency,
@@ -416,9 +428,42 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
         }
         m["submissions"].append(sub)
         save(d)
+
+        # Fire creator webhook (best-effort, non-blocking)
+        wu = m.get("webhook_url", "")
+        if wu:
+            _fire_webhook(wu, {
+                "event": "submission.created",
+                "mission_id": mission_id,
+                "mission_title": m.get("title"),
+                "submission_id": sid,
+                "submitter_agent_id": submitter_agent_id,
+                "proof": proof[:500],
+                "submitted_at": sub["submitted_at"],
+                "submission_count": len(m["submissions"]),
+                "view_url": f"https://cryptogenesis.duckdns.org/m/{mission_id}",
+            })
+
         return {"ok": True, "mission_id": mission_id, "submission_id": sid,
                 "submission_count": len(m["submissions"])}
     return {"error": "mission not found"}
+
+
+def _fire_webhook(url: str, payload: dict):
+    """Fire HTTP POST webhook with mission event. Non-blocking, swallows errors."""
+    import threading
+    import urllib.request
+    def _do():
+        try:
+            data = json.dumps(payload).encode()
+            req = urllib.request.Request(url, method="POST", data=data,
+                                         headers={"Content-Type": "application/json",
+                                                  "User-Agent": "aigen-webhook/1.0",
+                                                  "X-AIGEN-Event": payload.get("event", "")})
+            urllib.request.urlopen(req, timeout=5)
+        except Exception:
+            pass
+    threading.Thread(target=_do, daemon=True).start()
 
 
 # ---------- vote (peer_vote only) ----------
