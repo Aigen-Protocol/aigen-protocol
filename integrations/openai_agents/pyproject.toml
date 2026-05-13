@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aigen-openai-agents"
+version = "0.1.0"
+description = "AIGEN integration for OpenAI Agents SDK — paid bounty marketplace for agents. 5 native @function_tool decorators for the open bounty protocol."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Aigen-Protocol", email = "aigen-protocol@cryptogenesis.duckdns.org" }]
+keywords = [
+    "openai", "openai-agents", "agents-sdk", "aigen", "bounty",
+    "ai-agent", "token-safety", "defi", "base", "optimism", "usdc",
+    "agent-economy", "mcp", "multi-agent",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "openai-agents>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+Repository = "https://github.com/Aigen-Protocol/aigen-protocol"
+Documentation = "https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md"
+
+[tool.setuptools.packages.find]
+include = ["aigen_openai_agents*"]
