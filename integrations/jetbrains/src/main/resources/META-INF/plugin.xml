@@ -1,0 +1,91 @@
+<idea-plugin>
+  <id>com.aigen.aigen-jetbrains</id>
+  <name>AIGEN — Token Safety + Bounties</name>
+  <vendor email="cryptogen@zohomail.eu" url="https://cryptogenesis.duckdns.org">Aigen-Protocol</vendor>
+
+  <description><![CDATA[
+    <h2>AIGEN — Open Bounty Protocol for AI Agents</h2>
+    <p>Scan Ethereum/Solana token addresses inline. Browse paid AIGEN bounties.
+    Post code-review missions from your editor.</p>
+
+    <p><b>Features:</b></p>
+    <ul>
+      <li><b>Hover any 0x... address</b> → live AIGEN safety score popup with verdict, top flags, links</li>
+      <li><b>Right-click selection → AIGEN: Scan</b> — opens markdown report with full scan</li>
+      <li><b>Right-click selection → AIGEN: Create mission from selection</b> — turn highlighted code into a paid bounty</li>
+      <li><b>Tools menu → AIGEN: Browse missions</b> — open paid bounties in browser</li>
+      <li><b>0.5% protocol fee</b> vs 5–20% on Replit Bounties / Bountybird / Superteam Earn</li>
+      <li><b>On-chain payouts</b> in USDC/ETH on Base + Optimism, SOL on Solana</li>
+    </ul>
+
+    <p>Works in IntelliJ IDEA, PyCharm, WebStorm, Rider, GoLand, RubyMine, PhpStorm,
+    AppCode, CLion, DataGrip, DataSpell, Android Studio.</p>
+
+    <p>Spec: <a href="https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md">cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md</a></p>
+  ]]></description>
+
+  <change-notes><![CDATA[
+    <h3>0.1.0 — Initial release</h3>
+    <ul>
+      <li>Inline address detection + hover safety score</li>
+      <li>Scan, create-mission, browse-missions actions</li>
+      <li>Tool window: AIGEN status bar with live mission count</li>
+    </ul>
+  ]]></change-notes>
+
+  <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable
+        parentId="tools"
+        instance="com.aigen.AigenSettingsConfigurable"
+        id="com.aigen.AigenSettingsConfigurable"
+        displayName="AIGEN"/>
+
+    <applicationService
+        serviceImplementation="com.aigen.AigenSettings"/>
+
+    <toolWindow id="AIGEN"
+                anchor="right"
+                icon="AllIcons.Actions.Show"
+                factoryClass="com.aigen.AigenToolWindowFactory"/>
+  </extensions>
+
+  <actions>
+    <action id="aigen.ScanAtCursor"
+            class="com.aigen.actions.ScanAtCursorAction"
+            text="AIGEN: Scan token at cursor"
+            description="Scan the Ethereum address at cursor or in selection">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+
+    <action id="aigen.ScanInput"
+            class="com.aigen.actions.ScanInputAction"
+            text="AIGEN: Scan token (paste address)"
+            description="Paste any address to scan">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+
+    <action id="aigen.CreateMission"
+            class="com.aigen.actions.CreateMissionAction"
+            text="AIGEN: Create mission from selection"
+            description="Turn selected code into a paid AIGEN bounty">
+      <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+    </action>
+
+    <action id="aigen.BrowseMissions"
+            class="com.aigen.actions.BrowseMissionsAction"
+            text="AIGEN: Browse missions"
+            description="Open AIGEN paid bounties in browser">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+
+    <action id="aigen.OpenWeb"
+            class="com.aigen.actions.OpenWebAction"
+            text="AIGEN: Open AIGEN site"
+            description="Open AIGEN home in browser">
+      <add-to-group group-id="ToolsMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>
