@@ -24,6 +24,14 @@ if [ -f state/kill_switch ]; then
     exit 0
 fi
 
+# --- TRIGGER: read + delete trigger_now (re-arms claude-autopilot.path) ---
+TRIGGER_REASON=""
+if [ -f state/trigger_now ]; then
+    TRIGGER_REASON=$(cat state/trigger_now)
+    echo "[TRIGGER] fired by webhook: $TRIGGER_REASON" >> "$LOGFILE"
+    rm -f state/trigger_now
+fi
+
 # --- TRACKING: api-equivalent value (NOT real cost on Max plan) ---
 # We're on Claude Max — these are pay-as-you-go EQUIVALENT dollars,
 # they consume the Max message-quota window not actual $.
@@ -41,7 +49,7 @@ fi
 # --- REFRESH dashboard ---
 echo "[STATE] refreshing dashboard..." >> "$LOGFILE"
 python3 << 'PYEOF' > state/dashboard.json 2>>"$LOGFILE"
-import json, time, urllib.request, subprocess
+import json, time, urllib.request, subprocess, os
 out = {
     "_note": "Refreshed by run.sh",
     "last_refresh_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -83,6 +91,22 @@ try:
         capture_output=True, text=True, timeout=5).stdout.strip().split("\n")
 except Exception as e:
     out["git_error"] = str(e)
+try:
+    res = subprocess.run(
+        ["gh","api","notifications","--jq",
+         "[.[] | {repo: .repository.full_name, type: .subject.type, title: .subject.title, url: .subject.url, reason: .reason, updated_at: .updated_at, unread: .unread}]"],
+        capture_output=True, text=True, timeout=10)
+    out["github_notifications"] = json.loads(res.stdout) if res.stdout.strip() else []
+    out["github_notifications_count"] = len(out["github_notifications"])
+except Exception as e:
+    out["github_notifications_error"] = str(e)
+try:
+    if os.path.exists("state/triggers.log"):
+        with open("state/triggers.log") as f:
+            lines = f.readlines()
+        out["recent_webhook_triggers"] = [l.strip() for l in lines[-5:]]
+except Exception:
+    pass
 print(json.dumps(out, indent=2))
 PYEOF
 
