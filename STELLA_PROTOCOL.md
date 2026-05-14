@@ -144,11 +144,59 @@ That's the entire governance surface. Cannot mint, burn, freeze, or touch user f
 
 Until audit completes, only deploy on testnet.
 
+## How AIGEN supports STELLA (NOT like Luna for UST)
+
+**Critical design point**: AIGEN does NOT play the role LUNA played for UST.
+That role killed Terra. The death spiral happened because UST's peg was
+defended by INFINITELY MINTING LUNA — meaning UST's value depended on
+LUNA's value, and vice versa, and when one cracked the other followed.
+
+STELLA is **fully USDC-backed** — its value depends on USDC, not on AIGEN.
+AIGEN plays the MakerDAO/MKR-style support role:
+
+| Role | Mechanism | Limit |
+|---|---|---|
+| **Governance** | AIGEN holders vote on supplyCap, oracle source, parameters. All via 48h timelock + emergency-cancel for malicious changes. | No mint power. |
+| **Work coordination** | AIGEN bounties pay agents to do peg-defense work: arbitrage when STELLA off-peg, monitor oracle, audit reserves. Funded by 0.5% protocol fee. | Bounded by AIGEN protocol revenue. No subsidies. |
+| **Fee capture** | If STELLA accrues mint/redeem fees in v2, they flow to AIGEN treasury → AIGEN buyback. STELLA scaling enriches AIGEN. | Unidirectional: AIGEN benefits from STELLA, STELLA functions without AIGEN. |
+| **Insurance fund (capped)** | Staked AIGEN absorbs bad debt if STELLA collateral falls below 100%. Capped at **5% of STELLA supply** (hardcoded). When cap reached, insurance stops — no infinite mint. | 5% hard cap means even if all insurance is used, STELLA backing remains ≥95% USDC. No spiral. |
+
+**The critical contrast with Luna:**
+
+| Luna for UST | AIGEN for STELLA |
+|---|---|
+| UST value = function of LUNA value (both backed each other) | STELLA value = function of USDC in contract. AIGEN value is independent. |
+| LUNA mintable infinitely to absorb UST sells | AIGEN insurance fund capped at 5% of STELLA supply. Once exhausted, STELLA can de-peg but AIGEN cannot inflate. |
+| One token's collapse pulled the other down | If AIGEN crashes to $0, STELLA still backed by USDC. If STELLA loses backing, AIGEN insurance pays up to 5%, beyond that STELLA holders eat the loss but AIGEN doesn't dilute infinitely. |
+
+**Insurance fund mechanism (v0.3 spec, not yet implemented):**
+
+```solidity
+// Pseudocode for the v0.3 insurance contract (separate from Stella.sol)
+contract StellaInsurance {
+    uint256 public constant MAX_COVERAGE_BPS = 500; // 5% of STELLA supply
+
+    function stakeAIGEN(uint256 amount) external;
+    function unstakeAIGEN(uint256 amount) external; // 14-day cooldown
+    function claimDeficit() external; // callable when STELLA backing < 100%
+
+    function maxCoverageUSD() public view returns (uint256) {
+        return (Stella.totalSupply() * MAX_COVERAGE_BPS) / 10000;
+    }
+}
+```
+
+The insurance mechanism is OPT-IN for AIGEN holders. They earn a share of
+STELLA fees as compensation for the risk. Hardcoded 5% cap means the
+maximum AIGEN dilution scenario is: AIGEN supply expanded by exactly the
+amount needed to cover 5% of STELLA supply at current AIGEN price.
+
 ## Open questions
 
 - Should redemption charge a tiny fee (e.g., 1bps) to discourage MEV churn? **Currently: no fee.**
-- Should mint require minimum amount to prevent gas-sandwich attacks? **Currently: no minimum (only `> 0`).**
-- Should governor have an emergency-shutdown function (`pause + freeze redemption`)? **Currently: no — by explicit design. Redemption never freezes.**
+- Insurance fund minimum stake amount? **TBD — proposing 1000 AIGEN minimum.**
+- Insurance fund yield rate? **TBD — proposing X% of STELLA mint/redeem fees, capped.**
+- Should governor have an emergency-shutdown function (`pause + freeze redemption`)? **No — by explicit design. Redemption never freezes.**
 
 ## Source
 

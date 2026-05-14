@@ -39,16 +39,20 @@ contract DeployStella is Script {
         uint256 pk = vm.envUint("PRIVATE_KEY");
 
         vm.startBroadcast(pk);
-        stella = new Stella(USDC_BASE, TREASURY, CHAINLINK_USDC_USD_BASE, governor);
+        // v0.2: contract-held USDC model — no treasury parameter
+        stella = new Stella(USDC_BASE, CHAINLINK_USDC_USD_BASE, governor);
         vm.stopBroadcast();
 
         console2.log("STELLA deployed at:", address(stella));
         console2.log("USDC:", USDC_BASE);
-        console2.log("Treasury:", TREASURY);
         console2.log("Oracle:", CHAINLINK_USDC_USD_BASE);
         console2.log("Governor:", governor);
         console2.log("");
-        console2.log("Next: treasury must approve STELLA contract for USDC.transferFrom:");
-        console2.log("  cast send", USDC_BASE, "approve(address,uint256)", address(stella), type(uint256).max);
+        console2.log("Next steps:");
+        console2.log("  1. (Optional) AIGEN treasury donates initial backing:");
+        console2.log("     cast send", USDC_BASE, "approve(address,uint256) <STELLA>", "<amount>");
+        console2.log("     cast send <STELLA> donate(uint256) <amount>");
+        console2.log("  2. Update STELLA_CONTRACT in scanner.py with the deployed address");
+        console2.log("  3. Verify on Basescan");
     }
 }
