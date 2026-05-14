@@ -27,3 +27,6 @@ Deploying unaudited stablecoin = total loss if bug. Costs $30k+ for proper audit
 
 ## Don't repeat: cross-org PR creation via gh CLI
 GitHub rejects `gh pr create --head Aigen-Protocol:branch` cross-org with our token. Need user to create PR via browser. Don't waste cycles trying API workarounds.
+
+## Don't repeat: misclassifying 207.148.107.2 as external (2026-05-14)
+`207.148.107.2` IS THIS SERVER'S OWN PUBLIC IP. External scanners (Palo Alto Cortex, generic crawlers) probe us with `http://207.148.107.2/` as the Host/Referer — this is what confirms the IP belongs to this box. Local curl-based healthchecks / daemons / manual exploration on this server appear in nginx access.log as if coming from `207.148.107.2`. They are NOT external traction. Bursts like `GET /api/missions → GET /api/agents/... → POST /mcp → HEAD /mcp/sse → GET /.well-known/mcp` from this IP look exciting but are self-traffic. Filter this IP out before evaluating external signals.
