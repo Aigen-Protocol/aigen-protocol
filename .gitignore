@@ -38,3 +38,7 @@ reports/*.md
 chain_queue.json
 auto_reviewer.log
 auto_reviewer_seen.json
+contracts/cache/
+contracts/out/
+contracts/lib/
+contracts/.git/

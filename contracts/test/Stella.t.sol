@@ -140,20 +140,15 @@ contract StellaTest is Test {
     }
 
     function test_only_governor_can_unpause() public {
-        // Mint 100 STELLA
         _setup_alice_with_usdc(100e6);
         vm.prank(alice);
         stella.mint(100e6);
-        // Trigger pause by reducing backing — call redeem to drain partially? No, redeem reduces both
-        // Actually: pokePause requires ratio < 110% OR oracle stale. With no oracle, peg=1.0 always.
-        // To trigger via ratio: need backing/supply < 1.1.
-        // Currently: backing=1100 USDC, supply=100 STELLA → ratio = 1100%
-        // To get ratio < 110%, need backing < 110 USDC (with same supply).
-        // Use a hostile caller to artificially reduce backing? Cannot — only contract redeem can move USDC out.
-        // Skip this scenario — pause condition unreachable in this test setup.
-        // Test only that random callers cannot unpause when state is paused.
-        // Force-set the state for testing? In Foundry we'd use vm.store, but let's just test the require.
+        // Random caller can never unpause (governor check fires first)
         vm.prank(alice);
+        vm.expectRevert("not governor");
+        stella.unpause();
+        // Even governor can't unpause when not currently paused
+        vm.prank(governor);
         vm.expectRevert("not paused");
         stella.unpause();
     }
