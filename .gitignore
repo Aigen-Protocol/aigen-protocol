@@ -33,3 +33,5 @@ resolve_daemon.log
 bounty_radar.log
 radar_daemon.log
 radar_seen.json
+reports_daemon.log
+reports/*.md
