@@ -24,22 +24,19 @@ if [ -f state/kill_switch ]; then
     exit 0
 fi
 
-# --- SAFETY: budget check ---
-DAILY_CAP=$(jq -r .daily_cap_usd state/budget.json)
+# --- TRACKING: api-equivalent value (NOT real cost on Max plan) ---
+# We're on Claude Max — these are pay-as-you-go EQUIVALENT dollars,
+# they consume the Max message-quota window not actual $.
 LAST_DAY=$(jq -r .today state/budget.json)
 TODAY_SPENT=$(jq -r .today_spent_usd state/budget.json)
 
 if [ "$LAST_DAY" != "$TODAY" ]; then
-    echo "[BUDGET] new day, resetting today_spent (was \$$TODAY_SPENT on $LAST_DAY)" >> "$LOGFILE"
+    echo "[TRACKING] new day, resetting today_spent (was api-equivalent \$$TODAY_SPENT on $LAST_DAY)" >> "$LOGFILE"
     TMP=$(mktemp)
     jq --arg t "$TODAY" '.today=$t | .today_spent_usd=0' state/budget.json > "$TMP" && mv "$TMP" state/budget.json
-    TODAY_SPENT=0
 fi
 
-if (( $(echo "$TODAY_SPENT >= $DAILY_CAP" | bc -l) )); then
-    echo "[BUDGET] today_spent=\$$TODAY_SPENT >= cap=\$$DAILY_CAP — exiting" >> "$LOGFILE"
-    exit 0
-fi
+# kill_switch is the only hard stop. No $-cap on Max.
 
 # --- REFRESH dashboard ---
 echo "[STATE] refreshing dashboard..." >> "$LOGFILE"
@@ -134,7 +131,8 @@ jq --arg c "$COST" '.today_spent_usd += ($c | tonumber)
                     | .lifetime_invocations += 1' state/budget.json > "$TMP" && mv "$TMP" state/budget.json
 
 NEW_TODAY=$(jq -r .today_spent_usd state/budget.json)
-echo "[BUDGET] today total: \$$NEW_TODAY / \$$DAILY_CAP cap" >> "$LOGFILE"
+LIFETIME=$(jq -r .lifetime_invocations state/budget.json)
+echo "[TRACKING] today api-equivalent total: \$$NEW_TODAY (lifetime invocations: $LIFETIME)" >> "$LOGFILE"
 
 QUEUE_COUNT=$(ls approval_queue/*.md 2>/dev/null | wc -l)
 if [ "$QUEUE_COUNT" -gt 0 ]; then
