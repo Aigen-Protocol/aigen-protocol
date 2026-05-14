@@ -177,6 +177,25 @@ def derive_reputation(agent_id: str) -> dict:
     if legacy:
         breakdown["legacy_manual_points"] = legacy
 
+    # Inactivity decay — 2 points per week of silence after 7-day grace period
+    # Keeps the leaderboard fresh: agents who go dormant lose ground to active ones.
+    raw_score = score
+    last_ts = _last_activity_ts(agent_id)
+    decay = 0
+    if last_ts:
+        now = int(time.time())
+        days_inactive = max(0, (now - last_ts) // 86400 - 7)  # 7-day grace
+        if days_inactive > 0:
+            weeks_inactive = days_inactive // 7
+            decay = min(score, weeks_inactive * 2)
+            score -= decay
+            breakdown["decay"] = {
+                "days_inactive": int(days_inactive),
+                "weeks_inactive": int(weeks_inactive),
+                "points_lost": int(decay),
+                "last_activity_ts": int(last_ts),
+            }
+
     # Cap at sensible bounds
     score = max(0, score)
 
@@ -185,6 +204,8 @@ def derive_reputation(agent_id: str) -> dict:
     return {
         "agent_id": agent_id,
         "score": score,
+        "raw_score_before_decay": raw_score,
+        "decay_points": int(decay),
         "elo": elo,
         "rank": rank_name,
         "multiplier": multiplier,
@@ -193,6 +214,70 @@ def derive_reputation(agent_id: str) -> dict:
         "breakdown": breakdown,
         "computed_at": int(time.time()),
     }
+
+
+def _last_activity_ts(agent_id: str) -> int | None:
+    """Most recent timestamp at which agent did anything: submission, vote,
+    mission creation, prediction, pattern. Returns None if never seen."""
+    most_recent = 0
+
+    # Missions: submissions, votes (vote tracked via _credit not directly, fall back to submissions),
+    # mission creation
+    try:
+        m_path = Path("/home/luna/crypto-genesis/aigen/missions.json")
+        if m_path.exists():
+            d = json.loads(m_path.read_text())
+            for m in d.get("missions", []) or []:
+                if m.get("creator") == agent_id:
+                    most_recent = max(most_recent, m.get("created_at", 0))
+                for s in m.get("submissions", []) or []:
+                    if (s.get("submitter") or s.get("agent_id")) == agent_id:
+                        most_recent = max(most_recent, s.get("submitted_at", 0))
+                    # peer-vote tally tracks voters
+                    for vagent in (s.get("yes_votes", {}) or {}).keys():
+                        if vagent == agent_id:
+                            most_recent = max(most_recent, s.get("submitted_at", 0))
+                    for vagent in (s.get("no_votes", {}) or {}).keys():
+                        if vagent == agent_id:
+                            most_recent = max(most_recent, s.get("submitted_at", 0))
+    except Exception:
+        pass
+
+    # Predictions
+    try:
+        p_path = Path("/home/luna/crypto-genesis/aigen/predictions.json")
+        if p_path.exists():
+            d = json.loads(p_path.read_text())
+            for m in d.get("markets", []) or []:
+                if agent_id in (m.get("yes_stakes", {}) or {}) or agent_id in (m.get("no_stakes", {}) or {}):
+                    most_recent = max(most_recent, m.get("created_at", 0), m.get("resolved_at", 0))
+    except Exception:
+        pass
+
+    # Patterns
+    try:
+        pat_path = Path("/home/luna/crypto-genesis/aigen/patterns.json")
+        if pat_path.exists():
+            d = json.loads(pat_path.read_text())
+            for s in d.get("submissions", []) or []:
+                if s.get("submitter") == agent_id:
+                    most_recent = max(most_recent, s.get("submitted_at", 0))
+    except Exception:
+        pass
+
+    # Ledger credits (catches faucet, payouts, etc.)
+    try:
+        l_path = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
+        if l_path.exists():
+            d = json.loads(l_path.read_text())
+            a = (d.get("agents") or {}).get(agent_id, {})
+            for c in (a.get("credits", []) or []):
+                most_recent = max(most_recent, c.get("ts", 0))
+            most_recent = max(most_recent, a.get("first_seen", 0) or 0)
+    except Exception:
+        pass
+
+    return most_recent if most_recent else None
 
 
 def all_active_agents() -> list:
