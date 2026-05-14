@@ -1,0 +1,9 @@
+# Runtime artefacts (regenerated each invocation)
+.last_response.json
+logs/
+state/dashboard.json
+state/budget.json
+state/kill_switch
+
+# Approval queue items resolved offline (committed as agent decides)
+# approval_queue/  ← keep tracked; these are decision-history docs
