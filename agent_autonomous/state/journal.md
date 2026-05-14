@@ -4,6 +4,78 @@ Latest entries on top. Append, never edit.
 
 ---
 
+## 2026-05-14T22:10:52Z — run #5 (webhook-triggered, no-op)
+
+Fired ~3 min after run #4 by a `git push` webhook (visible in `dashboard.recent_webhook_triggers[0] = 2026-05-14T22:10:52Z event=push`), not by the 30-min systemd timer. The push that triggered me is the same `dea4d25` commit already at HEAD — nothing new in the tree, just the webhook firing on whatever pushed/synced.
+
+State delta vs run #4: nothing.
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 82 lifetime, unchanged.
+- recent_unique_ips=23, hustlerops_recent=false, github_notifications=0 — same as the snapshot run #4 took.
+- Approval queue: still 1 item (`20260514-2116-nico-email-disposition.md`), still pending Bilale.
+- No new commit needed. No new external IP to react to in a 3-minute window.
+
+**Action taken:** this journal line only. Per system prompt §"What success looks like": a 3-min-after-last-run invocation should be a no-op, not invented work.
+
+**Note for future-me:** if multiple back-to-back webhook-triggered invocations cluster around a single push, treat them as one event. Don't repeat the run-#4 analysis with cosmetic re-wording — that's noise.
+
+No commit. No external action. Approval queue unchanged.
+
+---
+
+## 2026-05-14T22:07:39Z — run #4
+
+First invocation under the new 30-min systemd cadence (was 4h before commit dea4d25). ~36 min after run #3.
+
+**Signals observed since run #3:**
+
+1. **143.198.151.210 came back at 21:49:26 UTC** — confirms run #3's prediction it would return, but contradicts the "~50-90 min cadence" framing. Full ledger over the last 2 days:
+   - 13/May: 9 hits clustered (02:28, 09:48, 14:25, 17:28, 18:43, 20:09, 21:32, 21:48, 23:09). Intervals range 7h → 16min → 5h → 3h → 1h → 1.5h → 1.5h → 15min → 1.3h. NOT regular.
+   - 14/May: paired hits at 09:48 & 09:49, then 12-hour gap, then 21:49. Only 3 visits today.
+   - Pattern per visit is identical: POST /mcp (initialize, 1182 bytes) → POST /mcp 202 (notif accepted) → POST /mcp 41558 (tools/list) → GET /mcp (keepalive/SSE).
+   - rDNS: NXDOMAIN. DigitalOcean droplet with no PTR set.
+   - User-agent: literal "node" (Node.js MCP client, properly spec-conformant — not a generic crawler).
+   - **Reinterpretation:** this is likely event-driven (user-initiated on their end, e.g., a UI click in some registry / dashboard that triggers a probe) rather than a steady scheduled crawler. The bursts on 13/May plus the long silence today fit "human triggers it from inside their tool" better than "cron".
+   - **Correction logged to lessons.md:** don't predict steady cadence for this IP again.
+
+2. **54.67.34.241** still pinging — POST /mcp/sse at 21:46:13 UTC → 405. Same misconfigured-client pattern (no Content-Type on POST, hitting /mcp/sse which only allows GET for SSE). Not a discovery crawler, looks like a stuck MCP client. Unchanged from runs #2–#3.
+
+3. **HustlerOps (89.213.118.44)** — no new poll since 10:15 UTC (~12h ago). Service stable. Bot has now eaten 50 consecutive 5xx then went silent. Most likely it stopped retrying. Approval card `20260514-2116-nico-email-disposition.md` still pending Bilale.
+
+4. **180.93.36.21** (Python/3.14 aiohttp) hit GET / at 21:49:11 UTC. Same generic content-scraper / linkchecker as logged in run #4-predecessor's "no action" candidate notes. Still not actionable.
+
+5. **43.134.71.232** (Tencent / China) one-off GET / at 21:53 UTC with Mobile-Safari-spoofed UA + Referer `http://207.148.107.2`. Generic scanner.
+
+6. **46.151.178.13** PROPFIND / at 22:05 UTC → 405. WebDAV probing. Noise.
+
+7. **Cloudflare-proxied MCP traffic (172.68.x / 172.69.x / 172.71.x)**: still healthy, ~10 POST /mcp hits in last 30 min, all 200. Normal.
+
+8. **No external IP newly discovered.** No genuinely new GitHub activity. No grant response. No new comment / PR.
+
+**Treasury:** $0.0786 USDC, unchanged (4 runs).
+**Missions:** 82 lifetime (was 75 at run #1) — radar daemon has been posting 7 missions in the last 24h. All AIGEN-internal-creator, expected. No external creator.
+
+**Action taken this invocation:**
+- One single-line lesson added to `state/lessons.md` correcting the "~50-90 min cadence" misclaim from run #3.
+- This journal entry.
+- Nothing else.
+
+**Explicitly did NOT do:**
+- No commit. The lesson + journal correction are state-only, not worth a commit on their own. (Will batch with future state edits.)
+- No new approval card. Nico-email card still pending; piling another would clutter the queue.
+- No external action (no email, no PR, no registry submission).
+- No code change. POST /mcp Content-Type fix for 54.67.34.241 still not warranted without confirmed client ID.
+
+**Signal to watch for run #5 (~22:37 UTC):**
+- Did 143.198.151.210 trigger again? If yes, the pattern is more frequent than my new "burst" interpretation. If no for 4+ hours, the event-driven theory holds.
+- Did Bilale answer the Nico-email approval card?
+- Did HustlerOps poll? (Now ~12h silent — past ~24h = bot likely gave up permanently.)
+- Any genuinely new external IP on AIGEN-traction endpoints?
+
+No commit. No external action. Approval queue unchanged (1 item: nico-email-disposition).
+
+---
+
 ## 2026-05-14T21:52:38Z — run #4
 
 **Big finding. We had real external traction this whole time and missed it.**
