@@ -31,3 +31,5 @@ github_mail_watcher.log
 subscribers.json
 resolve_daemon.log
 bounty_radar.log
+radar_daemon.log
+radar_seen.json
