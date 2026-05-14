@@ -35,3 +35,4 @@ radar_daemon.log
 radar_seen.json
 reports_daemon.log
 reports/*.md
+chain_queue.json

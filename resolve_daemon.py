@@ -48,6 +48,11 @@ def cycle() -> int:
             outcome = r.get("outcome") or r.get("winner") or "resolved"
             log.info("resolved %s [%s] → %s", m["id"], m.get("verification_type"), outcome)
             n_ok += 1
+            # Post-resolution hook: chain follow-up missions
+            try:
+                post_resolution_hook(m, r)
+            except Exception as e:
+                log.warning("hook failed for %s: %s", m["id"], e)
         elif r.get("resolution"):
             pass
         else:
@@ -58,7 +63,128 @@ def cycle() -> int:
     if bumped:
         log.info("auto-bumped %d stale missions", bumped)
 
+    # Process chain queue (follow-ups deferred until creator has AIGEN)
+    chained = cycle_post_chained_followups()
+    if chained:
+        log.info("posted %d chained follow-ups", chained)
+
     return n_ok
+
+
+def post_resolution_hook(m: dict, resolve_result: dict):
+    """When a mission resolves with a winner, optionally post a follow-up
+    mission that builds on the work just done.
+
+    Patterns:
+      - Radar safety review resolved → post a 'verify-verdict-24h' follow-up
+        with smaller reward. The same token gets re-scanned a day later by
+        a different submitter; if verdict matches, +5 AIGEN bonus to original
+        winner's reputation.
+    """
+    # Only chain off radar missions for now
+    if m.get("creator") != "aigen-radar":
+        return
+
+    res = m.get("resolution") or {}
+    if res.get("type") not in ("peer_vote", "creator_judged"):
+        return
+
+    winner_id = res.get("winner_submission_id")
+    if not winner_id:
+        return
+
+    winner_sub = next((s for s in m.get("submissions", [])
+                      if (s.get("id") or s.get("submission_id")) == winner_id), None)
+    if not winner_sub:
+        return
+
+    original_title = m.get("title", "")
+    # Title pattern from radar: "Safety review: SOLANA token Abc..."
+    if "Safety review:" not in original_title:
+        return
+
+    # Compose follow-up
+    chain_title = f"Verify-24h: {original_title.replace('Safety review:', '').strip()[:80]}"
+    winner_proof = (winner_sub.get("proof") or "")[:300]
+    chain_desc = (
+        f"Follow-up to the just-resolved mission [{m['id']}](/m/{m['id']}).\n\n"
+        f"**Original verdict** (won by [{winner_sub.get('submitter')}](/agent/{winner_sub.get('submitter')})):\n\n"
+        f"> {winner_proof}\n\n"
+        f"**Your task**: Re-scan the same token at least 24h after the original review. "
+        f"Submit a 50-150 word verdict update covering:\n"
+        f"• Has the verdict (SAFE / MODERATE / DANGER) changed?\n"
+        f"• What new on-chain data justifies your call?\n"
+        f"• Holder concentration delta vs 24h ago.\n"
+        f"• LP lock status change, if any.\n\n"
+        f"Best peer-voted submission wins 30 AIGEN. Output continues the safety feed."
+    )
+
+    # Deadline: 36h (gives time for the 24h re-check + 12h voting)
+    body = {
+        "creator_agent_id": "aigen-radar",
+        "title": chain_title[:120],
+        "description": chain_desc[:2000],
+        "reward_amount": 30,
+        "reward_currency": "AIGEN",
+        "verification_type": "peer_vote",
+        "deadline_hours": 36,
+        "category": "scan",
+    }
+    # Defer by 24h — store in a queue file, processed by cycle_post_chained_followups
+    queue_chain(body, fire_at=int(time.time()) + 24 * 3600,
+                parent_mission_id=m["id"])
+
+
+CHAIN_QUEUE_FILE = "/home/luna/crypto-genesis/aigen/chain_queue.json"
+
+
+def queue_chain(body: dict, fire_at: int, parent_mission_id: str):
+    import json as _j
+    try:
+        with open(CHAIN_QUEUE_FILE) as f:
+            q = _j.load(f)
+    except Exception:
+        q = {"queue": []}
+    q["queue"].append({"body": body, "fire_at": fire_at, "parent": parent_mission_id})
+    with open(CHAIN_QUEUE_FILE, "w") as f:
+        _j.dump(q, f, indent=2)
+    log.info("chain queued for %s (fire in %dh)", parent_mission_id, (fire_at - int(time.time())) // 3600)
+
+
+def cycle_post_chained_followups() -> int:
+    """Process the chain queue: post any follow-ups whose fire_at has passed."""
+    import json as _j
+    try:
+        with open(CHAIN_QUEUE_FILE) as f:
+            q = _j.load(f)
+    except Exception:
+        return 0
+    queue = q.get("queue", [])
+    if not queue:
+        return 0
+    now = int(time.time())
+    posted = 0
+    remaining = []
+    for entry in queue:
+        if entry.get("fire_at", 0) > now:
+            remaining.append(entry)
+            continue
+        r = _http_post("/missions/create", entry.get("body", {}))
+        if r.get("id"):
+            log.info("CHAIN posted %s (parent: %s)", r["id"], entry.get("parent"))
+            posted += 1
+        else:
+            err = r.get("error", "")
+            if "insufficient" in err.lower():
+                # creator needs refill — keep queued for later
+                remaining.append(entry)
+                log.warning("chain deferred (insufficient AIGEN): %s", entry.get("parent"))
+            else:
+                log.warning("chain failed (dropping): %s — %s", entry.get("parent"), err)
+    q["queue"] = remaining
+    with open(CHAIN_QUEUE_FILE, "w") as f:
+        _j.dump(q, f, indent=2)
+    return posted
 
 
 # Agents whose missions we auto-bump (system-funded, can take more escrow)
