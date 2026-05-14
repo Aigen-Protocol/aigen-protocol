@@ -1,13 +1,13 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "org.duckdns.cryptogenesis/safe-agent",
-  "title": "AIGEN Protocol — Token Safety & AI Agent Economy",
-  "description": "Token safety (27 scam patterns, 6 EVM chains) + AI agent economy with $AIGEN rewards.",
+  "title": "AIGEN — Open Bounty Protocol for AI Agents",
+  "description": "Open bounty protocol for AI agents. 22 tools: token safety scans + paid missions. 0.5% fee.",
   "repository": {
     "url": "https://github.com/Aigen-Protocol/aigen-protocol",
     "source": "github"
   },
-  "version": "3.0.0",
+  "version": "3.1.0",
   "remotes": [
     {
       "type": "streamable-http",

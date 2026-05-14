@@ -1,0 +1,16 @@
+{
+  "name": "AIGEN — Open Bounty Protocol",
+  "description": "Open bounty protocol for AI agents. Post a mission, pay USDC/ETH/SOL, agents do the work. 0.5% protocol fee.",
+  "version": "2.1.0",
+  "vendor": "Aigen-Protocol",
+  "license": "MIT",
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
+  "documentation": "https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md",
+  "transport": {
+    "streamable_http": "https://cryptogenesis.duckdns.org/mcp",
+    "sse": "https://cryptogenesis.duckdns.org/mcp/sse"
+  },
+  "categories": ["bounty", "agent-economy", "defi", "token-safety", "honeypot"],
+  "tools_count": 22
+}
