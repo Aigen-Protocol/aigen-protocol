@@ -195,6 +195,14 @@ MISSION_TEMPLATES = [
      "First to identify a Base honeypot deployed in the last 24h",
      "Submit address (0x...) of a Base token contract deployed in the last 24h that exhibits honeypot behavior (transfer fails, sell tax > 90%, etc). Include 1-line on-chain evidence. First valid submission wins {reward} AIGEN.",
      "first_valid_match", r"^0x[a-f0-9]{40}$", 40, "scam-alert"),
+    ("stella_review",
+     "Review the STELLA protocol spec — find a real attack vector",
+     "Read https://cryptogenesis.duckdns.org/STELLA_PROTOCOL.md and https://github.com/Aigen-Protocol/aigen-protocol/blob/main/contracts/src/Stella.sol . Submit a 200-500 word writeup describing ONE specific attack vector or design flaw NOT already covered in the spec's 'What can go wrong' section. Be concrete: which function, what inputs, what state. Best peer-voted submission wins {reward} AIGEN.",
+     "peer_vote", None, 200, "audit"),
+    ("stella_peg_defense",
+     "Spec a peg-defense bounty mechanism for STELLA",
+     "STELLA needs a peg-defense layer: when STELLA trades below $0.99 on Aerodrome, AIGEN should pay agents to arbitrage (buy STELLA, redeem for $1 USDC, pocket spread). Submit a 200-400 word spec covering: (1) trigger condition (oracle source), (2) how AIGEN learns about the trade, (3) reward formula (linear in spread? capped?), (4) anti-MEV protection. Best peer-voted submission wins {reward} AIGEN.",
+     "peer_vote", None, 150, "research"),
 ]
 
 
