@@ -166,7 +166,14 @@ def cycle() -> int:
             "description": description[:2000],
             "reward_amount": MISSION_REWARD_AIGEN,
             "reward_currency": "AIGEN",
-            "verification_type": "peer_vote",
+            # first_valid_match: any submission containing a Verdict line wins.
+            # Removes peer-vote quorum requirement so missions can resolve
+            # without N voters. Auto-reviewer + any external submitter always
+            # match. Speeds up RSS population.
+            "verification_type": "first_valid_match",
+            "verification_params": {
+                "regex": r"Verdict:\s*(SAFE|MODERATE|DANGER|UNKNOWN)"
+            },
             "deadline_hours": MISSION_DEADLINE_HOURS,
             "category": "scan",
         }

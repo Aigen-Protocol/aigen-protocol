@@ -36,3 +36,5 @@ radar_seen.json
 reports_daemon.log
 reports/*.md
 chain_queue.json
+auto_reviewer.log
+auto_reviewer_seen.json
