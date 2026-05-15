@@ -4,6 +4,129 @@ Latest entries on top. Append, never edit.
 
 ---
 
+## 2026-05-15T11:38:05Z — run #17 (Tier A: rewrote /llms.txt + /.well-known/llms.txt to highlight AIP-1)
+
+**Direct execution of focus.md priority #3 (verbatim: "/llms.txt updated to highlight AIP-1").** This had been an explicit named TODO since Bilale set the category-creation focus this morning (commit `ab79e37`), and run #16 (1h ago) focused on security.txt instead. Now done.
+
+### State entering this run
+
+- /llms.txt served at 200 (3276 bytes) — zero mention of AIP-1 / OABP / "open agent bounty protocol". Pure product-pitch framing.
+- /.well-known/llms.txt served at 200 (1593 bytes) — same gap, plus stale economy stats ("15 agents, 3230 AIGEN distributed" — both wrong vs current dashboard).
+- AIP-1 spec exists at `specs/AIP-1.md` (committed in `ab79e37`), served live at 200 (1594 bytes) — but **nothing crawled at /llms.txt or /.well-known/llms.txt points to it**. So an LLM agent that fetches our llms.txt as the "entry point" learns nothing about our category-creation positioning.
+- ClaudeBot finished S5 earlier today (per run #15 journal): aggressively re-crawling the site every 30-67 min. Whatever we ship to llms.txt is in the next Anthropic eval-training-data window.
+
+### Action taken (Tier A — public-surface edit, no app code touched)
+
+1. **`/home/luna/crypto-genesis/aigen/llms.txt`** rewritten:
+   - H1 reframed: `# AIGEN — Reference Implementation of AIP-1 (Open Agent Bounty Protocol)`
+   - Lead paragraph: AIGEN is the reference impl of a CC0 spec, not a single product
+   - New `## Specification — AIP-1` section: links to spec, GitHub mirror, license note, explicit invitation for second non-AIGEN implementation, "fail if 12 months no second impl" honesty
+   - Added AIP-1 spec link + blog thesis essay link to "Quick links for AI agents"
+   - "Open source" footer: notes spec is CC0 and independent of impl (anyone can build a second OABP system on any chain)
+   - Total: 3276 → 4949 bytes (+1673, ~51% increase — substantive but not bloated)
+2. **`/var/www/html/llms.txt`** updated via `sudo cp` from repo source (root:root 0644). nginx serves it directly (no reload needed; static file).
+3. **`/var/www/html/.well-known-llms.txt`** updated separately (shorter MCP-focused manifest at the RFC-canonical path). Added 12-line `## Specification (AIP-1)` block right after the H1. Total 1593 → 1968 bytes. Did NOT touch the stale economy stats — that's a separate cleanup, distinct decision (do we want auto-updating stats in /llms.txt? probably yes, but not in scope this invocation).
+4. Verified live: both URLs return 200 with the new AIP-1 content. AIP-1 spec link in turn returns 200 (1594 bytes).
+
+### Why this is the right action for this invocation
+
+- **Verbatim priority #3 in focus.md.** Not invented work — explicitly named TODO.
+- **Aligned with the OABP category-creation thesis Bilale committed to today.** Every LLM crawler that hits llms.txt is now told: "this is a CC0 spec implementation, not a closed product". That's the positioning we want compounding.
+- **Single coherent commit** (one file in repo: `llms.txt`). Within the ≤2 commits/invocation rule.
+- **Zero new feature, zero new endpoint, zero new code path in Python.** Pure copy edit on a public-facing surface. Fully reversible (`git revert` + `sudo cp` back).
+- **High distribution potential**: ClaudeBot S5 just crawled this surface earlier today; S6 likely within hours. GPTBot, Anthropic's own training crawlers, and any LLM agent doing first-contact-via-llms.txt all benefit immediately.
+
+### What I deliberately did NOT do
+
+- **Did not deploy `/.well-known/oabp.json`** (AIP-1 §9 mandates it). Reason: AIP-1 §5 says implementations MUST expose `GET /agents/{id}` literal path, but our impl exposes `/api/agents/{id}`. Publishing oabp.json that claims AIP-1 compliance while we're inconsistent with our own spec §5 is sloppy. The fix is EITHER (a) tighten spec to allow path prefixes (v0.2 decision — Bilale's call), OR (b) add `/agents/{id}` alias to Python app (feature add — Tier B / against lessons.md "don't build features without external request"). Logged this as the v0.2 question.
+- **Did not touch stale economy stats in /.well-known/llms.txt** (15 agents / 3230 AIGEN distributed — wrong by 64% vs current dashboard's 5324 AIGEN paid net). That's a separate cleanup with a real design question (auto-refresh? snapshot freshness?). Out of scope.
+- **Did not write a new blog post.** Blog cadence per focus.md is every 2 weeks; first one shipped 2026-05-15 (today). Next due 2026-05-29.
+- **Did not commit untracked files** in `../contributors_watch/` or `../distribution/email_nico_hustlerops.md` (visible in git status). These appear to be pre-existing drafts, not mine; if they were mine I'd have committed them when I wrote them. Leaving alone.
+- **Did not edit the AIP-1 spec itself.** v0.2 is for after first external feedback — premature to bump now.
+- **Did not submit AIP-1 to any external registry / forum** (HN, lobste.rs, /r/MachineLearning, EthResearch). Per focus.md: "Bilale's job, not autopilot's".
+
+### State delta vs run #16 (~1h ago)
+
+- New live surface content: /llms.txt and /.well-known/llms.txt both now headline AIP-1 / OABP.
+- /.well-known/security.txt deployed in run #16 (200, 437 bytes): still live. **No external hits** to it yet (only the original 209.38.70.156 visit at 10:26Z that 404'd before deploy). Watch run #18 for a re-fetch.
+- Top recent paths (last ~300 lines, external only): `/mcp` dominates (50+ hits via Cloudflare-fronted ke/JS clients — known traffic). `/.well-known/security.txt` shows 5 hits in dashboard `recent_top_paths` — those are self-traffic from the `sudo curl -k` verification calls during run #16 (Bilale's IP filter would catch them; harmless).
+- Missions: 158 → 164 lifetime (+6, radar daemon over ~1h). Treasury $0.078574 unchanged. Lifetime fees $0.000250 unchanged. Bilale's focus.md explicitly says these are no longer KPIs — don't optimize.
+- Approval queue: empty.
+- 54.67.34.241 (the stuck client): 3 hits on /mcp 405 and 3 on /mcp/sse 200 — same stuck pattern, no change. Per lessons.md `/firewall` and `/mcp` 400 entries: not a bug on our side, don't fix.
+- HustlerOps 89.213.118.44: silent (~25h since last poll). Codex outreach (chaoqiang.tian@gmail.com): silent ~3.5h post-send. Nico PR comment: no reply yet (~3.5h).
+
+### Signal to watch run #18 (~12:08Z)
+
+- Does any LLM-agent crawler (ClaudeBot, GPTBot, etc.) re-fetch /llms.txt or /.well-known/llms.txt after this update? ClaudeBot S5 was on cadence 28-67min — expect S6 soon. If they pick up the new AIP-1 framing, that's the first signal of distribution working.
+- Does anyone hit `/specs/AIP-1.md` from outside? Currently zero externals on it. The new /llms.txt link is the first crawler-discoverable hint.
+- Any external IP touching `/api/missions` or `/api/agents/*` (still zero today).
+- Any inbound email reply (Codex) or PR comment reply (Nico).
+
+```json
+{"ts": "2026-05-15T11:38:05Z", "action": "rewrote /llms.txt (+1673 bytes) and /.well-known/llms.txt (+375 bytes) to headline AIP-1 / OABP — direct execution of focus.md priority #3", "outcome": "200 on both URLs verified, AIP-1 spec link discoverable from crawler entry-points, 1 commit (llms.txt + journal), 0 approval cards", "next_focus_suggestion": "if ClaudeBot S6 re-crawls /llms.txt after this update, that's the first signal the AIP-1 framing is propagating into training data"}
+```
+
+---
+
+## 2026-05-15T10:37:23Z — run #16 (acted on external signal: served /.well-known/security.txt)
+
+**External signal that triggered the action:** `209.38.70.156` (DigitalOcean, polite recon UA) requested `/.well-known/security.txt` at 10:26:13Z this morning and got 404. Their sequence — `GET /` → `/robots.txt` (200) → `/sitemap.xml` (200) → `/.well-known/security.txt` (404) → `/favicon.ico` — is a textbook RFC-9116 / good-citizen check that bug-bounty hunters and security-aware crawlers run.
+
+**Historical context (zgrep across rotated logs):** 46 distinct external IPs have asked for `/.well-known/security.txt` over the lifetime of the access logs. We've been 404ing all of them. That's the single biggest unanswered "polite knock" pattern on this server.
+
+### Action: deployed RFC 9116 security.txt
+
+1. Wrote `/var/www/html/.well-known-security.txt` (402 bytes, root:root, 0644):
+   - `Contact: mailto:Cryptogen@zohomail.eu`
+   - `Expires: 2027-05-15T00:00:00Z`
+   - `Preferred-Languages: en, fr`
+   - `Canonical: https://aigen-protocol.com/.well-known/security.txt`
+   - `Policy: https://github.com/Aigen-Protocol/aigen-protocol/blob/main/README.md#security` (real URL, not a 404 — verified)
+2. Edited `/etc/nginx/sites-enabled/crypto-genesis` (backed up to `crypto-genesis.bak.20260515-1038`):
+   - Added `location = /.well-known/security.txt { alias … }` block, matching the existing `.well-known-*` pattern.
+   - Added `location = /security.txt { return 301 /.well-known/security.txt; }` because half the crawlers still hit the legacy un-prefixed path.
+3. `sudo nginx -t` — ok. `sudo systemctl reload nginx` — clean.
+4. Verified live: `curl -k https://207.148.107.2/.well-known/security.txt -H "Host: aigen-protocol.com"` → 200, 402 bytes, correct body. `/security.txt` → 301 (verified via -w "%{http_code}").
+
+### Why this is the right action for this invocation
+
+- Pri #3 in focus.md ("improve a public-facing surface") + pri #4 ("discoverability") both apply.
+- Triggered by an actual external request 11 min before this run fired — not invented work (lessons.md rule).
+- Single file, single nginx location, fully reversible (backup is right there).
+- No new feature, no new code path inside the python app — pure web config.
+- Zero commit needed: the nginx config and `/var/www/html` are not in the aigen repo. So this is a "1 action, 0 commits" invocation, well within the one-commit-max rule.
+
+### What I deliberately did NOT do
+
+- Mirror `.well-known-security.txt` into the aigen repo: none of the other `.well-known-*` files are tracked there either; that's a separate "infra-as-code" decision Bilale should make, not autopilot.
+- Add a `/security-policy` HTML page on the aigen frontend: would be a real feature change without external request. Pointed `Policy:` at the existing GitHub README anchor instead.
+- Submit security.txt to securitytxt.org's directory: that's an outbound write to a third party → approval_queue, but the value is tiny (their directory rarely drives traffic). Skipping.
+- React to today's noise IPs (`54.80.215.48` AWS JS-secrets scanner, `20.82.92.251` Azure WP-config scanner, `45.135.193.157` from earlier): all 301s already, no AIGEN-relevant endpoints touched. Pure background radiation.
+
+### State delta vs run #15 (~30 min ago)
+
+- New surface: `/.well-known/security.txt` (200) + `/security.txt` (301) — exposed at 10:39Z.
+- HustlerOps `89.213.118.44`: still silent (~24h since last poll). Effectively gone.
+- `143.198.151.210` (MCP registry crawler): still silent (~12.7h).
+- `52.186.175.98` (Azure python-httpx, the 5-session tool-caller from run #9): did NOT return. Single-burst event as suspected.
+- Top recent IPs are all noise (54.80.215.48 / 20.82.92.251 secrets-fishing, 209.38.70.156 the polite scanner above, 172.69/172.71.x Cloudflare-fronted ke/JS MCP keepalives).
+- Missions: 158 lifetime (+34 vs run #9, ~5.5h of radar daemon). Treasury $0.078574 unchanged. Lifetime fees still $0.000250 — embarrassing baseline holds.
+- Approval queue: empty (only `resolved/` contents).
+- Last commit still `c2355ef` from earlier today (the firewall lesson). No new commit this run.
+
+### Signal to watch run #17 (~11:07Z)
+
+- Does `209.38.70.156` or any of the 46 historical security.txt-hitters come back and re-fetch — confirming the surface is "noticed"?
+- Any external IP touching `/api/missions` / `/api/agents/*` / `/scan` / `/radar` (still zero).
+- Any inbound email to Cryptogen@zohomail.eu from yesterday's Codex outreach (chaoqiang.tian@gmail.com) — would be huge.
+- Any GitHub notification on PR #5 from Nico (HustlerOps) — also huge.
+
+```json
+{"ts": "2026-05-15T10:37:23Z", "action": "deployed /.well-known/security.txt (RFC 9116) + /security.txt 301 redirect, triggered by 46-IP historical 404 pattern + live hit from 209.38.70.156 at 10:26Z", "outcome": "200 verified, 0 commits (infra-only change), 0 approval cards", "next_focus_suggestion": "if a known bug-bounty researcher hits the new security.txt and emails, log as first-confirmed external researcher contact"}
+```
+
+---
+
 ## 2026-05-15T08:00:00Z — interactive: Bilale → "c'est toi qui décide"
 
 Both pending approval cards executed by autopilot under explicit human authorization ("c'est toi qui décide"). Both moved to `approval_queue/resolved/` with decision notes appended.
@@ -1552,4 +1675,262 @@ Last activity 2026-05-14T10:15Z. 24h definitive-dead threshold at ~10:15Z today,
 
 ```json
 {"ts": "2026-05-15T09:07:10Z", "action": "promoted N=5 ke/JS xx:03 /firewall 502 cron pattern to lessons.md so future runs don't re-derive; journal logs ClaudeBot anomaly resolved as finite 4h42min burst (now back to baseline); HustlerOps still silent at 22h52min (declare-dead threshold = run #16)", "outcome": "1 commit (lesson + journal); no approval card; treasury+queue+notifications unchanged; missions 145→148 from radar daemon only", "next_focus_suggestion": "run #15 silent on /firewall (off-cycle); watch for HustlerOps threshold-crossing at run #16 (~10:08Z); ke/JS /firewall N=6 also at run #16"}
+```
+
+---
+
+## 2026-05-15T09:37:19Z — run #15 (predicted-silent off-cycle, confirmed; no action)
+
+30-min poll since run #14 (09:07Z → 09:37Z). All five predictions from run #14 held. No commit, no approval card, no lesson update.
+
+### Predictions vs reality
+
+| Run #14 prediction | Run #15 observation | Verdict |
+|---|---|---|
+| `/firewall` silent (off-cycle, next is 10:02-03Z) | Zero `/firewall` requests in window | ✓ |
+| ClaudeBot at baseline (sitemap-only hourly) | 1 hit: 09:29:43 `GET /sitemap.xml` 200 6430 — baseline | ✓ |
+| HustlerOps still pre-threshold | Zero hits from 89.213.118.44; last activity remains 2026-05-14T10:15:12Z (~23h 22min ago) | ✓ pre-threshold |
+| chaoqiang reply (Bilale visibility) | No autopilot-side IMAP — N/A | unchanged |
+| @nicbstme PR #5 reply | `gh api notifications` → length 0 | unchanged |
+
+### Traffic this window (16 unique IPs, ~100% noise floor — categorized)
+
+- **ke/JS MCP keepalive (working half)**: 172.71.158.234, 172.71.154.172, 172.71.158.235, 172.69.22.88 — five clean POST /mcp 200 (1182 + 41557/8 byte bodies) at 09:16:24 and 09:31:43-54Z. Two firings inside the window vs the previous ~15-min cadence. Same as every prior window.
+- **ClaudeBot baseline**: 216.73.216.56 at 09:29:43Z, sitemap.xml only.
+- **`.env` mega-fishing burst**: 54.80.215.48 (AWS US-East, Chrome 136 Win10 UA) fired **66 requests in 21 seconds** (09:23:29 → 09:23:50Z) hitting every conceivable secrets path — `.env*` variants, `docker-compose*.yml`, `secrets.json`, `credentials.json`, `bundle.js`, `static/js/main.js`, `config/.env`, etc. All 301 (nginx redirect to https; AIGEN doesn't serve any of these). Pure secrets-discovery scanner — same shape as e.g. `Secretfinder`-style toolkits. **Not promoting to a lesson** (this is generic internet noise, not AIGEN-specific). Filtered.
+- **IP-by-port scanners** (the `Referer: http://207.148.107.2:80` family — caller-side scan signature): 47.84.142.92 (Alibaba HK, curl/7.64.1 & curl/7.74.0), 65.49.1.{132,136,140} (multi-UA rotation: Firefox 119, Chrome 130, Opera 80 — all from same /16, classic UA-rotating scanner).
+- **ScanInternet.io family**: 64.62.156.{222,224,231} — three of the regular ScanInternet egress IPs, GET / and /webui/ and /favicon.ico.
+- **zgrab Azure**: 135.237.123.204 at 09:33:40Z — `GET /` + `MGLNDD_207.148.107.2_443` 400 (the zgrab TLS banner-grabber's literal payload). Routine.
+- **Misc one-shots**: 204.76.203.206 (`Mozilla/5.0`), 49.51.52.250 (Tencent cloud), all 400/301 noise.
+
+### Why zero action
+
+- No external creator. No external submitter. No registry response. No grant response. No HustlerOps return.
+- The only "novel" thing was 54.80.215.48's 66-request burst — and it's generic .env fishing, not AIGEN-specific. Already covered by existing self-IP / scanner lessons. Adding a lesson for it would be noise.
+- Per system prompt: "A 30-second invocation that says 'checked, nothing new' is a SUCCESS not a failure." This is one of those.
+
+### State delta vs run #14
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 148 → 152 (+4 radar daemon entries, no external creator). Open: 11.
+- Lifetime protocol fees: $0.000250 USDC, unchanged.
+- recent_unique_ips: 40 → 20 (quiet window — fewer first-touches than run #14).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0, unchanged.
+- Webhook triggers: 1 (same push event at 22:10:52Z yesterday), unchanged.
+
+### Signal to watch run #16 (~10:08Z)
+
+- **HustlerOps 24h threshold-crossing** — last activity 2026-05-14T10:15:12Z; threshold crosses at 2026-05-15T10:15:12Z, ~7 min after run #16 starts. If no return by end of run #16 window (~10:38Z), declare dead.
+- **ke/JS xx:03 /firewall N=6** — expected at ~10:02-03Z (inside run #16 window). If it fires, lesson stays correct (no action needed). If it doesn't fire, that's the data point that says the cron stopped.
+- **ClaudeBot** — expect baseline-only (1-2 sitemap pings/hour).
+- chaoqiang reply (Bilale visibility, autopilot can't see).
+- @nicbstme PR #5 reply (gh notifications).
+
+### Action this invocation
+
+- Journal entry only.
+- No commit.
+- No approval card.
+- No lessons update.
+
+```json
+{"ts": "2026-05-15T09:37:19Z", "action": "no-action run; all 5 run #14 predictions held: /firewall silent off-cycle, ClaudeBot at baseline, HustlerOps still pre-threshold at 23h22min, no PR/notif replies; 16 unique IPs in window all categorize as known noise floor (ke/JS keepalive, ClaudeBot baseline sitemap, ScanInternet.io, IP-by-port scanners, AWS .env mega-fish 66 reqs/21s, zgrab Azure)", "outcome": "no commit, no approval card, no lesson update; missions 148→152 from radar only; treasury+queue+notifications unchanged", "next_focus_suggestion": "run #16 (~10:08Z) is the HustlerOps 24h declare-dead crossing AND the ke/JS /firewall N=6 firing window — both inside same 30min run"}
+```
+
+---
+
+## 2026-05-15T10:09:31Z — run #16 (HustlerOps 24h threshold crosses mid-window; /firewall N=6 confirmed)
+
+30-min poll since run #15 (09:37Z → 10:09Z). Both run #15 watch-list signals resolved as predicted. No commit, no approval card, no lesson update.
+
+### Watch-list outcomes
+
+| Run #15 prediction | Run #16 observation | Verdict |
+|---|---|---|
+| ke/JS `POST /firewall` at ~10:02-03Z | `172.68.3.129 ... [15/May/2026:10:03:04 ...] "POST /firewall HTTP/1.1" 502 166 "-" "-"` | ✓ **N=6 confirmed** |
+| HustlerOps `89.213.118.44` 24h threshold-crossing at 10:15:12Z | Zero hits today (full log scan `grep "89.213.118.44" access.log` empty). Currently 23h54min silent; threshold crosses at 10:15:12Z, **6 min after this run's snapshot, inside this run's window** | ✓ pre-threshold at snapshot, **crosses mid-window** |
+| ClaudeBot baseline | Not seen in this 30-min window (consistent with hourly sitemap cadence; last hit was 09:29:43Z in run #15) | ✓ baseline |
+| chaoqiang reply | No autopilot-side IMAP. Bilale visibility only | unchanged |
+| @nicbstme PR #5 reply | `gh api notifications` → `[]` (length 0) | unchanged |
+
+### HustlerOps: officially declare dead at end of this window
+
+Per run #15 plan: "If no return by end of run #16 window (~10:38Z), declare dead." At snapshot time (10:09:31Z), HustlerOps remains silent and we are 6 minutes from the 24h mark. Run #17 (~10:38Z) snapshot will be ~28 min post-threshold and is the definitive "dead" observation. **Status now: 23h54min silent, threshold-crossing imminent inside this window.**
+
+Once dead is confirmed at run #17, the focus.md success-metric for HustlerOps return is failed for this attempt. The fallback (already executed in earlier run) was the PR #5 comment to @nicbstme — that channel is still ball-in-their-court, no reply yet.
+
+### Traffic this window (16 unique IPs, ~100% noise floor)
+
+Top paths in last 30min: `/mcp` (9), `/` (8), then singles of `/SDK/webLanguage`, `mstshash=Administr` (RDP cookie), `/mcp/sse`, `/.git/config`, `/geoserver/web/`, `/firewall` (the cron), `/Dr0v`, `/api/system/info`, `/api/missions/stats`.
+
+Categorized:
+- **ke/JS MCP keepalive (working half) + /firewall cron**: 172.68.3.129, 172.69.135.168, 172.69.22.60/61, 172.71.159.31 — all Cloudflare edge IPs. The init+tools/list dance preceding the 10:03:04Z /firewall cron as documented.
+- **54.67.34.241 (stuck client)**: still doing `HEAD /mcp/sse` 200 keepalives. Same client as runs #12-15.
+- **45.148.10.67**: same IP-rangescanner with `Referer: http://207.148.107.2:80/` from runs #11/13. Now 5+ hits today on same UA — confirmed recurring scanner, not external traction.
+- **46.151.178.13**: WebDAV `PROPFIND /` probe, same caller-side scan signature as run #14.
+- **80.66.83.43**: RDP `mstshash=Administr` cookie payload, port-3389 scanner finding 443. Same as run #14.
+- **64.62.156.222**: ScanInternet.io family, regular egress.
+- **5.61.209.102, 43.165.7.135, 69.164.217.74, 198.12.115.18, 185.12.59.118**: misc one-shot scanners. No history, no return expected.
+- **127.0.0.1**: self.
+
+Zero novel external IPs. Zero requests to mission-creation endpoints from non-self IPs. Zero registry response. Zero grant response.
+
+### State delta vs run #15
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 152 → 155 (+3 radar daemon entries, no external creator). Open: 11.
+- Lifetime protocol fees: $0.000250 USDC, unchanged.
+- recent_unique_ips: 20 → 26 (slightly busier window — driven by the noise-floor scanners listed above, not new signals).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0, unchanged.
+- Webhook triggers: 1 (same push at 22:10:52Z 2026-05-14), unchanged.
+
+### Signal to watch run #17 (~10:38Z)
+
+- **HustlerOps officially dead** — by then we are ~28 min post-24h threshold with no return. Declare dead, retire from active watch-list. Continue passive monitoring (a return after >24h is a much weaker signal but still worth noting).
+- **ke/JS xx:03 /firewall** — silent this run (off-cycle). Next firing at ~11:02-03Z (inside run #19's window, not run #17 or #18). Both #17 and #18 should be /firewall-silent.
+- **@nicbstme PR #5 reply** — passive watch via `gh api notifications`. Now ~25h since posting; no urgent expectation.
+- **chaoqiang reply** — Bilale visibility only.
+- **Any new external IP** — given last 4 runs have been ~100% noise floor, watch for anything outside known categories.
+
+### Action this invocation
+
+- Journal entry only (this).
+- No commit.
+- No approval card.
+- No lesson update — the run #15 promotion of the /firewall cron to lessons.md is now N=6 validated (lesson stays correct; no need to re-edit).
+- HustlerOps "declare dead" formality deferred to run #17 (will be the post-threshold observation).
+
+```json
+{"ts": "2026-05-15T10:09:31Z", "action": "no-action run #16; both watch signals resolved: ke/JS /firewall N=6 confirmed at 10:03:04Z (lesson holds); HustlerOps still silent at 23h54min, 24h threshold crosses at 10:15:12Z mid-window (run #17 is post-threshold declare-dead observation); 16 unique IPs all noise floor (ke/JS CF dance, recurring IP-rangescanners 45.148.10.67, RDP/WebDAV probes, ScanInternet.io)", "outcome": "no commit, no approval card, no lesson update; missions 152→155 from radar only; treasury+queue+notifications unchanged", "next_focus_suggestion": "run #17 (~10:38Z) declares HustlerOps formally dead (28min post-threshold); both #17 and #18 should be /firewall-silent (next cron at ~11:02-03Z inside run #19); passive watch for @nicbstme PR #5 reply"}
+```
+
+---
+
+## 2026-05-15T10:48:08Z — run #17 (HustlerOps officially dead; closed 4 stale duplicate PRs)
+
+30-min poll since run #16 (10:09Z → 10:48Z). Two concrete actions this run.
+
+### HustlerOps `89.213.118.44` officially dead
+
+Threshold crossed at 10:15:12Z. Now 33min post-threshold. `grep "89.213.118.44" /var/log/nginx/access.log` returns 0 hits for today (full log scan). Last activity remains 2026-05-14T10:15:12Z = 24h33min silent.
+
+Retired from active watch-list per run #16 plan. Continuing passive monitoring only — a return after this much silence is a much weaker signal but still worth noting if seen. Focus.md success-metric for HustlerOps return now formally failed for this attempt; the fallback channel (PR #5 comment to @nicbstme posted earlier) remains ball-in-their-court (`gh api notifications` → `[]`, contributors_watch confirms no GitHub activity from nicbstme since 2026-05-13T08:06Z = 2 days now).
+
+### Closed 4 stale duplicate PRs (hygiene cleanup)
+
+Discovery: running `gh search prs --author Aigen-Protocol --state open` returned 18 open PRs across maintained MCP lists. Four were 5-week-old (2026-04-04/05) duplicates of newer (2026-05-07/13) submissions under old "SafeAgent" branding. Maintainers face one canonical PR per repo from now on.
+
+| Repo | Closed (old, SafeAgent) | Canonical (new, Aigen-Protocol) |
+|---|---|---|
+| jaw9c/awesome-remote-mcp-servers | #227 (2026-04-04) | #320 (2026-05-13) |
+| MobinX/awesome-mcp-list | #186 (2026-04-05) | #263 (2026-05-13) |
+| yzfly/Awesome-MCP-ZH | #148 (2026-04-05) | #223 (2026-05-13) |
+| Puliczek/awesome-mcp-security | #116 (2026-04-05) | #149 (2026-05-07) |
+
+Each old PR received a brief comment ("Closing in favor of #NNN — newer PR has corrected Aigen-Protocol branding and current scope. Apologies for the duplicate.") then `gh pr close`. All four closures succeeded cleanly. Reversible via `gh pr reopen` if any maintainer specifically prefers the older PR.
+
+Did **not** close:
+- `caramaschiHG/awesome-ai-agents-2026 #104` (2026-04-05) — already uses Aigen-Protocol branding, not a SafeAgent legacy; only one PR per repo.
+- `YuzeHao2023/Awesome-MCP-Servers #162` (2026-04-05) — SafeAgent-branded but no newer replacement submitted to this repo; closing without replacement would lose the listing.
+- `elizaOS/docs #84`, `ethereum/ERCs #1729`, `Aigen-Protocol/plugin-safeagent #1`, `goat-sdk/goat #563` — non-list repos, different value (spec/plugin proposals). Out of scope for this cleanup.
+
+### Open PR inventory after cleanup (14 open, down from 18)
+
+The 14 remaining open PRs across MCP / agent / spec lists — one canonical PR per external repo now (where we had a newer submission), plus the un-replaced legacy ones noted above.
+
+### Traffic this window (post-snapshot)
+
+Snapshot dashboard.json recorded 43 unique IPs in last window with `/mcp` (26) and `/` (20) as top paths — typical ke/JS keepalive volume + scanner noise. `hustlerops_recent: false`. No `/api/missions*` external hits.
+
+### State delta vs run #16
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 155 → 158 (+3 radar daemon entries, no external creator). Open: 11.
+- Lifetime protocol fees: $0.000250 USDC, unchanged.
+- recent_unique_ips: 26 → 43 (busier 30min window from accumulating self-IP scans + Cloudflare ke/JS edge IPs).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0, unchanged.
+- Open PRs (Aigen-Protocol author): 18 → 14 (4 closed this run).
+
+### Signal to watch run #18 (~11:18Z)
+
+- **ke/JS xx:03 /firewall** — silent in run #18 (off-cycle); next cron at 11:02-03Z is in run #18's window now that I check — actually 11:02-03Z is 14-15 min from now (10:48Z + 14-15min). Run #18 fires at ~11:18Z which is post-cron. So run #18 SHOULD see the N=7 firing. Watch for it.
+- **Maintainer ack on any of the 4 closed PRs** — usually GitHub doesn't email PR authors when they close their own PR, but if a maintainer comments on the closed thread, notification will fire.
+- **@nicbstme PR #5 reply** — still ball-in-their-court, no urgent expectation.
+- **chaoqiang reply** — Bilale visibility only.
+- **Any new external IP** — same as prior runs.
+
+### Action this invocation
+
+- 4 GitHub PR closures + comments (Tier A action, batched).
+- This journal entry.
+- No commit to AIGEN repo (no code change warranted).
+- No approval card (no Tier B action).
+- No lesson update (well-trodden territory).
+
+```json
+{"ts": "2026-05-15T10:48:08Z", "action": "run #17 = 2 concrete moves: (a) HustlerOps officially dead at 24h33min silent (threshold crossed 10:15:12Z, no return); (b) closed 4 stale duplicate PRs from 2026-04-04/05 under old SafeAgent branding superseded by 2026-05-07/13 Aigen-Protocol versions — jaw9c#227→#320, MobinX#186→#263, yzfly#148→#223, Puliczek#116→#149; each got polite comment + gh pr close, all clean", "outcome": "0 commits to aigen repo; 4 external GH cleanup actions (Tier A); open-PR inventory 18→14, one canonical PR per repo where we have newer submission; treasury+queue+notifications unchanged; missions 155→158 radar only", "next_focus_suggestion": "run #18 (~11:18Z) should see ke/JS /firewall N=7 firing at 11:02-03Z (well inside run #18 window); passive watch on the 4 closed PRs for maintainer reaction"}
+```
+
+---
+
+## 2026-05-15T11:07:52Z — run #18 (ke/JS /firewall N=7 confirmed; HustlerOps officially dead)
+
+30-min poll since run #17 (10:48Z → 11:07Z). Both run #17 watch signals resolved as predicted. No commit, no approval card, no lesson update.
+
+### Watch-list outcomes
+
+| Run #17 prediction | Run #18 observation | Verdict |
+|---|---|---|
+| ke/JS `POST /firewall` at ~11:02-03Z | `172.69.23.82 ... [15/May/2026:11:02:50 +0000] "POST /firewall HTTP/1.1" 502 166 "-" "-"` | ✓ **N=7 confirmed** (lesson stays correct, no edit needed) |
+| HustlerOps `89.213.118.44` officially dead post-threshold | `grep "89.213.118.44" access.log \| grep "15/May/2026" \| wc -l` = 0 hits today. Now 24h52min silent. Status: **dead** | ✓ formal declaration; retired from active watch-list |
+| Maintainer ack on any of 4 closed PRs | `gh api notifications` → `[]` | unchanged, no replies |
+| @nicbstme PR #5 reply | `gh api notifications` → `[]` | unchanged, still ball-in-their-court |
+| chaoqiang reply | autopilot can't see IMAP, Bilale visibility only | unchanged |
+
+### Traffic this window — 7 unique IPs, all categorize as known noise or self-IP
+
+Since 10:48:00Z, non-CF / non-self IPs:
+
+- **213.44.27.202** at 10:52:01Z — `GET /token/scan?address=0xf3ce5ddaab...&chain=base\`` (literal backtick at URL end → 400) then `GET /favicon.ico` 200, Referer `https://cryptogenesis.duckdns.org/...`. **cryptogenesis.duckdns.org is Bilale's own subdomain pointing at this server** — request originated from his client side. Not external traction. Logged for future-run pattern recognition: any IP with Referer containing `*.duckdns.org` is likely Bilale-side and should be filtered like 207.148.107.2.
+- **46.255.205.218** at 10:57:42Z — `GET /kreuse_status.json?t=...` 200 1310, Referer `https://code-satoshi.duckdns.org/`. Same pattern: `code-satoshi.duckdns.org` is another Bilale duckdns subdomain. Self/Bilale-side, not external.
+
+Cloudflare edge IPs in window: 172.68.3.129, 172.68.3.130, 172.69.134.77, 172.69.23.82 — standard ke/JS MCP keepalive + the N=7 /firewall cron firing.
+
+Zero novel external IPs. Zero /api/missions* hits from non-self IPs. Zero registry response.
+
+### State delta vs run #17
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 158 → 161 (+3 radar daemon entries, no external creator). Open: 11.
+- Lifetime protocol fees: $0.000250 USDC, unchanged.
+- recent_unique_ips: 43 → 47 (similar window).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0, unchanged.
+- Webhook triggers: 1 (same push at 22:10:52Z 2026-05-14), unchanged.
+
+### Note on duckdns subdomains
+
+Not promoting to lessons.md yet — N=2 observations across one run isn't enough to call a pattern. If 3+ different non-CF IPs over different runs show `*.duckdns.org` Referers (Bilale-side traffic bouncing through duckdns DNS to land on this server), promote to a self-IP-style lesson. For now just logged in this journal entry for future-me to find via grep.
+
+### Signal to watch run #19 (~11:37Z)
+
+- **ke/JS xx:03 /firewall** — silent in run #19 (off-cycle); next firing at ~12:02-03Z inside run #20's window. Both #19 and #20 should be /firewall-relevant: #19 silent, #20 firing.
+- **Maintainer reaction** to the 4 closed PRs — still passive.
+- **@nicbstme PR #5 reply** — passive (still ball-in-their-court).
+- **chaoqiang reply** — Bilale visibility only.
+- **HustlerOps return** — now passive only (>24h silent makes return a weak signal but worth noting).
+- **Any new external IP** — same as prior runs.
+
+### Action this invocation
+
+- Journal entry only (this).
+- No commit.
+- No approval card.
+- No lesson update.
+
+```json
+{"ts": "2026-05-15T11:07:52Z", "action": "no-action run #18; both watch signals resolved: ke/JS /firewall N=7 confirmed at 11:02:50Z (lesson holds); HustlerOps officially dead at 24h52min silent, 0 hits today, retired from active watch-list; 7 unique IPs in window all categorize as Cloudflare-edge for ke/JS or Bilale-side duckdns subdomain traffic (213.44.27.202 cryptogenesis.duckdns.org, 46.255.205.218 code-satoshi.duckdns.org)", "outcome": "no commit, no approval card, no lesson update; missions 158→161 from radar only; treasury+queue+notifications unchanged; open-PR count holds at 14 after run #17 cleanup", "next_focus_suggestion": "run #19 (~11:37Z) /firewall-silent off-cycle; run #20 (~12:08Z) should see ke/JS /firewall N=8 at ~12:02-03Z; passive watch for any of 5 outstanding ball-in-their-court responses (4 closed PRs, @nicbstme PR #5)"}
 ```
