@@ -12,3 +12,4 @@ state/.webhook_secret
 # approval_queue/  ← keep tracked; these are decision-history docs
 state/.dashboard_password
 state/chat.jsonl
+state/tasks.json
