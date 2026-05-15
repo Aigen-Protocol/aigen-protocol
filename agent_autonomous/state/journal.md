@@ -1284,3 +1284,272 @@ Single UA `curl/8.7.1` (default curl on recent macOS). `-L` implied — endpoint
 ```json
 {"ts": "2026-05-15T07:38:00Z", "action": "journal entry — first-touch 14.143.179.162 (curl/8.7.1, IN-residential) read mcp-manifest + AIGEN_PROTOCOL.md + /work/board in 31s", "outcome": "no commit, no approval card; chaoqiang did not return in 29min; logged 1 qualified human visitor", "next_focus_suggestion": "watch 14.143.179.162 for return next run; hustlerops 24h dead threshold ~10:15Z"}
 ```
+
+---
+
+## 2026-05-15T08:07:09Z — run #12 (no commit — hourly-ke/JS pattern hardens, kreuse_status.json N=1 self-project)
+
+30-min poll since run #11 (07:38Z → 08:07Z). No commit, no approval card. One new curiosity logged, one cross-run pattern confirmed.
+
+### Confirmed cross-run pattern: `ke/JS 0.64.2` hits `/firewall` at xx:02-03 every hour
+
+Stitching log evidence: same UA, same Cloudflare-fronted client (172.69/172.71 cf-ranges), every hour at xx:02-03 UTC for at least 4 hours:
+- 04:48:37-41Z — first burst seen this morning (3 hits, same minute)
+- 05:02:53Z
+- 06:02:54Z
+- 07:03:04Z
+- 08:03:09Z
+
+Each follows a `POST /mcp` 200 dance ~30-60s prior (init + tools/list at xx:01-02). They are not calling our MCP `tools/call` for a `firewall` tool — they're issuing `POST /firewall` directly as a separate HTTP endpoint we don't expose. Returns 502 (nginx upstream miss because the path isn't routed).
+
+**Interpretation:** the orchestrator on the other end has us registered as both "AIGEN MCP" AND a "firewall" service in their tool registry. The MCP half works; the firewall half is a config mistake on their side. They've been doing this for ≥4h with zero change in behaviour — automated cron, not human. The Cloudflare IPs all sit in 172.69/172.71 so it's the same single client behind CF.
+
+**Not actionable.** Adding `/firewall` would be inventing a feature with unknown schema (anti-priority #1). Not lesson-worthy yet — pattern is N=4 but no recommendation comes out of it. Logging here so run #13+ doesn't re-derive.
+
+### One-off external curiosity: `/kreuse_status.json` from 46.255.205.219 (07:56:35Z)
+
+Referer: `https://code-satoshi.duckdns.org/` (resolves to `45.76.145.122` — a *different* server). UA: Chrome 148 on Win10. Path returned 200 with 1311 bytes — verified locally that `/kreuse_status.json` IS a real endpoint served on this box (Bilale's parallel kreuse / chain-scanner project, sharing the same nginx vhost as aigen-protocol). Status JSON shows 0 keys recovered, scanning ETH/BSC/POL/BASE/ARB.
+
+So: Bilale has a separate non-AIGEN project running on this server that exposes `/kreuse_status.json` under the aigen-protocol.app domain. Someone visiting `code-satoshi.duckdns.org` (his other hostname, on a separate IP) loaded a status page that fetches our `/kreuse_status.json` cross-origin.
+
+**Not AIGEN traction.** Filter out for future signal evaluation. N=1 so far — not adding a lesson; if it recurs I'll add a "shared-infra, not-AIGEN" note alongside the self-IP lesson.
+
+### Run #11 watch-list outcomes
+
+- **14.143.179.162 (curl/8.7.1 docs-reader)** — DID NOT return in 29 min. Single 31-second burst from run #11 remains a one-shot. No surprise — humans don't usually re-visit 30min after reading docs.
+- **chaoqiang UA / 185.220.236.62 (Codex bounty)** — DID NOT return either. Total silence since the 06:39-06:48Z burst (~80 min ago). Approval card already resolved in run before this — Codex email sent at 07:59Z (resolved/20260515-0708-codex-bounty-researcher-outreach.md is now under resolved/). Reply still pending; ball is in their court.
+- **Bilale approval cards** — both moved to `approval_queue/resolved/` (Codex email sent + Nico PR comment posted, per commit e670a5f). Queue is now empty.
+- **HustlerOps `89.213.118.44`** — still silent. Last activity 2026-05-14T10:15Z. Now ~22h 52min silent. Past the 24h definitive-dead threshold in ~67 min (~09:15Z). If silent through run #13 (~08:38Z), still pre-threshold; run #14 (~09:08Z) is the threshold-crossing observation.
+
+### Other traffic this window (filtered, brief)
+
+- **216.73.216.56 ClaudeBot** — `GET /robots.txt` + `GET /sitemap.xml` at 07:44:50Z, both 200. Confirmed ~75min cadence between sitemap visits (06:32:25Z → 07:44:50Z = 72min). Stable indexing behaviour.
+- **172.69.135.168 / 172.71.159.25 / 172.71.154.60** — Cloudflare-fronted `ke/JS` client(s) doing the MCP init dance at 07:46Z, 08:01:54Z, 08:02:03-25Z. Plus the `POST /firewall` 502 at 08:03:09Z mentioned above.
+- **54.67.34.241** — `GET /mcp/sse` 200 at 07:53:39Z. Same stuck MCP client adapting transport. No new behaviour.
+- **Vuln scanners** (`144.126.193.128`, `147.182.225.122`, `138.197.112.78`, others on `.env` / `.bash_history`): all 301/404. Noise floor.
+- **`104.197.69.115`, `64.225.100.118`, `158.173.20.98`, `52.34.76.65`** — caller-side backtick-bug `/token/scan?...&chain=base\`` 400/405s. Same cross-cloud caller bug noted in run #10. Not actionable.
+- **`104.155.58.35`** Google Cloud — 11 hits to `/` 301 in 5s at 06:46Z. Single burst, likely health check from a GCP load tester.
+- **`127.0.0.1` self-hits** (07:38:58Z, 07:39:09Z, 08:08:48Z, 08:08:59Z) — last two are MY OWN curl probes from this run investigating `/kreuse_status.json`. Filtered.
+
+### State delta vs run #11
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 139 → 142 (+3 radar daemon entries, no external creator).
+- Lifetime protocol fees: $0.000250 USDC (no change — no paid missions resolved).
+- recent_unique_ips: 35 → 52 (mostly vuln-scan noise + caller-bug burst).
+- Approval queue: 2 → 0 items (both resolved in previous run).
+- GitHub notifications: 0.
+
+### Signal to watch run #13 (~08:38 UTC)
+
+- Does `ke/JS` issue another `POST /firewall` 502 at ~08:03Z + ~09:03Z? Pattern is now N=4 from 04:48 onwards; N=5-6 would let me elevate this to a lesson with confident cadence.
+- Reply from chaoqiang on the Cryptogen@zohomail.eu email (sent 07:59Z, ~8 min ago).
+- Reply from @nicbstme on the PR #5 comment.
+- HustlerOps revival (still ~0% expected).
+- BlueNexus return (expected window ~01:00-04:00Z tomorrow if 21h-pair theory holds).
+
+### Action this invocation
+
+- Journal entry only (this).
+- No commit. No approval card. No lessons update.
+- Healthy 80%-cadence "no-op" run.
+
+```json
+{"ts": "2026-05-15T08:07:09Z", "action": "journal entry — confirmed /firewall hourly cron pattern from ke/JS (N=4); kreuse_status.json hit is Bilale's parallel project on shared vhost", "outcome": "no commit, no approval card; queue empty after previous run resolution; treasury+missions unchanged", "next_focus_suggestion": "watch for ke/JS xx:03 /firewall N=5-6 to elevate to lesson; watch for chaoqiang/nicbstme replies"}
+```
+
+---
+
+## 2026-05-15T08:37:41Z — run #13 (real signal: ClaudeBot 28× anomaly — deep content crawl in progress)
+
+30-min poll since run #12 (08:07Z → 08:37Z). One genuine cross-run signal worth flagging, two minor first-touches (one self-corrected), no commit.
+
+### Real signal: ClaudeBot doing a deep crawl of AIGEN today (~28× baseline)
+
+ClaudeBot daily hit counts from `access.log.{1..14}` (chronological, oldest → newest):
+
+| Days ago | ClaudeBot hits |
+|---|---|
+| 14 | 14 |
+| 13 | 0 |
+| 12 | 10 |
+| 11 | 16 |
+| 10 | 16 |
+| 9  | 0 |
+| 8  | 18 |
+| 7  | 0 |
+| 6  | 10 |
+| 5  | 0 |
+| 4  | 0 |
+| 3  | 0 |
+| 2  | 0 |
+| 1  | 9 |
+| **today (so far, 08:21Z)** | **254** |
+
+Baseline = 0-18/day across two weeks. Today's 254-hit count at 08:21Z (i.e. 8h21min of 24h) is already 28× the trailing-week max — and the day isn't over.
+
+Timestamp shape today: a heavy burst 00:45-05:27Z (multi-hit minutes — clearly a sustained crawl, not a sitemap-only ping), then a stepped-down hourly cadence 06:13 / 06:32 / 07:44 / 08:21.
+
+URL surface ClaudeBot hit (unique paths):
+- All `/agent/<name>` profile pages (15+ agents — autopilot, radar, codex-aigen-multi, hustlerops-nico-vale, opus-founder, treasury, fee-test-*, etc.)
+- Corresponding `/badge/agent/<name>.svg` badges
+- `/analytics`, `/analytics?days=7&format=summary`
+- `/api/stella/peg`, `/api/stella/reserves`
+- `/attest/quote?address=...&chain=base`
+
+This is **content indexing**, not sitemap-only polling. ClaudeBot is reading what AIGEN exposes as if to populate something downstream.
+
+### Why this matters for AIGEN traction
+
+ClaudeBot crawls = candidate input for Claude's tool-use / retrieval / search surface. If AIGEN pages land in Claude's index, every Claude user asking about agent reputation / agent identity / on-chain agent missions has some chance of being routed to AIGEN. This is the kind of free distribution that we cannot manufacture by submitting to registries.
+
+Caveat: cannot confirm causal chain (crawl → indexed → surfaced). The bot may be opportunistic (sitemap-grew → crawl), or someone may have shared an AIGEN URL inside Claude triggering retrieval-on-mention. Either way the *evidence on our side* is the same: 254 hits today, 9 yesterday, 0-18/day before.
+
+### No action this run because
+
+1. The crawl is already happening — nothing to optimize in 30 minutes.
+2. Adding new content to attract more crawl = anti-priority #1 (feature without external request).
+3. Best action is to *not break things* — no commits that could change page structure or URL paths during the crawl window.
+
+If the 28× pattern persists for another day, that becomes a lesson-worthy "ClaudeBot indexes us in deep-crawl bursts ~2-3 weeks apart" pattern. Single-day = anomaly, not yet pattern.
+
+### Minor signals (logged but low-value)
+
+- **45.148.10.67** at 08:30:12Z — initially looked like a new first-touch. Grep confirmed it's a **recurring same-day IP-rangescanner**: 4 visits today (02:22, 05:26, 06:58, 08:30Z), always GET /, always Chrome/131, half the requests carry `Referer: http://207.148.107.2:80/` — the literal IP-by-port-80 referer signature of generic IPv4 rangescans. Not external traction. **Self-correction**: do not call recurring IP-scanners "first-touch" just because they haven't appeared in a single 30-min window — always grep current `access.log` before promoting.
+- **1.1.220.166** (APNIC AU/Pacific, 08:28:21Z, single GET /, no referer, generic Linux Chrome UA, 21665 bytes served): zero prior history in 14 days of logs. One-shot first-touch. Could be human, could be one of countless IPv4 walkers. Not enough to qualify or pursue.
+- **205.169.39.{43,45,56,58}** at 08:33:34-36Z: same caller-side `&chain=base\`` backtick bug from run #10/12, but now with `Referer: https://bing.com/` and 4 different mobile/desktop UAs from the same /24. This is a UA-rotating cloaking bot — same /24, alternating Chrome iPhone/Android/Win desktop UAs, all hitting the identical broken URL with a fake bing referer. Same caller, more sophisticated cloak. Not actionable on our side (the URL is malformed; our 400 is correct). Not lesson-worthy yet (we already have the "caller's bug" note in run #10).
+- **66.240.205.34** at 08:14:09Z: classic RAT-handshake payload with base64 chunks (`HacKed_D4990627`, `Win 7 Professional SP1`). Returned 400. Pure noise floor.
+
+### Run #12 watch-list outcomes
+
+- **ke/JS xx:03 /firewall pattern** — next firing window is 09:02-03Z, **after** this run ends. Cannot evaluate this run; will check next run.
+- **chaoqiang reply** on Codex email (sent 07:59Z) — no inbox monitor available to this agent (only send_smtp.py, no IMAP helper). Reply, if any, would arrive at Cryptogen@zohomail.eu — Bilale-side visibility, not autopilot-side. Not actionable.
+- **@nicbstme PR #5 comment reply** — no GitHub notifications (`gh api notifications` → `[]`). Still 0 hours since posting; no response expected this fast.
+- **HustlerOps `89.213.118.44`** — still silent (~22h 22min since last activity at 2026-05-14T10:15Z). Crossing the 24h definitive-dead threshold at ~10:15Z (~98 min after this run ends, i.e. inside run #14 window at ~09:08Z it's still pre-threshold; run #15 at ~10:38Z is the threshold-crossing observation).
+- **14.143.179.162 (curl/8.7.1 docs-reader)** — no return in this window. Confirmed one-shot.
+- **BlueNexus** — expected window is tomorrow 01-04Z; nothing expected this run.
+
+### State delta vs run #12
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 142 → 145 (+3 radar daemon entries, no external creator).
+- Lifetime protocol fees: $0.000250 USDC (no change).
+- recent_unique_ips: 52 → 53 (1.1.220.166 + bing-referer /24 rotation - bot dedupes).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0.
+- Webhook triggers: 1 (push at 22:10:52 yesterday, unchanged).
+
+### Signal to watch run #14 (~09:08 UTC)
+
+- **ke/JS POST /firewall at xx:03Z** — expected at ~09:02-03Z (inside run #14 window). N=5 expected; if it fires on time, the pattern is hard cron not anomaly.
+- **ClaudeBot trajectory** — does the 28×-anomaly continue, or does ClaudeBot taper back to the 9-18/day baseline? If still elevated by run #14, this is a multi-hour deep crawl (not a one-time burst); if tapering, it was a single deep-crawl window.
+- chaoqiang reply (Bilale visibility only — wait for him to relay).
+- @nicbstme PR #5 reply (gh notifications).
+- HustlerOps: still pre-threshold; will declare dead at run #15.
+
+### Action this invocation
+
+- Journal entry only (this).
+- No commit. No approval card. No lessons update.
+- The ClaudeBot anomaly is observation-worthy but **not action-worthy** — best response is to leave URLs/structure stable during the crawl window.
+- Self-correction added (don't call recurring scanners "first-touch") — not promoting to a formal lesson because the existing self-IP lesson in lessons.md already covers the principle of "grep before classifying".
+
+```json
+{"ts": "2026-05-15T08:37:41Z", "action": "journal entry — ClaudeBot at 254 hits today vs 0-18/day baseline (28× anomaly), deep page-by-page crawl of /agent/* /badge/* /analytics /api/stella/*; observed 1 one-shot first-touch (1.1.220.166), 1 recurring IP-scanner mis-called as first-touch and corrected (45.148.10.67), 1 UA-rotating /24 with fake bing referer", "outcome": "no commit, no approval card, no lessons update; ClaudeBot crawl is highest signal of the run but action = don't disrupt URLs during the window", "next_focus_suggestion": "run #14: confirm ke/JS xx:03 /firewall fires (N=5); confirm whether ClaudeBot anomaly persists into next 30min"}
+```
+
+---
+
+## 2026-05-15T09:07:10Z — run #14 (ke/JS /firewall cron N=5 confirmed → lesson promoted)
+
+30-min poll since run #13 (08:37Z → 09:07Z). One action: promoted the ke/JS POST /firewall cron pattern to a formal lesson now that N=5 is confirmed. One commit.
+
+### Confirmed pattern: `POST /firewall` 502 from Cloudflare ke/JS at xx:03Z
+
+Run #13 set the test: "if it fires on time at 09:02-03Z, it's hard cron not anomaly." Result from access.log:
+
+```
+172.68.3.129 - - [15/May/2026:09:02:57 +0000] "POST /firewall HTTP/1.1" 502 166 "-" "-"
+```
+
+Fired at 09:02:57Z — well inside the xx:03 ± 1min window. **N=5 confirmed.**
+
+Full firing sequence (clean xx:03Z drift-free hourly cron, after a single non-aligned 04:48Z outlier which is likely the first firing post-config):
+
+| Hour | Time | IP (CF) |
+|---|---|---|
+| 04 | 04:48:?? | (run #10) |
+| 05 | 05:03:?? | (run #10) |
+| 06 | 06:03:?? | (run #11) |
+| 07 | 07:03:04 | (run #12) |
+| 08 | 08:03:09 | (run #12 end-of-window) |
+| 09 | 09:02:57 | **172.68.3.129** (this run) |
+
+Each preceded ~30-60s earlier by a normal MCP init dance on `POST /mcp` 200 (seen this run at 09:01:29-53Z from 172.69.135.19, also Cloudflare).
+
+Promoted to lessons.md so runs #15+ stop spending a probe each window confirming. The lesson explicitly says: do NOT add a `/firewall` route — it's a client-side misconfig with unknown schema, our 502 is correct.
+
+### ClaudeBot anomaly resolved — was a finite burst, now back to baseline
+
+Run #13 logged a 28× anomaly: 254 ClaudeBot hits by 08:21Z. Updated count this run: **256 hits total** (only +2 since run #13's snapshot). Today between 08-09Z window: 3 hits, all baseline `robots.txt` / `sitemap.xml` pings:
+
+```
+06:14:27 GET /reputation/fee-test-real-submitter  (end of deep crawl)
+06:32:25 GET /sitemap.xml                          (baseline)
+07:44:50 GET /sitemap.xml                          (baseline)
+08:21:24 GET /sitemap.xml                          (baseline)
+08:47:54 GET /sitemap.xml                          (baseline)
+```
+
+**Verdict:** the 28× anomaly was a discrete deep-crawl window from 00:45→05:27Z (~4h42min, 250+ hits on /agent/*, /badge/*, /analytics, /api/stella/*), then ClaudeBot reverted to its normal ~hourly sitemap-only cadence. Not a sustained shift in crawl posture — a finite burst. **Not promoting to a lesson** (N=1 burst, no recurrence). Just logging the resolution so run #15 doesn't keep waiting for the anomaly to "continue".
+
+### HustlerOps `89.213.118.44` — still silent, ~22h 52min
+
+Last activity 2026-05-14T10:15Z. 24h definitive-dead threshold at ~10:15Z today, ~68 min after this run. Run #15 (~09:38Z) is still pre-threshold; **run #16 (~10:08Z) is the threshold-crossing observation** — if no return by then, declare dead.
+
+### Other traffic this window (filtered, brief)
+
+- **20.82.92.251 (Microsoft Azure, Python/aiohttp UA)** — new credential-fishing scanner I haven't seen in last 14 days of logs. 30+ hits between 09:01:12 → 09:02:17Z on standard `.env*`, `wp-config.php.*`, `.git/config`, `application.{yml,properties}`, etc. All 301 (no .env on this host) or 404 (unmapped). Pure noise floor. Filtering.
+- **172.69.135.19** — Cloudflare ke/JS MCP init dance at 09:01:29-53Z (4 successful POST /mcp 200s). Precedes the /firewall cron by ~1 min as always.
+- **172.68.3.129** — the /firewall 502 itself, also CF.
+- **54.67.34.241** — stuck MCP client doing `HEAD /mcp/sse` 200 at 09:04:24Z. Same client as run #12/13. No new behavior.
+- **46.151.178.13 PROPFIND /** — WebDAV probe with `Referer: http://207.148.107.2:443/` (i.e. caller-side IP-by-port-443 scan signature, same family as 45.148.10.67 in run #13). 405. Noise.
+- **80.66.83.43** — RDP `mstshash=Administr` MS-RDP cookie payload at 09:06:13Z. 400. Pure noise (port-3389 scanner that found 443).
+
+### Run #13 watch-list outcomes
+
+- **ke/JS xx:03 /firewall** — fired at 09:02:57Z. N=5 confirmed. Promoted to lesson. ✓
+- **ClaudeBot anomaly** — tapered back to baseline by 06Z. Single-day burst, not sustained. ✓
+- **chaoqiang reply** — no IMAP visibility on this side; Bilale's inbox. Not actionable.
+- **@nicbstme PR #5 comment** — `gh api notifications | length` = 0. No reply yet (~24h since posting). Still ball-in-their-court.
+- **HustlerOps** — still pre-threshold; declare-dead observation moves to run #16.
+
+### State delta vs run #13
+
+- Treasury: $0.078574 USDC, unchanged.
+- Missions: 145 → 148 (+3 radar daemon entries, no external creator).
+- Lifetime protocol fees: $0.000250 USDC (no change).
+- recent_unique_ips: 53 → 40 (window rotation; 13 oldest dropped, fewer new — quieter than run #13).
+- Approval queue: 0 items, unchanged.
+- GitHub notifications: 0.
+- Webhook triggers: 1 (push at 22:10:52 yesterday, unchanged).
+
+### Signal to watch run #15 (~09:38Z)
+
+- **HustlerOps 24h threshold** — still pre-threshold at run #15. Crossing at run #16 (~10:08Z).
+- **ke/JS xx:03 /firewall N=6** — should fire at 10:02-03Z (inside run #16 window, not run #15). Run #15 should be silent on /firewall.
+- **ClaudeBot** — expect baseline-only behavior (sitemap pings hourly). The deep-crawl window is closed.
+- **Any new external IP** — given today's traffic mix is now ~95% noise floor (vuln scanners, RDP/WebDAV probes, the 502 cron, Cloudflare MCP dance, ClaudeBot baseline), watch for anything that's NOT one of those categories.
+- chaoqiang reply (Bilale visibility only).
+- @nicbstme PR #5 reply (gh notifications).
+
+### Action this invocation
+
+- Lesson promoted to `state/lessons.md`: "Don't repeat: treating POST /firewall 502 as our bug".
+- This journal entry.
+- **One commit:** `[autopilot] lesson: ke/JS /firewall 502 is client-side cron N=5, don't add route`.
+- No approval card (no risky action).
+
+```json
+{"ts": "2026-05-15T09:07:10Z", "action": "promoted N=5 ke/JS xx:03 /firewall 502 cron pattern to lessons.md so future runs don't re-derive; journal logs ClaudeBot anomaly resolved as finite 4h42min burst (now back to baseline); HustlerOps still silent at 22h52min (declare-dead threshold = run #16)", "outcome": "1 commit (lesson + journal); no approval card; treasury+queue+notifications unchanged; missions 145→148 from radar daemon only", "next_focus_suggestion": "run #15 silent on /firewall (off-cycle); watch for HustlerOps threshold-crossing at run #16 (~10:08Z); ke/JS /firewall N=6 also at run #16"}
+```
