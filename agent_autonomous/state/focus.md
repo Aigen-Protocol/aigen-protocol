@@ -1,45 +1,58 @@
 # Current focus
 
-**Set: 2026-05-14 by Bilale via the autonomous agent kickoff message**
+**Set: 2026-05-14, expanded 2026-05-15 by Bilale: "tous sauf mail"**
 
 > "scaller aigen, etre actif sur github tu es libre"
+> + "tous sauf mail" (act directly on everything except email)
 
 ## Translation
-Scale AIGEN. Be active on GitHub. You're free to act within the system_prompt rules.
+Scale AIGEN traction by acting, not by filing approval cards. Email is the ONLY thing that still goes to queue. Everything else in Tier A (system_prompt) — GitHub comments, registry submissions, AIGEN missions, code commits — execute directly.
 
 ## Concrete priorities (in order)
 
-1. **External traction over internal polish.** Every action should plausibly increase the number of external IPs interacting with `/api/missions`, `/api/agents/*`, `/mcp`, or `/scan`.
+1. **React to external signals AS THEY ARRIVE.** Webhook fires → you're awake. Don't journal-only when there's a real lever.
+   - Codex researcher (chaoqiang.tian) sent email 2026-05-15T08:00Z — if reply arrives in inbox, surface it (Tier A: poll IMAP read-only is OK)
+   - Nico (PR#5) — if he replies on the PR, webhook fires you, draft + post a follow-up reply directly (Tier A)
+   - 52.186.175.98 (Azure MCP tool-caller) — if returns, attempt to identify (User-Agent, header inspection); consider posting a paid AIGEN mission targeting their use case
+   - ke/JS 0.64.2 — if persists, look up what "ke" is, comment publicly somewhere they'd see (their issue tracker, X)
+   - Codex eval / SWE-bench-style researchers (ANY UA mentioning "eval", "research", "benchmark") — they self-identified, treat as warm leads
 
-2. **GitHub activity that someone OUTSIDE the project might notice.**
-   - Submit to MCP / awesome registries we haven't covered
-   - Reply to comments on existing PRs (#6288 punkpeye, #542 TensorBlock, #2298 mcp.so)
-   - Issue/PR triage if anything came in
-   - NOT: push commits nobody asked for
+2. **Submit AIGEN to MCP registries you haven't covered yet.**
+   - Smithery (https://smithery.ai) — check if listed, submit if not
+   - Glama (https://glama.ai/mcp) — check if listed, submit if not
+   - mcp.so (PR on github.com/chatmcp/mcp-directory) — we have PR #2298, check status, comment if stale
+   - One new MCP-related list per day. Don't repeat a registry already on the list.
+   - awesome-mcp-servers PR #6288 punkpeye — check status, comment if stale
+   - TensorBlock #542 — check status, comment if stale
 
-3. **React to HustlerOps if his bot returns.** It bouncted overnight after 35 502s. If new poll arrives → log it. Maybe nudge his perception.
+3. **Post paid AIGEN missions when justified by external signal.**
+   - Cap: $5 USDC / mission, $20 USDC / day total. AIGEN-token rewards unlimited (5000+ in treasury).
+   - Examples of justified: "review @nicbstme's HustlerOps integration once live", "test the MCP tools-list response from a fresh client perspective", "fuzz /api/missions for invalid params"
+   - NOT justified: synthetic activity, "summary of <random token>", anything radar already does
 
-4. **Improve discoverability.**
-   - SEO: ensure sitemap fresh, OG cards work
-   - Submit to one new MCP-related list per day
-   - Public RSS feeds populated
+4. **Substantive commits to AIGEN repo when shipping value.**
+   - Doc fix triggered by real client confusion → commit + push
+   - New MCP tool that closes a real gap an external client showed up needing → commit + push
+   - NOT justified: refactoring, polish, adding new daemons
 
 ## Anti-priorities (don't do)
 
-- Don't build new features without external request
-- Don't write more docs (we have plenty)
-- Don't refactor code
-- Don't add more daemons
-- Don't post AIGEN missions just to look busy (radar already does that)
-- Don't send emails (approval queue)
-- Don't open PRs on external repos without approval (queue)
+- Don't write approval cards for Tier A actions — that was the over-cautious behavior of run #1-#22
+- Don't refactor code without external trigger
+- Don't add more autonomous daemons (have enough)
+- Don't post synthetic AIGEN missions (radar daemon handles fresh-token coverage)
+- **Don't send emails** (Tier B — still queue)
+- **Don't transfer treasury funds beyond $5/mission $20/day caps** (Tier B)
+- Don't touch your own systemd/run.sh/system_prompt/.gitignore unilaterally
 
-## Success metric this week
+## Success metric this week (revised 2026-05-15)
 
-By 2026-05-21: at least one of:
-- 1 new external creator who isn't us posts a mission
-- 1 new external submitter completes a radar mission
-- A grant program responds
-- HustlerOps's bot resumes polling
+By 2026-05-21, at least 2 of these:
+- ≥1 commit per day shipped that closes an external user's gap
+- ≥1 real MCP registry submission per day (with link)
+- ≥3 substantive GitHub comments per week (not "thanks", real engagement)
+- ≥1 new external creator posts a mission OR ≥1 external submitter completes one
+- Codex researcher OR Nico OR 52.186.175.98 client replies to outreach
+- Treasury USDC > $1.00 (currently $0.078574 — need 13× growth)
 
-If none of these → escalate to Bilale.
+If none of these by 2026-05-21 → escalate to Bilale that the autonomy unblock didn't move the needle.
