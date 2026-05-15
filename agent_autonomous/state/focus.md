@@ -1,58 +1,102 @@
 # Current focus
 
-**Set: 2026-05-14, expanded 2026-05-15 by Bilale: "tous sauf mail"**
+**Set: 2026-05-15 by Bilale (strategic decision: Option Y — category creation)**
 
-> "scaller aigen, etre actif sur github tu es libre"
-> + "tous sauf mail" (act directly on everything except email)
+> "on veut être les premier sur ce marché qui n'existe pas encore"
 
 ## Translation
-Scale AIGEN traction by acting, not by filing approval cards. Email is the ONLY thing that still goes to queue. Everything else in Tier A (system_prompt) — GitHub comments, registry submissions, AIGEN missions, code commits — execute directly.
+
+We are NOT trying to win an existing market. We are **defining a new category** — *Open Agent Bounty Protocol* — and positioning AIGEN as the canonical reference implementation. The agent economy of 2026 is closed-ecosystem (Lindy, Devin, Cursor, Copilot Studio). We bet the open layer becomes the default in 18-36 months. We want to be the spec everyone cites when that happens.
+
+## What changed (vs. previous focus)
+
+- **OLD:** "scaller AIGEN traction, react to external signals, post missions"
+- **NEW:** "compound mindshare, define the standard, build in public, be the canonical reference"
+- **Bilale accepted** that this means 18-24 months without significant revenue. Don't second-guess.
+
+## KPIs that matter (this strategy)
+
+| Metric | Target by 2026-08-15 (3 months) |
+|---|---|
+| GitHub stars on Aigen-Protocol/aigen-protocol | ≥ 200 |
+| External mentions of "AIGEN" / "AIP-1" | ≥ 20 |
+| Issues opened by external devs on AIP-1 spec | ≥ 5 |
+| OABP-compliant implementations (non-AIGEN) | ≥ 1 attempted |
+| Outbound 1:1 conversations with researchers/founders | ≥ 25 |
+| Public blog posts published | ≥ 6 (one every 2 weeks) |
+| Conference/podcast appearances by Bilale | ≥ 2 |
+
+## KPIs that DON'T matter (anymore)
+
+- Treasury USDC fees collected
+- Mission completion rate
+- External submitters count
+- Daily revenue
+- HustlerOps polling resumption (he's gone, accept it)
+
+If the autopilot sees these old metrics flat or down → it's NOT a failure. It's expected during category-creation phase. Don't pivot back to "post more missions."
 
 ## Concrete priorities (in order)
 
-1. **React to external signals AS THEY ARRIVE.** Webhook fires → you're awake. Don't journal-only when there's a real lever.
-   - Codex researcher (chaoqiang.tian) sent email 2026-05-15T08:00Z — if reply arrives in inbox, surface it (Tier A: poll IMAP read-only is OK)
-   - Nico (PR#5) — if he replies on the PR, webhook fires you, draft + post a follow-up reply directly (Tier A)
-   - 52.186.175.98 (Azure MCP tool-caller) — if returns, attempt to identify (User-Agent, header inspection); consider posting a paid AIGEN mission targeting their use case
-   - ke/JS 0.64.2 — if persists, look up what "ke" is, comment publicly somewhere they'd see (their issue tracker, X)
-   - Codex eval / SWE-bench-style researchers (ANY UA mentioning "eval", "research", "benchmark") — they self-identified, treat as warm leads
+### 1. Compound public artifacts (highest leverage)
 
-2. **Submit AIGEN to MCP registries you haven't covered yet.**
-   - Smithery (https://smithery.ai) — check if listed, submit if not
-   - Glama (https://glama.ai/mcp) — check if listed, submit if not
-   - mcp.so (PR on github.com/chatmcp/mcp-directory) — we have PR #2298, check status, comment if stale
-   - One new MCP-related list per day. Don't repeat a registry already on the list.
-   - awesome-mcp-servers PR #6288 punkpeye — check status, comment if stale
-   - TensorBlock #542 — check status, comment if stale
+- New blog post every 2 weeks (long-form, substantive, no marketing fluff). First one shipped: `blog/2026-05-15-open-agent-economy.md`.
+- AIP-1 maintenance: respond to issues, version v0.2 when feedback warrants.
+- Future AIPs: AIP-2 (mission-type registry), AIP-3 (cross-chain reputation), AIP-4 (dispute arbitration). Draft when there's a real reason.
+- Public auto-published journal: `https://cryptogenesis.duckdns.org/journal/{date}` — develop in public.
 
-3. **Post paid AIGEN missions when justified by external signal.**
-   - Cap: $5 USDC / mission, $20 USDC / day total. AIGEN-token rewards unlimited (5000+ in treasury).
-   - Examples of justified: "review @nicbstme's HustlerOps integration once live", "test the MCP tools-list response from a fresh client perspective", "fuzz /api/missions for invalid params"
-   - NOT justified: synthetic activity, "summary of <random token>", anything radar already does
+### 2. Substantive GitHub presence (Tier A — act directly)
 
-4. **Substantive commits to AIGEN repo when shipping value.**
-   - Doc fix triggered by real client confusion → commit + push
-   - New MCP tool that closes a real gap an external client showed up needing → commit + push
-   - NOT justified: refactoring, polish, adding new daemons
+- Comment on adjacent-project issues where AIP-1 is relevant (Olas, Bittensor, Ritual, AutoGen, CrewAI, LangChain) — substantive, not promotional
+- Respond to any inbound issue/PR on Aigen-Protocol within 24h
+- Cross-reference AIP-1 wherever an open-agent-protocol question is being discussed publicly
 
-## Anti-priorities (don't do)
+### 3. Improve discoverability (Tier A)
 
-- Don't write approval cards for Tier A actions — that was the over-cautious behavior of run #1-#22
-- Don't refactor code without external trigger
-- Don't add more autonomous daemons (have enough)
-- Don't post synthetic AIGEN missions (radar daemon handles fresh-token coverage)
-- **Don't send emails** (Tier B — still queue)
-- **Don't transfer treasury funds beyond $5/mission $20/day caps** (Tier B)
-- Don't touch your own systemd/run.sh/system_prompt/.gitignore unilaterally
+- SEO for "open agent protocol", "agent bounty protocol", "permissionless agent economy"
+- Make `/specs/AIP-1` a public web page (not just .md in repo) — branded, indexable
+- `/llms.txt` updated to highlight AIP-1
+- Submit to Hacker News, lobste.rs, /r/LocalLLaMA, /r/MachineLearning, EthResearch when blog posts publish (Bilale's job, not autopilot's)
 
-## Success metric this week (revised 2026-05-15)
+### 4. Outreach support (Tier B — write drafts, Bilale sends)
 
-By 2026-05-21, at least 2 of these:
-- ≥1 commit per day shipped that closes an external user's gap
-- ≥1 real MCP registry submission per day (with link)
-- ≥3 substantive GitHub comments per week (not "thanks", real engagement)
-- ≥1 new external creator posts a mission OR ≥1 external submitter completes one
-- Codex researcher OR Nico OR 52.186.175.98 client replies to outreach
-- Treasury USDC > $1.00 (currently $0.078574 — need 13× growth)
+- `distribution/outreach_targets_2026_05.md` has the 10-target list
+- Draft personalised messages for Bilale to send (do NOT send yourself — email is Tier B)
+- Track responses → add to outreach file with status
 
-If none of these by 2026-05-21 → escalate to Bilale that the autonomy unblock didn't move the needle.
+## Anti-priorities (DO NOT do)
+
+- ❌ Post AIGEN missions just to look busy (radar daemon already covers token-safety; no other synthetic activity)
+- ❌ Add new features / endpoints without external request
+- ❌ Refactor code
+- ❌ Pivot the thesis (Bilale committed to Option Y, hold the line)
+- ❌ Send emails (Tier B)
+- ❌ Build new daemons (have enough)
+- ❌ Mention "[redacted]" anywhere public
+- ❌ Treat treasury USDC as a KPI (this is a multi-year compound play, not a SaaS revenue play)
+
+## Success criteria, week by week (revised)
+
+| Week ending | Must-have output |
+|---|---|
+| 2026-05-22 | AIP-1 v0.1 + first blog post live + outreach targets messaged (≥5) |
+| 2026-05-29 | Public `/journal/{date}` page live + 2 substantive comments on adjacent-project issues |
+| 2026-06-05 | Blog post #2 published + ≥10 outreach replies engaged with |
+| 2026-06-12 | First external feedback on AIP-1 (issue, comment, fork) → v0.2 draft started |
+| 2026-06-19 | Apply to ≥1 conference (DevConnect BA, AgentX, Schelling Point) |
+
+If 4 of 5 weeks miss → escalate to Bilale. Hold the line on the thesis.
+
+## Bilale's commitments (so autopilot doesn't have to)
+
+1. Send outreach DMs from `outreach_targets_2026_05.md` — Tier B, not autopilot
+2. Write/co-write the longform blog posts — autopilot can draft, Bilale finalises voice
+3. Attend conferences if accepted
+4. Funder runway: confirmed Bilale accepts no significant revenue for 18-24 months
+
+## Reference docs
+
+- `specs/AIP-1.md` — the spec
+- `blog/2026-05-15-open-agent-economy.md` — the thesis essay
+- `distribution/outreach_targets_2026_05.md` — the 10-person reach list
+- This file — the operational focus
