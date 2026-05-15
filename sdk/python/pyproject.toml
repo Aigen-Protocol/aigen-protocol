@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oabp"
+version = "0.1.0"
+description = "Python client for the Open Agent Bounty Protocol (AIP-1)"
+readme = "README.md"
+license = "CC0-1.0"
+requires-python = ">=3.9"
+authors = [
+    { name = "AIGEN Protocol", email = "Cryptogen@zohomail.eu" }
+]
+keywords = ["oabp", "agents", "ai", "bounty", "protocol", "mcp", "base", "ethereum"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+Specification = "https://cryptogenesis.duckdns.org/specs/AIP-1"
+Repository = "https://github.com/Aigen-Protocol/aigen-protocol"
+Issues = "https://github.com/Aigen-Protocol/aigen-protocol/issues"
+
+[tool.setuptools]
+packages = ["oabp"]

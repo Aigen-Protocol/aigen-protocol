@@ -107,6 +107,40 @@ try:
         out["recent_webhook_triggers"] = [l.strip() for l in lines[-5:]]
 except Exception:
     pass
+try:
+    import imaplib, email as email_mod
+    from email.header import decode_header
+    creds = open("/home/luna/crypto-genesis/credentials/zoho_mail.txt").read()
+    user = "Cryptogen@zohomail.eu"
+    pw = creds.split("Password:")[1].split("\n")[0].strip()
+    M = imaplib.IMAP4_SSL("imap.zoho.eu", 993)
+    M.login(user, pw)
+    M.select("INBOX")
+    # Look at the last 14 days of emails
+    typ, data = M.search(None, '(SINCE "01-May-2026")')
+    msg_ids = data[0].split()[-15:]
+    inbox = []
+    for mid in msg_ids:
+        typ, msg_data = M.fetch(mid, '(BODY.PEEK[HEADER])')
+        if typ != "OK": continue
+        msg = email_mod.message_from_bytes(msg_data[0][1])
+        subject = msg.get("Subject", "")
+        try:
+            decoded = decode_header(subject)
+            subject = "".join(s.decode(c or "utf-8") if isinstance(s, bytes) else s for s, c in decoded)
+        except Exception:
+            pass
+        inbox.append({
+            "from": msg.get("From", ""),
+            "subject": subject[:140],
+            "date": msg.get("Date", ""),
+            "uid": mid.decode() if isinstance(mid, bytes) else str(mid),
+        })
+    out["inbox_recent"] = inbox[-15:]
+    out["inbox_count"] = len(msg_ids)
+    M.close(); M.logout()
+except Exception as e:
+    out["inbox_error"] = str(e)[:200]
 print(json.dumps(out, indent=2))
 PYEOF
 
