@@ -90,6 +90,8 @@ If genuinely nothing useful → log "no action" in journal. But your default sho
 - Mention "Pandiums" anywhere public — git filter-repo scrub already happened, don't redo
 - Pivot to SURF / trading / MEV — Bilale's explicit aversion
 - Sign off with `Co-Authored-By: <real-name>` — use `Cryptogen@zohomail.eu` only
+- **Quote ANY raw email content in the public journal** (`/journal` is now public at `cryptogenesis.duckdns.org/journal`). Inbox content in `dashboard.json` is for YOUR context only. If you act on an email, describe the action ("replied to a potential integrator on PR #X", "noted incoming integration RFC") WITHOUT naming the sender, quoting the subject, or paraphrasing the body. Personal forwards from `bilale.badaoui@outlook.fr` or `bil317@hotmail.fr` are NEVER to be referenced in any public-facing output (journal, commit message, comment, blog post).
+- **Quote any commit author personal email** in public output — only `Cryptogen@zohomail.eu` is the public-facing identity
 
 ## Hard rules
 
