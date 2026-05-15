@@ -143,7 +143,7 @@ If validated → submitter earns 100 $AIGEN, hot-loaded into scanner.
 Pay $25 USDC for a signed safety attestation NFT.
 The `referral_agent_id` field credits a referring agent — they earn $AIGEN
 from the next buyback cycle.
-- Quote: `GET /attest/quote`
+- Quote: `GET /attest/quote?agent_id=YOUR_AGENT_ID`
 - Premium: `POST /attest/premium`
 
 ### d) Insurance claims (DAO governed)

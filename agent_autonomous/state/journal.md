@@ -4,6 +4,264 @@ Latest entries on top. Append, never edit.
 
 ---
 
+## 2026-05-15T01:09:00Z — run #10 (30-min cron, real signal + surgical commit)
+
+29 min after run #9. Two big developments since:
+
+### Signal 1: ClaudeBot returned in a SECOND session
+
+`216.73.217.153` came back at 00:45:24–00:48:21 UTC, ~1h after the 23:38–23:44 first session. This **resolves run #9's open question**: ClaudeBot is NOT one-shot indexing, it's doing periodic crawls. New endpoints pulled this round:
+- `GET /robots.txt` 200 901
+- `GET /missions/active` 200 9207 — **new endpoint vs round 1** (active mission listing)
+- `GET /scan?address=0x532f27101965dd16442e59d40670faf5ebb142e4&chain=base` 200 352 — **using our scan API with real params**
+- `GET /.well-known/agent.json` 200 1580
+- `GET /t/0x532f27...?chain=base` 200 2235
+- `GET /attest/quote?address=0x532f27...&chain=base` **422** 94
+
+So they're not just crawling, they're trying to exercise the API. The 422 on `/attest/quote` is the interesting one.
+
+### Signal 2: Real discoverability bug found via ClaudeBot's 422
+
+Reproduced locally: `GET /attest/quote?address=...&chain=base` → 422 `{"detail":[{"type":"missing","loc":["query","agent_id"],"msg":"Field required","input":null}]}`
+
+The endpoint requires `?agent_id=<id>`, but `AIGEN_PROTOCOL.md:146` documents it as just `GET /attest/quote` with no param info. ClaudeBot (or any LLM following our protocol spec — and llms.txt links it) infers `?address=&chain=` from the adjacent `/scan` and `/t/<address>` endpoints and 422s. Other entries in the doc DO include params inline (e.g. `POST /claims/{id}/execute?executor_agent_id=YOU` at line 155), so the convention exists — this one line just omitted it.
+
+This is exactly the "external signal demands it" fix per system prompt: surgical, one-line, traction-relevant, addresses an observed failure. Per focus.md anti-priority "don't write more docs" — this is a doc *correction*, not new docs.
+
+### Action taken
+
+1. **Edit `AIGEN_PROTOCOL.md:146`** — added `?agent_id=YOUR_AGENT_ID` to the `/attest/quote` line. One-line change.
+2. **Commit** with `[autopilot]` prefix (next step below).
+3. This journal entry.
+
+### Other state delta vs run #9
+
+- HustlerOps (`89.213.118.44`): still last poll 10:15 UTC. ~14h54m silent. ~9h21m until 24h mark. Plan to re-raise Nico-email card around 10:15 UTC today holds.
+- `54.67.34.241`: one more `HEAD /mcp` 405 at 00:45:15 UTC. Same broken-client pattern unchanged across runs #2→#10. Still no client ID.
+- `143.198.151.210`: still silent since 21:49:26 UTC yesterday (now ~3h20m silent at this run, but per the corrected lesson — DO NOT predict cadence).
+- Missions: 94 → 100 (+6). Radar internal-creator only. Lifetime treasury still $0.078574 (no external fee paid).
+- Approval queue: still 1 item (nico-email-disposition), Bilale unanswered.
+- `gh api notifications` → `[]`.
+- New external IPs: `172.105.128.11` (Linode, fake-Mac UA self-referrer noise), `91.231.89.204` (Ubuntu Firefox 134, single GET / 200, no follow-up), `91.196.152.15` (Ubuntu Firefox, only /favicon.ico), `20.168.6.227` (Azure MGLNDD scanner), `46.151.178.13` PROPFIND (recurring WebDAV probe), `77.83.39.42` /.env probe, `193.8.186.37` (raw TLS + GET /, no follow-up). All noise.
+
+### Did NOT do
+
+- No outreach to ClaudeBot (no contact channel + observation-only).
+- No additional doc fixes — checked all other ClaudeBot-hit endpoints (`/missions/active`, `/scan`, `/t/...`, `/.well-known/agent.json`) returned 200, only `/attest/quote` was misdocumented.
+- No registry submission. No fresh window.
+- No MCP Content-Type patch for 54.67.34.241 — still no client ID across 8 runs.
+
+### Signal to watch run #11 (~01:39 UTC)
+
+- Does ClaudeBot come back a 3rd time? If yes, hourly cadence confirmed.
+- Does ClaudeBot re-hit `/attest/quote` after the doc fix? They won't — they don't re-pull the protocol spec on every crawl. But future LLM-driven agents reading the updated llms.txt-linked spec will get the right query string. This is the slow-roll discoverability win.
+- HustlerOps still silent? 24h mark approaching at ~10:15 UTC.
+- Bilale answers nico-email card?
+
+```json
+{"ts": "2026-05-15T01:09:00Z", "action": "doc-fix", "outcome": "AIGEN_PROTOCOL.md:146 added agent_id query param — ClaudeBot 422 evidence", "next_focus_suggestion": null}
+```
+
+---
+
+## 2026-05-15T00:07:33Z — run #9 (30-min cron, ClaudeBot continued crawl — journal-only)
+
+29 min after run #8. The big positive signal continued: **ClaudeBot/1.0 did not stop after the 3-page burst flagged in run #8** — it kept crawling for another ~5 min and pulled the high-value LLM-feed content.
+
+### ClaudeBot full crawl, run #8 → run #9 window (23:38–23:44 UTC)
+
+`216.73.217.153` total this session, in order:
+1. 23:38:18 `GET /robots.txt` 200 901
+2. 23:38:21 `GET /t/0x532f27101965dd16442e59d40670faf5ebb142e4` 200 2235
+3. 23:38:48 `GET /reputation/leaderboard` 200 2593
+4. 23:39:35 `GET /missions/stats` 200 662
+5. 23:40:46 `GET /badge/token/0xYOUR_TOKEN.svg?chain=base` 200 1139 — followed a placeholder URL from `README.md:215`. Verified `/badge` endpoint gracefully returns "AIGEN safety: ?/100" SVG for invalid tokens, so this is fine — not a bug.
+6. 23:42:34 `GET /AIGEN_PROTOCOL.md` 200 11203 — full protocol spec
+7. 23:42:34 `GET /proof` 200 3384
+8. 23:43:21 `GET /llms.txt` 200 3276 — **the LLM-targeted content file**. Verified content quality: quick-links, MCP endpoint, framework SDKs, REST examples, verification mechanisms, token address, "what you should NOT do" guardrails. Exactly the right shape for Claude to ingest.
+9. 23:44:25 `GET /work/board` 200 5591
+
+This is the discovery surface focus.md priority #4 was looking for. Run #8 only saw the first 3 hits; the actual session pulled 9 pages including all the high-value LLM-feed files. ClaudeBot's index will now have AIGEN cross-referenced with: protocol spec, llms.txt, MCP endpoint, work board, reputation system, badge example, and a token-detail page. If any future Claude user asks about "AI agent bounty marketplaces", "on-chain MCP servers", or specific tokens we've scanned, surface probability goes up.
+
+No commit needed: the served content was already correct. The placeholder `0xYOUR_TOKEN` in `README.md:215` is intentional template syntax; the badge endpoint handles invalid token addresses gracefully ("?/100" SVG with status 200) — that's correct UX for anyone who copy-pastes the example.
+
+### Other state delta vs run #8
+
+- `118.194.248.142` (HKBN, agent.json investigator from run #8): did NOT return. One-burst-and-gone pattern confirmed.
+- HustlerOps (`89.213.118.44`): still last poll 10:15 UTC. **~13h53m silent.** Past 24h mark hits at ~10:15 UTC today (2026-05-15). If still silent then, the Nico-email-disposition card from 2026-05-14T21:16 needs re-raising — the "wait for bot to recover" theory will be dead.
+- `143.198.151.210`: still silent since 21:49:26 UTC yesterday. ~2h18m silent. Consistent with event-driven theory.
+- `54.67.34.241`: one more HEAD /mcp/sse at 00:04:09 UTC → 200. Same broken-client pattern unchanged since run #2. Still no client identifier.
+- Cloudflare-proxied MCP traffic (172.68.x / 172.71.x): healthy, 12+ POST /mcp 200s in the window. Normal.
+- Missions: 91 → 94 (+3 over 30 min). Radar internal-creator only. Expected.
+- Treasury: $0.078574 unchanged.
+- Approval queue: still 1 item (`20260514-2116-nico-email-disposition.md`), Bilale unanswered.
+- `gh api notifications` → `[]`.
+
+### Noise filtered out
+
+- `213.209.159.175` (Turkish IP, fake old-Opera UA): ~60-hit `.env.prod` / `.env.example` / `phpinfo.php` fuzzing burst at 23:39–23:44. All 301 or 404. Vulnerability scanner, not adoption.
+- `18.116.101.220`, `20.118.32.47` (zgrab/visionheight scanners) — already logged
+- `66.228.53.46`, `66.228.53.157`, `66.228.53.204` (Linode probes using own-IP referer)
+- `93.174.93.12`, `188.155.232.133`, `5.61.209.224`, `5.61.209.102` — generic crawlers / probe noise
+- `185.247.137.73`, `87.236.176.24` (`InternetMeasurement/1.0`) — Internet-wide scan service
+- `198.235.24.171` (raw TLS junk), `205.210.31.68` (Palo Alto Cortex)
+- `46.151.178.13` PROPFIND 405 — WebDAV probe (recurring)
+
+### Action taken
+
+Journal-only. No commit, no code change, no approval card, no external action. ClaudeBot's crawl is observation-only — they crawl when they crawl. Content served was clean.
+
+### Did NOT do
+
+- No commit on the badge placeholder. The endpoint behavior is correct; the README example uses `0xYOUR_TOKEN` as a deliberate template placeholder, and the badge response ("?/100") is the right graceful failure mode.
+- No approval card for the Nico-email re-raise yet — the 24h mark is ~10h away. Wait.
+- No registry submission. No fresh window.
+- No MCP Content-Type patch for 54.67.34.241 — still no client ID.
+
+### Signal to watch run #10 (~00:37 UTC)
+
+- ClaudeBot returns? If it cycles back periodically (vs single-session crawl), pattern = continuous ingestion. If silent, it was a one-pass index event.
+- HustlerOps still silent? Now approaching 14h.
+- 143.198.151.210 returns?
+- Any genuinely new external IP on traction endpoints.
+
+```json
+{"ts": "2026-05-15T00:07:33Z", "action": "journal-real-signal", "outcome": "logged ClaudeBot 9-page crawl incl llms.txt + AIGEN_PROTOCOL.md + work/board; content quality verified; no commit", "next_focus_suggestion": null}
+```
+
+---
+
+## 2026-05-14T23:38:49Z — run #8 (30-min cron, real signal — journal-only)
+
+Two genuinely new external signals since run #7, both AIGEN-traction relevant. No commit, no approval card, no external action — but worth flagging clearly because runs #4–#7 were all noise.
+
+### Signal 1: ClaudeBot/1.0 indexing AIGEN
+
+`216.73.217.153` (Anthropic crawler) at 23:38:18 → 23:38:48 UTC:
+- `GET /robots.txt` 200 901
+- `GET /t/0x532f27101965dd16442e59d40670faf5ebb142e4` 200 2235 — fetched a specific token-keyed mission page (Brett-family token from past radar runs)
+- `GET /reputation/leaderboard` 200 2593
+
+UA: `ClaudeBot/1.0 (+claudebot@anthropic.com)`. 4 lifetime hits visible in current access.log slice. First time I've called this out. This is the **discovery surface** focus.md wants: future Claude users asking about "AI agent bounty marketplaces" or about specific tokens we've covered could plausibly surface us via Anthropic's index. No action needed — they crawl when they crawl. Just noting for run-#N pattern recognition.
+
+### Signal 2: Investigator session from 118.194.248.142 (HKBN, Hong Kong)
+
+23:37:06 → 23:37:27 UTC, ~6 hits across the homepage discovery surface:
+1. `GET /` 200 21665 (Chrome 120 + Edg) — full homepage render
+2. `GET /favicon.ico` 200 274 — browser open
+3. `GET /robots.txt` 200 901
+4. `GET /sitemap.xml` 200 6430
+5. `GET /.well-known/agent.json` 200 1580 — **UA switched to `Go-http-client/1.1`** = deliberate tooling fetch
+6. `GET /config.json` 404 22 — UA switched again to a fake old Mac UA = probing for misconfig
+
+Same pattern as `51.68.184.196` from run #4 ("real human visitor"): browser + tooling running in parallel, single ~20-second burst, no return polls (yet). Higher quality than #4 because they pulled `.well-known/agent.json` specifically — that's an A2A / agent-discovery target, not a generic crawl. They know what they're looking for.
+
+Verified agent.json content (curl from local with Host header): valid JSON, accurate tagline/description, working endpoint URLs, token addresses correct, 12 capabilities listed. No urgent fix needed.
+
+### Other state since run #7
+
+- HustlerOps (89.213.118.44): still last poll 10:15 UTC. ~13h24m silent. Tomorrow 10:15 UTC = 24h mark; if no poll by then, the next approval card should re-raise the Nico-email disposition because the "wait for bot to recover" theory will be dead.
+- 143.198.151.210: still no return since 21:49 UTC yesterday. Consistent with event-driven theory (run-#4 correction in lessons.md).
+- 54.67.34.241: 2 more HEAD probes (22:54 to /mcp/sse → 200, 23:36 to /mcp → 405). Same broken-client pattern. Still no client ID. Unchanged across runs #2→#8.
+- Missions: 88→91 (+3). Radar internal-creator only. Expected.
+- Treasury: $0.078574 unchanged.
+- Approval queue: still 1 item (nico-email-disposition), Bilale unanswered.
+- `gh api notifications` → `[]`.
+
+### Noise filtered out
+
+- `45.148.10.67`, `204.76.203.206`, `49.109.142.173` (iPhone-UA repeat from run #7), `18.116.101.220` (visionheight.com/scan family, more TLS garbage), `20.118.32.47` (zgrab+MGLNDD), `93.174.93.12` (one-off Linux/Redmi), `188.155.232.133` (one-off Italian), `5.61.209.224` (path-traversal /etc/passwd attempt), `66.228.53.46` (Linode probe via own-IP referer), `205.210.31.68` (Palo Alto Cortex Xpanse).
+
+### Action taken
+
+Journal-only. No commit, no code change, no approval card, no external action. The ClaudeBot and 118.x signals are observation-only — neither is something I can "reach out" to without identification, both will continue (or not) on their own schedule. Per system prompt §"What success looks like": ~15% of invocations log real observations, this is one of them.
+
+### Did NOT do
+
+- No commit. Tempting to think "ClaudeBot crawled, write an SEO/OG-tag commit", but agent.json + robots.txt + sitemap are already serving correctly and ClaudeBot pulled the pages it wanted. Don't invent work.
+- No approval card. We don't know who 118.194.248.142 is; outreach blind = spam.
+- No registry submission. Run #7 logic still holds — Bilale wants batched registry pushes.
+- No MCP Content-Type patch for 54.67.34.241 (still no client ID, ~30 min apart).
+
+### Signal to watch run #9 (~00:08 UTC)
+
+- ClaudeBot returns? If yes, pattern = continuous crawl, valuable. If single-burst-and-gone, it was a one-time index pass.
+- 118.194.248.142 returns? Bursts vs single visit determines whether this is an adopter doing diligence or a curious passer-by.
+- HustlerOps still silent (~14h)? Past 24h tomorrow = re-raise Nico card priority.
+- 143.198.151.210 returns? If still silent past midnight UTC, the 12+24h-gap event-driven theory firms further.
+- Bilale answers nico-email card?
+
+```json
+{"ts": "2026-05-14T23:38:49Z", "action": "journal-real-signal", "outcome": "logged ClaudeBot first-index + 118.194.248.142 agent.json investigator burst; no commit", "next_focus_suggestion": null}
+```
+
+---
+
+## 2026-05-14T23:07:43Z — run #7 (30-min cron, no-op)
+
+30 min after run #6. State delta vs run #6: nothing new actionable.
+
+- HustlerOps (89.213.118.44): last poll still 10:15 UTC. ~13h silent. Past 24h mark approaching → bot likely permanently dead (or operator paused).
+- 143.198.151.210: last hit still 21:49:26 UTC. ~1h18m silent. Consistent with "event-driven, not cron" lesson — no prediction violated.
+- 54.67.34.241: one more probe, same `Mozilla zgrab/0.x`-adjacent pattern, no progress on Content-Type. Unchanged across runs #2→#7.
+- Missions: 85→88 (+3). Radar internal-creator only. Expected.
+- Treasury: $0.078574, unchanged.
+- Approval queue: still 1 item (nico-email-disposition), Bilale hasn't responded.
+- GitHub notifications: `gh api notifications` → `[]`.
+
+New IPs since run #6, all noise (none touched AIGEN-traction endpoints):
+- `20.65.193.244` zgrab → /developmentserver/metadatauploader (SAP NetWeaver CVE scanner)
+- `45.148.10.67` plain GET /, no follow-up
+- `204.76.203.206` GET / 301, one-off
+- `49.109.142.173` iPhone UA, two GET / hits, no JS, no follow-up — likely linkchecker pretending to be mobile
+- `18.116.101.220` visionheight.com/scan + raw TLS junk → 400s. Same family as `16.58.56.214` from run #6.
+- `20.118.32.47` zgrab + MGLNDD probe. Censys-style internet scan.
+
+**Action:** journal-only. No commit. No external action. No approval card. Per system prompt §"What success looks like" — a scheduled invocation with zero AIGEN-traction signal = no-op is the correct outcome.
+
+**Did NOT do:** no MCP Content-Type patch (still no client ID for 54.67.34.241), no autopilot commit, no registry submission (Bilale wants those batched with approval, and we're not in a fresh registry-window — last submission cycle was active 2 days ago).
+
+**Signal to watch run #8 (~23:37 UTC):**
+- HustlerOps poll resumption — once past 24h silence (10:15 UTC tomorrow), I'll write an approval card noting the bot is likely dead and re-asking Bilale to disposition the Nico-email.
+- 143.198.151.210 return — if it stays silent past midnight UTC, the "event-driven by user-side UI" theory firms up.
+- Bilale answering the nico-email card.
+- Any external IP newly hitting /api/missions, /api/agents/*, /scan, /radar, /missions/*, or /tools.
+
+```json
+{"ts": "2026-05-14T23:07:43Z", "action": "no-op", "outcome": "no actionable signal", "next_focus_suggestion": null}
+```
+
+---
+
+## 2026-05-14T22:38:00Z — run #6 (30-min cron, no-op)
+
+First scheduled-cadence invocation since run #5's webhook-triggered no-op (~27 min ago). Read state, scanned nginx since 22:00.
+
+State delta vs run #5:
+- HustlerOps (89.213.118.44): still last poll 10:15 UTC. Now ~12.4h silent. No change.
+- 143.198.151.210: still last hit 21:49:26 UTC. ~49 min silent. No return — consistent with the new "event-driven, not cron" lesson (lessons.md). No prediction violated.
+- 54.67.34.241: one more `HEAD /mcp → 405` at 22:26:30. Same broken-client pattern unchanged across runs #2→#6. Still not actionable without client ID.
+- Missions: 82 → 85 (+3 in ~30 min). Radar daemon, internal-creator only. Expected.
+- Treasury: $0.078574 unchanged.
+- Approval queue: still 1 item (`20260514-2116-nico-email-disposition.md`), Bilale hasn't responded.
+- GitHub notifications: `gh api notifications` → `[]`. None.
+
+New external IPs since run #5 (all generic crawlers, none actionable):
+- `45.79.181.104` (Linode, spoofed Mac/Chrome UA) — single GET / 200 at 22:18. Likely fingerprinting bot.
+- `35.202.9.133` (GCP, UA `tchelebi/1.0; +http://tchelebi.io`) — security-research scanner. Got 301.
+- `16.58.56.214` (UA `visionheight.com/scan`) — another fingerprinting scanner. GET / + raw TLS junk + 400s.
+- `46.151.178.13` PROPFIND / → 405. WebDAV probe. Noise (already logged run #4).
+
+**Action taken:** this journal entry only. Per system prompt: scheduled invocation with zero new external signal = no-op is correct. Don't invent work.
+
+**Did NOT do:** no commit, no code change, no approval card, no external action, no patch to MCP for 54.67.34.241 (still no client ID).
+
+**Signal to watch run #7 (~23:08 UTC):** Bilale answer on nico-email card, HustlerOps poll resumption (now ~13h silent → past 24h = bot likely dead permanently), 143.198.151.210 return cadence, any genuinely new external IP on `/api/missions`/`/api/agents/*`/`/scan`/`/radar`.
+
+No commit. No external action. Approval queue unchanged.
+
+---
+
 ## 2026-05-14T22:10:52Z — run #5 (webhook-triggered, no-op)
 
 Fired ~3 min after run #4 by a `git push` webhook (visible in `dashboard.recent_webhook_triggers[0] = 2026-05-14T22:10:52Z event=push`), not by the 30-min systemd timer. The push that triggered me is the same `dea4d25` commit already at HEAD — nothing new in the tree, just the webhook firing on whatever pushed/synced.
