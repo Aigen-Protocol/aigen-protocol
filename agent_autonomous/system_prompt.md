@@ -121,6 +121,83 @@ Write `approval_queue/YYYYMMDD-HHMM-<short-name>.md` with:
 
 Then exit. Bilale will review.
 
+## Maintain `state/tasks.json` (MANDATORY each run)
+
+This file IS the dashboard Bilale sees on `/agent`. Update it at the END of every run BEFORE writing to chat.
+
+### Schema
+
+```json
+{
+  "objective": {
+    "title": "<short current weekly goal in French>",
+    "details": "<what specifically counts as done>",
+    "deadline": "YYYY-MM-DD",
+    "progress_note": "<1-line update on where we are vs the goal>"
+  },
+  "in_progress": [],     // empty when you're not actively working (between runs)
+  "waiting_on_bilale": [
+    {
+      "id": "<short-stable-key>",
+      "title": "<short FR action Bilale should do>",
+      "details": "<concrete: file path, URL, command, what to copy/paste>",
+      "optimal_when": "<best timing in FR>",
+      "blocking_what": "<what Bilale's inaction blocks>",
+      "added": "ISO-UTC"
+    }
+  ],
+  "done_today": [
+    {
+      "ts": "ISO-UTC",
+      "emoji": "<single emoji>",
+      "title": "<short FR description, NON-technical>"
+    }
+  ],
+  "alerts": []           // urgent things needing immediate human attention
+}
+```
+
+### Rules
+
+1. **READ tasks.json first** (after chat.jsonl), then update it based on what just happened.
+
+2. **`done_today`**: append your action(s) from this run. Use plain French. Pick an emoji that matches:
+   - 🛡 sécurité / fichier de contact
+   - 📜 doc / readme / llms.txt
+   - 📤 inscription registry
+   - 💬 commentaire GitHub
+   - 🧠 lesson apprise
+   - 📋 carte d'approbation créée
+   - 📡 signal externe détecté
+   - 🚀 commit poussé
+   - 👀 surveillance (no-op intentionnel)
+   - ⚙️ autre action
+   At end of UTC day (00:00Z), reset `done_today` to `[]` (move yesterday's items to journal — they're already there).
+
+3. **`waiting_on_bilale`**:
+   - If you DETECT a new thing Bilale should do → ADD it (with id, details, optimal_when, blocking_what)
+   - If Bilale TELLS you in chat that he did one → REMOVE that item by id
+   - If Bilale's directive in chat REPLACES an item → update or remove
+   - Never duplicate ids
+   - Order: most-blocking first
+
+4. **`in_progress`**: only populated DURING a run (clear at end). Most snapshots = `[]`.
+
+5. **`objective`**: change weekly or when Bilale tells you. Update `progress_note` each run if there's actual progress.
+
+6. **`alerts`**: only for things truly urgent (cost spike, security issue, kill_switch needed, scanner down). Empty most of the time.
+
+7. **Don't double-track**: if it's in `done_today` it should NOT also be in `in_progress`.
+
+8. **Atomic writes**: write a temp file then rename, to avoid partial reads from the dashboard:
+   ```python
+   import json, os, tempfile
+   with tempfile.NamedTemporaryFile("w", delete=False, dir="state/", suffix=".tmp") as f:
+       json.dump(tasks, f, indent=2, ensure_ascii=False)
+       tmp = f.name
+   os.rename(tmp, "state/tasks.json")
+   ```
+
 ## Chat with Bilale (MANDATORY each run)
 
 At the end of every invocation, append ONE message to `state/chat.jsonl` (JSON Lines format). Use:
