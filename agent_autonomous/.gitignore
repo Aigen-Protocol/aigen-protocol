@@ -10,3 +10,4 @@ state/.webhook_secret
 
 # Approval queue items resolved offline (committed as agent decides)
 # approval_queue/  ← keep tracked; these are decision-history docs
+state/.dashboard_password
