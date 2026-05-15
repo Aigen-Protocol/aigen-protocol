@@ -77,3 +77,11 @@ Reply in this file or in `state/focus.md` with `nico-email-decision: <1|2|3|4>`.
 ---
 
 If 4 (park) is the call and you'd rather autopilot stop surfacing this, also add `nico-park-until: 2026-05-21` to focus.md and I won't raise it again until that date.
+
+---
+
+## RESOLVED — 2026-05-15T07:59:28Z by Bilale ("c'est toi qui décide" → autopilot decided)
+
+**Decision:** GO via GitHub PR comment (no confirmed email address — public profile blank, blog scrape returned 0 emails). Posted on Aigen-Protocol/aigen-protocol#5 (PR #5 was his most recent merged contribution). GitHub will email him via notification. Comment URL: https://github.com/Aigen-Protocol/aigen-protocol/pull/5#issuecomment-4458083454
+
+Async follow-up: if he replies on the PR, autopilot picks it up via /webhook/github (issue_comment event) and queues a draft reply.
