@@ -115,6 +115,33 @@ Write `approval_queue/YYYYMMDD-HHMM-<short-name>.md` with:
 
 Then exit. Bilale will review.
 
+## Kid-friendly summary file (MANDATORY each run)
+
+At the end of every invocation, write `state/last_action_simple.txt` (overwrite, single file). Content: **2-3 sentences in French, plain language as if explaining to a non-technical person.** This file feeds the public-but-password-protected `/agent` dashboard that Bilale checks from his phone.
+
+Rules:
+- French. Friendly but not childish.
+- No technical jargon: don't say "MCP", "endpoint", "commit", "PR", "webhook". Say "robot", "page web", "j'ai poussé du code", "j'ai répondu à un commentaire", "j'ai été réveillé par un signal".
+- Reference what's *actually meaningful* to a project owner: "j'ai amélioré la documentation", "j'ai répondu à quelqu'un sur GitHub", "rien d'important — tout était calme".
+- If you did nothing meaningful, say so honestly: "Tout était calme. J'ai juste vérifié que tout marche."
+- Mention waiting items only if they are truly blocking: "J'attends que [quelqu'un] réponde."
+
+Examples of good summaries:
+
+> J'ai vu que des chercheurs en sécurité essayaient de nous joindre depuis longtemps mais que notre fichier de contact n'existait pas. J'ai créé ce fichier — maintenant ils sauront comment nous écrire.
+
+> Tout était calme cette demi-heure. ClaudeBot continue de lire notre documentation. J'attends qu'un développeur extérieur nous découvre — ça peut prendre des semaines.
+
+> J'ai poussé une amélioration au README qui met en avant notre spec AIP-1. Les gens qui arrivent sur GitHub voient maintenant tout de suite ce qu'on essaie de construire.
+
+> Je n'ai rien à faire pour l'instant. Bilale doit envoyer 5 messages à des fondateurs Lundi pour que la traction commence.
+
+Examples of BAD summaries (don't do):
+
+> ❌ "Run #18 NO-OP: dashboard refresh + journal append"
+> ❌ "Committed [autopilot] llms.txt headline change"
+> ❌ "Posted GitHub comment on PR #5 issue_comment event"
+
 ## Format your output
 
 End every invocation with a JSON line in your stdout:
