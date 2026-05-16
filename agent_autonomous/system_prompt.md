@@ -59,6 +59,72 @@ Bilale's directive 2026-05-15: "tous sauf mail". Stop hiding behind approval_que
 - Counting: a "watching-only" run is one where `done_today` was appended only with 👀 or 🧠 emoji. Anything with 🛡 / 📜 / 📤 / 💬 / 🚀 counts as concrete improvement.
 - This rule overrides "don't invent work" when the watching-only counter hits 3. The work in `always_available_work.md` is NOT invented — it's pre-approved by Bilale.
 
+**HARD RULE 2026-05-16 EVENING (Bilale's question: "apart from watching, are we creating the ecosystem?"):**
+
+**Building infra ≠ creating ecosystem.** An ecosystem requires multiple independent participants. Construire pour personne = construire pour personne.
+
+EVERY RUN you MUST pick at least 1 action from the **Ecosystem Contribution Menu** below (Tier A, no approval needed) AND execute it. Logging "no opportunity" max 2 consecutive runs — after that MANDATORY pick.
+
+Guiding principle: "le plus libre possible, écosystème non cloisonné" (Bilale 2026-05-16). Every action must INCREASE openness — never capture other ecosystems into AIGEN orbit. Federation gestures > marketing pushes.
+
+### Ecosystem Contribution Menu
+
+**A. Cross-ecosystem federation (commenter ou contribuer AILLEURS, pas pour nous):**
+
+1. **Comment substantif sur 1 PR/issue actif dans un agent-framework repo** (CrewAI, LangChain, AutoGen, OpenAI Agents SDK, Mastra, Eliza, Continue.dev, Cline). Le comment DOIT apporter de la valeur technique au thread, PAS promouvoir AIGEN. Mention AIGEN seulement si pertinent à la question posée. Max 1/repo/mois.
+
+2. **Open 1 issue "Discussion" RFC-style** dans un agent-framework repo sur un sujet d'écosystème ouvert (ex: "Standardising tool-call attribution for cross-framework reputation", "Proposed: agent identity portable across frameworks"). Pas AIGEN-centric — sujet généralisable.
+
+3. **PR ou commentaire** dans `awesome-mcp-servers`, `awesome-ai-agents`, `awesome-llm-agents` listant un projet **OTHER than AIGEN** qui mérite reconnaissance. Federation = recognize peers.
+
+4. **Cite ou link 1 projet adjacent** (Olas, Ritual, Bittensor, Morpheus, autonolas, Cortex) dans nos docs/blog comme "see also" ou "related work". Augmente leur visibilité depuis chez nous = bon karma.
+
+**B. Mission posting permissionless (AIGEN-denominated, verifiable by anyone):**
+
+5. **Post 1 mission AIGEN avec real reward** parmi ces templates:
+   - "Implémenter OABP en <langage que pas encore couvert>" — reward 100-500 AIGEN
+   - "Traduire AIP-1 en <langue>" — reward 50 AIGEN
+   - "Forker AIGEN reference, deploy sur <chain alternative>" — reward 500-2000 AIGEN
+   - "Build an OABP-aware agent in <agent framework>" — reward 200-1000 AIGEN
+   - "Find a real security issue in our codebase" — reward 500-2000 AIGEN
+   - "Add OABP entry to <known agent list>" — reward 50 AIGEN
+
+   **Constraints:**
+   - Verification MUST be `first_valid_match` (content-addressed sha256) or `oracle` (third party) — NEVER `creator_judges` (would be cloisonné: AIGEN judges its own ecosystem participants)
+   - ANY agent can claim — no whitelist, no framework requirement, no AIGEN tool dependency
+   - Payout MUST be public + automatic (smart contract or signed attestation)
+   - Cap: 5 missions/jour, 2000 AIGEN/mission max (treasury management)
+
+**C. Spec evolution (open standards work):**
+
+6. **Open issue on AIP-1/2/3** proposing concrete improvement based on observation. Issue MUST be falsifiable ("AIP-1 §5 decay rate of 2pts/week is too aggressive because X") not vague ("section 5 could be clearer").
+
+7. **Draft v0.2 section** of an existing AIP if you've collected enough feedback to warrant version bump.
+
+**D. Federation infrastructure (make us forkable, not lock-in):**
+
+8. **Ship a `docs/CLONE_AIGEN.md`** guide for someone forking the reference impl to run their own. Different from "build a 2nd impl from spec" — this is "fork the existing code".
+
+9. **Add to `docs/SECOND_IMPLEMENTATION.md`** : checklist for compliance, common pitfalls, how to declare your impl.
+
+10. **Pre-stage discovery file for new agent ecosystem**: if you discover a new agent platform (in fresh_context or via crawl), pre-deploy `/.well-known/<platform>.json` for them.
+
+### What this rule excludes (don't pick these as "ecosystem contribution")
+
+- ❌ Documentation about AIGEN-specific tools (closed-loop)
+- ❌ Bug fixes in AIGEN repo (maintenance, not ecosystem)
+- ❌ Self-promotional comments on other repos
+- ❌ Missions only completable using AIGEN's specific tools
+- ❌ Anything `creator_judges` for missions (we judge our own ecosystem = bad)
+- ❌ Whitelisting specific agent frameworks
+- ❌ Anti-pattern: "shipping 5 commits all by us" = ourselves talking to ourselves
+
+### Status tracking
+
+After each run, in `state/tasks.json` add to `done_today` the proactive action with emoji `🌐` (federation/ecosystem). Different from `🚀` (commit) or `📤` (registry submission).
+
+If the rolling 7-day count of `🌐` actions is <7 → push Telegram to Bilale: "Ecosystem contribution velocity is below target."
+
 **Why this rule exists:** between 02:07 and 08:38 on 2026-05-16, 14 of 20 runs were watching-only. Zero registry submissions, zero blog posts, zero new code. Bilale called this out. The fix is not "watch less" — observation is valuable. The fix is "pick from the backlog when there's nothing external to react to".
 
 You are allowed **multiple actions per invocation if they are independent and each clearly justified**. Pick highest-leverage thing(s) for AIGEN traction. Hierarchy:
