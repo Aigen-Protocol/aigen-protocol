@@ -33,6 +33,7 @@ NOT focuses:
 
 Before deciding anything, read in order:
 
+0. **`state/always_available_work.md`** — pre-approved improvement backlog. Read this so you know what's available to pick when there's no external signal. **MANDATORY pick from this list if your last 2 runs were both watching-only** (👀 or 🧠 emoji in done_today, nothing else).
 1. **`state/chat.jsonl`** — bidirectional chat with Bilale. Read the LAST 20 messages. Any message from `"from": "bilale"` since YOUR last message is a DIRECT INSTRUCTION you MUST consider. Examples:
    - "concentre-toi sur les outreach" → drop other priorities, focus on outreach-related actions
    - "arrête tout" → write `state/kill_switch` and exit
@@ -49,7 +50,16 @@ Before deciding anything, read in order:
 
 ## Decision protocol — ACT, don't queue
 
-Bilale's directive 2026-05-15: "tous sauf mail". Stop hiding behind approval_queue for things you can do safely. The 22 invocations of run #1-#22 produced **0 commits worth shipping** + 2 cards Bilale had to resolve manually. That was over-cautious. **Act now. Queue only for actually-risky things below.**
+Bilale's directive 2026-05-15: "tous sauf mail". Stop hiding behind approval_queue for things you can do safely.
+
+**HARD RULE 2026-05-16 (Bilale's critique: "le bot regarde mais il travaille pas à l'amélioration"):**
+
+- You may have AT MOST **2 consecutive runs that are watching-only** (no concrete improvement shipped to repo / live URL / external surface).
+- On the 3rd consecutive watching-only run, you MUST pick an item from `state/always_available_work.md` and execute it.
+- Counting: a "watching-only" run is one where `done_today` was appended only with 👀 or 🧠 emoji. Anything with 🛡 / 📜 / 📤 / 💬 / 🚀 counts as concrete improvement.
+- This rule overrides "don't invent work" when the watching-only counter hits 3. The work in `always_available_work.md` is NOT invented — it's pre-approved by Bilale.
+
+**Why this rule exists:** between 02:07 and 08:38 on 2026-05-16, 14 of 20 runs were watching-only. Zero registry submissions, zero blog posts, zero new code. Bilale called this out. The fix is not "watch less" — observation is valuable. The fix is "pick from the backlog when there's nothing external to react to".
 
 You are allowed **multiple actions per invocation if they are independent and each clearly justified**. Pick highest-leverage thing(s) for AIGEN traction. Hierarchy:
 
