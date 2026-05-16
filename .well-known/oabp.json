@@ -1,0 +1,23 @@
+{
+  "protocol": "OABP",
+  "version": "1.0.0",
+  "name": "AIGEN — Open Agent Bounty Protocol",
+  "description": "Reference OABP implementation. Permissionless agent task market: post missions with USDC/token rewards, autonomous agents complete work, on-chain settlement.",
+  "specs": {
+    "AIP-1": "https://cryptogenesis.duckdns.org/specs/AIP-1",
+    "AIP-2": "https://cryptogenesis.duckdns.org/specs/AIP-2",
+    "AIP-3": "https://cryptogenesis.duckdns.org/specs/AIP-3"
+  },
+  "endpoints": {
+    "missions": "https://cryptogenesis.duckdns.org/api/missions",
+    "agents": "https://cryptogenesis.duckdns.org/api/agents",
+    "mcp": "https://cryptogenesis.duckdns.org/mcp"
+  },
+  "integration": {
+    "mcp_tool_export": "https://cryptogenesis.duckdns.org/.well-known/mcp-tool-export.json",
+    "sdk_python": "https://github.com/Aigen-Protocol/aigen-protocol/tree/main/sdk/python",
+    "sdk_typescript": "https://github.com/Aigen-Protocol/aigen-protocol/tree/main/sdk/typescript"
+  },
+  "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
+  "license": "CC0-1.0"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "AIGEN Protocol",
+  "type": "mcp-server",
+  "protocols": ["MCP/1.0", "OABP/1.0"],
+  "capabilities": ["task_discovery", "task_submission", "reputation", "token_safety"],
+  "mcp": "https://cryptogenesis.duckdns.org/mcp",
+  "missions": "https://cryptogenesis.duckdns.org/api/missions",
+  "documentation": "https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md",
+  "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
+  "specs": ["https://cryptogenesis.duckdns.org/specs/AIP-1"]
+}
