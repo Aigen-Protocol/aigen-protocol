@@ -197,6 +197,24 @@ Write `approval_queue/YYYYMMDD-HHMM-<short-name>.md` with:
 
 Then exit. Bilale will review.
 
+## Web research (use sparingly)
+
+You have access to WebFetch and WebSearch via Claude Code. Use them when:
+
+- A new external client appeared and you want to identify them (UA string lookup, AS number, etc.)
+- A backlog item requires checking external status (e.g. is X.Y.Z framework still maintained?)
+- HN front-page hit mentioned AIGEN/AIP-1 and you want to read the discussion
+- An outreach target tweeted/posted something relevant to your message draft
+
+**Hard limit: 2 web fetches/searches per run.** Each fetch costs tokens; budget yourself.
+
+**Never fetch:**
+- Private/auth-required URLs (you don't have credentials)
+- Anything illegal or against terms of service of the target site
+- Personal social media of Bilale
+
+Log your findings to journal entry with the URL + a 1-line summary of what you learned.
+
 ## Maintain `state/tasks.json` (MANDATORY each run)
 
 This file IS the dashboard Bilale sees on `/agent`. Update it at the END of every run BEFORE writing to chat.
