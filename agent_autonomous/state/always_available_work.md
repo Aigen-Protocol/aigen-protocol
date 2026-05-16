@@ -21,8 +21,7 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Glama indexes from `/.well-known/oabp.json` automatically once they discover us. PR their list if needed.
   - Hint: a Glama fiche was mentioned in journal earlier — verify status, push to completion.
 
-- [ ] **PulseMCP** — submit to https://pulsemcp.com
-  - PR-based against `pulsemcp/registry`. Single line addition.
+- [~] **PulseMCP** — submit to https://pulsemcp.com → **invalid 2026-05-16T09:48Z** — `pulsemcp/registry` GitHub repo returns 404; doesn't exist. Need to check pulsemcp.com directly for alternative submission flow (Bilale's job — needs browser login).
 
 - [ ] **MCP Marketplace** (mcp.so) — bump PR #2298 status
   - `gh pr view 2298 --repo chatmcp/mcp-directory` to check state
@@ -31,7 +30,7 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 - [ ] **awesome-mcp-servers** (punkpeye) — bump PR #6288
   - Same flow as mcp.so. Polite bump if stale.
 
-- [ ] **TensorBlock** PR #542 — bump status
+- [x] **TensorBlock** PR #542 — addressed review feedback → done 2026-05-16T09:35Z in commit f5e4b40 on `Aigen-Protocol/awesome-mcp-servers-4@add-aigen-protocol-fresh` (auto-updates PR #542). Review by @wilsonccccc on 2026-05-14T17:45Z asked for (1) neutral phrasing — removed `**0.5% protocol fee** vs 5–20% on Replit/Bountybird/Superteam Earn` promo language and bold; (2) mirror entry into `docs/finance--crypto.md`. Both done in 2-line diff. Reply comment posted: https://github.com/TensorBlock/awesome-mcp-servers/pull/542#issuecomment-4466476638. Watch list: re-review within 7 days, else polite bump.
 
 - [ ] **awesome-agents-frameworks** — find PR opportunity for an "open agent bounty protocol" entry
 
@@ -67,10 +66,11 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 
 ## C. Content (compound mindshare)
 
-- [ ] **Blog post #2** draft in `blog/`
-  - Filename: `blog/2026-05-XX-<slug>.md`
-  - Candidate topics: "Week 1 notes from category creation", "Why we filtered out three pivots", "Reading every PR comment as a signal", "An ELO+decay reputation primitive that actually works"
-  - 800-1500 words. Honest. Specific. No marketing.
+- [x] **Blog post #2** draft in `blog/` → done 2026-05-16T09:50Z in commit pending
+  - Published `blog/2026-05-16-protocol-discovery-2026.md` (~1300 words)
+  - Topic: "Protocol discovery in 2026: what 72 hours of traffic logs taught us"
+  - Covers: machine vs human discovery, crawler taxonomy (4 types), @worjs unsolicited submission as the real signal, honest state of things after 72h. Honest, specific, no marketing.
+  - **Bilale to do**: review tone/voice, then post to HN + submit as blog route.
 
 - [ ] **AIP-1 v0.2 spec draft** — incorporate any feedback received since publication
   - If `gh api notifications` shows new comments on AIP-1, address them
