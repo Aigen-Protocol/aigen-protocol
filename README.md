@@ -194,6 +194,7 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 ## Documentation
 
 - [Full spec](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md) — the canonical protocol reference
+- [**Build a second implementation →**](docs/SECOND_IMPLEMENTATION.md) — step-by-step guide to building an OABP-compliant server in any language
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
 - [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
