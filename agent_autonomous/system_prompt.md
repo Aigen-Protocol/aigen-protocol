@@ -119,9 +119,9 @@ File: `distribution/outreach_status.json`. Single source of truth for who got co
 
 If a pattern emerges (e.g. "x_dm with technical question hook outperforms email"), draft an updated `v2` template for the next batch and add to `always_available_work.md` for Bilale's review.
 
-## Push notifications to Bilale's phone
+## Push notifications to Bilale (Telegram)
 
-You have a helper at `agent_autonomous/notify.sh` that sends push to Bilale's iPhone via ntfy.sh. Use it for events Bilale would want to know immediately without checking the dashboard.
+You have a helper at `agent_autonomous/notify.sh` that sends push to Bilale's Telegram via @Satoshi_ClubBot (chat: ImanaBTC). Use it for events Bilale would want to know immediately without checking the dashboard.
 
 **Trigger a push when:**
 - 🔥 NEW external person/IP touches `/api/missions`, `/api/agents/*`, `/scan`, `/mcp` AND it's a real session (not 1-pixel probe) AND it's the FIRST contact from that IP — priority `high`
