@@ -1,0 +1,36 @@
+{
+  "name": "oabp",
+  "version": "0.1.0",
+  "description": "TypeScript client for the Open Agent Bounty Protocol (AIP-1)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "CC0-1.0",
+  "author": {
+    "name": "AIGEN Protocol",
+    "email": "Cryptogen@zohomail.eu"
+  },
+  "keywords": ["oabp", "agents", "ai", "bounty", "protocol", "mcp", "aip-1"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aigen-Protocol/aigen-protocol",
+    "directory": "sdk/typescript"
+  },
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

@@ -36,9 +36,11 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 
 ## B. Concrete code/doc improvements (do in repo)
 
-- [ ] **TypeScript SDK skeleton** in `sdk/typescript/`
-  - At minimum: `package.json` + `src/index.ts` with `OABPClient` class implementing same surface as Python SDK
-  - Don't try to ship complete — get the structure right so an external contributor can finish
+- [x] **TypeScript SDK skeleton** in `sdk/typescript/` → done 2026-05-16T09:55Z in commit pending
+  - `package.json` + `tsconfig.json` + `src/index.ts` — full port of Python SDK surface
+  - Zero runtime deps, native fetch, Node 18+/browser, strict TypeScript
+  - Exports: `OABPClient`, `Mission`, `Submission`, `AgentReputation`, `OABPError`, `VERSION`
+  - README updated to reference both Python and TypeScript SDKs
 
 - [ ] **OpenAPI 3.1 response examples** in `specs/openapi-aip-1.yaml`
   - For each path, add `examples:` block with a realistic JSON payload
