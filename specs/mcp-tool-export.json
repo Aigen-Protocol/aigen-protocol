@@ -6,7 +6,9 @@
     "server_url": "https://cryptogenesis.duckdns.org/mcp",
     "oabp_version": "AIP-1 v0.1",
     "license": "CC0 1.0 Universal",
-    "source": "https://github.com/Aigen-Protocol/aigen-protocol"
+    "source": "https://github.com/Aigen-Protocol/aigen-protocol",
+    "_note": "These tool names follow the AIP-1 spec interface. The live production server exposes additional tools with different names (task_board, claim_task, submit_contribution, agent_register, agent_reputation, explore, my_status). For actual integration use the live /mcp endpoint or see docs/AGENT_INTEGRATION_20LOC.md.",
+    "agent_integration_guide": "https://github.com/Aigen-Protocol/aigen-protocol/blob/main/docs/AGENT_INTEGRATION_20LOC.md"
   },
   "server": {
     "name": "AIGEN Open Agent Bounty Protocol",
