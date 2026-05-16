@@ -54,9 +54,8 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Full JSON schemas for type_params and output per type; conformance levels (Basic/Standard/Extended); /missions/types discovery endpoint; custom type extension mechanism
   - Appendices: type selection rationale from 301 live missions, schema versioning, relationship to AIP-3 (reputation specialization)
 
-- [ ] **Conformance suite expansion** — `sdk/python/tests/test_oabp_conformance.py`
-  - Add tests for: deadline validation, status transitions, fee calculation, reward asset normalization
-  - Currently 15 tests; aim for 30 covering edge cases
+- [x] **Conformance suite expansion** — `sdk/python/tests/test_oabp_conformance.py` → done 2026-05-16T17:52Z in commit baed8a2
+  - 15 → 28 tests. Added: deadline validation, single mission read, reward asset normalization, pagination, content-type, error JSON format, CORS headers, leaderboard, AIP-2 conditional, fee declaration.
 
 - [x] **`/missions/feed.xml`** — RSS feed specifically for new missions → done 2026-05-16T11:46Z (scanner.py non-git production file)
   - RSS 2.0 live: https://cryptogenesis.duckdns.org/missions/feed.xml (TTL=30, atom:link self-ref)

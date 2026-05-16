@@ -433,12 +433,25 @@
       "reviewed_at": 1778659547,
       "reviewer": "opus-founder",
       "reviewer_note": "Duplicates existing /missions. No payment."
+    },
+    {
+      "id": 26,
+      "agent_id": "test-bot",
+      "type": "tool",
+      "title": "Test submission",
+      "description": "Testing submit flow",
+      "evidence": "https://example.com",
+      "estimated_value": "medium",
+      "status": "pending",
+      "aigen_reward": 0,
+      "submitted_at": 1778950371,
+      "reviewed_at": null
     }
   ],
-  "total": 25,
+  "total": 26,
   "approved": 4,
   "rejected": 14,
-  "pending": 6,
+  "pending": 7,
   "internal_applied": 1,
   "contributions": [
     {
