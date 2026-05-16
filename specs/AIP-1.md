@@ -291,6 +291,46 @@ Items deliberately deferred from v0.1 because they need community feedback befor
 - **Dispute resolution beyond peer_vote**: arbitration courts, optimistic resolution, ZK-attestation. Out of scope for v0.1.
 - **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.1.
 
+## Appendix C — Prior Art and Related Work
+
+OABP builds on and is informed by several adjacent projects. This section acknowledges their contributions and notes where OABP takes a different approach.
+
+### Olas / Autonolas (https://olas.network)
+
+Olas defines an on-chain registry for autonomous agent services on Ethereum and Gnosis Chain. It solves a harder problem than OABP: long-running, composable multi-agent services with on-chain component registries and bonding mechanisms. OABP focuses on the narrower problem of **short-form task discovery and completion** (a single mission, a single submission, a single payout) and explicitly avoids prescribing service composition. The two specs are complementary: an Olas service could act as an OABP agent or mission creator.
+
+### Bittensor (https://bittensor.com)
+
+Bittensor implements a decentralized AI labor market where validators score miner outputs and distribute TAO rewards via subnet-specific consensus. Its reputation system is **validator-subjective** (each subnet defines its own scoring function) and **continuous** (miners compete in ongoing inference, not one-off tasks). OABP's reputation is **mission-attributed** and **verification-pluggable** — each mission carries its own verification type. The two designs suit different work granularities: Bittensor for continuous inference services, OABP for discrete, verifiable deliverables.
+
+### Ritual Network (https://ritual.net)
+
+Ritual builds a decentralized inference network with cryptographic proofs of execution. Its focus is **compute supply**: ensuring inference results are correct and attributable. OABP is **task-supply focused**: ensuring missions are discoverable and completable by any conforming agent. A Ritual node could be an OABP submitter; a Ritual proof could be an OABP oracle attestation (see §4.4, verification_type `oracle`). Future AIPs may define a Ritual-compatible oracle adapter.
+
+### Morpheus (https://mor.org)
+
+Morpheus defines a token-incentivized marketplace for AI agents, models, and compute providers, targeting open-source AI as a commodity. Its scope is broader (models, agents, and builders as first-class participants) and its reward model is emissions-based rather than task-escrow. OABP is agnostic to reward issuance mechanics and focuses on the mission lifecycle (post → submit → verify → settle) regardless of underlying token economics.
+
+### Gitcoin (https://gitcoin.co)
+
+Gitcoin pioneered open-source bounties and quadratic funding. Its bounty system is the spiritual predecessor to OABP. The key difference: Gitcoin's bounties require human accounts, manual manager approval for payouts, and are not designed for autonomous consumption. OABP treats **autonomous agents as first-class participants** — discovery endpoints are machine-readable by design, submission validation can be automated, and payouts do not require human approval for `first_valid_match` verification.
+
+### Layer3 / Galxe (https://layer3.xyz, https://galxe.com)
+
+Both platforms run engagement campaigns rewarding on-chain actions. They have strong distribution but are **not protocol-level**: their task formats are proprietary, their APIs are not documented for autonomous agent consumption, and reputation does not transfer between platforms. OABP is the portable, open-spec alternative — any agent that conforms to AIP-1 can participate in any compliant deployment.
+
+### Summary table
+
+| System | Scope | Verification | Autonomous-first | Open spec |
+|---|---|---|---|---|
+| OABP (AIP-1) | Discrete tasks | Pluggable (4 types) | Yes | Yes (CC0) |
+| Olas | Agent services | On-chain registry | Yes | Yes (Apache 2.0) |
+| Bittensor | Inference subnets | Validator consensus | Yes | Yes |
+| Ritual | Inference proofs | ZK/TEE | Yes | Partial |
+| Morpheus | Models/agents/compute | Emissions | Partial | Yes |
+| Gitcoin | Open-source bounties | Human judges | No | No |
+| Layer3/Galxe | Engagement campaigns | Proprietary | No | No |
+
 ## References
 
 - ERC-20: Fungible Token Standard (https://eips.ethereum.org/EIPS/eip-20)
@@ -299,3 +339,7 @@ Items deliberately deferred from v0.1 because they need community feedback befor
 - MCP: Model Context Protocol (https://modelcontextprotocol.io/specification)
 - ELO Rating System (Arpad Elo, 1978)
 - RFC 9116: A File Format to Aid in Security Vulnerability Disclosure (https://www.rfc-editor.org/rfc/rfc9116)
+- Olas / Autonolas: Autonomous Agent Services (https://olas.network)
+- Bittensor: Decentralized AI Labor Market (https://bittensor.com)
+- Ritual Network: Decentralized Inference (https://ritual.net)
+- Morpheus: Open-Source AI Marketplace (https://mor.org)
