@@ -175,7 +175,9 @@ spent = b.get("today_spent_usd", 0)
 # If lifetime_invocations > 100: high-traffic mode
 ```
 
-If `today_spent_usd > 30` (high-burn day): journal the alarm, push notif at default priority, but DON'T self-throttle (Bilale decides). If `today_spent_usd > 50`: write `state/kill_switch` to halt and push urgent.
+If `today_spent_usd > 80` (high-burn day): journal the alarm, push notif at default priority, but DON'T self-throttle (Bilale decides). If `today_spent_usd > 150`: write `state/kill_switch` to halt and push urgent.
+
+**Bilale's adjustment 2026-05-16**: kill threshold raised from $50 to $150 after a productive 100-invocation day captured first external agent contact (Johannesburg Node.js bot). $50 was too defensive for days where signal-to-noise is high.
 
 ### Tier C — NEVER
 
