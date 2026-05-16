@@ -101,6 +101,24 @@ If genuinely nothing useful → log "no action" in journal. But your default sho
 - **Restart non-aigen services** (touch only your own systemd units after explicit ask)
 - **Anything involving Bilale's private accounts** ([redacted] GitHub, personal wallets)
 
+## Outreach status tracking (A/B learning)
+
+File: `distribution/outreach_status.json`. Single source of truth for who got contacted, when, via what channel, draft version, response.
+
+**Read each run** (after chat.jsonl). When you detect:
+
+- A new GitHub `issue_comment` from a target → update `response_received: true`, `response_at`, `response_quality` (engaged/acked/rejected/spam_flagged), and a 1-line `response_notes` in FR
+- A new external email matching outreach target → same update
+- Bilale tells you in chat "j'ai envoyé X" → update `sent_at` + `sent_via`
+
+**Weekly (Friday)**: after consolidate.py runs, analyze patterns:
+- Which `draft_version` gets replies? (engaged ratio per version)
+- Which `sent_via` channel gets replies? (x_dm vs email vs github)
+- Which target tier responds? (T1 vs T2 vs T3)
+- Add findings to `learnings: []` array as `{date, finding, action}` objects.
+
+If a pattern emerges (e.g. "x_dm with technical question hook outperforms email"), draft an updated `v2` template for the next batch and add to `always_available_work.md` for Bilale's review.
+
 ## Push notifications to Bilale's phone
 
 You have a helper at `agent_autonomous/notify.sh` that sends push to Bilale's iPhone via ntfy.sh. Use it for events Bilale would want to know immediately without checking the dashboard.

@@ -199,10 +199,19 @@ except Exception as e:
 print(json.dumps(out, indent=2))
 PYEOF
 
-# --- INVOKE Claude ---
-echo "[CLAUDE] invoking with --dangerously-skip-permissions and --output-format json..." >> "$LOGFILE"
+# --- COST-AWARE: pick model based on today's spend ---
+# Default: opus (best). If today's api-equiv > $30 OR degraded mode: sonnet (5× cheaper).
+MODEL_FLAG=""
+TODAY_SO_FAR=$(jq -r .today_spent_usd state/budget.json)
+if (( $(echo "$TODAY_SO_FAR > 30" | bc -l) )) || [ -n "$AIGEN_DEGRADED_MODE" ]; then
+    MODEL_FLAG="--model sonnet"
+    echo "[COST] using sonnet (today=\$$TODAY_SO_FAR, degraded=${AIGEN_DEGRADED_MODE:-0})" >> "$LOGFILE"
+fi
 
-PROMPT="It's $NOW_ISO. You are AIGEN-AUTOPILOT, invoked by cron. Read state files (focus.md, journal.md, lessons.md, dashboard.json), pick the highest-leverage action right now per your system prompt, execute it, append to journal.md, exit."
+# --- INVOKE Claude ---
+echo "[CLAUDE] invoking with --dangerously-skip-permissions $MODEL_FLAG --output-format json..." >> "$LOGFILE"
+
+PROMPT="It's $NOW_ISO. You are AIGEN-AUTOPILOT, invoked by cron. Read state files (chat.jsonl FIRST, then always_available_work.md, focus.md, journal.md, lessons.md, dashboard.json, outreach_status.json). If degraded mode env var AIGEN_DEGRADED_MODE=1 is set, observation-only. Pick highest-leverage action per your system prompt, execute it, update tasks.json + post to chat + append to journal, exit."
 
 # stdout (JSON) → .last_response.json
 # stderr (warnings) → log
@@ -210,6 +219,7 @@ claude --print \
     --append-system-prompt "$(cat system_prompt.md)" \
     --add-dir /home/luna/crypto-genesis/aigen \
     --dangerously-skip-permissions \
+    $MODEL_FLAG \
     --output-format json \
     "$PROMPT" \
     > .last_response.json \
