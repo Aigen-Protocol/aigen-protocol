@@ -1,0 +1,103 @@
+{
+  "_note": "Outreach status tracker — agent reads + updates after each batch. Used for A/B learning: which templates get replies.",
+  "_schema": {
+    "target_id": "string — matches outreach_drafts/<file>.md prefix",
+    "sent_at": "ISO UTC or null",
+    "sent_via": "x_dm | github_pr_comment | github_issue | email | null",
+    "draft_version": "v1 | v2 | ...",
+    "response_received": "true | false | null (still waiting)",
+    "response_at": "ISO UTC or null",
+    "response_quality": "engaged | acked | rejected | spam_flagged | null",
+    "response_notes": "what they said in short FR"
+  },
+  "targets": [
+    {
+      "target_id": "01_david_minarsch_olas",
+      "draft_path": "distribution/outreach_drafts/01_david_minarsch_olas.md",
+      "sent_at": null,
+      "sent_via": null,
+      "draft_version": "v1",
+      "response_received": null,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "target_id": "02_ritual_team",
+      "draft_path": "distribution/outreach_drafts/02_ritual_team.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "03_const_bittensor",
+      "draft_path": "distribution/outreach_drafts/03_const_bittensor.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "04_joao_moura_crewai",
+      "draft_path": "distribution/outreach_drafts/04_joao_moura_crewai.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "05_harrison_chase_langchain",
+      "draft_path": "distribution/outreach_drafts/05_harrison_chase_langchain.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "06_autogen_microsoft",
+      "draft_path": "distribution/outreach_drafts/06_autogen_microsoft.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "07_lilian_weng",
+      "draft_path": "distribution/outreach_drafts/07_lilian_weng.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "08_andrej_karpathy",
+      "draft_path": "distribution/outreach_drafts/08_andrej_karpathy.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "09_simon_willison",
+      "draft_path": "distribution/outreach_drafts/09_simon_willison.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "10_daren_matsuoka_a16z",
+      "draft_path": "distribution/outreach_drafts/10_daren_matsuoka_a16z.md",
+      "sent_at": null, "sent_via": null, "draft_version": "v1",
+      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
+    },
+    {
+      "target_id": "00_codex_chaoqiang",
+      "draft_path": "distribution/outreach_drafts/responses/00_codex_chaoqiang.md",
+      "sent_at": "2026-05-15T08:00:00Z",
+      "sent_via": "email",
+      "draft_version": "v1",
+      "response_received": null,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": "Sent by autopilot under Bilale's c'est toi qui décide directive 2026-05-15"
+    },
+    {
+      "target_id": "00_nico_pr5",
+      "draft_path": "github.com/Aigen-Protocol/aigen-protocol/pull/5#issuecomment-4458083454",
+      "sent_at": "2026-05-15T08:01:00Z",
+      "sent_via": "github_pr_comment",
+      "draft_version": "v1",
+      "response_received": null,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": "Reach via PR comment because no public email available"
+    }
+  ],
+  "learnings": []
+}
