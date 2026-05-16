@@ -121,6 +121,47 @@ try:
         out["recent_webhook_triggers"] = [l.strip() for l in lines[-5:]]
 except Exception:
     pass
+
+# Fresh context: pull a few high-leverage external snapshots (rate-limited)
+fresh = {}
+try:
+    # Our own GitHub repo: stars + open issues (cheap, single API call)
+    res = subprocess.run(["gh", "api", "repos/Aigen-Protocol/aigen-protocol",
+                          "--jq", "{stars: .stargazers_count, forks: .forks_count, open_issues: .open_issues_count, watchers: .subscribers_count}"],
+                         capture_output=True, text=True, timeout=8)
+    if res.returncode == 0:
+        fresh["repo_stats"] = json.loads(res.stdout)
+except Exception as e:
+    fresh["repo_stats_err"] = str(e)[:120]
+try:
+    # Recent commits to awesome-mcp-servers (signal: who's submitting today)
+    res = subprocess.run(["gh", "api", "repos/punkpeye/awesome-mcp-servers/commits",
+                          "--jq", "[.[0:5] | .[] | {sha: .sha[0:8], msg: .commit.message[0:80], when: .commit.author.date}]"],
+                         capture_output=True, text=True, timeout=8)
+    if res.returncode == 0:
+        fresh["awesome_mcp_recent"] = json.loads(res.stdout)
+except Exception as e:
+    fresh["awesome_mcp_err"] = str(e)[:120]
+try:
+    # HN top 30 stories — filter for agent / mcp / bounty keywords
+    r = urllib.request.urlopen("https://hacker-news.firebaseio.com/v0/topstories.json", timeout=6)
+    top_ids = json.loads(r.read())[:30]
+    hits = []
+    for sid in top_ids:
+        try:
+            rs = urllib.request.urlopen(f"https://hacker-news.firebaseio.com/v0/item/{sid}.json", timeout=4)
+            st = json.loads(rs.read())
+            title = (st.get("title", "") or "").lower()
+            if any(k in title for k in ["agent", "mcp", "anthropic", "bounty", "claude", "open ai", "openai", "model context"]):
+                hits.append({"id": sid, "title": st.get("title"), "score": st.get("score"),
+                             "url": st.get("url"), "comments": st.get("descendants", 0)})
+                if len(hits) >= 5: break
+        except Exception:
+            continue
+    fresh["hn_relevant"] = hits
+except Exception as e:
+    fresh["hn_err"] = str(e)[:120]
+out["fresh_context"] = fresh
 try:
     import imaplib, email as email_mod
     from email.header import decode_header
