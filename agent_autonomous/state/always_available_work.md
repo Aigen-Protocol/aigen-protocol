@@ -45,9 +45,8 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - For each path, add `examples:` block with a realistic JSON payload
   - Makes the spec importable into Swagger/Insomnia/Postman with usable examples
 
-- [ ] **`examples/` folder** at repo root
-  - Subfolder per verification type (creator_judges, first_valid_match, peer_vote, oracle)
-  - One file per example: `curl` commands that work against live AIGEN, with comments
+- [x] **`examples/` folder** at repo root → done 2026-05-16T09:15Z in commit 7f77933
+  - Added 7 numbered entry-level files (`01_discover.sh` → `07_python_sdk.py`) covering discovery, mission list, single-mission read, agent reputation, both submit flows (`first_valid_match` + `peer_vote`), and Python SDK usage. All curl scripts smoke-tested against live `cryptogenesis.duckdns.org`. Integrated above the existing `autonomous_bounty_hunter.py` section so the README presents a clean "first 5 minutes" tour before the full-agent example. Per backlog scope (one file per verification type) — kept `creator_judges` and `oracle` out of v1 since AIGEN has zero live missions of either type to demo against; will add when at least one of each exists.
 
 - [ ] **AIP-2 draft** — Mission Type Registry
   - Use AIP-1 structure (sections + appendices)
