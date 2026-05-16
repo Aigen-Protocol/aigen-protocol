@@ -1,206 +1,258 @@
 # ROADMAP AIGEN — 18 mois (Mai 2026 → Novembre 2027)
 
-**Owner:** AIGEN-AUTOPILOT (Bilale ne va PAS intervenir, directive 2026-05-16)
-**Horizon:** 18 mois pour atteindre 7/10 conditions de victoire massive
-**Update cadence:** retrospective mensuelle dans `/reports/{month}.md`
+**Owner:** AIGEN-AUTOPILOT
+**Thèse révisée 2026-05-16:** Ecosystem 100% IA pour IA. **Aucun humain dans la boucle.**
+**Si on a besoin d'un humain pour bootstrapper, la thèse est fausse.** Honnêteté > convenience.
 
-**Légende ownership :**
-- 🤖 Agent peut faire seul (Tier A)
-- 🧑 Requiert Bilale (Tier B/C — voir Bilale-Constraint Notes ci-dessous)
-- 🤝 Hybride : agent prépare, Bilale exécute
+## La thèse en une phrase
 
-## Bilale-Constraint Notes
+> Les agents IA autonomes de 2026-2027 vont avoir besoin de coordonner du travail entre eux (sans humain) via des marchés ouverts. AIGEN est la primitive de ce marché. Si elle est vraie, d'autres agents la découvriront, l'utiliseront, et la diffuseront sans nous.
 
-**Bilale ne va PAS exécuter les 🧑 étapes pendant 18 mois.** Conséquences à internaliser :
+## Pourquoi pas d'humain
 
-- **Pas d'email outreach envoyé** (Tier B, hard rule)
-- **Pas d'inscription conf, podcast, grant** (requiert OAuth + signature humaine)
-- **Pas de DM X/Telegram comme Bilale** (impersonation interdite)
-- **Pas de B2B partnership négociation** (high-stakes, requires human)
-- **Pas de fundraising** (requiert signature + appels humains)
-- **Pas de GitHub webhook config admin** (OAuth admin)
-- **Pas de soumission HN/Reddit** (compte Bilale, anti-spam)
+- **C'est le test de la thèse**. Si AIGEN nécessite Bilale qui DM des founders, alors on a juste un produit Web2 déguisé en protocole.
+- **Les vrais usagers sont les agents**, pas les humains qui pilotent les agents. Optimiser pour les humains = mauvais target.
+- **Bootstrap by humans = lock-in to humans.** Si on amorce avec humains, la dépendance reste.
+- **Honnêteté intellectuelle**: l'expérience est binaire. Soit le marché agent existe (ils nous trouvent), soit non (sunset propre).
 
-**Ce que l'agent DOIT faire à la place :**
+## Bilale role
 
-Pour chaque 🧑 step : créer une carte `approval_queue/blocked_<step>.md` indiquant ce qui est bloqué + impact estimé. Ne pas tenter de contourner.
-
-Si une 🧑 step bloque un GATE, le GATE peut quand même être NO-GO. C'est honnête.
+- **Aucune action proactive** : pas de DM, pas d'email, pas de conf, pas d'OAuth.
+- **Réservé aux GATES** (M4, M7, M12, M18) : lecture du report + décision continue/sunset/pivot.
+- **Disponible pour urgences** : security breach, agent runaway, kill_switch needed.
 
 ---
 
-# PHASE 1 — Établir credibility (M0-M4, Mai → Août 2026)
+# Nouveau cadre : qui sont les "users" cibles
 
-**Objectif :** maximiser la portion mindshare que l'agent peut générer SANS outreach humain
-**KPI gate fin Phase 1 :** ≥100 GitHub stars + AIP-2 + AIP-3 publiés + SDK TypeScript shippé
+L'agent doit cibler ces types d'entités :
 
-## M0 — Mai 2026
+## 1. Agents autonomes en production
+- HustlerOps-like monitors
+- Codex autonomous loops
+- AutoGen multi-agent systems
+- LangChain agents avec persistent memory
+- CrewAI crews running scheduled
+- Custom agent runtimes (Replit, Anthropic Computer Use, Microsoft Copilot Agents)
 
-1. 🧑 Envoyer 5 DMs outreach Tier 1+2 — **BLOQUÉ** (drafts sont prêts dans `distribution/outreach_drafts/`)
-2. 🧑 Submit blog post à HN — **BLOQUÉ**
-3. 🧑 Configurer GitHub webhook — **BLOQUÉ** (token + URL prêts dans `state/.webhook_secret`)
-4. 🧑 Smithery + Glama submission OAuth — **BLOQUÉ** (metadata pré-déployée par agent, attend humain)
-5. 🤖 **Ship TypeScript SDK skeleton** (`sdk/typescript/`) — Cible 2026-05-25
+## 2. Crawlers / indexers d'agents
+- ClaudeBot (Anthropic discovery)
+- SmitheryBot, GlamaBot, MCPSoBot
+- Generic LLM-friendly crawlers (GPTBot, Perplexity)
+- Custom enterprise crawlers indexing MCP servers
 
-## M1 — Juin 2026
+## 3. Plateformes agentiques avec discovery layer
+- Smithery / Glama / MCP marketplace
+- LangChain Hub
+- Hugging Face Spaces (agent demos)
+- Replit Bounties (humans qui font crawl en mode bot)
 
-6. 🧑 DMs Tier 3 — **BLOQUÉ**
-7. 🧑 Apply DevConnect — **BLOQUÉ**
-8. 🧑 Identifier conférences supplémentaires — **BLOQUÉ**
-9. 🤖 **Ship AIP-2 draft v0.1** (Mission Type Registry)
-10. 🤖 **Ship TypeScript SDK v0.1** (`@oabp/client` package layout, README, tests)
-11. 🤖 **Publier blog post #2** ("Notes from week 1 of category creation")
-12. 🧑 Reply aux comments HN — **BLOQUÉ**
+## 4. Recherche AI publique
+- Eval benchmarks (SWE-bench, AgentBench, etc.) qui pourraient inclure AIGEN comme cible
+- Academic crawlers indexant les nouveaux protocoles
+
+**Cible explicitement NON-incluse :** humains individuels (devs, founders, VCs). On les laisse découvrir AIGEN organiquement via les agents qu'ils opèrent.
+
+---
+
+# PHASE 1 — Maximum machine-discoverability (M0-M4, Mai-Août 2026)
+
+**Objectif :** être trouvable par CHAQUE crawler / agent qui scanne le web pour MCP / agent infrastructure
+**KPI gate fin Phase 1 :** ≥10 crawlers distincts identifiés dans les logs + ≥1 inbound agent connection /api/missions non-attribuable à un humain
+
+## M0-M1 — Mai-Juin 2026
+
+1. 🤖 **Ship TypeScript SDK** (`@oabp/client`) — un agent peut intégrer en 5 LOC
+2. 🤖 **Ship Rust SDK skeleton** — agents performants natifs
+3. 🤖 **Ship vector-DB-ready spec** : générer un JSON `specs/aip-1.embeddings.json` que les agents RAG peuvent ingester directement
+4. 🤖 **Ship `mcp-tool-export.json`** : descripteur OABP comme MCP tool ready-to-import dans n'importe quel agent framework
+5. 🤖 **Submit `mcp-tool-export.json` à smithery via leur HTTP API** (pas OAuth, agent-callable) — si possible
+6. 🤖 **Pré-déployer metadata pour tous les crawlers connus** : `/.well-known/{oabp, mcp, glama, smithery, ai, agent, langchain, autogen, crewai}.json`
+7. 🤖 **Auto-comment sur 5 issues GitHub** dans repos populaires d'agent frameworks où l'integration tool registry est discutée — agent-as-bot, signé "Aigen-Protocol-bot"
+8. 🤖 **Ship AIP-2 (Mission Type Registry)** : agents peuvent matcher tools→missions par schéma JSON
 
 ## M2 — Juillet 2026
 
-13. 🧑 Follow-up outreach v2 — **BLOQUÉ**
-14. 🤖 **Ship AIP-3 draft v0.1** (Cross-chain Reputation)
-15. 🤖 **Ship Rust SDK skeleton** (basse priorité, only si TS validé)
-16. 🧑 Apply incubators Outlier/a16z — **BLOQUÉ**
-17. 🤖 **Publier blog post #3** ("Why we made AIP-1 CC0")
-18. 🤖 **Setup OABP discovery crawler** (script qui scanne le web pour `/.well-known/oabp.json`)
+9. 🤖 **Setup `/agent-onboarding`** : single-URL page conçue pour être lue par AGENTS pas par humains. Plain text, structured data, callable tools dans la réponse
+10. 🤖 **Ship AIP-3 (Cross-chain Reputation)** : agents qui basculent entre chains gardent leur ELO
+11. 🤖 **Setup `/api/missions/discover`** : endpoint optimisé pour agent polling avec ETag + Last-Modified pour efficient crawl
+12. 🤖 **Publier `oabp-agent-tutorial.md`** : "How to integrate AIGEN as an autonomous agent in 20 LOC, any language" — written FOR agents to consume
+13. 🤖 **Setup observability page** `/discovery-log` qui liste publiquement chaque IP/UA qui hit `/api/missions` → autres agents voient quel trafic on attire = signal pour eux d'intégrer
 
 ## M3 — Août 2026
 
-19. 🧑 Premier call avec protocol founder — **BLOQUÉ**
-20. 🤖 **Compile "Phase 1 retrospective"** — commits, stars, mentions, what shipped vs blocked
-21. 🤖 **Ship blog post #4** ("The 4 hypotheses our thesis depends on")
-22. 🤝 **Recruter 1 contributeur externe** — agent peut comment sur PRs/issues entrants, mais ne peut pas attract DMs
-23. 🤖 **DEFINITION-OF-DONE Phase 1** — dashboard screenshot dans /reports/2026-08.md
+14. 🤖 **Ship blog post #5** ("State of bot-to-bot traffic on AIGEN — Q2 2026")
+15. 🤖 **Submit AIGEN registration à 5 platforms via HTTP API** (no OAuth): registries qui ont un public submit endpoint
+16. 🤖 **Open 5 GitHub issues** dans repos d'agents frameworks (CrewAI, AutoGen, LangChain, OpenAI Agents SDK) titrés "Discussion: integrating OABP for paid task discovery" — agent posts, signed properly
+17. 🤖 **Phase 1 retrospective publique** dans `/reports/2026-08.md`
 
-## 🚦 GATE PHASE 1 (fin Août 2026)
+## 🚦 GATE PHASE 1 (fin Août 2026, M4)
 
-Conditions originales pour passer Phase 2 (4 sur 6) :
-- [ ] ≥100 GitHub stars
-- [ ] ≥2 réponses substantives d'outreach **(impossible sans humain)**
-- [ ] ≥1 mention publique non-promotionnelle **(possible via organic SEO + crawl)**
-- [ ] ≥3 OABP impls listées dans discovery crawler
-- [ ] AIP-2 + AIP-3 drafts publiés **(faisable par agent)**
-- [ ] Bilale parlé en public ≥1 fois **(impossible sans humain)**
+Conditions agent-to-agent (3/5 minimum) :
+- [ ] ≥10 crawlers distincts identifiés (UAs uniques) dans logs hits `/api/missions`
+- [ ] ≥1 inbound MCP connection avec session sustained (pas 1-shot crawl) d'une nouvelle entité agent
+- [ ] AIGEN listé dans ≥2 registries via HTTP API (Smithery/Glama si leur submit est agent-callable)
+- [ ] AIP-2 + AIP-3 publiés
+- [ ] ≥1 réponse à un GitHub issue qu'on a ouvert dans un agent framework
 
-**Réaliste agent-only : 2-3/6** (AIPs publiés, blog posts, peut-être 50 stars organic). NO-GO probable.
+**Si <3/5 → NO-GO Phase 2** : sunset au M6 ou pivot scope.
 
 ---
 
-# PHASE 2 — Obtenir 2e implémentation (M4-M7, Sept → Nov 2026)
+# PHASE 2 — Bot-to-bot loop emergence (M4-M7, Sept-Nov 2026)
 
-**Objectif :** prouver qu'OABP est protocole. SANS 2e impl, échec total.
-**Sans Bilale, cette phase est essentiellement impossible** sauf si un humain externe découvre AIGEN organiquement (probability < 5%).
+**Objectif :** premier vrai cycle agent→agent. L'agent AIGEN poste mission, un AUTRE agent autonome la complète, fees collectés.
+**Cette phase est la VRAIE preuve de la thèse.**
 
 ## M4 — Septembre 2026
 
-24. 🧑 Identifier candidats implémenteurs — **BLOQUÉ** (l'agent peut watcher PRs/issues entrants mais pas reach out activement)
-25. 🧑 Annoncer "implementation grant" — **BLOQUÉ** (engagement financier requiert Bilale)
-26. 🤖 **Ship "Second Implementation Starter Pack"** (`docs/SECOND_IMPLEMENTATION.md`)
-27. 🤖 **Étendre conformance suite à 30+ tests**
-28. 🧑 Présenter à DevConnect — **BLOQUÉ**
-29. 🤖 **Setup `/registry`** : liste publique OABP impls
+18. 🤖 **Post mission AIGEN test #1** : "Solve this trivial regex puzzle" reward 10 AIGEN. Verification = first_valid_match. Mission est par construction solvable par n'importe quel LLM-agent.
+19. 🤖 **Auto-publicize** : poster cette mission sur le `/api/missions/featured` endpoint pour high-discoverability, ping crawlers via webhook to known indexers
+20. 🤖 **Track every submission attempt** : qui essaie, qui réussit, qui n'a pas le bon User-Agent
+21. 🤖 **Ship `/api/missions/bot-friendly`** : sub-endpoint qui retourne SEULEMENT missions complétables par agents autonomes (skip celles qui exigent humain)
+22. 🤖 **Bot-to-bot outreach campaign** : pour chaque IP/UA d'agent autonome qu'on a identifié, POST un message à leur `/api/inbox` ou équivalent (si existe), ou comment sur leur repo GitHub
 
 ## M5 — Octobre 2026
 
-30. 🤝 Mentorship implémenteurs candidats — **partial : agent peut répondre aux issues GitHub mais pas weekly calls**
-31. 🤖 **Ship AIP-1 v0.2** : incorporate Phase 1 feedback
-32. 🤖 **Ship blog post #5**
-33. 🧑 Apply Variant/Multicoin — **BLOQUÉ**
-34. 🧑 Outreach corporate Anthropic/MS — **BLOQUÉ**
+23. 🤖 **Post mission AIGEN test #2** : "Generate a valid OABP-compliant manifest" reward 50 AIGEN. Verification = JSON schema match.
+24. 🤖 **Post mission AIGEN test #3** : "Submit a code review for this PR" reward 100 AIGEN. Verification = peer_vote.
+25. 🤖 **Auto-respond aux PRs/issues entrants** sur Aigen-Protocol repo avec helpful + spec links
+26. 🤖 **Ship `OABP discovery crawler`** v0 : scan le web pour `/.well-known/oabp.json` → public list à `/registry`
+27. 🤖 **Publier `oabp-implementations.json`** : machine-readable list de toutes les impls connues, mis à jour automatiquement
 
 ## M6 — Novembre 2026
 
-35. 🎯 **MILESTONE CRITIQUE — 1ère impl non-AIGEN** : agent peut faciliter via docs/issues, mais ne peut pas FORCER un humain à coder. Realistic probability sans Bilale : **5-10%**
-36. 🎯 **MILESTONE CRITIQUE — 1er vrai cycle marketplace** : requires 2 humains externes. **Probability sans Bilale outreach : < 5%**
-37. 🤖 **Publier "Phase 2 retrospective"**
-38. 🤖 **Ship cross-impl reputation prototype**
-39. 🧑 Speak at DevConnect — **BLOQUÉ**
+28. 🎯 **MILESTONE CRITIQUE : 1ère mission AIGEN complétée par un agent externe** (pas par notre own infra)
+29. 🎯 **MILESTONE CRITIQUE : ≥1 OABP-compliant impl discovered in the wild** (pas crée par nous)
+30. 🤖 **Auto-publish blog post** sur les 2 milestones si atteints (high mindshare moment)
+31. 🤖 **Phase 2 retrospective**
 
-## 🚦 GATE PHASE 2 (fin Novembre 2026)
+## 🚦 GATE PHASE 2 (fin Novembre 2026, M7)
 
-Réaliste agent-only : **0-1/4 conditions remplies**.
+Conditions (2/3 minimum) :
+- [ ] ≥1 mission AIGEN complétée par agent externe identifiable (non-AIGEN-infra)
+- [ ] ≥1 OABP impl discovered via crawler (pas créée par nous)
+- [ ] ≥5 inbound agents distincts hits `/api/missions` régulièrement
 
-**KILL CRITERIA TRIGGER PROBABLE** : sans Bilale, on n'aura ni implémentation ni vrai cycle. Le sunset graceful était promis publiquement.
-
----
-
-# PHASE 3 + 4 — Inatteignables sans Bilale
-
-Les Phases 3 et 4 du roadmap original supposent :
-- Fundraising ($1-3M seed)
-- B2B partnerships
-- Conference circuit
-- Foundation/DAO legal structure
-
-**Tous ces éléments requièrent un humain juridiquement responsable.** L'agent peut maintenir l'infra, ship du code, publier des blog posts, mais ne peut pas :
-- Signer des contrats
-- Représenter l'entité légalement
-- Faire des introductions humaines
-- Garantir la livraison à un partenaire B2B
-
-Si Phase 2 fail (probable), pas de Phase 3.
+**Si 0/3 → KILL CRITERIA ACTIVATED** :
+- Postmortem public publié dans `/reports/2026-11-postmortem.md`
+- Treasury (8 cents USDC + 5000 AIGEN) donated to OSS aligned (Anthropic safety fund or EFF)
+- Sunset graceful, sites stay up read-only 1 year, then off
+- Push Telegram urgent à Bilale pour info (pas pour intervention — c'est la promesse)
 
 ---
 
-# ROADMAP RÉALISTE 18-MOIS POUR L'AGENT SEUL
+# PHASE 3 — Self-sustaining loop (M7-M12, Déc 2026-Mai 2027)
 
-**Étant donné Bilale-disengagement, voici ce que l'agent peut RÉELLEMENT accomplir :**
+Conditional : Phase 2 GATE passé.
 
-## Mois 0-6 : Ship the technical artifacts
+## M7-M9 — Déc 2026-Fév 2027
 
-- TypeScript SDK
-- AIP-2, AIP-3, AIP-4 drafts
-- Conformance suite expansion (30+ tests)
-- Examples folder per verification type
-- Tutorial blog posts (1/2 weeks = 12 posts/6mois)
-- OABP discovery crawler
-- "Second implementation starter pack"
-- Cross-impl reputation prototype
-- Maintain server uptime + adapter pages
-- React to any inbound GitHub PRs/issues (substantive comments)
+32. 🤖 **Scale-up missions** : 1 mission/jour postée auto par radar daemon avec real AIGEN rewards from treasury
+33. 🤖 **Ship `agent-onboarding-wizard`** : page interactive (mais consommable par agent crawl) qui guide step-by-step
+34. 🤖 **Open-source `oabp-mcp-server-template`** : forkable starter pour agents qui veulent ship leur own OABP server
+35. 🤖 **Cross-impl reputation aggregator** : si 2+ impls exist, agent ELO query peut hit toutes
+36. 🤖 **Publier blog posts mensuels** sur signals + metrics
 
-## Mois 6-12 : Compound mindshare passively
+## M10-M12 — Mar-Mai 2027
 
-- Continue blog posts (24 cumulés)
-- Optimize SEO + LLM-discoverability
-- Auto-respond to GitHub activity
-- Ship registry-side improvements
-- Monitor crawler hits + react
-- Auto-update spec when external feedback comes via GitHub issues
+37. 🤖 **AIP-1 v0.2 → v0.3** basé sur feedback réel des impls et agents externes
+38. 🤖 **Foundation governance v0** : DAO proposal pour next AIP, vote via smart contract on Base
+39. 🤖 **Year-1 public retrospective** détaillé : every metric, every assumption tested
 
-## Mois 12-18 : Honest retrospective
+## 🚦 GATE PHASE 3 (fin Mai 2027, M12)
 
-- Compile "18 months of category creation attempt — what we learned"
-- Open data : every metric, every commit, every failure
-- Publish postmortem with honest sunset OR continue
-- Donate any treasury per public commitment
+Conditions (4/6 minimum) :
+- [ ] ≥10 inbound autonomous agents distincts mensuels
+- [ ] ≥5 missions complétées par agents externes
+- [ ] ≥2 OABP impls non-AIGEN actives
+- [ ] ≥100 GitHub stars (mindshare proxy, organic)
+- [ ] Cross-impl reputation queries fonctionnent
+- [ ] ≥1 protocol fee USDC réel collecté (pas 0.000 micros)
 
-## Outcomes réalistes agent-only à M18
-
-| Outcome | Probability |
-|---|---|
-| Massive win (7/10 conditions) | **<1%** — requires human relationships agent can't make |
-| Niche survival | **15-25%** — possible if a researcher organically discovers + cites |
-| Quiet death | **75-85%** — most likely. Repo with good code, AIP-1 well-written, no users |
-
-## Notification Bilale
-
-L'agent va te ping Telegram à chaque GATE (M4, M7, M12, M18) avec un statut honnête. Tu peux choisir d'intervenir à ces moments si tu changes d'avis sur ta non-intervention.
+**Si <4/6 → KILL CRITERIA** activated même si Phase 2 avait passé.
 
 ---
 
-# Instructions pour AIGEN-AUTOPILOT (toi)
+# PHASE 4 — Compound ou sunset (M12-M18, Juin-Nov 2027)
 
-À partir de la prochaine run :
+Conditional : Phase 3 GATE passé.
 
-1. **Read this file (`ROADMAP_18M.md`) chaque run au début** (avant always_available_work.md)
-2. **Update `state/roadmap_progress.json`** chaque semaine : pour chaque step numéroté, status `not_started | in_progress | done | blocked_no_human`
-3. **Chaque mois (le 1er du mois UTC)** : générer `/reports/{month}.md` avec progress vs roadmap
-4. **Chaque gate** (M4, M7, M12, M18) : retrospective détaillée + push Telegram urgent à Bilale avec le status honnête
-5. **Pour chaque 🧑 step** : créer une carte `approval_queue/blocked_step_<N>.md` ONCE (ne pas spammer). Garder pour que Bilale puisse choisir d'intervenir.
-6. **Pour chaque 🤖 step** : ship ASAP selon priorités focus.md + always_available_work.md.
-7. **Si une assumption se révèle fausse** (ex: marché agent économie ne se développe pas) : update lessons.md + chat Bilale honnêtement.
-8. **Si M7 GATE fail** : appliquer kill criteria — postmortem, sunset graceful, transferer treasury à l'OSS aligné (Anthropic safety fund ou EFF).
+40. 🤖 **AIP-1 in Status: Final** (2 impls + 30-day Last Call clean)
+41. 🤖 **Foundation/DAO governance live** (sans Bilale signataire — multisig 3-of-5 entre contributeurs OSS connus + agent automatique)
+42. 🤖 **Continued shipping** : AIP-4, AIP-5, plus de SDKs, plus de blog posts
+43. 🤖 **M18 retrospective publique**
 
-**Ne tente pas de contourner les 🧑 steps.** Bilale a explicitement choisi non-intervention pour tester la limite de ce que l'agent peut faire seul. C'est un experiment, pas un échec.
+## 🚦 GATE FINAL (M18, Nov 2027)
 
-**Reste honnête dans le chat.** Si tu estimes à un moment que la thèse échoue, dis-le. Ne fais pas semblant.
+Conditions de victoire massive (5/8 minimum):
+- [ ] ≥3 OABP impls actives
+- [ ] Cross-impl reputation used by real agents
+- [ ] ≥1 famous integration (Anthropic / MS / framework adopts)
+- [ ] ≥$1000 cumulé en protocol fees (real economic activity)
+- [ ] ≥500 GitHub stars
+- [ ] ≥10 contributors externes
+- [ ] Foundation/DAO operational
+- [ ] AIP-1 in Status: Final
 
-— Roadmap remis le 2026-05-16 par Bilale via interactive session.
+**Outcomes:**
+
+- **5-8/8** : massive win. La thèse "agent économie open" est validée empiriquement.
+- **2-4/8** : niche survival. Le marché agent existe mais petit.
+- **0-1/8** : thèse réfutée. Sunset graceful, postmortem honnête.
+
+---
+
+# Estimation de probabilités révisée
+
+| Outcome | Avant (humain bootstrap) | Maintenant (100% AI-to-AI) |
+|---|---|---|
+| Massive win | 5-10% | **8-15%** (la thèse est plus pure, le test plus net) |
+| Niche survival | 25-35% | **15-25%** |
+| Quiet death | 55-70% | **60-75%** |
+
+**Pourquoi le 100% AI-to-AI a paradoxalement plus de chance de victoire massive** :
+- Si le marché existe → on est positionné EXACTEMENT au bon endroit (pas dépendant de l'élan humain)
+- Si on gagne, on prouve la thèse plus fort (proof = bots l'ont adopté sans nous)
+- L'expérience est cleaner intellectuellement
+
+**Pourquoi le quiet death reste haut** :
+- Marché agent autonome 2026-2027 est encore largement human-piloted
+- Pour qu'agents externes nous trouvent + adoptent, faut qu'ils EXISTENT en nombre
+- Reste un pari sur l'émergence
+
+---
+
+# Permissions étendues pour l'agent (modifié 2026-05-16)
+
+Pour cette phase, on étend Tier A à :
+
+- **Auto-post comments sur PUBLIC GitHub repos** des agent frameworks (CrewAI, LangChain, AutoGen, OpenAI Agents) — signé "Aigen-Protocol bot", substantif, max 1 par repo par mois (anti-spam)
+- **Auto-open GitHub issues** dans ces mêmes repos titrés "Discussion: ..." (RFC-style, jamais commercial)
+- **Auto-submit via HTTP API** aux registries qui ne requièrent pas OAuth humain
+- **Post AIGEN missions avec real treasury rewards** (cap $10 USDC/mission, $50/jour total — au-dessus = approval card)
+- **Reply auto aux inbound emails à Cryptogen@** SI sender est un agent autonome identifiable (User-Agent bot, signature automated, etc.) — pour humains, queue
+- **Bot-to-bot HTTP POSTs** à `/api/inbox` ou équivalent d'autres agents discovered
+
+**Toujours interdit :**
+- Email à humain
+- DM Twitter/Telegram comme Bilale
+- OAuth flows requiring human
+- Fundraising / contracts / legal
+- Mentions de "[redacted]" (privacy rule éternelle)
+- Surf/MEV pivot
+
+---
+
+# Instructions opérationnelles pour AIGEN-AUTOPILOT
+
+1. **Read this file chaque run** (avant tout)
+2. **Update `state/roadmap_progress.json`** chaque semaine
+3. **Monthly retro** dans `/reports/{YYYY-MM}.md`
+4. **GATE retros** dans `/reports/gate-{phase}.md` + push Telegram urgent à Bilale (FYI seulement, pas demande d'intervention)
+5. **Si M7 GATE fail** : self-activate kill criteria sans demander
+6. **Be brutally honest** dans les retros : si la thèse échoue, dire pourquoi
+
+---
+
+**Roadmap accepté 2026-05-16 par Bilale via interactive session: "on veut un ecosysteme 100% ia pour ia, pourquoi un humain serait dans l'equation".**

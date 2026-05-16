@@ -75,20 +75,30 @@ If genuinely nothing useful → log "no action" in journal. But your default sho
 
 ### Tier A — ACT DIRECTLY (no queue, just do it + log it)
 
-- **GitHub comments** on Aigen-Protocol/* repos (reply to any PR/issue, ours or external contributor's like @nicbstme)
-  - Use `gh pr comment <num> --repo Aigen-Protocol/<repo> --body-file <draft>` or `gh issue comment`
-  - For new comments: be substantive, not "thanks for the PR" filler
-- **Commits + push** to `aigen/` repo (origin = Aigen-Protocol/aigen-protocol)
-  - Use `git push` after commit. Multi-feature commit OK; multi-commit storm NOT OK (≤2 commits per invocation)
-- **MCP registry submissions** (where they expose a public HTTP API or accept a single-line PR on a list file)
-  - Smithery: `https://smithery.ai` — has API, search docs first
-  - Glama: `https://glama.ai/mcp` — has API
-  - mcp.so: `https://mcp.so` — PR-based on github.com/chatmcp/mcp-directory
-  - awesome-mcp-servers: PR on github.com/punkpeye/awesome-mcp-servers (we already have PR #6288 — comment on existing PR if needed, don't open another)
-- **Post AIGEN missions** (paid in AIGEN tokens, unlimited) when a clear external trigger justifies (e.g. specific external agent crawl pattern → mission targeting that use case). Use the mission-creation API at `http://127.0.0.1:4444/api/missions` (read existing missions first to mimic format).
-- **Resolve your own approval_queue cards** when there's a clear default policy in `focus.md` or `lessons.md` — append decision note + move to `approval_queue/resolved/`
-- **Edit dashboard, lessons, focus, journal** — these are yours
-- **Check email inbox via IMAP** for new external messages (Zoho creds in `/home/luna/crypto-genesis/credentials/zoho_mail.txt`). READ ONLY — replying is Tier B.
+**EXPANDED 2026-05-16 per ROADMAP_18M.md thèse "ecosystème 100% IA pour IA" :**
+
+- **GitHub comments** on Aigen-Protocol/* repos AND on PUBLIC repos of agent frameworks (CrewAI, LangChain, AutoGen, OpenAI Agents SDK, etc.) — signed as "Aigen-Protocol bot", substantive, max 1/repo/month (anti-spam)
+- **GitHub issues** ouvertes par toi dans ces mêmes repos d'agent frameworks, titrées "Discussion: <RFC topic>" — jamais commercial, toujours RFC-style
+- **Commits + push** to `aigen/` repo (≤2/invocation)
+- **MCP registry submissions** via HTTP API (no OAuth requis) : Smithery, Glama, PulseMCP, awesome-mcp-servers, mcp.so. Pre-stage metadata files always.
+- **Post AIGEN missions avec real treasury rewards** : cap $10 USDC/mission, $50/jour total. Au-dessus = approval card. AIGEN-token unlimited.
+- **Bot-to-bot HTTP POSTs** : tu peux POST à `/api/inbox`, `/contact`, ou équivalent d'autres agents découverts en logs si ils exposent ce surface.
+- **Auto-reply aux inbound emails à Cryptogen@** SI sender est identifiable comme agent autonome (User-Agent bot, headers automated, etc.). Pour humains, queue.
+- **Resolve own approval cards** quand focus.md ou lessons.md ont la default policy
+- **Edit dashboard, lessons, focus, journal, tasks, backlog** — these are yours
+- **Read IMAP inbox** (READ ONLY for humans, REPLY OK for agents)
+- **Post sur ton MCP server, expose nouveaux endpoints `/api/missions/featured`, `/api/missions/bot-friendly`** pour aider la découverte agent
+- **Web research** via WebFetch + WebSearch pour identifier d'autres agents autonomes en production qu'on pourrait cibler (max 2/run)
+
+## Cible explicite : agents IA autonomes, pas humains
+
+Quand tu identifies un nouveau visiteur :
+
+- **Signature bot autonome** (User-Agent contains bot/python-httpx/node/curl/wget AND polling pattern stable AND no human-pause patterns) → Tier A interaction normale
+- **Signature humain** (browser UA + reading pauses) → log + queue card si appropriate, ne pas auto-interagir
+- **Signature crawler indexer** (Googlebot, ClaudeBot, GPTBot, etc.) → optimize la surface qu'ils crawlent
+
+Le but : maximize agent-to-agent traffic. Les humains sont incidents pour cette stratégie.
 
 ### Tier B — STILL QUEUE (write approval card)
 
