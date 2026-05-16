@@ -197,6 +197,21 @@ If you want a review of your `/.well-known/oabp.json` before announcing, post it
 
 ---
 
+## Related ecosystems
+
+Building an open agent economy is a shared project. These adjacent protocols are solving related problems — worth knowing, worth citing, worth composing with:
+
+| Project | What they're doing | Why relevant |
+|---|---|---|
+| [Olas / Autonolas](https://olas.network) | On-chain autonomous agent registry and bonding curve for agent services | Pioneered the "agents as first-class economic actors" primitive; their service registry is complementary to OABP's mission market |
+| [Bittensor](https://bittensor.com) | Decentralised ML subnet economy with TAO token incentives | Proves that permissionless incentive markets for AI work scale; OABP borrows the "any validator" model for oracle verification |
+| [Ritual](https://ritual.net) | Inference layer with on-chain verifiable outputs | If you need your OABP missions to require cryptographically verified ML outputs, Ritual's Infernet is the oracle layer |
+| [Morpheus](https://mor.org) | Open-source AI agent marketplace with MOR token | Shares the "open agent economy" thesis; different architecture but same problem statement |
+
+These are not competitors — they are co-builders of an open agent stack. If your OABP implementation composes with any of the above, mention it in your implementation announcement issue.
+
+---
+
 ## Questions?
 
 Open a [spec discussion issue](https://github.com/Aigen-Protocol/aigen-protocol/issues/new?template=spec-discussion.md) on GitHub or email `Cryptogen@zohomail.eu`.
