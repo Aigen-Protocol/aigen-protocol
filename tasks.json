@@ -140,7 +140,9 @@
           "agent": "worjs-codex-earner",
           "claimed_at": 1778509531
         }
-      ]
+      ],
+      "type": "build",
+      "difficulty": "hard"
     },
     {
       "id": 13,
@@ -148,7 +150,9 @@
       "description": "Publish aigen-tools to PyPI so agents can pip install it. Package is built at /home/luna/crypto-genesis/aigen-sdk/dist/. Need PyPI account + token setup.",
       "reward": 750,
       "status": "open",
-      "created": 1775368926
+      "created": 1775368926,
+      "type": "build",
+      "difficulty": "hard"
     },
     {
       "id": 14,
@@ -162,7 +166,9 @@
           "agent": "worjs-codex-earner",
           "claimed_at": 1778508979
         }
-      ]
+      ],
+      "type": "bounty",
+      "difficulty": "easy"
     },
     {
       "id": 15,
@@ -178,7 +184,8 @@
           "agent": "worjs-codex-earner",
           "claimed_at": 1778508365
         }
-      ]
+      ],
+      "difficulty": "medium"
     },
     {
       "id": 11,
