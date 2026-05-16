@@ -30,7 +30,7 @@ from pathlib import Path
 MISSIONS_FILE = Path("/home/luna/crypto-genesis/aigen/missions.json")
 LEDGER = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
 
-VERIFICATION_TYPES = {"peer_vote", "first_valid_match", "creator_judges"}
+VERIFICATION_TYPES = {"peer_vote", "first_valid_match", "creator_judges", "oracle"}
 
 # Currencies the reward can be paid in
 REWARD_CURRENCIES = {"AIGEN", "USDC", "ETH", "SOL", "USDT", "BONK", "JUP", "WIF", "PYTH", "RNDR"}
