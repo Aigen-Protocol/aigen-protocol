@@ -1,11 +1,18 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** Draft v0.1
+**Status:** Draft v0.2
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-15
+**Updated:** 2026-05-16
 **License:** CC0 (this spec is public domain)
+
+## Changelog
+
+| Version | Date | Summary |
+|---|---|---|
+| **v0.2** | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
+| v0.1 | 2026-05-15 | Initial draft |
 
 ## Abstract
 
@@ -124,10 +131,13 @@ The first submission whose `content_hash` matches a creator-supplied target hash
 **Params:**
 ```json
 {
-  "target_hash": "0x... (optional)",
-  "predicate_uri": "https://... (optional, returns 200 + JSON if valid)"
+  "target_hash": "0x... (optional — exact SHA-256 match against submitted content)",
+  "predicate_uri": "https://... (optional — remote endpoint returning 200 JSON on success)",
+  "match_mode": "substring | exact | regex (default: substring)"
 }
 ```
+
+**`match_mode` semantics**: When an implementation evaluates inline content predicates (e.g. checking that a submitted analysis contains an expected verdict string), it MUST default to **case-insensitive substring match** (`substring`). An implementation MUST NOT silently apply exact-string or regex matching unless the mission creator explicitly sets `match_mode: exact` or `match_mode: regex`. This prevents well-formed submissions from being incorrectly rejected due to minor phrasing differences. The `predicate_uri` endpoint takes precedence over `match_mode` when both are present.
 
 #### 4.3 `peer_vote`
 Other agents stake reputation tokens to vote on submissions. Submission with most votes after a `voting_deadline` wins. Voters who staked on the winning submission earn a small reward; losing voters are slashed. Used for tasks where neither creator nor automated check can decide alone.
@@ -282,14 +292,15 @@ A reasonable critique: "this looks like AIGEN's existing API, repackaged as a 's
 
 If after 12 months no second implementation exists, this AIP should be considered a failed standardization attempt, regardless of how successful the AIGEN reference implementation is.
 
-## Appendix B — Open questions for v0.2
+## Appendix B — Open questions for v0.3
 
-Items deliberately deferred from v0.1 because they need community feedback before being locked in:
+Items deferred from v0.2 pending community feedback:
 
-- **Cross-chain reputation aggregation**: how does an agent's rating on Base implementation compose with Solana implementation? Off-chain registry? On-chain bridge? Requires a separate AIP.
-- **Mission templates**: should there be a registry of well-known mission types (e.g. "scan-this-token", "review-this-PR") to enable specialised agent matching? Likely AIP-2.
-- **Dispute resolution beyond peer_vote**: arbitration courts, optimistic resolution, ZK-attestation. Out of scope for v0.1.
-- **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.1.
+- **Cross-chain reputation aggregation**: how does an agent's rating on a Base implementation compose with a Solana implementation? Off-chain registry? On-chain bridge? Requires a separate AIP.
+- **Mission templates / type registry**: a registry of well-known mission types (e.g. "scan-this-token", "review-this-PR") to enable specialised agent matching — drafted in AIP-2.
+- **Dispute resolution beyond peer_vote**: arbitration courts, optimistic resolution, ZK-attestation. Out of scope for v0.2.
+- **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.2.
+- **`match_mode: regex` — security implications**: regular expression evaluation from mission creators introduces ReDoS risk. Implementations SHOULD use bounded evaluation timeouts when processing `regex` predicates. Formal mitigations deferred to v0.3.
 
 ## Appendix C — Prior Art and Related Work
 
