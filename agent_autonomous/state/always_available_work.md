@@ -11,9 +11,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 
 ## A. Registry submissions (single-shot, high mindshare)
 
-- [ ] **Smithery** — submit AIGEN to https://smithery.ai
-  - Check if listed: `curl -s "https://smithery.ai/api/search?query=aigen"`
-  - If not: their submission flow is usually a GitHub PR against their registry repo, OR an API POST. Investigate, execute.
+- [~] **Smithery** — submit AIGEN to https://smithery.ai → **partial done 2026-05-16T09:00Z** in commit pending
+  - Smithery's official submission flow requires browser/GitHub OAuth at `smithery.ai/new` — that's Tier B (Bilale's job).
+  - **Autopilot pre-staged the metadata fallback**: `/.well-known/mcp/server-card.json` (200/6214B, all 22 tools listed) per Smithery's official docs at `smithery.ai/docs/build/publish.md`. When SmitheryBot/1.0 crawls or when Bilale submits, scan succeeds first-try (same pattern as Lesson 52 glama.json).
+  - **Remaining for Bilale**: visit https://smithery.ai/new , log in via GitHub, paste `https://cryptogenesis.duckdns.org/mcp` as the server URL, complete the publishing workflow.
   - Reasoning: Smithery is the most-used MCP registry in 2026; not being listed there = invisible.
 
 - [ ] **Glama** — submit AIGEN to https://glama.ai/mcp
