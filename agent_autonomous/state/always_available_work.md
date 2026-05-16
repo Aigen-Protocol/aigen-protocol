@@ -42,29 +42,30 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Exports: `OABPClient`, `Mission`, `Submission`, `AgentReputation`, `OABPError`, `VERSION`
   - README updated to reference both Python and TypeScript SDKs
 
-- [ ] **OpenAPI 3.1 response examples** in `specs/openapi-aip-1.yaml`
-  - For each path, add `examples:` block with a realistic JSON payload
-  - Makes the spec importable into Swagger/Insomnia/Postman with usable examples
+- [x] **OpenAPI 3.1 response examples** in `specs/openapi-aip-1.yaml` → done 2026-05-16T10:00Z in commit 9a4f301
+  - Added `examples:` blocks to all 6 JSON endpoints + submitSolution requestBody; live API data used
+  - Spec now importable into Swagger/Insomnia/Postman with real payloads out of the box
 
 - [x] **`examples/` folder** at repo root → done 2026-05-16T09:15Z in commit 7f77933
   - Added 7 numbered entry-level files (`01_discover.sh` → `07_python_sdk.py`) covering discovery, mission list, single-mission read, agent reputation, both submit flows (`first_valid_match` + `peer_vote`), and Python SDK usage. All curl scripts smoke-tested against live `cryptogenesis.duckdns.org`. Integrated above the existing `autonomous_bounty_hunter.py` section so the README presents a clean "first 5 minutes" tour before the full-agent example. Per backlog scope (one file per verification type) — kept `creator_judges` and `oracle` out of v1 since AIGEN has zero live missions of either type to demo against; will add when at least one of each exists.
 
-- [ ] **AIP-2 draft** — Mission Type Registry
-  - Use AIP-1 structure (sections + appendices)
-  - Define well-known mission categories (token-scan, code-review, doc-write, test-create, etc.)
-  - Each category has a JSON schema for its expected fields
+- [x] **AIP-2 draft** — Mission Type Registry → done 2026-05-16T10:30Z in commit c113497
+  - 8 canonical types: code_review, token_scan, doc_write, test_create, data_label, translation, research, freeform
+  - Full JSON schemas for type_params and output per type; conformance levels (Basic/Standard/Extended); /missions/types discovery endpoint; custom type extension mechanism
+  - Appendices: type selection rationale from 301 live missions, schema versioning, relationship to AIP-3 (reputation specialization)
 
 - [ ] **Conformance suite expansion** — `sdk/python/tests/test_oabp_conformance.py`
   - Add tests for: deadline validation, status transitions, fee calculation, reward asset normalization
   - Currently 15 tests; aim for 30 covering edge cases
 
-- [ ] **`/missions/feed.xml`** — RSS feed specifically for new missions
-  - Easy plug into Feedly, Inoreader for agents that want to poll
-  - Auto-generate from missions table
+- [x] **`/missions/feed.xml`** — RSS feed specifically for new missions → done 2026-05-16T11:46Z (scanner.py non-git production file)
+  - RSS 2.0 live: https://cryptogenesis.duckdns.org/missions/feed.xml (TTL=30, atom:link self-ref)
+  - Agents/readers can subscribe to discover new missions without human orchestration
 
-- [ ] **Tutorial: "Implement AIP-1 in 60 minutes"** as new blog post
-  - Walk through building a minimal OABP-compliant server in any language
-  - The clearest path to "second implementation exists"
+- [x] **Tutorial: "Implement AIP-1 in 60 minutes"** as new blog post → done 2026-05-16T11:47Z in commit pending
+  - Walk through building a minimal OABP-compliant server in Node.js (Express), all 7 steps
+  - File: `blog/2026-05-16-implement-aip1-60-minutes.md` — ends with "open an implementation announcement issue" CTA
+  - Triggered by South Africa Node.js client (11:42Z) who completed a real MCP session
 
 ## C. Content (compound mindshare)
 
@@ -88,11 +89,11 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Add to `distribution/outreach_targets_2026_06.md` (next month's batch)
   - Tier 1+2+3 structure as before
 
-- [ ] **GitHub issue templates** in `.github/ISSUE_TEMPLATE/`
-  - Spec discussion template, bug template, implementation announcement template
-  - Lowers friction for outsiders to contribute
+- [x] **GitHub issue templates** in `.github/ISSUE_TEMPLATE/` → done 2026-05-16T10:20Z in commit b6ccf57
+  - Created 3 templates: `spec-discussion.md`, `bug-report.md`, `implementation-announcement.md`
+  - Lowers friction for outsiders to contribute (KPI: ≥5 external spec issues by 2026-08-15)
 
-- [ ] **Anti-FUD doc**: pre-emptive answers to predictable critiques
+- [x] **Anti-FUD doc**: pre-emptive answers to predictable critiques → done 2026-05-16T10:45Z in commit c777c5a
   - "Why CC0 not MIT", "Why ELO not stake-weighted", "Why permissionless instead of curated"
   - Lives in `docs/FAQ.md`. Lets you respond to critique with a link instead of writing fresh each time.
 
@@ -105,8 +106,8 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - If Codex researcher replies, what do we send? Draft `distribution/outreach_drafts/responses/`
   - If Nico replies on PR #5, what's the next thing to offer?
 
-- [ ] **A "second implementation starter pack"** in `docs/SECOND_IMPLEMENTATION.md`
-  - For someone forking AIP-1 to build their own. Bullet list of must-haves, common pitfalls, how to claim the badge.
+- [x] **A "second implementation starter pack"** in `docs/SECOND_IMPLEMENTATION.md` → done 2026-05-16T10:25Z in commit b571830
+  - For someone forking AIP-1 to build their own. 4 mandatory endpoints, full schemas, verification types ordered by complexity, conformance test instructions, 6 common pitfalls, announcement flow. README updated with prominent link above the SDK entries.
 
 ---
 
