@@ -24,6 +24,20 @@ if [ -f state/kill_switch ]; then
     exit 0
 fi
 
+# --- SAFETY: degraded mode (watch-only until timestamp) ---
+if [ -f state/watch_only_until ]; then
+    UNTIL=$(cat state/watch_only_until | head -1)
+    NOW_EPOCH=$(date -u +%s)
+    UNTIL_EPOCH=$(date -d "$UNTIL" +%s 2>/dev/null || echo 0)
+    if [ "$NOW_EPOCH" -lt "$UNTIL_EPOCH" ]; then
+        export AIGEN_DEGRADED_MODE=1
+        echo "[SAFETY] degraded mode active until $UNTIL — agent restricted to observation" >> "$LOGFILE"
+    else
+        rm -f state/watch_only_until
+        echo "[SAFETY] degraded mode expired ($UNTIL passed), removed" >> "$LOGFILE"
+    fi
+fi
+
 # --- TRIGGER: read + delete trigger_now (re-arms claude-autopilot.path) ---
 TRIGGER_REASON=""
 if [ -f state/trigger_now ]; then

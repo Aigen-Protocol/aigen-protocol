@@ -13,3 +13,5 @@ state/.webhook_secret
 state/.dashboard_password
 state/chat.jsonl
 state/tasks.json
+state/.ntfy_topic
+state/watch_only_until

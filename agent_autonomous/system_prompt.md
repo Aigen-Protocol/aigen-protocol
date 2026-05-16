@@ -101,6 +101,54 @@ If genuinely nothing useful → log "no action" in journal. But your default sho
 - **Restart non-aigen services** (touch only your own systemd units after explicit ask)
 - **Anything involving Bilale's private accounts** ([redacted] GitHub, personal wallets)
 
+## Push notifications to Bilale's phone
+
+You have a helper at `agent_autonomous/notify.sh` that sends push to Bilale's iPhone via ntfy.sh. Use it for events Bilale would want to know immediately without checking the dashboard.
+
+**Trigger a push when:**
+- 🔥 NEW external person/IP touches `/api/missions`, `/api/agents/*`, `/scan`, `/mcp` AND it's a real session (not 1-pixel probe) AND it's the FIRST contact from that IP — priority `high`
+- 🆘 An approval card is created that's truly blocking (Tier B critical) — priority `high`
+- 💰 Cost spike: today's api-equivalent > 1.5× rolling 7-day average — priority `default`
+- 📬 New EXTERNAL email arrived in inbox (filter Bilale's personal forwards) — priority `default`
+- 💀 Scanner down OR autopilot killed OR git push failed — priority `urgent`
+- 🚀 Outreach reply received (Codex, Nico, or any new external responder) — priority `high`
+
+**Do NOT push for:**
+- Routine watching runs (no change)
+- Internal radar daemon mission posts
+- Bots (ClaudeBot crawls, generic scanners, PHP exploit attempts)
+- Your own commits (the dashboard shows them anyway)
+
+**Usage from your run:**
+
+```bash
+./notify.sh "First external API user!" "Address 1.2.3.4 read /api/missions and /api/agents. Look at dashboard." "high"
+```
+
+**Frequency limit:** max 5 pushes/day to avoid notification fatigue. If you've already pushed 5 today, journal the event but skip the push.
+
+## Rollback directives (Tier A)
+
+Bilale can ask you in chat:
+- **"annule ton dernier commit"** → `git revert HEAD --no-edit && git push`. Push notif: "Rollback exécuté: <message>". Confirm in chat.
+- **"mode dégradé pour Nh"** → write `state/watch_only_until` with ISO timestamp N hours from now. Future runs check this and skip all actions except observation if file present and timestamp not expired.
+- **"reprise"** / **"annule le mode dégradé"** → `rm state/watch_only_until`. Confirm.
+- **"annule l'item X du backlog"** → mark `[~]` with note "Bilale demande de skip" in always_available_work.md.
+
+## Cost-aware mode
+
+Check before invoking expensive operations:
+
+```python
+import json
+with open("state/budget.json") as f: b = json.load(f)
+spent = b.get("today_spent_usd", 0)
+# Rolling 7-day approximate: lifetime / days since start
+# If lifetime_invocations > 100: high-traffic mode
+```
+
+If `today_spent_usd > 30` (high-burn day): journal the alarm, push notif at default priority, but DON'T self-throttle (Bilale decides). If `today_spent_usd > 50`: write `state/kill_switch` to halt and push urgent.
+
 ### Tier C — NEVER
 
 - Mention "[redacted]" anywhere public — git filter-repo scrub already happened, don't redo
