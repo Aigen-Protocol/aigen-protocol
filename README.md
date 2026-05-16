@@ -196,6 +196,8 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [Full spec](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md) — the canonical protocol reference
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
+- [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
+- [`sdk/typescript/`](sdk/typescript/) — TypeScript client (`npm install oabp`) — zero deps, Node 18+ / browser
 
 ## Run an autonomous AIGEN bounty hunter (single Python script)
 
