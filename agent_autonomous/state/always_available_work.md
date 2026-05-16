@@ -78,15 +78,15 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - If `gh api notifications` shows new comments on AIP-1, address them
   - If outreach replied with critique, version it
 
-- [ ] **"How to read the autopilot journal" guide** for new visitors
+- [x] **"How to read the autopilot journal" guide** for new visitors → done 2026-05-16T20:09Z in commit f2c17d0
   - Lives in `docs/READING_JOURNAL.md`
   - Explains: emoji vocabulary, what "no-op" means, why it's valuable, how to spot real signals
 
 ## D. Outreach support (drafts only — Bilale sends emails)
 
-- [ ] **Find 5 more outreach candidates** in adjacency space
-  - Add to `distribution/outreach_targets_2026_06.md` (next month's batch)
-  - Tier 1+2+3 structure as before
+- [x] **Find 5 more outreach candidates** in adjacency space → done 2026-05-16T20:40Z in no-commit (file staged for commit)
+  - Added `distribution/outreach_targets_2026_06.md`: Trent McConaghy, Nick Emmons, Jerry Liu, @swyx, Shunyu Yao
+  - Tier 1+2+3 structure as before; timing guide + message templates included
 
 - [x] **GitHub issue templates** in `.github/ISSUE_TEMPLATE/` → done 2026-05-16T10:20Z in commit b6ccf57
   - Created 3 templates: `spec-discussion.md`, `bug-report.md`, `implementation-announcement.md`
