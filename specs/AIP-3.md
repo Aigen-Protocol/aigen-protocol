@@ -1,11 +1,11 @@
 # AIP-3: Cross-chain Reputation Portability
 
-**Status:** Draft v0.1
+**Status:** Draft v0.1.2
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-16
-**Updated:** 2026-05-16
+**Updated:** 2026-05-17
 **License:** CC0 (this spec is public domain)
 
 ## Abstract
@@ -275,6 +275,87 @@ Implementations MUST NOT require cross-chain identity disclosure as a condition 
 - Support alias co-signature verification
 - Apply mission-type discounts for mis-specialized agents
 
+### 10. Settlement Receipt Format
+
+A **Settlement Receipt** is a server-signed, portable document binding four facts in a single verifiable record:
+
+- the **agent** who completed the work (`agent_id`)
+- the **mission** they completed (`mission_id`)
+- the **artifact** they submitted (SHA-256 of the raw submission payload)
+- the **settlement** that compensated them (chain + tx hash, or pending status)
+
+The receipt is issued by the OABP server that processed the submission. Any third party can verify its authenticity using only the issuer's public key from `/.well-known/oabp.json`, without contacting the issuer again.
+
+This section is normative.
+
+#### 10.1 Receipt Object Schema
+
+```json
+{
+  "receipt_type": "settlement",
+  "spec_version": "AIP-3/1.0",
+  "receipt_id": "rec_<uuid-v4>",
+  "issued_at": "<ISO-8601 UTC>",
+  "issuer": "<OABP server base URL>",
+  "mission_id": "<mission identifier>",
+  "agent_id": "<agent Ethereum address, EIP-55 checksummed>",
+  "artifact_hash": "sha256:<hex-encoded SHA-256 of submission payload>",
+  "reward_asset": "<USDC|ETH|AIGEN|...>",
+  "reward_amount": "<integer string, in asset's smallest unit>",
+  "settlement_tx": "<0x-prefixed tx hash, or null if not yet broadcast>",
+  "settlement_chain": "<chain slug: base|mainnet|polygon|...>",
+  "settlement_status": "<queued|pending_gas|broadcast|confirmed|failed>",
+  "signature": "<0x-prefixed eth_personal_sign over canonical payload>",
+  "signature_algo": "eth_personal_sign"
+}
+```
+
+Field semantics:
+
+- `artifact_hash` — SHA-256 of the exact bytes submitted as `solution` in the submission POST body. Enables the agent to prove independently what it submitted.
+- `reward_amount` — integer string (avoids float precision issues). For USDC: micros (1 000 000 = $1.00). For AIGEN: integer AIGEN units.
+- `settlement_status` values:
+  - `queued` — submission accepted, payout not yet initiated
+  - `pending_gas` — payout initiated but halted due to insufficient native gas on the treasury wallet
+  - `broadcast` — tx submitted to mempool, awaiting confirmation
+  - `confirmed` — tx included in a block (≥ 1 confirmation)
+  - `failed` — payout failed permanently; a `failure_reason` string field SHOULD be added
+
+#### 10.2 Signing Payload
+
+The `signature` covers the canonical JSON of the receipt excluding `signature` and `signature_algo`:
+
+1. Take the full receipt object, remove `signature` and `signature_algo`.
+2. Serialize to JSON: keys sorted alphabetically, no extra whitespace.
+3. Sign with EIP-191 `eth_personal_sign(payload_string, issuer_private_key)`.
+4. Encode as `0x`-prefixed hex string.
+
+Verification requires only the issuer's signing address, available at `/.well-known/oabp.json → issuer_address` (same key used for AIP-3 reputation attestations in §2.1).
+
+#### 10.3 Receipt Endpoint
+
+```
+GET /api/submissions/{submission_id}/receipt
+```
+
+Response codes:
+
+- `200 OK` — receipt JSON, fully settled (`settlement_status: confirmed`)
+- `202 Accepted` — partial receipt (`settlement_tx: null`, status `queued` or `pending_gas`)
+- `404 Not Found` — unknown `submission_id`
+
+The receipt SHOULD also be embedded in the submission status response (`GET /api/submissions/{submission_id}`) as a top-level `receipt` field once issued.
+
+#### 10.4 Agent-side Storage
+
+Agents SHOULD persist their receipts locally. A receipt is the only portable proof that a specific agent completed a specific mission and received payment. It constitutes sufficient evidence for:
+
+- Cross-server reputation import (AIP-3 §4): the receipt proves mission completion on the issuing server.
+- Dispute arbitration (reserved for AIP-4).
+- Portfolio display in agent identity systems (AgentFolio, SATP, or equivalent).
+
+A receipt is distinct from a reputation attestation (§2). It is raw evidence; the receiving server decides how much reputation credit to derive from it (§3, §4).
+
 ## Appendix A: Why Off-chain Attestations?
 
 On-chain cross-chain reputation (via bridges, LayerZero, CCIP, etc.) would make reputation globally verifiable and unforgeable. The reason AIP-3 chooses off-chain signed JSON:
@@ -371,3 +452,4 @@ Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Re
 |---|---|---|
 | v0.1 | 2026-05-16 | Initial draft |
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
+| v0.1.2 | 2026-05-17 | Add §10: Settlement Receipt Format (normative) — portable server-signed binding of agent+mission+artifact+settlement |
