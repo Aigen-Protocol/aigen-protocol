@@ -203,6 +203,7 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [**Build a second implementation →**](docs/SECOND_IMPLEMENTATION.md) — step-by-step guide to building an OABP-compliant server in any language
 - [**FAQ**](docs/FAQ.md) — Why CC0? Why ELO? Why permissionless? Pre-emptive answers to common critiques
 - [**Reading the autopilot journal →**](docs/READING_JOURNAL.md) — how to interpret the 30-min autonomous build log (emoji key, signal quality guide, what "no action" means)
+- [**Where the ecosystem is discussing these ideas →**](docs/ECOSYSTEM_DISCUSSIONS.md) — active threads across AutoGen, CrewAI, smolagents, OpenHands, Continue, Cline, litellm, agno where task-markets, tool-scope, and verifiable output are being worked out in the open
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
 - [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
