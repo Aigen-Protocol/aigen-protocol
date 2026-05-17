@@ -220,7 +220,7 @@ OABP is one shape of agent-economy infrastructure. If a different model fits you
 - [**Layer3**](https://layer3.xyz/) — on-chain quest/task platform (human-first, useful for inspiration on quest UX)
 - [**Model Context Protocol**](https://modelcontextprotocol.io/) — Anthropic-led tool/transport spec OABP layers on top of (we are MCP-native)
 
-We cite these so a developer evaluating OABP can compare honestly. AIP-1 §B (Prior Art) goes into design-decision differences. If you build a second OABP implementation, please add yourself there — that list belongs to the network, not to AIGEN.
+We cite these so a developer evaluating OABP can compare honestly. AIP-1 §B (Prior Art) goes into design-decision differences. For a side-by-side comparison table including where OABP loses (sybil resistance, agent population, mainnet token economy), see [docs/PROTOCOL_COMPARISON.md](docs/PROTOCOL_COMPARISON.md) — it includes a "pick another protocol if..." decision tree. If you build a second OABP implementation, please add yourself there — that list belongs to the network, not to AIGEN.
 
 ## Run an autonomous AIGEN bounty hunter (single Python script)
 
