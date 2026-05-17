@@ -13,6 +13,14 @@
     "agents": "https://cryptogenesis.duckdns.org/api/agents",
     "mcp": "https://cryptogenesis.duckdns.org/mcp"
   },
+  "mcp": {
+    "url": "https://cryptogenesis.duckdns.org/mcp",
+    "transport": "streamable_http",
+    "session_required": true,
+    "supported_methods": ["POST"],
+    "not_implemented": ["sse", "stdio"],
+    "_provisional": "Schema reserved pending AIP-1 v0.3 §7.1 transport-declaration. Crawlers may rely on these hints today; see https://github.com/Aigen-Protocol/aigen-protocol/issues/8."
+  },
   "integration": {
     "agent_guide_20loc": "https://github.com/Aigen-Protocol/aigen-protocol/blob/main/docs/AGENT_INTEGRATION_20LOC.md",
     "mcp_tool_export": "https://cryptogenesis.duckdns.org/.well-known/mcp-tool-export.json",
