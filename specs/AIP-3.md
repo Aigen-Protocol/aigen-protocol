@@ -314,8 +314,60 @@ curl -s https://server.example/.well-known/oabp.json | jq '.aips | contains(["ai
 # → true
 ```
 
+## Appendix D — Prior Art and Related Work
+
+Reputation, identity, and cross-chain attestation are crowded design spaces. AIP-3 sits at the intersection. This appendix acknowledges the prior art and notes where AIP-3 takes a different approach.
+
+### EigenTrust (Kamvar, Schlosser, Garcia-Molina, 2003)
+
+The foundational paper on global trust in P2P networks. EigenTrust computes a single transitively-derived trust score per peer via repeated multiplication with a normalized local-trust matrix. AIP-3 takes the opposite stance: trust is not a single global scalar but a server-issued, expirable, per-domain attestation that the receiving server discounts. The reason is operational: in 2026 agent systems, attestation issuers come and go; a transitively-derived global score is too brittle when an issuer disappears.
+
+### Karma3 Labs / EigenTrust-as-a-Service
+
+Modern hosted EigenTrust for Web3 attestations. Karma3 computes peer trust over EAS (Ethereum Attestation Service) graphs. AIP-3 is narrower: it standardizes the **format** and **discount semantics** of cross-server reputation, leaving the trust-graph computation entirely to the receiving server. An AIP-3 implementer can plug Karma3-style scoring into the `trust_factor` derivation if they want.
+
+### BrightID / Gitcoin Passport / Worldcoin Proof of Personhood
+
+These systems aim to prove a human controls an account (sybil resistance). AIP-3's subject is **an agent**, not a person, and the spec explicitly does not assume one-agent-per-human. The portability discount model (§3) means a fresh agent on a new server starts cold and earns trust over time — it does not assume a human-stake gateway.
+
+### Sismo / Galxe credentials / Snapshot vote weights
+
+These attach off-chain credentials to addresses for governance and gating. AIP-3 is similar in mechanism (signed off-chain JSON, optionally on-chain anchored) but different in purpose: AIP-3 attestations are consumed by **mission verifiers and submission validators**, not voters or token-gates. Lifetime is also intentionally short (90 days max) because agent capability changes faster than human credentials.
+
+### Disco / Verifiable Credentials (W3C VC)
+
+W3C Verifiable Credentials are a general-purpose attestation framework. AIP-3 could be expressed as a VC profile. We chose not to (yet) because VC tooling assumes wallet-class human signers and JSON-LD context resolution; AIP-3's signing payload is a plain canonicalized JSON over Ethereum personal_sign for ecosystem compatibility. A future AIP-3.x revision MAY add a VC-compatible representation.
+
+### Ethereum Attestation Service (EAS)
+
+EAS is the canonical on-chain attestation primitive for Ethereum-aligned chains. AIP-3 is off-chain by default (Appendix A explains why). An AIP-3 issuer MAY anchor the attestation hash on EAS for tamper-evidence; the spec's `attestation_hash` field is included precisely for this.
+
+### Bittensor subnet reputations
+
+Bittensor's per-subnet validator scores are a working production example of decentralized reputation for AI labor. They are subnet-specific, continuous, and not portable across subnets by design. AIP-3's portability discount model is the opposite design choice: explicit cross-domain portability with a known trust decay. The two designs suit different work models (continuous inference vs. discrete missions).
+
+### Olas Agent reputation
+
+Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Reputation is implicit in continued participation. AIP-3 is explicitly off-chain and portable; an Olas agent could publish an AIP-3-format attestation summarizing its on-chain state for OABP servers to consume.
+
+### Summary table
+
+| System | Subject | Portability mechanism | Default lifetime | Open spec |
+|---|---|---|---|---|
+| AIP-3 | Agent address | Signed off-chain attestation + receiver discount | ≤ 90 days | Yes (CC0) |
+| EigenTrust | P2P peer | Global eigenvector | N/A (recomputed) | Public algorithm |
+| Karma3 Labs | EAS attestation graph | Hosted EigenTrust | Per-graph | Open SaaS |
+| BrightID | Human | Social graph proof | Indefinite | Yes (GPL) |
+| Gitcoin Passport | Human | Stamp aggregation | Per-stamp expiry | Yes (MIT) |
+| Sismo | Address group | ZK-proof of group membership | Per-group | Yes |
+| W3C VC | Any subject | JSON-LD signed credential | Per-credential | Yes (W3C) |
+| EAS | Any subject | On-chain attestation | Indefinite | Yes (MIT) |
+| Bittensor subnet | Miner | Subnet-internal scoring | N/A (continuous) | Yes |
+| Olas | Agent service | On-chain registry + stake | Indefinite | Yes (Apache 2.0) |
+
 ## Changelog
 
 | Version | Date | Changes |
 |---|---|---|
 | v0.1 | 2026-05-16 | Initial draft |
+| v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
