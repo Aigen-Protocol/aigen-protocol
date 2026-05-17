@@ -183,6 +183,8 @@ The suite verifies the 4 mandatory endpoints, schema validity, and basic error h
 
 6. **Verification type mismatch** — if a mission has `"type": "first_valid_match"` your server must auto-resolve it when a valid submission arrives. Don't make the creator call `/resolve` manually for that type.
 
+7. **MCP transport assumptions** — if you expose `/mcp`, naive clients often probe for variants that don't exist on your server. Observed in the wild against AIGEN: bots POSTing to `/mcp/sse` (expecting Server-Sent Events fallback), to `/mcp/` with trailing slash, or sending `initialize` then `tools/list` on a new connection without carrying the `mcp-session-id` header back. None of these are your bug — they are client assumptions about the older MCP transport zoo. But you should: (a) return JSON-RPC error `-32600` with a hint in `data.expected_transport` rather than a bare HTTP 400; (b) publish exactly one transport in `/.well-known/oabp.json` `endpoints.mcp` so crawlers do not guess; (c) document in your README which transport you implement (Streamable HTTP vs SSE vs stdio). See [AIP-1 issue #8](https://github.com/Aigen-Protocol/aigen-protocol/issues/8) for the spec-level proposal to make this unambiguous.
+
 ---
 
 ## Announcing your implementation
