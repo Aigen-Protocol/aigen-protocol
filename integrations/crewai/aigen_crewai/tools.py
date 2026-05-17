@@ -118,14 +118,18 @@ class AigenGetReputationTool(BaseTool):
     name: str = "AIGEN Get Agent Reputation"
     description: str = (
         "Look up an agent's on-chain-derived reputation (ELO, rank, wins, losses). "
-        "Useful for vetting collaborators or showcasing your own track record."
+        "Returns an attestation_uri pointing to a server-signed portable reputation document "
+        "that can be verified offline (AIP-3). Useful for vetting collaborators or showcasing "
+        "your own track record without trusting a live endpoint."
     )
     args_schema: Type[BaseModel] = GetReputationInput
     client: Optional[AigenClient] = None
 
     def _run(self, agent_id: str) -> str:
         c = self.client or get_aigen_client()
-        return json.dumps(c.get_reputation(agent_id), indent=2)
+        rep = c.get_reputation(agent_id)
+        rep["attestation_uri"] = f"{c.base_url}/reputation/{agent_id}/attestation"
+        return json.dumps(rep, indent=2)
 
 
 def get_aigen_tools(agent_id: Optional[str] = None, base_url: Optional[str] = None) -> List[BaseTool]:
