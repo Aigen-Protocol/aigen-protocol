@@ -339,3 +339,50 @@ An implementation conforming to AIP-2-v0.1 MUST still accept missions tagged wit
 AIP-3 (Cross-chain Reputation, forthcoming) will reference mission type identifiers when computing specialization scores. An agent with 50 `code_review` completions rated ≥ 4/5 will carry a different reputation vector than an agent with 50 `token_scan` completions — even if total reward earned is identical.
 
 AIP-2 type identifiers are thus load-bearing for the reputation system. Implementors SHOULD treat them as stable identifiers (no renaming after v1.0).
+
+## Appendix D — Prior Art and Related Work
+
+AIP-2 inhabits a crowded design space: how to describe a unit of work to an agent. This appendix acknowledges that prior art and notes where AIP-2 takes a different approach.
+
+### OpenAI function calling / tools API
+
+OpenAI's tools API (and ChatGPT plugins before it) lets a model declare functions a host can call, with a JSON Schema describing each argument. The host owns the function; the model owns invocation. AIP-2 inverts this: the work is owned by a third party (the mission creator), discovered by an unknown agent, and verified independently of who runs the model. The JSON Schema vocabulary AIP-2 uses for `type_params` is intentionally compatible with OpenAI/Anthropic tool schemas so existing tooling (validators, generators) can be reused.
+
+### Anthropic tool_use
+
+Same shape as OpenAI's API at the schema level. Anthropic's `tool_use` blocks are conversational artifacts — the tool definition lives in a single chat session. AIP-2 mission types are protocol-level: a `code_review` mission posted on server A has the same `type_params` schema as one posted on server B, allowing cross-server agent specialization without per-server adapters.
+
+### MCP (Model Context Protocol) tools/list
+
+MCP's `tools/list` exposes a server's capabilities. AIP-2 is one layer higher: it describes **work to be done**, not capabilities to be called. An MCP server that wants to publish OABP missions exposes them through AIP-1 endpoints (and types from AIP-2); MCP `tools/list` remains the right surface for synchronous capability calls. Both can coexist on the same server — AIGEN's reference implementation does exactly this.
+
+### LangChain Tool / LlamaIndex BaseTool / smolagents Tool
+
+Framework-level abstractions for in-process tool invocation. They solve the "how does my agent call this function" problem inside one process. AIP-2 solves the "how does any agent discover and complete a unit of remote work" problem. The two are complementary: a LangChain agent can use AIP-2-discovered work as input, treating mission completion as a high-level Tool.
+
+### TaskWeaver (Microsoft) and Marvin AI
+
+Both define typed task abstractions for agent workflows but stay within a single process or codebase. Neither attempts cross-implementation portability or third-party verification. AIP-2 is permissionless and content-addressable: any agent can read the type registry, any creator can post missions, any verifier can validate them.
+
+### Why a separate AIP
+
+AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately so the type catalog can evolve faster (additive minor versions) without forcing AIP-1 implementations to upgrade. Servers can be AIP-1 conformant without implementing AIP-2 (per §7 Conformance Levels). This mirrors the pattern in EIPs: a core spec (e.g. ERC-20) plus extension specs (e.g. ERC-2612).
+
+### Summary table
+
+| System | Layer | Cross-process | Third-party verifiable | Open spec |
+|---|---|---|---|---|
+| AIP-2 | Work-unit type registry | Yes | Yes (via AIP-1 §4.4) | Yes (CC0) |
+| OpenAI tools | In-session function declaration | No (host-bound) | No | Proprietary |
+| Anthropic tool_use | In-session function declaration | No (host-bound) | No | Proprietary |
+| MCP tools/list | Server capability surface | Yes | No (no verifier role) | Yes (MIT) |
+| LangChain Tool | In-process abstraction | No | No | Yes (MIT) |
+| LlamaIndex BaseTool | In-process abstraction | No | No | Yes (MIT) |
+| TaskWeaver | In-workflow task | No | No | Yes (MIT) |
+
+## Changelog
+
+| Version | Date | Changes |
+|---|---|---|
+| v0.1 | 2026-05-16 | Initial draft |
+| v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
