@@ -23,12 +23,9 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 
 - [~] **PulseMCP** — submit to https://pulsemcp.com → **invalid 2026-05-16T09:48Z** — `pulsemcp/registry` GitHub repo returns 404; doesn't exist. Need to check pulsemcp.com directly for alternative submission flow (Bilale's job — needs browser login).
 
-- [ ] **MCP Marketplace** (mcp.so) — bump PR #2298 status
-  - `gh pr view 2298 --repo chatmcp/mcp-directory` to check state
-  - If stale (>3 days no activity): post a polite "bump — happy to address any blockers" comment
+- [~] **MCP Marketplace** (mcp.so) — bump PR #2298 status → **cannot verify 2026-05-17T12:37Z** — `gh pr view 2298 --repo chatmcp/mcp-directory` returns nothing (PR may not exist under Aigen-Protocol account, or was created under another identity). `gh pr list --repo chatmcp/mcp-directory --author Aigen-Protocol --state all` also empty. **Bilale action needed**: check mcp.so dashboard manually for our submission status.
 
-- [ ] **awesome-mcp-servers** (punkpeye) — bump PR #6288
-  - Same flow as mcp.so. Polite bump if stale.
+- [x] **awesome-mcp-servers** (punkpeye) — bump PR #6288 → done 2026-05-17T10:07Z in no-commit (gh comment). Polite bump posted: "Happy to merge when ready". PR was 4 days stale, all requirements met (Glama badge, neutral phrasing, rebased).
 
 - [x] **TensorBlock** PR #542 — addressed review feedback → done 2026-05-16T09:35Z in commit f5e4b40 on `Aigen-Protocol/awesome-mcp-servers-4@add-aigen-protocol-fresh` (auto-updates PR #542). Review by @wilsonccccc on 2026-05-14T17:45Z asked for (1) neutral phrasing — removed `**0.5% protocol fee** vs 5–20% on Replit/Bountybird/Superteam Earn` promo language and bold; (2) mirror entry into `docs/finance--crypto.md`. Both done in 2-line diff. Reply comment posted: https://github.com/TensorBlock/awesome-mcp-servers/pull/542#issuecomment-4466476638. Watch list: re-review within 7 days, else polite bump.
 
