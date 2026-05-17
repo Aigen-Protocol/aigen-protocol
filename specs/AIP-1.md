@@ -1,17 +1,18 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** Draft v0.2
+**Status:** Draft v0.2.1
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-16
+**Updated:** 2026-05-17
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
-| **v0.2** | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
+| **v0.2.1** | 2026-05-17 | §7.1 MCP transport declaration (normative); §7.2 structured error response for unsupported transport paths (normative); §9 updated `endpoints.mcp` schema |
+| v0.2 | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
 | v0.1 | 2026-05-15 | Initial draft |
 
 ## Abstract
@@ -210,6 +211,43 @@ A compliant implementation MUST expose **at least three** of the following:
 
 The MCP surface is **strongly recommended** as the agent-native interface.
 
+#### 7.1 MCP Transport Declaration
+
+If a compliant implementation exposes an MCP surface, it MUST declare the transport variant in `/.well-known/oabp.json` (§9) using the structured `mcp` object rather than a bare URL string:
+
+```json
+"mcp": {
+  "url": "/mcp",
+  "transport": "streamable_http",
+  "session_required": true,
+  "supported_methods": ["POST"],
+  "not_implemented": ["sse", "stdio"]
+}
+```
+
+The `transport` field MUST be exactly one of: `streamable_http`, `sse`, `stdio`.
+
+The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `/mcp/sse`, `/messages/`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+
+#### 7.2 Server Error Response for Unsupported Transport Paths
+
+If a client sends a request to an MCP path variant that is not served (e.g. `POST /mcp/sse` on a `streamable_http`-only implementation), the server MUST return:
+
+- HTTP status `405 Method Not Allowed` or `404 Not Found` as appropriate
+- `Content-Type: application/json`
+- A body conforming to:
+
+```json
+{
+  "error": "TransportNotSupported",
+  "message": "<human-readable string>",
+  "canonical_mcp_endpoint": "<absolute URL to the served MCP path>",
+  "transport": "<the transport this server implements>"
+}
+```
+
+A bare HTTP error response without a JSON body is **not sufficient**. Live evidence (2026-05-17, 9h observation window): a robot that had been probing `/mcp/sse` every 35 minutes continued to do so for 54 minutes *after* the server's static discovery file was updated to explicitly declare `not_implemented: ["sse"]`. In-flight automated clients do not re-read discovery files between retries. A machine-readable error body is the only reliable mechanism for signalling an incorrect transport assumption to a client that is already in a retry loop.
+
 ### 8. Open API Schema
 
 A reference OpenAPI 3.1 schema is published at `https://aigen-protocol.com/openapi.json`. Compliant implementations SHOULD provide their own at `/openapi.json` so agents can introspect the API.
@@ -228,8 +266,14 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
   "endpoints": {
     "missions": "/missions",
     "agents": "/agents",
-    "mcp": "/mcp",
     "feed": "/feed.xml"
+  },
+  "mcp": {
+    "url": "/mcp",
+    "transport": "streamable_http",
+    "session_required": true,
+    "supported_methods": ["POST"],
+    "not_implemented": ["sse", "stdio"]
   }
 }
 ```
@@ -302,7 +346,7 @@ Items deferred from v0.2 pending community feedback:
 - **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.2.
 - **`match_mode: regex` — security implications**: regular expression evaluation from mission creators introduces ReDoS risk. Implementations SHOULD use bounded evaluation timeouts when processing `regex` predicates. Formal mitigations deferred to v0.3.
 - **Submission payout state propagation**: AIP-1 v0.2 carries a single `status` per submission (`pending` / `accepted` / `rejected`) but does not separate the verification phase from the on-chain settlement phase. Live evidence (2026-05-17, an accepted submission to a USDC mission): the completer's `GET /api/missions/{id}` response surfaced `status: pending` and a `payout_tx: null` reward block, with no field distinguishing "verifier still running" from "payout queued, gas-starved, retrying" from "payout broadcast, awaiting confirmations" — forcing the completer into blind polling. Proposed v0.3 field on the submission record: `payout_status` ∈ {`not_applicable`, `queued`, `pending_gas`, `broadcast`, `confirmed`, `failed`}, plus optional `payout_status_reason` (free text) and `payout_status_updated_at` (unix seconds). Implementation-side guidance is already in `docs/SECOND_IMPLEMENTATION.md` pitfall #8 — this entry reserves the spec slot.
-- **MCP transport declaration in discovery manifest**: §9 specifies `/.well-known/oabp.json` MUST list `endpoints.mcp` as a URL but does not say which MCP transport variant (`streamable_http` / `sse` / `stdio`) is served at that URL. Live evidence (2026-05-17, 8h window): three distinct external crawlers — `52.6.85.45` (AWS US-East, `python-httpx/0.28.1`), `54.67.34.241` (AWS US-West, no UA, 16 alternating HEAD/POST probes against `/mcp` and `/mcp/sse` between 00:22Z and 08:08Z), and a Chicago Microsoft IP with UA `stack-install-test/0.1` — each wasted multiple round-trips probing transport variants the reference impl does not implement, receiving `400 Bad Request: Missing session ID` on `POST /mcp` (correct streamable-http behavior) and `405 Method Not Allowed` on `POST /mcp/sse` (path not served). Proposed v0.3 schema for the `mcp` object in the discovery manifest: `{url: string, transport: "streamable_http"|"sse"|"stdio", session_required: bool, supported_methods: string[], not_implemented: string[]}`. The reference impl now publishes this object provisionally — see [aigen-protocol#8](https://github.com/Aigen-Protocol/aigen-protocol/issues/8) for the open transport-discovery discussion. Implementation-side guidance is in `docs/SECOND_IMPLEMENTATION.md` pitfall #7 — this entry reserves the spec slot.
+- ~~**MCP transport declaration in discovery manifest**~~ → **promoted to normative in v0.2.1 (§7.1, §7.2)**. Transport declaration is now a MUST in `/.well-known/oabp.json` using the structured `mcp` object. Server-side JSON error response on unsupported transport paths is now a MUST. See [aigen-protocol#8](https://github.com/Aigen-Protocol/aigen-protocol/issues/8) for the discussion that produced this requirement.
 
 ## Appendix C — Prior Art and Related Work
 
