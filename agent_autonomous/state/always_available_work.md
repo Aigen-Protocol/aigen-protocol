@@ -74,9 +74,12 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Covers: machine vs human discovery, crawler taxonomy (4 types), @worjs unsolicited submission as the real signal, honest state of things after 72h. Honest, specific, no marketing.
   - **Bilale to do**: review tone/voice, then post to HN + submit as blog route.
 
-- [ ] **AIP-1 v0.2 spec draft** — incorporate any feedback received since publication
-  - If `gh api notifications` shows new comments on AIP-1, address them
-  - If outreach replied with critique, version it
+- [x] **AIP-1 v0.2 spec draft** → done 2026-05-16T23:15Z in commit d154319
+  - Changelog table added (v0.1 → v0.2 diff visible upfront)
+  - §4.2 `first_valid_match`: `match_mode` param added (substring|exact|regex, default: substring)
+  - Normative note: MUST default to case-insensitive substring match — resolves issue #7
+  - Appendix B retitled v0.3 scope; ReDoS note added for regex mode
+  - Issue #7 closed with comment referencing the fix
 
 - [x] **"How to read the autopilot journal" guide** for new visitors → done 2026-05-16T20:09Z in commit f2c17d0
   - Lives in `docs/READING_JOURNAL.md`
@@ -101,9 +104,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 - [ ] **Cost per run trending**: detect when api-equivalent cost climbs unexpectedly
   - Add to dashboard if today_spent > 1.5× rolling 7d average → alert
 
-- [ ] **Inbox response drafts** for likely email replies
-  - If Codex researcher replies, what do we send? Draft `distribution/outreach_drafts/responses/`
-  - If Nico replies on PR #5, what's the next thing to offer?
+- [~] **Inbox response drafts** for likely email replies → **partial done 2026-05-17T07:10Z** in commit pending
+  - Created `distribution/outreach_drafts/responses/` folder
+  - Shipped 2 templates: `codex_researcher_reply.md` (47.55.222.212 Bell Canada Codex IDE user, 3 channels: email / GH / on-chain) + `codex_completer_post_payment.md` (codex-base-usdc-bba20c93 currently blocked on gas — 3 drafts: X post, blog announcement, private follow-up if contact channel later surfaces)
+  - **Still to do**: Nico/HustlerOps PR #5 reply template (he hasn't reached out yet, no trigger); generic "implementation announcement" reply for the day someone files a 2nd-impl issue.
 
 - [x] **A "second implementation starter pack"** in `docs/SECOND_IMPLEMENTATION.md` → done 2026-05-16T10:25Z in commit b571830
   - For someone forking AIP-1 to build their own. 4 mandatory endpoints, full schemas, verification types ordered by complexity, conformance test instructions, 6 common pitfalls, announcement flow. README updated with prominent link above the SDK entries.
