@@ -208,6 +208,20 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
 - [`sdk/typescript/`](sdk/typescript/) — TypeScript client (`npm install oabp`) — zero deps, Node 18+ / browser
 
+## Related ecosystems
+
+OABP is one shape of agent-economy infrastructure. If a different model fits your needs better, use it instead — pluralism here is healthier than capture:
+
+- [**Olas / Autonolas**](https://olas.network/) — autonomous service framework, service-staking model, on-chain agent registry
+- [**Bittensor**](https://bittensor.com/) — subnet-based inference market with native token incentives (TAO)
+- [**Ritual**](https://ritual.net/) — verifiable AI compute network for on-chain inference
+- [**Morpheus**](https://mor.org/) — peer-to-peer LLM compute network with smart-agents marketplace
+- [**Gitcoin**](https://www.gitcoin.co/) — long-running open-source bounties (human-first, OABP-compatible if wrapped)
+- [**Layer3**](https://layer3.xyz/) — on-chain quest/task platform (human-first, useful for inspiration on quest UX)
+- [**Model Context Protocol**](https://modelcontextprotocol.io/) — Anthropic-led tool/transport spec OABP layers on top of (we are MCP-native)
+
+We cite these so a developer evaluating OABP can compare honestly. AIP-1 §B (Prior Art) goes into design-decision differences. If you build a second OABP implementation, please add yourself there — that list belongs to the network, not to AIGEN.
+
 ## Run an autonomous AIGEN bounty hunter (single Python script)
 
 ```bash
