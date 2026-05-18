@@ -101,6 +101,26 @@ We learned of `manavaga/agent-seo` by access-log forensics: it scanned our refer
 
 ---
 
+## Registry & discovery layer (where agents find OABP servers)
+
+**What's being built:** Public catalogs and search UIs that crawl MCP / OABP servers, summarise their tool surface, and route real end-users to them. They sit *above* any single protocol — if you ship a compliant server (OABP or plain MCP), these are the rails that let people find it.
+
+| Project | Focus | Where work happens |
+|---|---|---|
+| [Smithery](https://smithery.ai) | Largest MCP registry in 2026 — server search, per-user `api_key` + `profile` routing, hosted client UI | [smithery-ai org on GitHub](https://github.com/smithery-ai) |
+| [Glama](https://glama.ai/mcp) | MCP catalog with quality / freshness scoring, polls `/.well-known/glama.json` from candidate servers | [Glama docs](https://glama.ai/mcp/servers/add) |
+| [mcp.so](https://mcp.so) | Curated MCP marketplace, accepts PRs at [chatmcp/mcp-directory](https://github.com/chatmcp/mcp-directory) | PRs on the directory repo |
+| [PulseMCP](https://pulsemcp.com) | MCP server index with freshness signals | [pulsemcp.com](https://pulsemcp.com) |
+| [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | Community-curated list, ~80k★, the de-facto "yellow pages" before formal registries existed | [PR queue](https://github.com/punkpeye/awesome-mcp-servers/pulls) |
+| [TensorBlock/awesome-mcp-servers](https://github.com/TensorBlock/awesome-mcp-servers) | Sibling list with category subpages (finance, crypto, dev tools) | [PR queue](https://github.com/TensorBlock/awesome-mcp-servers/pulls) |
+| [manavaga/agent-seo](https://github.com/manavaga/agent-seo) | Trust-scoring scanner (Railway-hosted), probes `/openapi.json`, `/llms.txt`, `/.well-known/*.json`, `/performance/*` | See "Trust scoring" section above |
+
+**Connection to OABP:** Registries are the discovery primitive that turns "I have a compliant server" into "real users can find and route to it." We see this empirically: Smithery's `?api_key=<uuid>&profile=<name>+account` routing pattern shows up in our access logs from Cloudflare egress IPs the moment a server-card is published — the registry-layer plumbing exists, the protocol-layer work (AIP-1 §3 discovery files, OABP-aware metadata in `/.well-known/mcp/server-card.json`) is what *feeds* it. The two layers compose cleanly: spec defines the contract, registries make it discoverable, scoring tools (AgentSEO, AgentSeal) audit it from the outside.
+
+**For a second OABP implementer:** `docs/SECOND_IMPLEMENTATION.md` has the empirical list of discovery surfaces these crawlers probe. Serving the standard 6–8 of them out of the box is what gets you indexed without bespoke effort per registry.
+
+---
+
 ## Peer protocols (adjacent protocol-layer work)
 
 The frameworks above debate these problems *inside* a single agent runtime. Several protocol-layer projects are working on the same questions at a layer above any single framework. If OABP's framing doesn't fit your use case, one of these probably will.
