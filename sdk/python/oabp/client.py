@@ -1,4 +1,4 @@
-"""OABP client implementation. AIP-1 v0.1 compliant."""
+"""OABP client implementation. AIP-1 + AIP-2 compliant."""
 
 from __future__ import annotations
 
@@ -20,8 +20,36 @@ class OABPError(Exception):
 
 
 @dataclass
+class MissionType:
+    """AIP-2 §1 — mission type record from the shared type registry."""
+    type_id: str
+    display_name: str = ""
+    description: str = ""
+    required_params: list = field(default_factory=list)
+    registry_version: str = ""
+    extra: dict = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, d) -> "MissionType":
+        if isinstance(d, str):
+            return cls(type_id=d)
+        known = {"type_id", "id", "display_name", "description", "required_params", "registry_version"}
+        return cls(
+            type_id=d.get("type_id") or d.get("id", ""),
+            display_name=d.get("display_name", ""),
+            description=d.get("description", ""),
+            required_params=d.get("required_params", []),
+            registry_version=d.get("registry_version", ""),
+            extra={k: v for k, v in d.items() if k not in known},
+        )
+
+    def __str__(self) -> str:
+        return self.type_id
+
+
+@dataclass
 class Mission:
-    """AIP-1 §2 mission record."""
+    """AIP-1 §2 + AIP-2 mission record."""
     id: str
     creator: str
     title: str
@@ -33,12 +61,15 @@ class Mission:
     deadline: str  # ISO 8601 UTC
     status: str  # open | escrowed | resolved | voided
     created_at: str
+    mission_type: str = "freeform"  # AIP-2 §1 — "freeform" when untyped
+    type_params: dict = field(default_factory=dict)  # AIP-2 §1 — type-specific required fields
     extra: dict = field(default_factory=dict)  # forward-compat: unknown fields preserved here
 
     @classmethod
     def from_dict(cls, d: dict) -> "Mission":
         known = {"id", "creator", "title", "description", "reward",
-                 "verification", "deadline", "status", "created_at"}
+                 "verification", "deadline", "status", "created_at",
+                 "mission_type", "type_params"}
         reward = d.get("reward", {})
         verification = d.get("verification", {})
         return cls(
@@ -50,6 +81,8 @@ class Mission:
             verification_params=verification.get("params", {}),
             deadline=d.get("deadline", ""), status=d.get("status", "open"),
             created_at=d.get("created_at", ""),
+            mission_type=d.get("mission_type", "freeform"),
+            type_params=d.get("type_params", {}),
             extra={k: v for k, v in d.items() if k not in known},
         )
 
@@ -137,17 +170,20 @@ class OABPClient:
             info = self.discover(self.base_url, timeout=self.timeout)
             self._endpoints = info.get("endpoints", {})
         except Exception:
-            # Fall back to AIP-1 defaults
+            # Fall back to AIP-1/AIP-2 defaults
             self._endpoints = {
                 "missions": "/missions",
                 "missions_active": "/missions/active",
                 "missions_stats": "/missions/stats",
+                "missions_types": "/missions/types",
                 "agents": "/api/agents",
                 "agent_badge": "/api/agents/{id}/badge.svg",
                 "leaderboard": "/api/leaderboard",
                 "submissions": "/api/submissions",
                 "feed": "/feed.xml",
             }
+        # Ensure AIP-2 endpoint has a default even when server-provided endpoints omit it
+        self._endpoints.setdefault("missions_types", "/missions/types")
         return self._endpoints
 
     # ---- Low-level HTTP ----
@@ -177,12 +213,45 @@ class OABPClient:
 
     # ---- Mission operations ----
 
-    def list_missions(self, status: str = "open", limit: int = 50) -> list[Mission]:
+    def list_missions(self, status: str = "open", limit: int = 50,
+                      mission_type: Optional[str] = None) -> list[Mission]:
+        """AIP-1 §2 + AIP-2 — list missions, optionally filtered by AIP-2 mission_type."""
         ep = self.endpoints().get("missions_active" if status == "open" else "missions", "/missions")
-        params = urllib.parse.urlencode({"status": status, "limit": limit})
-        data = self._get(f"{ep}?{params}")
+        qs: dict = {"status": status, "limit": limit}
+        if mission_type is not None:
+            qs["mission_type"] = mission_type
+        data = self._get(f"{ep}?{urllib.parse.urlencode(qs)}")
         items = data if isinstance(data, list) else (data.get("missions") or data.get("items") or [])
         return [Mission.from_dict(m) for m in items]
+
+    def list_mission_types(self) -> list[MissionType]:
+        """AIP-2 §2 — return all mission types supported by this implementation.
+
+        Combines registered types (from the shared AIP-2 registry) and any
+        implementation-specific custom types. Returns an empty list when the
+        server returns 404 (implementation doesn't declare AIP-2 support).
+        """
+        ep = self.endpoints().get("missions_types", "/missions/types")
+        try:
+            data = self._get(ep)
+        except OABPError as e:
+            if e.status == 404:
+                return []
+            raise
+
+        result: list[MissionType] = []
+        if isinstance(data, list):
+            return [MissionType.from_dict(t) for t in data]
+
+        rv = data.get("registry_version", "")
+        for t in data.get("supported_types", []):
+            mt = MissionType.from_dict(t)
+            if not mt.registry_version:
+                mt.registry_version = rv
+            result.append(mt)
+        for t in data.get("custom_types", []):
+            result.append(MissionType.from_dict(t))
+        return result
 
     def get_mission(self, mission_id: str) -> Mission:
         ep = self.endpoints().get("missions", "/missions")
