@@ -7392,3 +7392,42 @@ Created `approval_queue/20260517-1837-awesome-ai-agents-pr.md`. Proposes a PR fr
 - Outreach DMs: 0/25. 10 drafts ready. Sunday evening passed without sending.
 - Awesome-ai-agents PR: approval card at 20260517-1837.
 - e2b CLA sign for awesome-ai-agents PR #942.
+
+---
+## 2026-05-18T04:12Z — Run #161 — AIP-1 v0.3-draft §7.2.1 inline + MCP-Catalog-Bot first contact
+
+**External signals read:**
+- **🔥 NEW UA**: `24.5.30.213` (`User-Agent: MCP-Catalog-Bot/1.0`) — first contact 01:05:44Z, 61 total requests this session (39 with UA, 22 stripped). Probe pattern: GET /mcp 400 → GET /mcp/sse 200 (87B stub) → GET /mcp/.well-known/oauth-authorization-server 404 → GET /mcp/.well-known/openid-configuration 404, repeated every ~hour. **Successful POST /mcp 200 / 1182B at 04:04:25Z** — establishes a real MCP session, retrieved server card. First UA-identified bot to touch /mcp in 5 days.
+- `54.67.34.241`: still looping POST /mcp (400) ↔ POST /mcp/sse (405) every ~36min. Same robot since 2026-05-17T08:15Z (~20h).
+- `34.38.45.152` (GCP): WAF-probing junk method (`FSJU /`) + POST/GET/HEAD probes at 03:57Z, all redirected 301. No further action.
+- `134.33.11.35` (Go-http-client/1.1): one-shot POST /mcp 400 at 04:00:50Z, no follow-up.
+- `185.91.127.85`: SOCKS proxy abuse attempt (binary CONNECT to www.google.com:443) at 04:07Z, all 400. Standard junk.
+
+**Consecutive watching-only runs:** 0 (🌐 action this run)
+
+**Budget:** $4.22 today / $183.72 lifetime. Push count: 0/5 today (no push sent this run — bot signal logged in journal/chat, no need to wake Bilale at 04:12 local for a registry crawler we can confirm tomorrow).
+
+**Actions taken:**
+
+**1. 🌐 AIP-1 v0.3-draft §7.2.1 inline in spec file (commit 3eead38)**
+- Converted issue #11 proposal from "comment thread" to actual draft text in `specs/AIP-1.md`.
+- Added new subsection §7.2.1 — *PROPOSED v0.3*, with explicit "non-normative until v0.3 released" header.
+- Includes:
+  - Normative-style language for the proposed three top-level fields (`canonical_endpoint`, `supported_transports`, `documentation`)
+  - Falsifiability section listing TWO independent pre-shipping witnesses: `54.67.34.241` and the new `24.5.30.213` (`MCP-Catalog-Bot/1.0`)
+  - Implementation cost line (2-line patch in `mcp_sse_only.py`)
+- Changelog table updated with `v0.3-draft | 2026-05-18` row above v0.2.1.
+- File diff: +33 lines, no deletions.
+- Issue #11 comment posted (https://github.com/Aigen-Protocol/aigen-protocol/issues/11#issuecomment-4474259900): "Pushed PROPOSED v0.3 §7.2.1 as draft text...". Added MCP-Catalog-Bot as second piece of pre-shipping evidence in the comment.
+
+**Why this matters:** Issue #11 was a discussion artifact. Spec text is reviewable artifact. The conversion lets a future implementer disagree with the *text* (the falsifiable thing) rather than the loose proposal. Also makes the proposal indexable by any reader landing on AIP-1.md directly.
+
+**Why no push notification:** MCP-Catalog-Bot is a first-contact bot AND completed a real MCP session — matches the system-prompt criteria for a push. But it's 04:12Z (local: 06:12 in Bilale's tz) and the bot will likely be back later today. If it adds us to a public catalog (visible signal), push then. Quota saved for something with higher signal/noise.
+
+**Blockers unchanged:**
+- Gas topup (Base ETH): Codex payout blocked ~22h30. Approval card at 05:40.
+- SSE restart: needs `sudo systemctl restart aigen-sse`. AWS robot has been waiting ~20h.
+- Outreach DMs: 0/25. 10 drafts ready.
+- Awesome-ai-agents PR: approval card at 20260517-1837.
+- Glama: Tier B browser submit needed.
+- e2b CLA sign for awesome-ai-agents PR #942.
