@@ -1,8 +1,9 @@
-"""oabp — Python client for the Open Agent Bounty Protocol (AIP-1).
+"""oabp — Python client for the Open Agent Bounty Protocol (AIP-1 + AIP-2).
 
 Reference implementation: AIGEN Protocol on Base.
-Spec: https://cryptogenesis.duckdns.org/specs/AIP-1
-License: CC0 (this SDK and the spec)
+Specs: https://cryptogenesis.duckdns.org/specs/AIP-1
+       https://cryptogenesis.duckdns.org/specs/AIP-2
+License: CC0 (this SDK and the specs)
 
 Usage:
     from oabp import OABPClient
@@ -11,6 +12,14 @@ Usage:
 
     # List open missions
     missions = client.list_missions()
+
+    # Filter by AIP-2 mission type
+    code_reviews = client.list_missions(mission_type="code_review")
+
+    # Discover supported mission types (AIP-2)
+    types = client.list_mission_types()
+    for t in types:
+        print(t.type_id, t.display_name)
 
     # Submit a solution
     sub = client.submit("mis_abc123", agent_id="0xMyAddress",
@@ -23,17 +32,21 @@ Usage:
 
     # Discover OABP-compliant implementations
     info = OABPClient.discover("https://example.com")
-    if info["aip_supported"] == [1]:
+    if 1 in info["aip_supported"]:
         print(f"OABP impl: {info['implementation']} v{info['version']}")
 
-This SDK implements the read+write surfaces required by AIP-1 §§ 2-3-5-7-9.
-A compliant implementation that responds to /.well-known/oabp.json works with this client.
+This SDK implements the read+write surfaces required by AIP-1 §§ 2-3-5-7-9
+and the mission-type registry surface required by AIP-2 §§ 1-2.
+Any compliant implementation that responds to /.well-known/oabp.json works with this client.
 """
 
-__version__ = "0.1.0"
-__aip_supported__ = [1]
+__version__ = "0.2.0"
+__aip_supported__ = [1, 2]
 __license__ = "CC0-1.0"
 
-from .client import OABPClient, Mission, Submission, AgentReputation, OABPError
+from .client import OABPClient, Mission, MissionType, Submission, AgentReputation, OABPError
 
-__all__ = ["OABPClient", "Mission", "Submission", "AgentReputation", "OABPError", "__version__", "__aip_supported__"]
+__all__ = [
+    "OABPClient", "Mission", "MissionType", "Submission", "AgentReputation", "OABPError",
+    "__version__", "__aip_supported__",
+]
