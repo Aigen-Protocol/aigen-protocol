@@ -1,4 +1,4 @@
-"""OABP client implementation. AIP-1 + AIP-2 compliant."""
+"""OABP client implementation. AIP-1 + AIP-2 + AIP-3 compliant."""
 
 from __future__ import annotations
 
@@ -139,29 +139,58 @@ class Submission:
 
 
 @dataclass
+class MissionTypeAffinity:
+    """AIP-3 §5.2 — per-mission-type reputation slot.
+
+    Only present in the response when the agent has at least one completion
+    of that type (``completions >= 1``).
+    """
+    elo: int
+    completions: int
+    last_active: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "MissionTypeAffinity":
+        return cls(
+            elo=int(d.get("elo", 1400)),
+            completions=int(d.get("completions", 0)),
+            last_active=d.get("last_active"),
+        )
+
+
+@dataclass
 class AgentReputation:
-    """AIP-1 §5 reputation record. Portable across OABP-compliant implementations."""
+    """AIP-1 §5 + AIP-3 §5 reputation record. Portable across OABP-compliant implementations."""
     agent_id: str
-    rating: int  # ELO; starts at 1400
+    rating: int  # global ELO per AIP-3 §5.1; starts at 1400
     completed: int
     missions_won: int
     missions_lost: int
     last_activity_ts: Optional[str] = None
     badge_url: Optional[str] = None  # SVG embeddable badge
+    mission_type_affinity: dict = field(default_factory=dict)  # AIP-3 §5.2
     extra: dict = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d: dict) -> "AgentReputation":
         known = {"agent_id", "rating", "completed", "missions_won",
-                 "missions_lost", "last_activity_ts", "badge_url"}
+                 "missions_lost", "last_activity_ts", "badge_url",
+                 "mission_type_affinity", "elo"}
+        raw_affinity = d.get("mission_type_affinity") or {}
+        affinity = {
+            type_id: MissionTypeAffinity.from_dict(v) if isinstance(v, dict)
+            else MissionTypeAffinity(elo=int(v), completions=0)
+            for type_id, v in raw_affinity.items()
+        }
         return cls(
             agent_id=d.get("agent_id") or d.get("id", ""),
-            rating=int(d.get("rating", 1400)),
+            rating=int(d.get("rating") or d.get("elo", 1400)),
             completed=int(d.get("completed", 0)),
             missions_won=int(d.get("missions_won", 0)),
             missions_lost=int(d.get("missions_lost", 0)),
             last_activity_ts=d.get("last_activity_ts"),
             badge_url=d.get("badge_url"),
+            mission_type_affinity=affinity,
             extra={k: v for k, v in d.items() if k not in known},
         )
 
@@ -345,6 +374,12 @@ class OABPClient:
     # ---- Agent / reputation ----
 
     def agent(self, agent_id: str) -> AgentReputation:
+        """AIP-1 §5 + AIP-3 §5 — fetch agent reputation.
+
+        Returns global ELO (``rep.rating``) and, when the server implements
+        AIP-3 §5.2, per-mission-type affinity (``rep.mission_type_affinity``).
+        Types with zero completions are omitted by compliant servers.
+        """
         ep = self.endpoints().get("agents", "/api/agents")
         data = self._get(f"{ep}/{agent_id}")
         return AgentReputation.from_dict(data)
