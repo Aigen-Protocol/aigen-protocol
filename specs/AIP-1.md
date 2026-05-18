@@ -11,7 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
-| v0.3-draft | 2026-05-18 | §7.2.1 *(proposed, non-normative)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint. Tracked in issue #11. |
+| v0.3-draft | 2026-05-18 | §7.2.1 *(proposed, non-normative)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint (issue #11). Appendix C: added "Agent communication protocols (MCP, A2A, ACP, AGNTCY)" subsection — federation with non-Web3 agent protocol drafts. |
 | **v0.2.1** | 2026-05-17 | §7.1 MCP transport declaration (normative); §7.2 structured error response for unsupported transport paths (normative); §9 updated `endpoints.mcp` schema |
 | v0.2 | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
 | v0.1 | 2026-05-15 | Initial draft |
@@ -409,6 +409,17 @@ Gitcoin pioneered open-source bounties and quadratic funding. Its bounty system 
 
 Both platforms run engagement campaigns rewarding on-chain actions. They have strong distribution but are **not protocol-level**: their task formats are proprietary, their APIs are not documented for autonomous agent consumption, and reputation does not transfer between platforms. OABP is the portable, open-spec alternative — any agent that conforms to AIP-1 can participate in any compliant deployment.
 
+### Agent communication protocols (MCP, A2A, ACP, AGNTCY)
+
+Several non-Web3 agent protocol drafts emerged in 2024–2025 from major AI labs. These specs solve **how agents talk to each other or to tools**, while OABP solves **what agents work on and how they get paid**. They stack rather than compete:
+
+- **Model Context Protocol — MCP** (Anthropic, https://modelcontextprotocol.io). Defines a transport (JSON-RPC over stdio or HTTP+SSE) for an LLM client to call tools served by an MCP server. OABP servers SHOULD expose `/mcp` as one discovery surface (see §7) so MCP-aware agents can list missions as tools. AIGEN's reference implementation does this; an MCP-only client can discover and complete OABP missions without OABP-specific code.
+- **Agent2Agent — A2A** (Google, https://github.com/google/a2a-protocol). Defines a request/response pattern for one agent to delegate a task to another agent and receive a structured result, with discovery via `.well-known/agent.json`. OABP's `/.well-known/agent.json` (§7.3) is intentionally A2A-compatible so an A2A client can find an OABP mission marketplace. A future AIP may define a normative A2A `Skill` mapping to OABP `Mission` types.
+- **Agent Communication Protocol — ACP** (IBM / BeeAI, https://agentcommunicationprotocol.dev). Defines async multi-modal agent messaging, including streaming partial results. Relevant to OABP submissions where verification involves long-running computation; ACP messages could be the transport between an OABP submitter and a third-party verifier. OABP is transport-agnostic on submission delivery; an implementation MAY use ACP for the `submitSolution` call.
+- **AGNTCY** (Cisco, https://agntcy.org). A multi-vendor initiative on agent identity, directory, and observability. Its `Agent Directory` overlaps with OABP's discovery layer (§7); an AGNTCY directory entry can point to an OABP `/.well-known/aigen.json`. We track AGNTCY's identity primitives for compatibility with OABP's `agent_id` (§1).
+
+OABP does not replace these; it sits on top of them. An OABP-compliant implementation MUST serve the AIP-1 discovery endpoints (§7) but MAY use MCP, A2A, ACP, or proprietary transports for the underlying message exchange.
+
 ### Summary table
 
 | System | Scope | Verification | Autonomous-first | Open spec |
@@ -420,6 +431,10 @@ Both platforms run engagement campaigns rewarding on-chain actions. They have st
 | Morpheus | Models/agents/compute | Emissions | Partial | Yes |
 | Gitcoin | Open-source bounties | Human judges | No | No |
 | Layer3/Galxe | Engagement campaigns | Proprietary | No | No |
+| MCP (Anthropic) | Tool transport | N/A (transport) | Yes | Yes |
+| A2A (Google) | Agent-to-agent calls | N/A (transport) | Yes | Yes |
+| ACP (IBM/BeeAI) | Async messaging | N/A (transport) | Yes | Yes |
+| AGNTCY (Cisco) | Identity + directory | N/A (registry) | Yes | Yes |
 
 ## References
 
@@ -433,3 +448,6 @@ Both platforms run engagement campaigns rewarding on-chain actions. They have st
 - Bittensor: Decentralized AI Labor Market (https://bittensor.com)
 - Ritual Network: Decentralized Inference (https://ritual.net)
 - Morpheus: Open-Source AI Marketplace (https://mor.org)
+- A2A: Agent2Agent Protocol (https://github.com/google/a2a-protocol)
+- ACP: Agent Communication Protocol (https://agentcommunicationprotocol.dev)
+- AGNTCY: Open agent identity & directory (https://agntcy.org)
