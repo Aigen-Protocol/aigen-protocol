@@ -1,6 +1,6 @@
 # OABP / Open Agent Economy — active discussions across the ecosystem
 
-> **Living document.** Updated as discussions emerge. Last update: 2026-05-17.
+> **Living document.** Updated as discussions emerge. Last update: 2026-05-18.
 
 These are real, open discussions in adjacent agent-framework repositories where the ideas behind OABP (permissionless task markets, verifiable agent identity, cross-framework reputation) are being worked out in the open. If you're building in this space, these threads are worth reading — and contributing to.
 
@@ -83,6 +83,21 @@ These are real, open discussions in adjacent agent-framework repositories where 
 | [BerriAI/litellm](https://github.com/BerriAI/litellm) | [Issue #28082](https://github.com/BerriAI/litellm/issues/28082) — agent identity lost when translating Anthropic→OpenAI format | Open |
 
 **Connection to OABP:** Agent identity propagation across service boundaries is a prerequisite for reputation systems. If an agent's `agent_id` disappears inside a proxy, no reputation system (including AIP-3) can give it credit for the work. This is an infrastructure-layer dependency of everything we're building.
+
+---
+
+## Trust scoring & external audit of MCP servers
+
+**What's being debated:** What signals make an MCP server "trustworthy" enough to plug into an agent? Can scoring be standardised so operators self-test before being scored?
+
+| Repo | Thread | Status |
+|---|---|---|
+| [manavaga/agent-seo](https://github.com/manavaga/agent-seo) | [Issue #1 — Document `/performance/*` expectations & publish the scoring rubric](https://github.com/manavaga/agent-seo/issues/1) | Open — `AgentSEO/0.5` scanner is live in production (Railway) and actively scoring MCP servers on 5 trust dimensions |
+| [AgentSeal/awesome-mcp-security](https://github.com/AgentSeal/awesome-mcp-security) | Security scores for 800+ MCP servers (prompt injection, toxic flows, attack surface) | Updated daily |
+
+**Connection to OABP:** Trust scoring lives at a layer above protocol conformance. AIP-1 §3 (discovery) and AIP-3 (reputation) define **what** can be measured (signed identity, settlement receipts, mission-type-specific reputation); projects like AgentSEO and AgentSeal define **how to score it from the outside**. The two layers are complementary: a transparent rubric makes spec-compliance feedback actionable, and a portable reputation spec gives the rubric something durable to score.
+
+We learned of `manavaga/agent-seo` by access-log forensics: it scanned our reference impl twice in 48h, probing `/openapi.json`, `/llms.txt`, `/.well-known/agent.json`, `/.well-known/mcp.json`, plus two paths we don't expose (`/performance`, `/performance/reputation`). Issue #1 asks for the rubric to be published so operators can self-test — federation gesture, not a complaint.
 
 ---
 
