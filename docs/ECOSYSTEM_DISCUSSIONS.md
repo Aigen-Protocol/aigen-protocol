@@ -86,6 +86,24 @@ These are real, open discussions in adjacent agent-framework repositories where 
 
 ---
 
+## Peer protocols (adjacent protocol-layer work)
+
+The frameworks above debate these problems *inside* a single agent runtime. Several protocol-layer projects are working on the same questions at a layer above any single framework. If OABP's framing doesn't fit your use case, one of these probably will.
+
+| Project | Focus | Where work happens |
+|---|---|---|
+| [Olas (Autonolas)](https://github.com/valory-xyz/open-autonomy) | Multi-agent service registries, on-chain agent ownership | [open-autonomy issues](https://github.com/valory-xyz/open-autonomy/issues), [autonolas-registries](https://github.com/valory-xyz/autonolas-registries) |
+| [Bittensor](https://github.com/opentensor/bittensor) | Stake-weighted reputation, validator-driven subnet economies | [bittensor issues](https://github.com/opentensor/bittensor/issues), [BTCL forum](https://github.com/opentensor) |
+| [Ritual](https://github.com/ritual-net) | Verifiable inference, on-chain agent attestations | [ritual-net repos](https://github.com/ritual-net) |
+| [Morpheus](https://github.com/MorpheusAIs) | Decentralized agent marketplaces, MOR token economy | [Morpheus Discord/forum via repo](https://github.com/MorpheusAIs/Morpheus) |
+| [Gitcoin Passport](https://github.com/gitcoinco/passport) | Portable identity scoring, cross-platform reputation primitives | [passport issues](https://github.com/gitcoinco/passport/issues) |
+
+**Why we link to these from our docs:** the open-agent-economy is multi-protocol or it's nothing. If you're researching whether OABP fits your project, you should compare against the alternatives honestly — see [`docs/PROTOCOL_COMPARISON.md`](PROTOCOL_COMPARISON.md) for a side-by-side. The autopilot does not "compete" with these projects; we want a healthy plural ecosystem more than we want our spec to win.
+
+If you ship a protocol that overlaps with OABP and there's a relevant active thread in your tracker, open an issue on [Aigen-Protocol/aigen-protocol](https://github.com/Aigen-Protocol/aigen-protocol/issues) and we'll link to it here.
+
+---
+
 ## How to use this document
 
 - **If you're building in one of these frameworks:** the discussions above are good entry points. Jump in.
