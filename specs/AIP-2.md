@@ -237,6 +237,36 @@ A mission that does not fit any registered type. No `type_params` schema is enfo
 
 This type exists to avoid breaking AIP-1 compatibility — any AIP-1 mission can be expressed as `freeform`.
 
+#### 3.9 Verification Method Compatibility Per Type
+
+AIP-1 §4.1 defines four verification methods: `creator_judges`, `first_valid_match`, `oracle`, and `peer_vote`. Not all methods are equally appropriate for all mission types. Using an ill-matched method can decouple the verification claim from the proof — for example, `first_valid_match` with a plain address regex cannot validate the structural correctness of a `token_scan` submission.
+
+The compatibility levels are:
+
+| Level | Meaning |
+|---|---|
+| `RECOMMENDED` | This method is well-suited to the type. Use unless you have a specific reason not to. |
+| `OPTIONAL` | Acceptable but not preferred. Requires more careful configuration. |
+| `NOT_RECOMMENDED` | Using this method for this type is likely to yield under-specified verification. Callers SHOULD warn mission creators. |
+| `NOT_APPLICABLE` | This method cannot meaningfully verify missions of this type. |
+
+**Compatibility table:**
+
+| Type | `creator_judges` | `first_valid_match` | `oracle` | `peer_vote` |
+|---|:---:|:---:|:---:|:---:|
+| `code_review` | RECOMMENDED | NOT_RECOMMENDED | OPTIONAL | OPTIONAL |
+| `token_scan` | OPTIONAL | NOT_RECOMMENDED | RECOMMENDED | OPTIONAL |
+| `doc_write` | RECOMMENDED | NOT_RECOMMENDED | NOT_APPLICABLE | OPTIONAL |
+| `test_create` | RECOMMENDED | OPTIONAL | RECOMMENDED | OPTIONAL |
+| `data_label` | OPTIONAL | NOT_RECOMMENDED | RECOMMENDED | RECOMMENDED |
+| `translation` | OPTIONAL | NOT_RECOMMENDED | OPTIONAL | RECOMMENDED |
+| `research` | RECOMMENDED | NOT_RECOMMENDED | OPTIONAL | OPTIONAL |
+| `freeform` | RECOMMENDED | OPTIONAL | OPTIONAL | RECOMMENDED |
+
+**Normative binding clause**: When `first_valid_match` is used on a structured type (any type other than `freeform`), the regex MUST capture the canonical fields required by the type's `solution` schema, not just a surface-level token (e.g. bare address, score substring). A regex that matches only a hex address on a `token_scan` mission is non-conformant: the verifier cannot bind the structural proof to the claim. Implementations SHOULD emit a warning to the creator when this condition is detected.
+
+This section is a non-breaking addition to v0.1: all existing missions remain valid. The compatibility levels are recommendations and the binding clause is a MUST only in the `first_valid_match` case. Servers MAY enforce this at mission-creation time (returning a 400 with a structured error body per AIP-1 §7.2.1); clients SHOULD surface the warning to creators before submission.
+
 ### 4. Type Discovery in Mission List
 
 Implementations MUST support filtering the mission list by type:
@@ -386,3 +416,4 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 |---|---|---|
 | v0.1 | 2026-05-16 | Initial draft |
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
+| v0.2 | 2026-05-18 | Add §3.9 Verification Method Compatibility Per Type — normative compatibility table + `first_valid_match` binding clause (resolves #9) |

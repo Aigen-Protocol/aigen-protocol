@@ -18,7 +18,10 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
-from oabp import OABPClient, OABPError, MissionTypeAffinity, __aip_supported__
+from oabp import (
+    OABPClient, OABPError, MissionTypeAffinity, __aip_supported__,
+    VERIFICATION_COMPAT, check_verification_compat,
+)
 
 
 BASE_URL = os.environ.get("BASE_URL", "https://cryptogenesis.duckdns.org")
@@ -431,6 +434,71 @@ class TestAIP3Conformance:
 
     def test_sdk_declares_aip3(self):
         assert 3 in __aip_supported__, "SDK MUST declare AIP-3 support in __aip_supported__"
+
+
+# ---- AIP-2 §3.9 — verification method compatibility ----
+
+class TestVerificationCompat:
+    """AIP-2 §3.9 — check_verification_compat() and VERIFICATION_COMPAT table."""
+
+    def test_table_covers_all_registered_types(self):
+        registered = {
+            "code_review", "token_scan", "doc_write", "test_create",
+            "data_label", "translation", "research", "freeform",
+        }
+        assert registered == set(VERIFICATION_COMPAT.keys()), \
+            "MUST: VERIFICATION_COMPAT covers exactly the AIP-2 §3 registered types"
+
+    def test_all_rows_have_four_methods(self):
+        methods = {"creator_judges", "first_valid_match", "oracle", "peer_vote"}
+        for type_id, row in VERIFICATION_COMPAT.items():
+            assert set(row.keys()) == methods, \
+                f"MUST: {type_id!r} row covers all four verification methods"
+
+    def test_all_levels_are_valid(self):
+        valid = {"RECOMMENDED", "OPTIONAL", "NOT_RECOMMENDED", "NOT_APPLICABLE"}
+        for type_id, row in VERIFICATION_COMPAT.items():
+            for method, level in row.items():
+                assert level in valid, \
+                    f"MUST: {type_id!r}/{method!r} has a valid level (got {level!r})"
+
+    def test_token_scan_first_valid_match_not_recommended(self):
+        level, warn = check_verification_compat("token_scan", "first_valid_match")
+        assert level == "NOT_RECOMMENDED", \
+            "MUST: token_scan + first_valid_match is NOT_RECOMMENDED (§3.9 binding clause)"
+        assert warn is True, "MUST: NOT_RECOMMENDED triggers is_warning=True"
+
+    def test_doc_write_oracle_not_applicable(self):
+        level, warn = check_verification_compat("doc_write", "oracle")
+        assert level == "NOT_APPLICABLE"
+        assert warn is True
+
+    def test_recommended_pairs_no_warning(self):
+        recommended_pairs = [
+            ("code_review", "creator_judges"),
+            ("token_scan", "oracle"),
+            ("data_label", "peer_vote"),
+        ]
+        for mt, vm in recommended_pairs:
+            level, warn = check_verification_compat(mt, vm)
+            assert level == "RECOMMENDED", f"Expected RECOMMENDED for {mt}/{vm}, got {level!r}"
+            assert warn is False
+
+    def test_unknown_type_returns_unknown(self):
+        level, warn = check_verification_compat("aigen:nft_scan", "creator_judges")
+        assert level == "UNKNOWN"
+        assert warn is False, "Custom/unknown types MUST NOT trigger a warning"
+
+    def test_unknown_method_returns_unknown(self):
+        level, warn = check_verification_compat("code_review", "consensus_vote_v99")
+        assert level == "UNKNOWN"
+
+    def test_function_exported_from_package(self):
+        import oabp
+        assert hasattr(oabp, "check_verification_compat"), \
+            "check_verification_compat MUST be exported from the oabp package"
+        assert hasattr(oabp, "VERIFICATION_COMPAT"), \
+            "VERIFICATION_COMPAT MUST be exported from the oabp package"
 
 
 # ---- Run summary ----

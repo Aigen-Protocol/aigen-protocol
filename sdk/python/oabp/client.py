@@ -10,6 +10,76 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
+# AIP-2 §3.9 — verification method compatibility per mission type.
+# Keys: mission_type → verification_method → compat level.
+VERIFICATION_COMPAT: dict[str, dict[str, str]] = {
+    "code_review": {
+        "creator_judges": "RECOMMENDED",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "OPTIONAL",
+        "peer_vote": "OPTIONAL",
+    },
+    "token_scan": {
+        "creator_judges": "OPTIONAL",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "RECOMMENDED",
+        "peer_vote": "OPTIONAL",
+    },
+    "doc_write": {
+        "creator_judges": "RECOMMENDED",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "NOT_APPLICABLE",
+        "peer_vote": "OPTIONAL",
+    },
+    "test_create": {
+        "creator_judges": "RECOMMENDED",
+        "first_valid_match": "OPTIONAL",
+        "oracle": "RECOMMENDED",
+        "peer_vote": "OPTIONAL",
+    },
+    "data_label": {
+        "creator_judges": "OPTIONAL",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "RECOMMENDED",
+        "peer_vote": "RECOMMENDED",
+    },
+    "translation": {
+        "creator_judges": "OPTIONAL",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "OPTIONAL",
+        "peer_vote": "RECOMMENDED",
+    },
+    "research": {
+        "creator_judges": "RECOMMENDED",
+        "first_valid_match": "NOT_RECOMMENDED",
+        "oracle": "OPTIONAL",
+        "peer_vote": "OPTIONAL",
+    },
+    "freeform": {
+        "creator_judges": "RECOMMENDED",
+        "first_valid_match": "OPTIONAL",
+        "oracle": "OPTIONAL",
+        "peer_vote": "RECOMMENDED",
+    },
+}
+
+
+def check_verification_compat(mission_type: str, verification_method: str) -> tuple[str, bool]:
+    """AIP-2 §3.9 — return (compat_level, is_warning) for a type + method pair.
+
+    ``compat_level`` is one of: RECOMMENDED, OPTIONAL, NOT_RECOMMENDED, NOT_APPLICABLE, UNKNOWN.
+    ``is_warning`` is True when the level is NOT_RECOMMENDED or NOT_APPLICABLE.
+
+    Unknown types (custom types) always return (UNKNOWN, False) — custom types
+    are implementation-defined and carry no compatibility guarantee from this table.
+    """
+    type_row = VERIFICATION_COMPAT.get(mission_type)
+    if type_row is None:
+        return "UNKNOWN", False
+    level = type_row.get(verification_method, "UNKNOWN")
+    return level, level in ("NOT_RECOMMENDED", "NOT_APPLICABLE")
+
+
 class OABPError(Exception):
     """Raised on protocol errors (HTTP non-2xx, malformed responses, missing fields)."""
 
