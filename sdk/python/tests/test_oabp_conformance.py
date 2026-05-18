@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
-from oabp import OABPClient, OABPError, __aip_supported__
+from oabp import OABPClient, OABPError, MissionTypeAffinity, __aip_supported__
 
 
 BASE_URL = os.environ.get("BASE_URL", "https://cryptogenesis.duckdns.org")
@@ -370,11 +370,76 @@ class TestProtocolFeeDeclaration:
         assert 0 <= fee <= 10000, f"SHOULD: fee_bps in [0, 10000] (got {fee})"
 
 
+# ---- AIP-3 §5.2 — per-type affinity (RECOMMENDED) ----
+
+class TestAIP3Conformance:
+    """AIP-3 §5.2 — mission_type_affinity on reputation endpoint (RECOMMENDED).
+
+    Passes trivially (with a skip) when the server omits affinity data — this
+    field is RECOMMENDED, not MUST, for compliant implementations.
+    """
+
+    AIP2_CANONICAL_TYPES = {
+        "code_review", "token_scan", "doc_write", "test_create",
+        "data_label", "translation", "research", "freeform",
+    }
+
+    def test_affinity_field_is_dict(self, client):
+        agent_id = os.environ.get("OABP_TEST_AGENT_ID", "aigen-autopilot")
+        try:
+            rep = client.agent(agent_id)
+        except OABPError as e:
+            if e.status == 404:
+                pytest.skip(f"Test agent {agent_id} not found")
+            raise
+        assert isinstance(rep.mission_type_affinity, dict), \
+            "SHOULD: mission_type_affinity is always a dict (empty when not supported)"
+
+    def test_affinity_values_are_missiontypeaffinity(self, client):
+        agent_id = os.environ.get("OABP_TEST_AGENT_ID", "aigen-autopilot")
+        try:
+            rep = client.agent(agent_id)
+        except OABPError as e:
+            if e.status == 404:
+                pytest.skip(f"Test agent {agent_id} not found")
+            raise
+        if not rep.mission_type_affinity:
+            pytest.skip("No mission_type_affinity data returned (server may not implement AIP-3)")
+        for type_id, mta in rep.mission_type_affinity.items():
+            assert isinstance(mta, MissionTypeAffinity), \
+                f"SHOULD: affinity[{type_id!r}] is MissionTypeAffinity"
+            assert isinstance(mta.elo, int), \
+                f"SHOULD: affinity[{type_id!r}].elo is int (got {type(mta.elo)})"
+            assert isinstance(mta.completions, int), \
+                f"SHOULD: affinity[{type_id!r}].completions is int"
+            assert mta.completions >= 1, \
+                f"SHOULD: only types with ≥1 completion appear (got {mta.completions} for {type_id!r})"
+
+    def test_affinity_keys_are_aip2_types_or_custom(self, client):
+        agent_id = os.environ.get("OABP_TEST_AGENT_ID", "aigen-autopilot")
+        try:
+            rep = client.agent(agent_id)
+        except OABPError as e:
+            if e.status == 404:
+                pytest.skip(f"Test agent {agent_id} not found")
+            raise
+        if not rep.mission_type_affinity:
+            pytest.skip("No mission_type_affinity data (server may not implement AIP-3)")
+        for type_id in rep.mission_type_affinity:
+            assert isinstance(type_id, str) and len(type_id) > 0, \
+                f"SHOULD: mission type key is non-empty string (got {type_id!r})"
+
+    def test_sdk_declares_aip3(self):
+        assert 3 in __aip_supported__, "SDK MUST declare AIP-3 support in __aip_supported__"
+
+
 # ---- Run summary ----
 
 def test_aip_version_alignment():
-    """Sanity: this test suite is aligned to AIP-1."""
+    """Sanity: this test suite is aligned to AIP-1 + AIP-2 + AIP-3."""
     assert 1 in __aip_supported__, "This SDK supports AIP-1"
+    assert 2 in __aip_supported__, "This SDK supports AIP-2"
+    assert 3 in __aip_supported__, "This SDK supports AIP-3"
 
 
 if __name__ == "__main__":
