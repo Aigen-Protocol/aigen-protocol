@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3-draft | 2026-05-18 | §7.2.1 *(proposed, non-normative)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint. Tracked in issue #11. |
 | **v0.2.1** | 2026-05-17 | §7.1 MCP transport declaration (normative); §7.2 structured error response for unsupported transport paths (normative); §9 updated `endpoints.mcp` schema |
 | v0.2 | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
 | v0.1 | 2026-05-15 | Initial draft |
@@ -247,6 +248,38 @@ If a client sends a request to an MCP path variant that is not served (e.g. `POS
 ```
 
 A bare HTTP error response without a JSON body is **not sufficient**. Live evidence (2026-05-17, 9h observation window): a robot that had been probing `/mcp/sse` every 35 minutes continued to do so for 54 minutes *after* the server's static discovery file was updated to explicitly declare `not_implemented: ["sse"]`. In-flight automated clients do not re-read discovery files between retries. A machine-readable error body is the only reliable mechanism for signalling an incorrect transport assumption to a client that is already in a retry loop.
+
+#### 7.2.1 Structured Error Response for Transport / Content-Negotiation Mismatch — *PROPOSED v0.3*
+
+> **Status:** Draft for v0.3. Tracked in [issue #11](https://github.com/Aigen-Protocol/aigen-protocol/issues/11). Not normative until v0.3 is released.
+
+§7.2 (v0.2.1) covers **wrong-path** errors (`405`, `404`). In practice, an equally common failure mode is **transport / content-negotiation mismatch** on the *correct* path: an automated client POSTs to the canonical MCP endpoint but supplies the wrong `Accept` header, the wrong JSON-RPC envelope, or an unsupported content type. The server responds with `400 Bad Request` or `406 Not Acceptable`. The response body is a technically-correct JSON-RPC error, but it does not tell the client where to go next — so retry loops persist.
+
+Proposed normative text for v0.3 §7.2.1:
+
+> When a compliant implementation returns `400 Bad Request` or `406 Not Acceptable` from the canonical MCP endpoint (as declared in `/.well-known/oabp.json` §9 `mcp.url`), the response body MUST be `Content-Type: application/json` and MUST contain, in addition to the JSON-RPC `error` object, the following top-level sibling fields:
+>
+> ```json
+> {
+>   "jsonrpc": "2.0",
+>   "id": null,
+>   "error": {"code": -32600, "message": "<human-readable string>"},
+>   "canonical_endpoint": "<absolute URL — same value as oabp.json mcp.url>",
+>   "supported_transports": ["streamable_http"],
+>   "documentation": "<absolute URL to the relevant AIP-1 section>"
+> }
+> ```
+>
+> The three additional fields (`canonical_endpoint`, `supported_transports`, `documentation`) let a client in a retry loop self-correct without re-fetching `/.well-known/oabp.json` and without operator intervention. Field names are scoped to the AIP namespace to avoid collision with future MCP envelope extensions.
+
+**Falsifiability — pre-shipping evidence (observed 2026-05-17 to 2026-05-18):**
+
+Two independent automated clients have already produced the failure pattern §7.2.1 is designed to address:
+
+- **`54.67.34.241`** (AWS US-East, no UA, ~18h observation 2026-05-17T08:15Z onward): Alternates `POST /mcp/sse` (returns 405, 18B empty) and `POST /mcp` (returns 400, 105B JSON-RPC error). The 400 body correctly identifies the content-negotiation failure but does not advertise the canonical endpoint, so the client continues to alternate paths every ~36 minutes. After ~24h: > 60 retries, no successful handshake.
+- **`24.5.30.213`** (`User-Agent: MCP-Catalog-Bot/1.0`, observed first contact 2026-05-18T01:05Z): Tries `GET /mcp` (400), `GET /mcp/sse` (200 stub), then fetches `/mcp/.well-known/oauth-authorization-server` and `/mcp/.well-known/openid-configuration` (both 404) before succeeding at `POST /mcp` (200, 1182B tool list) at 04:04Z. This catalog crawler self-recovered after multiple probes; an unattended one without exhaustive probing may not.
+
+**Implementation cost in the reference impl:** 2-line change in `token-scanner/mcp_sse_only.py`. Compliance test: a single integration test that issues a malformed POST to the canonical endpoint and asserts presence of all three top-level fields in the 400 body.
 
 ### 8. Open API Schema
 
