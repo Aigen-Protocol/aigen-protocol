@@ -40,13 +40,17 @@ and the mission-type registry surface required by AIP-2 §§ 1-2.
 Any compliant implementation that responds to /.well-known/oabp.json works with this client.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __aip_supported__ = [1, 2]
 __license__ = "CC0-1.0"
 
-from .client import OABPClient, Mission, MissionType, Submission, AgentReputation, OABPError
+from .client import (
+    OABPClient, Mission, MissionType, Submission, AgentReputation,
+    OABPError, OABPTransportError,
+)
 
 __all__ = [
-    "OABPClient", "Mission", "MissionType", "Submission", "AgentReputation", "OABPError",
+    "OABPClient", "Mission", "MissionType", "Submission", "AgentReputation",
+    "OABPError", "OABPTransportError",
     "__version__", "__aip_supported__",
 ]

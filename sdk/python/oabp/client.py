@@ -19,6 +19,35 @@ class OABPError(Exception):
         self.body = body
 
 
+class OABPTransportError(OABPError):
+    """Raised on transport-layer rejections: 400 Bad Request, 405 Method Not Allowed,
+    406 Not Acceptable.  Parses the AIP-1 §7.2.1 structured JSON-RPC error body so
+    callers can inspect ``error_code`` without re-parsing ``body`` themselves.
+    """
+
+    def __init__(self, message: str, status: int, body: Optional[str] = None,
+                 error_code: Optional[int] = None):
+        super().__init__(message, status=status, body=body)
+        self.error_code = error_code
+
+    @classmethod
+    def _from_http(cls, status: int, path: str, raw: bytes) -> "OABPTransportError":
+        body = raw.decode("utf-8", errors="ignore")
+        error_code: Optional[int] = None
+        detail = ""
+        try:
+            data = json.loads(body)
+            err = data.get("error", {})
+            error_code = err.get("code")
+            detail = err.get("message", "")
+        except (json.JSONDecodeError, AttributeError):
+            detail = body[:120]
+        msg = f"HTTP {status} on {path}"
+        if detail:
+            msg += f": {detail}"
+        return cls(msg, status=status, body=body, error_code=error_code)
+
+
 @dataclass
 class MissionType:
     """AIP-2 §1 — mission type record from the shared type registry."""
@@ -140,17 +169,27 @@ class AgentReputation:
 class OABPClient:
     """Read+write client for an OABP-compliant implementation.
 
-    The client autodiscovers endpoints from `/.well-known/oabp.json` if present,
-    otherwise falls back to AIP-1 default paths.
+    The client autodiscovers endpoints and transport type from
+    ``/.well-known/oabp.json`` (AIP-1 §9) if present, otherwise falls back to
+    AIP-1 default paths.  Check ``client.transport`` before probing ``/mcp``
+    directly — a ``streamable_http`` transport requires session negotiation and
+    will return a structured 400 on unauthenticated GET /mcp (AIP-1 §7.2.1).
     """
 
     DEFAULT_TIMEOUT = 15
+
+    #: Transport values from the discovery manifest (AIP-1 §9).
+    TRANSPORT_STREAMABLE_HTTP = "streamable_http"
+    TRANSPORT_SSE = "sse"
+
+    _TRANSPORT_ERRORS = {400, 405, 406}
 
     def __init__(self, base_url: str, timeout: int = DEFAULT_TIMEOUT, user_agent: str = None):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
         self.user_agent = user_agent or f"oabp-python/{__import__('oabp').__version__}"
         self._endpoints: Optional[dict] = None
+        self._transport: Optional[str] = None
 
     # ---- Discovery ----
 
@@ -163,12 +202,18 @@ class OABPClient:
             return json.loads(r.read())
 
     def endpoints(self) -> dict:
-        """Returns the implementation's endpoint map. Cached after first call."""
+        """Returns the implementation's endpoint map. Cached after first call.
+
+        Also populates ``self.transport`` from the discovery manifest so callers
+        know the MCP transport type before making any requests (AIP-1 §7, §9).
+        """
         if self._endpoints is not None:
             return self._endpoints
         try:
             info = self.discover(self.base_url, timeout=self.timeout)
             self._endpoints = info.get("endpoints", {})
+            # AIP-1 §9: read transport field first, before attempting any /mcp call
+            self._transport = info.get("transport")
         except Exception:
             # Fall back to AIP-1/AIP-2 defaults
             self._endpoints = {
@@ -186,6 +231,19 @@ class OABPClient:
         self._endpoints.setdefault("missions_types", "/missions/types")
         return self._endpoints
 
+    @property
+    def transport(self) -> Optional[str]:
+        """AIP-1 §7/§9 — MCP transport type declared by the server
+        (``"streamable_http"``, ``"sse"``, or ``None`` when unknown).
+
+        Resolved from ``/.well-known/oabp.json`` on first access.  Use this
+        before probing ``/mcp`` directly: ``streamable_http`` requires a
+        session-ID handshake and returns a structured 400 on plain GET.
+        """
+        if self._transport is None and self._endpoints is None:
+            self.endpoints()  # triggers discovery and sets self._transport
+        return self._transport
+
     # ---- Low-level HTTP ----
 
     def _get(self, path: str) -> dict:
@@ -195,7 +253,11 @@ class OABPClient:
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            raise OABPError(f"GET {path} failed", status=e.code, body=e.read().decode("utf-8", errors="ignore"))
+            raw = e.read()
+            if e.code in self._TRANSPORT_ERRORS:
+                raise OABPTransportError._from_http(e.code, path, raw)
+            raise OABPError(f"GET {path} failed", status=e.code,
+                            body=raw.decode("utf-8", errors="ignore"))
 
     def _post(self, path: str, body: dict) -> dict:
         url = f"{self.base_url}{path}"
@@ -209,7 +271,11 @@ class OABPClient:
             with urllib.request.urlopen(req, timeout=self.timeout) as r:
                 return json.loads(r.read())
         except urllib.error.HTTPError as e:
-            raise OABPError(f"POST {path} failed", status=e.code, body=e.read().decode("utf-8", errors="ignore"))
+            raw = e.read()
+            if e.code in self._TRANSPORT_ERRORS:
+                raise OABPTransportError._from_http(e.code, path, raw)
+            raise OABPError(f"POST {path} failed", status=e.code,
+                            body=raw.decode("utf-8", errors="ignore"))
 
     # ---- Mission operations ----
 
