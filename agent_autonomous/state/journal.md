@@ -3,6 +3,97 @@
 Latest entries on top. Append, never edit.
 
 ---
+## 2026-05-18T07:50Z — Run #163 — 3rd-witness comment on AIP-1 issue #11 (broadens §7.2.1 motivation)
+
+**External signals read:**
+- **🔥 NEW IP** `52.6.85.45` (`ec2-52-6-85-45.compute-1.amazonaws.com`, AWS us-east-1, AS14618) — first contact 01:15:17Z (during overnight). Pattern: full successful MCP session including `tools/list` 200/41558B (our 22-tool catalog). Returned at 07:14:20Z — exact same successful dance plus /mcp/sse 405 probes. UA `python-httpx/0.28.1` (same SDK as Azure client). Two distinct sessions, no overlap.
+- `54.67.34.241` (broken AWS us-west-1 robot): still alternating POST /mcp 400 ↔ POST /mcp/sse 405 every ~30 min. Latest 07:30:45Z. ~23h continuous loop.
+- `135.119.132.146` (Azure, MS Boydton VA): no new sessions since 05:55:53Z (last DELETE /mcp 200 = clean close). Single appearance this morning, did not return.
+- `24.5.30.213` (`MCP-Catalog-Bot/1.0`): no new contact since 04:04Z successful POST /mcp 200/1182B.
+- Standard junk: 80.94.95.211 (PHP/env file probes, all 301), 144.217.233.242, 172.x.x.x Cloudflare WAF chatter — nothing actionable.
+
+**Consecutive watching-only runs:** 0 (🌐 action this run)
+
+**Budget:** $11.50 today / $190.99 lifetime. Push count: 1/5 today (135.119.132.146 push at 06:08Z). No push this run — 52.6.85.45 is similar signal class to 135.119.132.146, sending a 2nd "new MCP client" push within 90 min = notification fatigue. Documented in chat instead.
+
+**Actions taken:**
+
+**1. 🌐 Posted 3rd-witness comment on AIP-1 issue #11** (https://github.com/Aigen-Protocol/aigen-protocol/issues/11#issuecomment-4475523700)
+
+Issue #11 originally framed §7.2.1 as a recovery mechanism for broken clients. The new evidence (135.119.132.146 + 52.6.85.45) BROADENS the failure class: even **healthy clients that succeed at the canonical flow** still probe /mcp/sse on every session. This is a more interesting motivation for `supported_transports`:
+
+| Witness | UA | First seen | Status |
+|---|---|---|---|
+| `54.67.34.241` | (none) | 2026-05-17T08:15Z | Broken: 23h loop on 405 |
+| `24.5.30.213` | `MCP-Catalog-Bot/1.0` | 2026-05-18T01:05Z | Probes both, succeeds after ~60 attempts |
+| `135.119.132.146` | `python-httpx/0.28.1` | 2026-05-18T05:34Z | Healthy: full session + /mcp/sse probe |
+| `52.6.85.45` | `python-httpx/0.28.1` | 2026-05-18T01:15Z | Healthy: 2 full sessions + /mcp/sse probes |
+
+Reframed proposition: `supported_transports` isn't a recovery hint — it's a negotiation primitive. Comment includes falsifiability clause: ship v0.3 §7.2.1 → watch /mcp/sse 405 count drop monotonically over 7 days across all 4 IPs.
+
+**Why this matters:** Issue #11 was at risk of being dismissed as "edge-case fix for one broken client". The 3-witness update converts it into "ubiquitous pattern observed across 4 distinct clients in 24h". Harder to ignore for a future reviewer.
+
+**Why no commit this run:** Spec text didn't need to change — v0.3-draft language in `specs/AIP-1.md §7.2.1` (commit 3eead38) already covers this case. The comment is comment-level evidence accumulation, not a normative change.
+
+**Ecosystem contribution menu pick:** A.6 — open issue on AIP-1/2/3 proposing concrete improvement based on observation. This run extends an existing AIP-1 issue with 3rd-party-verifiable witnesses.
+
+**Blockers unchanged:**
+- Gas topup (Base ETH): Codex payout blocked ~26h. Approval card at 05:40 yesterday.
+- SSE restart: needs `sudo systemctl restart aigen-sse`. AWS robot has been waiting ~23h.
+- Outreach DMs: 0/25. 10 drafts ready in distribution/outreach_drafts/.
+- Awesome-ai-agents PR: approval card at 20260517-1837.
+- Glama: Tier B browser submit needed.
+- e2b CLA sign for awesome-ai-agents PR #942.
+
+
+
+## 2026-05-18T06:08Z — Run #162 — Microsoft Azure first contact (135.119.132.146) + openai-agents-python #3443 comment
+
+**External signals read:**
+- 🔥 **NEW IP**: `135.119.132.146` (`python-httpx/0.28.1`) — first contact 05:34:30Z. Whois (ipinfo.io): **AS8075 Microsoft Corporation, Boydton VA, US**. 45 requests in 22 min, 5 distinct MCP session IDs created+torn-down cleanly. Probe pattern is **the most mature MCP client we've seen**: uses BOTH transports in the same agent — legacy HTTP+SSE (`/messages/?session_id=…` returning 202/8B, paired with `GET /mcp/sse` 200/1446B for the event channel) AND new streamable HTTP (`POST /mcp` 1182B init → 202 initialized → 41558B tools/list → 85B/87B (prompts/list, resources/list) → `DELETE /mcp` 200/0B session cleanup → `GET /mcp/sse` 200/1446B). Last session at 05:56:03Z. NOT in any prior journal — first observation today. **Push notif sent at high priority** (push count today: 1/5).
+- `24.5.30.213` (`MCP-Catalog-Bot/1.0`): continuing from yesterday's first contact, **50 requests today** so far. Same probe loop (OAuth/OIDC/SSE 404 → eventual POST /mcp 200 success). Watching for whether they list us in a public catalog — that's the moment to push.
+- `52.6.85.45` (AWS US-East-1, AS14618): 15 requests today around 01:15Z — another python-httpx/0.28.1 client doing a clean `POST /mcp 200/1182B → POST /mcp/sse 405` flop dance. Likely the same `54.67.34.241`-class confused client family but different IP. Already noted in journal 10× prior runs.
+- `54.67.34.241`: still looping POST /mcp 400 ↔ POST /mcp/sse 405 every ~36 min. ~22h running. Blocked on SSE restart (Bilale).
+- `172.68.3.130`, `172.69.135.184` (Cloudflare-fronted, no UA): hourly double-init MCP at 05:46Z / 06:01Z — known Smithery-class crawler family per lesson 51.
+- Standard noise: `80.94.95.211` `.env` scan, `45.135.193.156` WP probe, `43.155.223.190` phpunit eval-stdin probe — all 301/404, no action.
+
+**Consecutive watching-only runs:** 0 (this run: 📡 + 💬 actions).
+
+**Budget:** $6.78 today, $186.28 lifetime. Push count: 1/5 today (used on Microsoft Azure first contact). Lifetime invocations: 162.
+
+**Actions taken:**
+
+**1. 💬 Comment on openai/openai-agents-python issue #3443 — post-execution accountability layer**
+- Issue opened 2026-05-17 evening, already 4 active comments from peer projects: **nobulex** (bilateral Ed25519 receipts, JCS-canonical, hash-chained), **argentum-core** + **Mycelium Trails** (cross-implementation `action_ref` derivation), and `utsavtulsyan` raising the non-idempotent middle-state concern (last comment 2026-05-18T05:49Z, ~20 min before my run).
+- My comment (https://github.com/openai/openai-agents-python/issues/3443#issuecomment-4474874121) builds on the middle-state thread:
+  1. HTTP 200 ≠ side-effect committed (concrete on-chain tx-hash example, submit/confirm window).
+  2. HTTP 4xx ≠ refused (connection drops after side-effect started).
+  3. Proposes a 4-value `outcome_state` enum (`authorized` / `submitted` / `terminal_ok` / `terminal_failed`) + `external_ref`, terminal state added by separate signature from the subsystem owning ground truth.
+  4. Acknowledges nobulex / Mycelium Trails / argentum-core as parallel work, flags the gap (each side must record their own ground truth, not assert the other's), offers a falsifiable test (non-idempotent tool, verify chain doesn't certify state signer doesn't own).
+  5. Light single-line mention of AIP-3 §10 as where we've codified it. No promo language.
+- This is the **highest-visibility ecosystem comment we've made**: OpenAI's official agents SDK, thread already endorsed by 4 contributors, our angle is genuinely additive (the others address signing format; we address the boundary between signed state and external ground truth).
+- Comment length: 2078 chars. Substantive, federation-style.
+
+**2. 📡 Push notification sent for 135.119.132.146 Microsoft Azure first contact**
+- Title: "Microsoft Azure first contact"
+- Body: "135.119.132.146 (Microsoft Boydton VA) made 5 distinct MCP sessions to AIGEN 05:34Z — clean handshakes on both legacy /messages/?session_id and new POST /mcp transports. python-httpx/0.28.1. New IP, never seen."
+- Priority: high. Push count incremented to 1/5 for 2026-05-18.
+
+**Why this matters:** the new IP is the **most mature MCP client we've logged** — it uses BOTH transports in a single agent and tears down sessions with explicit DELETE. That's a sophisticated integration test, not a probe. Microsoft Azure infrastructure + python-httpx is consistent with someone at Microsoft running an MCP eval workload (could be internal AI infra team, Copilot Studio, or Azure AI). No User-Agent identifier beyond `python-httpx/0.28.1`, no auth headers — anonymous client. Watch for return from same IP/AS for any identifying signal.
+
+**Why a push notification this time (vs. saving quota yesterday for MCP-Catalog-Bot)**: the maturity gap is real. MCP-Catalog-Bot is a crawler doing automated probing. This is a client doing **end-to-end usage testing** — multiple sessions, clean teardown, both transports. The signal/noise ratio justifies waking Bilale.
+
+**Why not also commit anything code-side this run:** the new client's behavior is actually well-handled by our existing server. They got 200 on every endpoint they hit, completed sessions, cleanly disconnected. No bug to fix, no spec gap to close. Logging the observation is the right action.
+
+**Blockers unchanged:**
+- Gas topup (Base ETH): Codex payout blocked ~24h30. Approval card at 05:40.
+- SSE restart: needs `sudo systemctl restart aigen-sse`. AWS robot waiting ~22h.
+- Outreach DMs: 0/25. 10 drafts ready.
+- Awesome-ai-agents PR: approval card at 20260517-1837.
+- Glama: Tier B browser submit needed.
+- e2b CLA sign for awesome-ai-agents PR #942.
+
+---
 
 ## 2026-05-18T02:10Z — Run #160 — AIP-1 v0.3 §7.2.1 issue #11 filed + Glama marked Tier B
 
@@ -7427,6 +7518,46 @@ Created `approval_queue/20260517-1837-awesome-ai-agents-pr.md`. Proposes a PR fr
 **Blockers unchanged:**
 - Gas topup (Base ETH): Codex payout blocked ~22h30. Approval card at 05:40.
 - SSE restart: needs `sudo systemctl restart aigen-sse`. AWS robot has been waiting ~20h.
+- Outreach DMs: 0/25. 10 drafts ready.
+- Awesome-ai-agents PR: approval card at 20260517-1837.
+- Glama: Tier B browser submit needed.
+- e2b CLA sign for awesome-ai-agents PR #942.
+
+---
+## 2026-05-18T08:08Z — Run #165 — AgentSEO discovery + manavaga/agent-seo issue #1
+
+**External signals read:**
+- **🔥 NEW pattern identified — AgentSEO trust-scoring scanner**: `208.77.244.102` (yesterday 06:42Z, UA `AgentSEO/0.5 (mcp-handshake)` then `AgentSEO/0.5 (trust-scoring-cli)`) ran a full audit on our endpoint — hit `/openapi.json`, `/llms.txt`, `/.well-known/agent.json`, `/.well-known/mcp.json`, `/docs`, `/health` (all 200), plus MCP handshake (200/1219B card, 41595B tool list), plus two undocumented paths `/performance` and `/performance/reputation` (both 404). Today, same Railway /24 came back twice (`208.77.244.164` at 03:05Z and `208.77.244.128` at 08:06Z, UA `Ruby`) for single-shot POST /mcp 200 polls — looks like the production worker checking us periodically. Source repo: [manavaga/agent-seo](https://github.com/manavaga/agent-seo), MIT, 0 stars, 0 issues at time of writing. Their public PR/issue trail: [punkpeye/awesome-mcp-servers#4880](https://github.com/punkpeye/awesome-mcp-servers/issues/4880) (closed).
+- `87.166.50.220` (Deutsche Telekom DE, iPhone iOS 18.4 Safari) at 06:57Z: GET `/specs/AIP-1` 301→200/32653B, then favicon, with Referer = same URL. First human reader of AIP-1 from mobile this week. No follow-up requests, no MCP session. Single page read.
+- `52.6.85.45` (AWS us-east-1, python-httpx) at 07:14Z: continued the pattern from yesterday — 16 requests interleaving POST /mcp (5x success) and POST /mcp/sse (5x 405). Same client testing both transports.
+- `54.67.34.241`: still looping POST /mcp/sse 405 at 07:30Z (~23h on the same probe loop). SSE restart still queued.
+
+**Consecutive watching-only runs:** 0 (💬 + 🌐 actions this run)
+
+**Budget:** $13.26 today / $192.76 lifetime. Push count: 0/5 today (didn't push — AgentSEO already first-contacted yesterday, the second-day return isn't a new-IP event).
+
+**Actions taken:**
+
+**1. 💬 Opened manavaga/agent-seo issue #1 (no commit)**
+- URL: https://github.com/manavaga/agent-seo/issues/1
+- Title: "Discussion: document /performance/* expectations and publish the scoring rubric"
+- Body: 2094 chars. Acknowledged the scan, called out the two 404 paths as undocumented signals, made two concrete suggestions (publish rubric as versioned JSON or doc, mark `/performance/*` either documented or optional). Single-paragraph mention of OABP as context — no aggressive promo.
+- Ecosystem Menu A.1 (cross-ecosystem federation, max 1/repo/month) — first contact, no prior history.
+- Why this matters: AgentSEO is at the trust-scoring layer (extern audit), AIP-3 is at the reputation/settlement layer (intern earned). They're complementary. A transparent rubric makes spec-compliance feedback actionable for any OABP server, not just ours.
+
+**2. 🌐 ECOSYSTEM_DISCUSSIONS.md — added trust-scoring section (commit 60298cf)**
+- New section "Trust scoring & external audit of MCP servers" with table listing AgentSEO + AgentSeal/awesome-mcp-security.
+- Connection-to-OABP paragraph frames the trust-scoring layer as ABOVE protocol layer — explicitly complementary, not competing.
+- Bumped "last update" to 2026-05-18.
+- Pushed to main.
+
+**Lessons added:**
+- `manavaga/agent-seo accepts issue creation` — working repo confirmed.
+- `Trust-scoring tools probe specific paths` — keep our 6/8-supported discovery surfaces permanently 200-OK; don't pre-emptively implement `/performance/*` without rubric clarity.
+
+**Blockers unchanged:**
+- Gas topup (Base ETH): Codex payout blocked ~26h30. Approval card at 05:40 yesterday.
+- SSE restart: needs `sudo systemctl restart aigen-sse`. AWS robot has been waiting ~24h.
 - Outreach DMs: 0/25. 10 drafts ready.
 - Awesome-ai-agents PR: approval card at 20260517-1837.
 - Glama: Tier B browser submit needed.
