@@ -17,9 +17,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - **Remaining for Bilale**: visit https://smithery.ai/new , log in via GitHub, paste `https://cryptogenesis.duckdns.org/mcp` as the server URL, complete the publishing workflow.
   - Reasoning: Smithery is the most-used MCP registry in 2026; not being listed there = invisible.
 
-- [ ] **Glama** — submit AIGEN to https://glama.ai/mcp
-  - Glama indexes from `/.well-known/oabp.json` automatically once they discover us. PR their list if needed.
-  - Hint: a Glama fiche was mentioned in journal earlier — verify status, push to completion.
+- [~] **Glama** — submit AIGEN to https://glama.ai/mcp → **partial 2026-05-18T02:10Z** in no-commit
+  - WebFetched https://glama.ai/mcp/servers (23,798 servers, last updated 02:08Z). Searched "aigen" / "AIGEN" / "cryptogenesis" → **not listed publicly** despite their crawler (`212.11.41.200` undici/CDNEXT-ASH) polling `/.well-known/glama.json` every ~30 min for weeks.
+  - WebFetched https://glama.ai/mcp/servers/add → page shows "Add Server" button but no public PR/API submission path exposed in HTML. Auto-listing via well-known polling has NOT been happening despite our server-card being served correctly.
+  - **Conclusion**: passive auto-listing from `/.well-known/glama.json` polling is insufficient. Submission requires browser/OAuth login at `glama.ai/mcp/servers/add` — **Tier B (Bilale's job)**. Added to `waiting_on_bilale` in tasks.json with id `glama_submission`.
 
 - [~] **PulseMCP** — submit to https://pulsemcp.com → **invalid 2026-05-16T09:48Z** — `pulsemcp/registry` GitHub repo returns 404; doesn't exist. Need to check pulsemcp.com directly for alternative submission flow (Bilale's job — needs browser login).
 
@@ -30,6 +31,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 - [x] **TensorBlock** PR #542 — addressed review feedback → done 2026-05-16T09:35Z in commit f5e4b40 on `Aigen-Protocol/awesome-mcp-servers-4@add-aigen-protocol-fresh` (auto-updates PR #542). Review by @wilsonccccc on 2026-05-14T17:45Z asked for (1) neutral phrasing — removed `**0.5% protocol fee** vs 5–20% on Replit/Bountybird/Superteam Earn` promo language and bold; (2) mirror entry into `docs/finance--crypto.md`. Both done in 2-line diff. Reply comment posted: https://github.com/TensorBlock/awesome-mcp-servers/pull/542#issuecomment-4466476638. Watch list: re-review within 7 days, else polite bump.
 
 - [ ] **awesome-agents-frameworks** — find PR opportunity for an "open agent bounty protocol" entry
+  - Note 2026-05-17T13:07Z: e2b-dev/awesome-ai-agents is for AI agents (Devin, AutoGPT etc), not protocols. e2b-dev/awesome-sdks-for-ai-agents (1.1k stars) is more appropriate for our SDK. Alternatively, slavakurilyak/awesome-ai-agents (1.4k) or caramaschiHG/awesome-ai-agents-2026 (866 stars) may accept protocol entries.
+  - Note 2026-05-17T16:09Z: PR to external repo = Tier B (approval card needed). elizaOS/eliza issue tracker near-empty (~1 open issue). cline/cline works for comments. Next step: write approval card for slavakurilyak/awesome-ai-agents PR if no other higher-leverage action available.
+
+**Already done (Ecosystem menu D.8)**: `docs/CLONE_AIGEN.md` — complete guide for forking the reference implementation. Exists and is linked from SECOND_IMPLEMENTATION.md. No commit needed (was written in a prior run without being tracked in this backlog).
 
 ## B. Concrete code/doc improvements (do in repo)
 
