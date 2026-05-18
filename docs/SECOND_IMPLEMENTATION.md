@@ -197,7 +197,8 @@ AIP-1 only requires `/.well-known/oabp.json`. In practice, MCP catalog crawlers 
 |---|---|---|---|
 | `/.well-known/oabp.json` | required by AIP-1 | every OABP crawler | full server card per AIP-1 |
 | `/.well-known/mcp.json` | de-facto convention | `AgentSEO/0.5 (trust-scoring-cli)`, `MCP-Catalog-Bot/1.0` | `{"mcp_endpoint": "<url>", "transports": ["streamable_http"]}` |
-| `/.well-known/agent.json` | A2A/agent-card convention | `AgentSEO/0.5` | minimal agent metadata or 200 + `{}` if you don't expose A2A |
+| `/.well-known/agent.json` | A2A/agent-card convention (legacy) | `AgentSEO/0.5` | minimal agent metadata or 200 + `{}` if you don't expose A2A |
+| `/.well-known/agent-card.json` | A2A Agent Card spec (Google A2A v0.2 naming) | `AgenstryBot/0.3.0` (Agenstry trust+routing layer, indexing 23k+ A2A and MCP agents) | A2A-compliant card: `name`, `description`, `url`, `provider`, `version`, `capabilities`, `skills[]`. If you serve MCP+OABP natively, publish the card with `url` pointing to your MCP endpoint and an `x-*` extension declaring native protocols. See [aigen's example](https://cryptogenesis.duckdns.org/.well-known/agent-card.json) |
 | `/openapi.json` (or `/openapi.yaml`) | OpenAPI 3.x | trust-scoring scanners, `Smithery` indexer | machine-readable spec of your HTTP endpoints — generate from code or hand-write the 4 mandatory routes |
 | `/llms.txt` | LLM-readable site map | OAI-SearchBot, trust scorers | short markdown summary of your protocol + canonical URLs (15 lines is enough) |
 | `/docs` | human docs landing | trust scorers, human visitors | static HTML or 301 to your README rendered |
