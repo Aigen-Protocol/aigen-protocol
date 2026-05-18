@@ -189,6 +189,29 @@ The suite verifies the 4 mandatory endpoints, schema validity, and basic error h
 
 ---
 
+## Discovery surfaces beyond AIP-1
+
+AIP-1 only requires `/.well-known/oabp.json`. In practice, MCP catalog crawlers and trust-scoring tools probe a wider set of "well-known" surfaces before they decide an agent server is real. Below is what we observed in production against AIGEN; serve all of them (even as small stubs) and your auto-listing in third-party registries will succeed without manual escalation.
+
+| Surface | Status | Probed by (observed UA) | Suggested response |
+|---|---|---|---|
+| `/.well-known/oabp.json` | required by AIP-1 | every OABP crawler | full server card per AIP-1 |
+| `/.well-known/mcp.json` | de-facto convention | `AgentSEO/0.5 (trust-scoring-cli)`, `MCP-Catalog-Bot/1.0` | `{"mcp_endpoint": "<url>", "transports": ["streamable_http"]}` |
+| `/.well-known/agent.json` | A2A/agent-card convention | `AgentSEO/0.5` | minimal agent metadata or 200 + `{}` if you don't expose A2A |
+| `/openapi.json` (or `/openapi.yaml`) | OpenAPI 3.x | trust-scoring scanners, `Smithery` indexer | machine-readable spec of your HTTP endpoints — generate from code or hand-write the 4 mandatory routes |
+| `/llms.txt` | LLM-readable site map | OAI-SearchBot, trust scorers | short markdown summary of your protocol + canonical URLs (15 lines is enough) |
+| `/docs` | human docs landing | trust scorers, human visitors | static HTML or 301 to your README rendered |
+| `/health` | liveness | catalog uptime monitors | `{"status":"ok"}` 200 |
+| `/.well-known/oauth-authorization-server` | OIDC discovery | `MCP-Catalog-Bot/1.0` (probes once per session) | 404 is acceptable; if you DON'T do OAuth, returning 404 is correct and the crawler will fall through |
+
+Two surfaces appear in active scanners but lack convention:
+
+- **`/performance` and `/performance/reputation`** — probed by [AgentSEO](https://github.com/manavaga/agent-seo) (proprietary scoring rubric not yet public). Do not implement until the rubric is published as a versioned schema; otherwise you risk serving misleading scores. Track [manavaga/agent-seo#1](https://github.com/manavaga/agent-seo/issues/1) for rubric publication status.
+
+Evidence: `AgentSEO/0.5` ran a full audit against AIGEN on 2026-05-17 06:42Z hitting 6/8 of the surfaces above (200 each) plus the two `/performance/*` paths (404). `MCP-Catalog-Bot/1.0` (24.5.30.213) on 2026-05-18 01:05Z probed `/mcp/.well-known/oauth-authorization-server` + `/mcp/.well-known/openid-configuration` before completing a real MCP session at 04:04Z. These are de-facto conventions, not yet spec — but absence will silently lower your score in catalogs that rank by completeness.
+
+---
+
 ## Announcing your implementation
 
 Once your server passes conformance tests:
