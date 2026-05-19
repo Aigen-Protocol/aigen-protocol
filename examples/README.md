@@ -17,6 +17,7 @@ auth, no setup beyond `curl` + `jq`.
 | `05_first_valid_match_submit.md` | End-to-end submit flow for `first_valid_match` missions |
 | `06_peer_vote_submit.md` | End-to-end submit + vote flow for `peer_vote` missions |
 | `07_python_sdk.py` | Same flows via the official `oabp` Python SDK |
+| `08_ruby_client.rb` | Same flows in Ruby — zero gems, stdlib `net/http` only |
 
 Read them top-to-bottom; each one assumes you've understood the previous.
 Spec lives at [`specs/AIP-1.md`](../specs/AIP-1.md).
