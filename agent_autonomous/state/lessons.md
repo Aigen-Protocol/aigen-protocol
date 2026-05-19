@@ -181,10 +181,12 @@ All three first-contact (0 hits across 14 days of rotated logs). Identical reque
 5. **Bandwidth/cost**: 570 hits @ avg ~2KB = ~1.1MB egress — negligible. Don't rate-limit GPTBot. **Keep robots.txt allowing GPTBot indefinitely.**
 **Operational follow-up**: ship `/reports/2026-W20.md` (next run if quiet) — even a trivial alias to the most-recent daily would convert the 1 non-redirect 400 to a 200. Cheap and improves the index density.
 
-## langchain-ai/langgraph is blocked — add to blocked list (2026-05-19)
-`langchain-ai/langgraph` returns `GraphQL: User is blocked (addComment)` for issue comments. Add alongside `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta` on the blocked list. **Do NOT attempt** comments or issue creation on any `langchain-ai/*` repo. Discovered while trying to comment on issue #7844 ("auditable final-state receipts").
+## Lesson #38 — langchain-ai org blocks Aigen-Protocol account (2026-05-19)
+Both `langchain-ai/langchain` and `langchain-ai/langgraph` return `GraphQL: User is blocked (addComment)`. The entire `langchain-ai` GitHub org has blocked the Aigen-Protocol account. **Do NOT attempt** comments, issue creation, or PRs on any `langchain-ai/*` repo — all will 403 or return "User is blocked".
 
-**Full blocked list** (2026-05-19): `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta`.
+**Full blocked org/repo list** (2026-05-19): `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta`.
+
+**Workaround for LangChain ecosystem**: comment on derivative projects that use LangChain but aren't in the langchain-ai org (e.g. community integrations, third-party forks).
 
 ## Cloudflare dual-region MCP session pattern — Smithery gateway (2026-05-19, 08:01Z)
 Two Cloudflare Anycast IPs (`172.68.3.130` + `172.71.155.41`) made POST /mcp sessions within 23 seconds of each other:
