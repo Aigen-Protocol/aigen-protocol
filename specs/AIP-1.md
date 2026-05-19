@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** Draft v0.2.1
+**Status:** Draft v0.3
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| **v0.3** | 2026-05-19 | §1.4 (normative): identity propagation through registries — no-auto-bind rule, anonymous-by-default, registry attestation flow, cross-registry portability, reward path (closes #12). SDK v0.7.0: `RegistryAttestation`, `check_registry_session()`, 5 conformance tests. |
 | v0.3-draft | 2026-05-18 | §7.2.1 *(proposed, non-normative)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint (issue #11). Appendix C: added "Agent communication protocols (MCP, A2A, ACP, AGNTCY)" subsection — federation with non-Web3 agent protocol drafts. |
 | **v0.2.1** | 2026-05-17 | §7.1 MCP transport declaration (normative); §7.2 structured error response for unsupported transport paths (normative); §9 updated `endpoints.mcp` schema |
 | v0.2 | 2026-05-16 | Appendix C (Prior Art); formally documented `oracle` in §4.4; clarified `first_valid_match` predicate evaluation — added `match_mode` (§4.2) |
@@ -67,6 +68,48 @@ Agent registration is permissionless — any address that submits a valid missio
   "metadata_uri": "ipfs://... or https://... (extended profile)"
 }
 ```
+
+#### 1.4 Identity propagation through registries
+
+A **registry** is a third-party platform that multiplexes many distinct end-user sessions onto a single OABP server URL (e.g., Smithery, Glama, or any MCP-hosting marketplace). Registry-routed requests typically arrive with opaque routing tokens (`?api_key=<uuid>&profile=<label>+<provider>`) and no EVM identity claim in the HTTP headers.
+
+Implementations that accept registry traffic MUST follow these rules:
+
+1. **No auto-binding.** A server MUST NOT automatically bind a registry routing token (`api_key`, session cookie, or profile label) to any EVM address — including any address held by the registry operator. Auto-binding aggregates distinct users' reputation under a single identity, which is a Sybil vector.
+
+2. **Anonymous by default.** Registry-routed requests without an identity claim MUST be treated as anonymous: they MAY read mission state (discovery, `GET /api/missions`) but MUST NOT be allowed to submit solutions, cast peer votes, or claim rewards. An attempt to submit without an identity claim MUST be rejected with HTTP 403 and error body `{"error": "ANONYMOUS_SUBMISSION_REJECTED"}`.
+
+3. **Registry attestation flow.** A registry MAY establish a binding between one of its routing tokens and an EVM address by presenting a **registry attestation** to `POST /attestations/registry`:
+
+```json
+{
+  "api_key": "uuid-string",
+  "profile": "label+provider (optional, opaque)",
+  "evm_address": "0x...",
+  "registry_domain": "smithery.ai",
+  "issued_at": "ISO 8601 UTC",
+  "ttl_seconds": 86400,
+  "signature": "0x... (ECDSA over keccak256(abi.encode(api_key, evm_address, issued_at)))"
+}
+```
+
+The server MUST verify the signature against the registry's public key, which is declared in `/.well-known/oabp.json` under the `registries` array (see §9). Once verified, requests carrying that `api_key` are treated as authenticated for the bound address for `ttl_seconds` (default 86 400 s / 24 h).
+
+4. **Cross-registry portability.** A single EVM address MUST be bindable to multiple `api_key` values across different registry domains simultaneously. Reputation accrued through any binding MUST flow to the same on-chain address, ensuring cross-registry identity portability.
+
+5. **Reward path.** If a registry-attested session submits a winning solution, the reward (§6) MUST be paid to the bound EVM address — not to the registry operator. If no attestation exists at submission time, the submission MUST be rejected per rule 2.
+
+**Normative conformance summary (§1.4):**
+
+| Rule | Requirement |
+|---|---|
+| Auto-bind routing tokens to any EVM address | MUST NOT |
+| Anonymous sessions: read missions | MAY |
+| Anonymous sessions: submit / vote / claim | MUST NOT |
+| Attested sessions: accrue reputation to bound address | MUST |
+| Bound address: portable across multiple registries | MUST |
+| Reward on win: paid to bound EVM address | MUST |
+| Server publish accepted registry keys in `/.well-known/oabp.json` | SHOULD |
 
 ### 2. Mission Specification
 

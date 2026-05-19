@@ -265,6 +265,81 @@ class AgentReputation:
         )
 
 
+@dataclass
+class RegistryAttestation:
+    """AIP-1 §1.4 — signed binding between a registry routing token and an EVM address.
+
+    Posted by a registry operator to ``POST /attestations/registry`` to grant
+    an end-user session identity inside an OABP server.  A server MUST verify
+    ``signature`` against the registry's registered public key before granting
+    the bound address any write access.
+    """
+    api_key: str                # opaque registry session token (UUID or similar)
+    evm_address: str            # 0x... address that will accrue reputation
+    registry_domain: str        # e.g. "smithery.ai"
+    issued_at: str              # ISO 8601 UTC
+    signature: str              # 0x ECDSA over keccak256(abi.encode(api_key, evm_address, issued_at))
+    profile: Optional[str] = None          # opaque label+provider string (informational)
+    ttl_seconds: int = 86400               # how long the binding is valid; default 24 h
+
+    def is_valid_address(self) -> bool:
+        """Return True if evm_address is syntactically a valid 20-byte EVM address."""
+        import re
+        return bool(re.fullmatch(r"0x[0-9a-fA-F]{40}", self.evm_address))
+
+    def to_dict(self) -> dict:
+        d = {
+            "api_key": self.api_key,
+            "evm_address": self.evm_address,
+            "registry_domain": self.registry_domain,
+            "issued_at": self.issued_at,
+            "signature": self.signature,
+            "ttl_seconds": self.ttl_seconds,
+        }
+        if self.profile is not None:
+            d["profile"] = self.profile
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "RegistryAttestation":
+        return cls(
+            api_key=d["api_key"],
+            evm_address=d["evm_address"],
+            registry_domain=d["registry_domain"],
+            issued_at=d["issued_at"],
+            signature=d["signature"],
+            profile=d.get("profile"),
+            ttl_seconds=int(d.get("ttl_seconds", 86400)),
+        )
+
+
+def check_registry_session(
+    query_params: dict,
+    authorization_header: Optional[str],
+    attested_bindings: Optional[dict] = None,
+) -> Optional[str]:
+    """AIP-1 §1.4 — resolve the EVM address for a registry-routed request.
+
+    Args:
+        query_params: parsed query string dict (e.g. ``{"api_key": "uuid", "profile": "..."}``).
+        authorization_header: value of the HTTP ``Authorization`` header, or None.
+        attested_bindings: mapping from ``api_key`` → ``evm_address`` for previously
+            verified registry attestations (maintained by the server).  Pass None to
+            simulate a server with no active bindings.
+
+    Returns:
+        The bound EVM address string if an attestation exists for the api_key, or
+        None if the session is anonymous.  A None return means the server MUST treat
+        the request as anonymous (read-only) per §1.4 rule 2.
+    """
+    api_key = query_params.get("api_key")
+    if not api_key:
+        return None
+    if attested_bindings and api_key in attested_bindings:
+        return attested_bindings[api_key]
+    return None
+
+
 class OABPClient:
     """Read+write client for an OABP-compliant implementation.
 

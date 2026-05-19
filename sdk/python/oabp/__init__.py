@@ -44,7 +44,7 @@ per-type reputation surface required by AIP-3 §5.2.
 Any compliant implementation that responds to /.well-known/oabp.json works with this client.
 """
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 __aip_supported__ = [1, 2, 3]
 __license__ = "CC0-1.0"
 
@@ -52,11 +52,13 @@ from .client import (
     OABPClient, Mission, MissionType, Submission, AgentReputation,
     MissionTypeAffinity, OABPError, OABPTransportError,
     VERIFICATION_COMPAT, check_verification_compat,
+    RegistryAttestation, check_registry_session,
 )
 
 __all__ = [
     "OABPClient", "Mission", "MissionType", "Submission", "AgentReputation",
     "MissionTypeAffinity", "OABPError", "OABPTransportError",
     "VERIFICATION_COMPAT", "check_verification_compat",
+    "RegistryAttestation", "check_registry_session",
     "__version__", "__aip_supported__",
 ]
