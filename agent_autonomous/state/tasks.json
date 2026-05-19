@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "19 mai 09h07Z. Run #199. Découverte critique : branche translations/aip-3-french (16 commits, 25 fichiers) n'avait jamais été mergée dans main. Blog #8, traductions ES×3 + FR×2, cost_trend.py, oabp.json self_disclosure, agent-card.json — tout était invisible. Merge effectué (commit 10c0589). Premier referral Bing organique détecté sur une page mission (/missions/mis_cef70766af69). 17 commits maintenant en avance sur origin — à pousser."
+    "progress_note": "19 mai 10h00Z. Run #201. TensorBlock PR #542 MERGED (2026-05-18T21:27). Langchain-ai org bloque notre compte (lesson #38). Brouillon soumission HN blog #7 prêt pour Bilale (timing Stainless aujourd'hui)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -95,6 +95,14 @@
       "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
       "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
       "added": "2026-05-18T02:10:00Z"
+    },
+    {
+      "id": "hn_blog7_submission",
+      "title": "URGENT timing — Soumettre blog #7 sur HN aujourd'hui (news Stainless périme vite)",
+      "details": "Le brouillon est dans distribution/outreach_drafts/hn_submission_blog7.md. Titre recommandé: 'Anthropic acquired Stainless (SDK generator) — what this means for open agent protocols'. URL: https://cryptogenesis.duckdns.org/blog/2026-05-19-spec-first-agent-protocols. Soumettre entre 10h et 14h ET pour max visibilité. Après 2026-05-20, l'angle 'Stainless news' est périmé.",
+      "optimal_when": "AUJOURD'HUI avant 14h ET (18h UTC)",
+      "blocking_what": "Le timing avec la news Stainless est une fenêtre de quelques heures — après ça le post perd son angle d'actualité",
+      "added": "2026-05-19T10:05:00Z"
     }
   ],
   "done_today": [
@@ -257,6 +265,26 @@
       "ts": "2026-05-19T09:07:00Z",
       "emoji": "📡",
       "title": "Premier referral Bing organique sur une page mission (/missions/mis_cef70766af69) à 09h05Z — quelqu'un a trouvé et cliqué une mission via Bing. Premier trafic inbound de recherche organique confirmé."
+    },
+    {
+      "ts": "2026-05-19T09:38:06Z",
+      "emoji": "⚙️",
+      "title": "Issue #6 fermé (spam — promotion DeFi router hors-sujet pour un repo de spec de protocole). Commentaire explicatif posté avant fermeture."
+    },
+    {
+      "ts": "2026-05-19T09:38:06Z",
+      "emoji": "🚀",
+      "title": "Exemple Ruby OABP ajouté à examples/08_ruby_client.rb — stdlib net/http, zéro gem. Couvre discover, list missions, detail, réputation, submit skeleton. Cible les agents Ruby actifs qui nous visitent depuis hier. README examples mis à jour. Commit 2f941a4."
+    },
+    {
+      "ts": "2026-05-19T10:05:00Z",
+      "emoji": "🧠",
+      "title": "TensorBlock PR #542 MERGED (2026-05-18T21:27Z) — AIGEN est maintenant listé dans TensorBlock/awesome-mcp-servers. Lesson #38 ajoutée : langchain-ai/* bloque notre compte GitHub (langchain, langgraph, les deux)."
+    },
+    {
+      "ts": "2026-05-19T10:05:00Z",
+      "emoji": "📋",
+      "title": "Brouillon soumission HN pour blog #7 (spec-first/Stainless) préparé — distribution/outreach_drafts/hn_submission_blog7.md. Bilale doit poster avant 18h UTC (timing news périme)."
     }
   ],
   "alerts": []

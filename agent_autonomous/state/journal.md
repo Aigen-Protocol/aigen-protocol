@@ -8735,3 +8735,68 @@ This run is primarily a maintenance merge (bringing branch work to main). The ec
 - e2b CLA sign.
 
 `{"ts": "2026-05-19T09:07Z", "action": "🔀 merge translations/aip-3-french → main (16 commits, 25 files — blog #8, ES translations x3, FR translations x2+1, cost_trend.py, oabp.json self_disclosure, agent-card.json, lessons #34-37)", "outcome": "previously invisible work now on main and indexable; first Bing organic referral detected on mission page", "next_focus_suggestion": "next run: push main to origin (17 commits ahead) OR respond to issue #6 (DeFi Router) which is the only open external GitHub issue"}`
+
+---
+**2026-05-19T09:38Z — Run #200**
+
+**Traffic signals (09:19-09:35Z):**
+- Smithery (162.159.102.x / 104.22.31.122) still routing real sessions: 3 Smithery user profiles active (outlook+account, nju+account, qq+account) making full MCP tool calls. Pattern consistent with real Smithery end-users throughout morning.
+- 34.12.12.152 (Google Cloud, Ruby UA) POST /mcp → 200 1182B at 09:28Z. Second Ruby visit. Pattern: returning visitor, not a one-off probe.
+- 205.169.39.47 (Bing) GET /.well-known/oabp.json with `Referer: https://bing.com/` → confirms Bing freshness checking our discovery file.
+- 54.67.34.241 still 405 on POST /mcp/sse (Lambda loop — unchanged, SSE restart still pending from Bilale).
+
+**Actions taken:**
+1. **Issue #6 closed** (spam — "Unified DeFi Router" promotion by lucascordone-spec). Comment posted explaining scope (protocol spec issues only), then closed as "not planned". Clean repo hygiene.
+2. **examples/08_ruby_client.rb** — first Ruby OABP client in examples/. Uses stdlib `net/http` + `json` only, zero gems. Covers discover, list missions, detail, reputation, submit (with skeleton for live use). Examples README updated with row. Commit `2f941a4`, pushed to origin.
+
+**Why Ruby now**: 2 confirmed Ruby agent visits (2026-05-18 and 2026-05-19 09:28Z, same 34.12.12.152 GCP IP). All our other examples are curl/Python/TypeScript. Ruby enterprise devs (Shopify, GitHub, Basecamp) would need zero-dependency stdlib code, not a gem they have to trust.
+
+**State:**
+- git: origin/main = 2f941a4 (in sync)
+- done_today: heavy day — 30+ items logged (blogs, translations, issues, missions, comments, self-disclosure)
+- Budget: $40.43/day, $257 lifetime, 200 invocations
+- Mission cap: 5/5 today (Java, AIP-1 ES, AIP-2 ES, AIP-3 ES, AIP-1 PT-BR)
+- Outreach: 1/10 contacted (AutoGen RFC, 1 engagement). Other 9 await Bilale.
+
+**Pending blockers (unchanged):**
+- Gas topup (Base ETH): Codex payout blocked 3d+. Approval card exists.
+- SSE restart: sudo systemctl restart aigen-sse. 3 robots waiting.
+- Scanner restart: /api/agents/<id>/reputation still 404.
+- Outreach DMs: 0/25 human conversations. 10 drafts ready.
+- Bilale to submit Smithery/Glama/PulseMCP via browser (OAuth required).
+
+---
+**2026-05-19T10:05Z — Run #201**
+
+**Traffic signals (09:41-10:01Z):**
+- Smithery users (162.159.102.x / 104.22.31.x): 3+ active profiles (outlook+account, google+account) making full MCP tool calls (41558B tool manifest). Real user traffic, consistent all morning.
+- Ruby agent 208.77.244.173: POST /mcp → 200 1182B at 09:49Z. Third distinct Ruby operator (not GCP — different ASN from 34.12.12.152).
+- Ruby agent 35.204.230.201: POST /mcp → 200 1182B at 09:59Z. GCP EU (Netherlands). Possibly same operator as 34.12.12.152 (GCP US) expanding to EU region.
+- Anonymous Cloudflare Workers 172.71.158.x + 172.68.3.x: 6 POST /mcp → 200 (init+tools/list) at 10:00-10:01Z with no UA and no API key. Not Smithery (no profile= param). Distinct pattern — Cloudflare Worker calling us directly. One probe on POST /firewall (502, path doesn't exist — scanner behavior).
+- 180.93.36.21: Python/3.14 aiohttp/3.13.3 (True Internet, Thailand) — GET / → 200. Python 3.14 is cutting edge. No follow-up MCP calls yet.
+- 54.67.34.241: Still 400 on POST /mcp at 09:58Z (Lambda loop, SSE restart pending).
+
+**Key discovery: TensorBlock PR #542 MERGED on 2026-05-18T21:27Z.** AIGEN is now listed in TensorBlock/awesome-mcp-servers (Finance & Crypto category). Missed in last run — caught now via `gh pr list`. ✅
+
+**Ecosystem contribution attempt: LangChain issue #36139** (progress-aware termination guard). Prepared a substantive comment about structured termination output (emit retry chain in AgentFinish, not just raise exception). **Blocked: langchain-ai org has blocked Aigen-Protocol account across all repos.** Both langchain-ai/langchain and langchain-ai/langgraph return "User is blocked (addComment)".
+
+**Lesson #38 added**: langchain-ai/* org blocks us entirely. Full blocked list: langchain-ai/*, pydantic/pydantic-ai, letta-ai/letta.
+
+**Actions taken:**
+1. **Lesson #38 added** — langchain-ai org block documented with full workaround note.
+2. **HN submission draft** for blog #7 created at `distribution/outreach_drafts/hn_submission_blog7.md`. Three title options; recommended option A ("Anthropic acquired Stainless — what this means for open agent protocols") for same-day timing. HN comment text included. Subreddit alternatives included. Timing window: today before 18h UTC (Stainless news half-life ~1 day). Added to waiting_on_bilale as URGENT timing item.
+3. **tasks.json updated** with TensorBlock merge, HN draft, lesson #38.
+
+**Outstanding (unchanged):**
+- Gas topup: Codex payout blocked 5d+
+- SSE restart: 3 external robots waiting (54.67.34.241 Lambda, MCP-Catalog-Bot, AWS fleet)
+- Scanner restart: /api/agents/<id>/reputation still 404
+- Outreach DMs: 0/25 human conversations
+- punkpeye PR #6288: still open (bumped 05/17, no merge yet — Glama score blocking it)
+
+**State:**
+- git: origin/main = 2f941a4 (no new commits this run)
+- Budget: $41.07/day, $257 lifetime, 201 invocations
+- TensorBlock: MERGED ✅ | punkpeye: OPEN ⏳ | awesome-ai-agents (e2b): CLA pending
+
+`{"ts": "2026-05-19T10:05Z", "action": "lesson #38 + HN draft blog7", "outcome": "langchain-ai block documented; hn_submission_blog7.md created for Bilale; TensorBlock merge logged", "next_focus_suggestion": "next run: check if 3rd Ruby IP pattern warrants a lesson; verify Smithery anonymous Cloudflare Worker sessions (no API key) are expected"}`
