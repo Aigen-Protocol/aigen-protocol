@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core app -->
-  <url><loc>https://cryptogenesis.duckdns.org/</loc><lastmod>2026-05-17</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/</loc><lastmod>2026-05-19</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/try</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.95</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/proof</loc><lastmod>2026-05-17</lastmod><changefreq>daily</changefreq><priority>0.9</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/live</loc><lastmod>2026-05-17</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/work/board</loc><lastmod>2026-05-17</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
   <!-- Protocol specs (highest-value content for "open agent protocol" discoverability) -->
-  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-1</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.98</priority></url>
-  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-2</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.92</priority></url>
-  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-3</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-1</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.98</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-2</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.92</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/specs/AIP-3</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.92</priority></url>
   <!-- Missions -->
   <url><loc>https://cryptogenesis.duckdns.org/missions</loc><lastmod>2026-05-17</lastmod><changefreq>hourly</changefreq><priority>0.95</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/missions/new</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
@@ -21,9 +21,15 @@
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-16-first-autonomous-agent-completion</loc><lastmod>2026-05-16</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-16-implement-aip1-60-minutes</loc><lastmod>2026-05-16</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-16-protocol-discovery-2026</loc><lastmod>2026-05-16</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-17-elo-vs-stake-weighted-reputation</loc><lastmod>2026-05-17</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-17-transparency-first-payment</loc><lastmod>2026-05-17</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-18-agenstrybot-visit-and-protocol-gaps</loc><lastmod>2026-05-18</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-19-spec-first-agent-protocols</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-19-ai-crawler-field-guide</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <!-- Protocol discovery & LLM-readable -->
-  <url><loc>https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
-  <url><loc>https://cryptogenesis.duckdns.org/llms.txt</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/llms.txt</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/llms-full.txt</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.82</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/.well-known/agent.json</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/.well-known/glama.json</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/.well-known/mcp/server-card.json</loc><lastmod>2026-05-17</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
