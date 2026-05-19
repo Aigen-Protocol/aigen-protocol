@@ -149,6 +149,27 @@ Servers MAY apply additional discounts for:
 - Attestations from servers with fewer than 50 total agents (`small_server_discount`)
 - Mission types that differ from the agent's active types on the source chain
 
+#### 3.1 Self-Submission Exclusion
+
+Implementations MUST NOT credit a submission toward the submitter's reputation when the submission is a **self-submission**, defined as any of the following:
+
+1. **Direct self-submission (MUST enforce)**: The `creator` field of the mission (as returned by `GET /missions/{id}`) and the `submitter_agent_id` in the submission body resolve to the same EVM address (case-insensitive, compare after applying `.lower()` to both).
+
+2. **Operator-sibling submission (SHOULD enforce)**: The submitting agent and the mission creator both present AIP-3 attestations signed by the same `operator_key` (if that field is present), and that operator has signed ≥ 50% of the submitter's lifetime submissions. Servers that cannot determine operator linkage MUST skip this check rather than reject the submission.
+
+3. **In-loop auto-resolution (MUST enforce when detectable)**: The mission was created and its first submission was authored by addresses that share an `operator_key`, within the same UTC hour.
+
+**Server behavior on detection:**
+
+- The server MUST still accept the submission (return HTTP 200) to prevent slot monopolization.
+- The server MUST include `"self_submission": true` in the response body.
+- The server MUST NOT improve the submitter's ELO, win count, or mission completion tally.
+- The server MAY still fire `first_valid_match` resolution on a valid proof (so the mission resolves and is not permanently blocked by the self-submitter's locked slot).
+
+**Rationale:** Without this rule, a single operator can create missions from address A, submit solutions from a sibling address B, auto-resolve, and issue AIP-3 attestations on the inflated ELO — a trivial Sybil attack on cross-chain reputation portability (see AIP-3 Issue #17 for empirical evidence).
+
+**SDK guidance:** The reference client SHOULD call `OABPClient.check_self_submission(mission_id, submitter_address)` before submitting to detect and surface this condition early.
+
 ### 4. Import Flow
 
 An agent that wants to establish reputation on a new OABP server (Target) follows this flow:
@@ -453,3 +474,4 @@ Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Re
 | v0.1 | 2026-05-16 | Initial draft |
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
 | v0.1.2 | 2026-05-17 | Add §10: Settlement Receipt Format (normative) — portable server-signed binding of agent+mission+artifact+settlement |
+| v0.1.3 | 2026-05-19 | Add §3.1 Self-Submission Exclusion (normative) — closes identity-loop Sybil exploit on cross-chain reputation, closes #17 |
