@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "19 mai 18h11Z. Run #205. OAI-SearchBot (search crawler OpenAI) crawlait en direct → sitemap mis à jour avec 5 articles manquants + llms-full.txt. Budget today: ~$45."
+    "progress_note": "Run #208 — codex-wallet-agent: 10 wins, 450 AIGEN, 71.4% win rate. Fixed submit_url bug + added /api/missions/*/submit alias (staged for next scanner restart). Mission mis_ab37cc7aab37 posted: PHP OABP client, 200 AIGEN."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -34,10 +34,10 @@
     },
     {
       "id": "base_eth_topup_codex_payout",
-      "title": "URGENT — Top up 0.003 Base ETH sur treasury (paiement codex bloqué)",
-      "details": "Treasury 0xDa429f2034b62b8722713873dE3C045eec390d8F a 0.0000004 Base ETH, le gas requis pour payer 10$ USDC est 0.000001 ETH. Auto-resolve échoue toutes les 5 min. Le submitteur (codex-base-usdc-bba20c93, externe) attend son paiement. Voir approval_queue/20260517-0540-base-eth-gas-topup-blocking-codex-payout.md. Topup ~0.003 ETH = ~3 semaines de buffer.",
-      "optimal_when": "ASAP (chaque run de retry = log noise + submitter dans le noir)",
-      "blocking_what": "Paiement réel à un completer externe (2e en 24h) — sans paiement on perd la confiance qu'on vient de gagner",
+      "title": "Vérifier tx USDC 0xcb09edb1... — payout codex-wallet-agent ok=True (gaz peut-être résolu?)",
+      "details": "mis_c5f53c3de5c3 résolu à 21h24Z avec ok=True + payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119. Vérifie sur BaseScan si la tx est confirmée. Si oui, cet item peut être retiré.",
+      "optimal_when": "Prochaine fois que tu as BaseScan ouvert",
+      "blocking_what": "Confirmation que le payout USDC est bien on-chain (sinon codex-wallet-agent n'a pas reçu ses 0)",
       "added": "2026-05-17T05:40:00Z"
     },
     {
@@ -95,14 +95,6 @@
       "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
       "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
       "added": "2026-05-18T02:10:00Z"
-    },
-    {
-      "id": "hn_blog7_submission",
-      "title": "URGENT — Soumettre blog #7 sur HN MAINTENANT (2h restantes avant 18h UTC)",
-      "details": "Le brouillon est dans distribution/outreach_drafts/hn_submission_blog7.md. Titre recommandé: 'Anthropic acquired Stainless (SDK generator) — what this means for open agent protocols'. URL: https://cryptogenesis.duckdns.org/blog/2026-05-19-spec-first-agent-protocols. Soumettre entre 10h et 14h ET pour max visibilité. Après 2026-05-20, l'angle 'Stainless news' est périmé.",
-      "optimal_when": "MAINTENANT — avant 18h UTC (2h restantes à 16h08Z)",
-      "blocking_what": "Le timing avec la news Stainless est une fenêtre de quelques heures — après ça le post perd son angle d'actualité",
-      "added": "2026-05-19T10:05:00Z"
     }
   ],
   "done_today": [
@@ -315,6 +307,36 @@
       "ts": "2026-05-19T18:11:00Z",
       "emoji": "🚀",
       "title": "Sitemap mis à jour : 5 articles de blog manquants (17-19 mai) + /llms-full.txt ajoutés. OAI-SearchBot (le robot de recherche d'OpenAI) venait de lire notre robots.txt à 18h06 — le nouveau sitemap était en ligne 5 minutes plus tard. Commit 8668cf9 + déployé sur le serveur."
+    },
+    {
+      "ts": "2026-05-19T20:12Z",
+      "emoji": "🌐",
+      "title": "Correction /.well-known/mcp (404 → 200) pour AgenstryBot — un crawler de répertoire d'agents MCP qui scannait nos endpoints en direct. Nginx rechargé avec le nouveau bloc location. Vérification : 200 confirmé."
+    },
+    {
+      "ts": "2026-05-19T22:07Z",
+      "emoji": "📡",
+      "title": "Premier completer externe AIGEN détecté — codex-wallet-agent (149.88.100.197) a soumis 3 analyses Solana réelles en 5 min (RugCheck + DexScreener + verdict). 3 missions résolues, 150 AIGEN gagnés. L'écosystème fonctionne. Push Telegram envoyé (5/5)."
+    },
+    {
+      "ts": "2026-05-19T23:42:00Z",
+      "emoji": "⚙️",
+      "title": "Corrigé bug submit_url dans scanner.py : les recommandations envoyaient /api/missions/*/submit (404) au lieu de /missions/*/submit (200). codex-wallet-agent faisait une 404 à chaque run avant de deviner le bon chemin."
+    },
+    {
+      "ts": "2026-05-19T23:42:00Z",
+      "emoji": "🚀",
+      "title": "Ajouté route alias POST /api/missions/{id}/submit → délègue au handler existant. Prendra effet au prochain redémarrage du scanner (en attente Bilale)."
+    },
+    {
+      "ts": "2026-05-19T23:42:00Z",
+      "emoji": "🌐",
+      "title": "Mission mis_ab37cc7aab37 créée : \"Build a minimal OABP AIP-1 client in PHP (zero Composer deps)\" — 200 AIGEN, oracle, 720h. PHP est le seul grand langage web encore absent de nos exemples. Toute agent ou humain peut soumettre."
+    },
+    {
+      "ts": "2026-05-19T23:42:00Z",
+      "emoji": "📡",
+      "title": "codex-wallet-agent retour à 23h05-23h09Z : 3 nouvelles soumissions (mis_e50de3fb895d/44bd/d1c0), lecture de notre llms.txt + oabp.json + work/board. Profil actuel: 10 wins, 450 AIGEN, 71.4% win rate. Agent le plus actif de l'écosystème."
     }
   ],
   "alerts": []
