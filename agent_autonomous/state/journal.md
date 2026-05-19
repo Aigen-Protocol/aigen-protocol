@@ -8611,3 +8611,56 @@ Public IP confirmed via `curl -s4 api.ipify.org` → 207.148.107.2 (Vultr). Wall
 **Open watching items unchanged**: gas Base ETH (codex payout), scanner restart (reputation alias), aigen-sse restart, 10 outreach DMs, glama submission, awesome-ai-agents PR, mcp.so verification, e2b CLA, AIP-1 short URL, USDC mission verif flaw, github webhook, wire cost_trend into run.sh (approval card pending).
 
 `{"ts": "2026-05-19T05:08Z", "action": "📡🚀 catalog MCP-Catalog-Bot/1.0 signature retroactively (24.5.30.213, 78 hits over 28h, dual-namespace OAuth discovery, blocked on aigen-sse restart cluster); Lesson #34 to state/lessons.md", "outcome": "internal signature now documented; dual-namespace OAuth probing insight captured for future forks; 3 sustained external probers concentrated on aigen-sse restart task; counter-lesson on cataloguing latency saved", "next_focus_suggestion": "next run MUST pick 🌐 — options: A.1 substantive comment on agno-agi/agno PR (untouched 30d), A.4 cite api.rhdxm.com/blog/crawled-7500-mcp-servers in docs as related-work (verify substance first), or C.6 issue on AIP-1/2/3 if a falsifiable improvement emerges from observed crawler patterns"}`
+
+---
+
+## Run #193 — 2026-05-19T05:38Z — 📡🌐🚀 GPTBot live deep-crawl + ship /llms-full.txt
+
+**Signal (real-time, ongoing during this run)**: `GPTBot/1.3` (`74.7.227.11`, OpenAI search egress) opened a deep-crawl session at **05:30:45Z** and was still crawling at **05:38:19Z** when this run began. 446 unique paths in 8 minutes, 570 hits in current access.log alone. **First sustained GPTBot deep-pass in our recorded history** — prior visits (2026-05-08, 05-15, 05-17) were small handfuls, never deep.
+
+**Coverage observed (all 200-OK except 2 below)**:
+- All 5 `.well-known/*` discovery files we've pre-staged in last 14 days: `agent-card.json`, `glama.json`, `mcp/server-card.json`, `oabp.json`, `agent.json` — every defensive ship over the past 2 weeks ingested in one pass
+- `sitemap.xml`, `llms.txt`, `tokenlist.json`
+- All 4 AIP specs: `/specs`, `/specs/AIP-1`, `/specs/AIP-2`, `/specs/AIP-3`, `/specs/AIP-3.fr`, `/specs/AIP-4`
+- Every `/vs/*` competitive comparison page (5 of them)
+- All `/agent/{id}` pages (treasury, earner-agent-01, aigen-radar, Panini, aigen-auto-reviewer, autopilot, builder, fee-test-*, sol-test-*, spl-test-3, raw `0x7aA55B...` wallet)
+- Every `/badge/agent/*.svg`
+- Every `/reputation/{id}` JSON endpoint
+- **All 6 most-recent daily reports in their `.raw` markdown form** (`/reports/2026-05-13.md.raw` → `/reports/2026-05-18.md.raw`) — picked the LLM-native source over rendered HTML
+- 30+ individual mission JSON pages via both `/m/{id}` alias and canonical `/missions/{id}` path
+- `STELLA_PROTOCOL.md`, `/stella`, `/scan`
+
+**Only 2 non-200s**:
+- `/reports/2026-W20.md` → 400 (weekly digest route we don't serve; trivially fixable next run with a redirect to most-recent daily)
+- `/scan` → 307 (intentional redirect; fine)
+
+**Behavioural insights → Lesson #35** (added to state/lessons.md):
+1. GPTBot follows internal Referer chains aggressively (DFS-walks all outbound HTML links). Implication: keep cross-linking dense.
+2. It prefers `.raw` over rendered when both exist (markdown is more LLM-ingest-friendly than HTML). Keep `.raw` aliases stable.
+3. Validates "ship discovery files before crawlers ask" strategy — every well-known/* file shipped in last 2 weeks (agent-card after AgenstryBot 05-18, oabp self_disclosure 04:40Z this morning, 8h before this crawl) was ingested.
+4. OpenAI search-index ingestion latency 24-72h per published GPTBot → SearchGPT pipeline → content from this 8-min window eligible for ChatGPT search results by ~05-22.
+
+**Action taken — 🌐 D.10 federation infrastructure**:
+- Built `/llms-full.txt` (105914 bytes): single-file inlined corpus of llms.txt + AIP-1 + AIP-2 + AIP-3 + thesis essay + SECOND_IMPLEMENTATION.md + READING_JOURNAL.md. Per llmstxt.org "full" extension spec. Deployed to `/var/www/html/llms-full.txt`, nginx location block added (alongside existing `/llms.txt` block), reload validated, live HTTP 200.
+- Added `scripts/build_llms_full.sh` as repeatable regen (run with `--install` to deploy). Idempotent.
+- Top of `/llms.txt` (both production and repo-tracked copy) now references `/llms-full.txt` so any crawler hitting llms.txt finds the deeper resource on the next pass.
+- Federation framing: this is D.10 — pre-staging a discovery file for the LLM-crawler ecosystem (GPTBot, ClaudeBot, Google-Extended, PerplexityBot all read llms.txt-family files). Pure peer infrastructure, no AIGEN lock-in. Other AIP-1 implementers can copy the build script verbatim.
+
+**Push notification sent (high priority)**: Telegram → Bilale with the GPTBot crawl signal + llms-full.txt ship. Counter 3/5 today.
+
+**Counters**:
+- Push count today: 3/5 (2 + this notif)
+- Consecutive watching-only: 0 (concrete 🌐 ship + 🚀 lesson)
+- Ecosystem 🌐 no-opp counter: 0/2 (reset — D.10 llms-full.txt deployed)
+
+**Cost check**: cost_trend daemon flag from run #190 still says alarm at projected $115/day. This run cost (estimated ~$2.50 — 10 bash + many file reads/writes + 1 nginx reload + 1 push) keeps the trend in alarm territory but well under Bilale's $150 kill. today_spent_usd before this run was 28.69.
+
+**Did NOT do this run**:
+- Did NOT ship `/reports/2026-W20.md` redirect (saved for next quiet run — trivially small follow-up; current run already has 2 concrete ships and we're at the ≤2 commits hard rule)
+- Did NOT comment on a peer agent-framework repo (no repo eligible — every working repo touched within last 3 days, all within the 30d cooldown)
+- Did NOT push a chat-only message — chat message will accompany this commit
+- Did NOT do a 2nd commit — keeping to ≤2 hard rule (1 commit covers llms-full.txt build script + nginx isn't repo-tracked + Lesson #35)
+
+**Open watching items unchanged**: gas Base ETH (codex payout), scanner restart (reputation alias), aigen-sse restart (now 3 distinct probers waiting), 10 outreach DMs, glama submission (browser), awesome-ai-agents PR (Tier B), mcp.so verification, e2b CLA, AIP-1 short URL, USDC mission verif flaw, github webhook, wire cost_trend into run.sh (approval card pending).
+
+`{"ts": "2026-05-19T05:42Z", "action": "📡🌐🚀 GPTBot/1.3 deep-crawl reaction: 446 URLs in 8min live observed → shipped /llms-full.txt (105KB llmstxt.org full extension) for next pass + Lesson #35 documenting crawl signature + push notif high to Bilale", "outcome": "first sustained GPTBot deep-pass captured + content eligible for ChatGPT search index in 24-72h + new federation infra (llms-full.txt) deployed for next pass + 🌐 counter reset 0/2", "next_focus_suggestion": "next run if quiet: ship /reports/2026-W20.md redirect to most-recent daily (1-line nginx fix) to convert GPTBot's only 400 to 200; OR if a new external IP runs spec-compliant handshake, capture before backlog work"}`
