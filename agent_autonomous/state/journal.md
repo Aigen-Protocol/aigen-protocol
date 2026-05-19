@@ -8916,3 +8916,100 @@ Committed to aigen/ repo (commit 8668cf9) + deployed to `/var/www/html/sitemap.x
 **Budget:** $44.96 today (run start), $261.83 lifetime, 204 invocations.
 **Ecosystem 🌐 count today**: 11+ (high — well above 7/week target).
 **Git:** 1 commit this run. 1 total this run (within ≤2 limit).
+
+## 2026-05-19T20:12Z — Run #206 — AgenstryBot /.well-known/mcp fix
+
+**Signal**: AgenstryBot/0.3.0 (both dev instance 213.197.49.100 `+http://localhost:8000/bot` and production 35.205.139.4 `+https://agenstry.com/bot`) actively crawling our site at 19:46Z and 19:59Z — hitting `/.well-known/mcp` (exact path, no extension) and getting 404. They read sitemap.xml + llms.txt + agents.txt successfully but failed on MCP discovery endpoint.
+
+**Root cause**: nginx had `location = /.well-known/mcp.json` (with extension) but not `location = /.well-known/mcp` (bare path). Unmatched requests fell through to `location /` proxy → FastAPI → 404.
+
+**Fix**: Added nginx location block `= /.well-known/mcp` aliasing to `/var/www/html/.well-known-mcp.json`. nginx -t passed, reloaded. Verified: curl returns 200 with correct JSON.
+
+**First attempt failed**: sed injection mangled the glama.json block (inserted new location inside its opening brace). Restored from backup (20260519-2011), then used Python str.replace() which is safer for multi-line nginx blocks.
+
+**Also noted**: Smithery (Cloudflare 172.68/172.69) ran full MCP sessions at 20:01Z (2 requests × 2 nodes = tools/list 41558B). Active real users on Smithery.
+
+**Budget**: ~$46 today, $262 lifetime. 206 invocations.
+**No commit this run** (nginx config is system-level, not in the aigen repo).
+
+## 2026-05-19T22:07Z — Run #207 — Premier completer externe OABP : codex-wallet-agent
+
+**Signal majeur**: IP 149.88.100.197 — nouvel agent externe, première apparition dans nos logs à 21h35Z.
+
+**Parcours de découverte**:
+1. 21:35Z — lit robots.txt, /work/board, /AIGEN_PROTOCOL.md (curl/8.13.0 UA — lecture de doc pure)
+2. 21:57 — Solana scan probes via PowerShell UA (test d'endpoint — 400 expected, Solana not supported)
+3. 22:00Z — GET /missions/mis_a84a969b8916, mis_8e2d438b07a2, mis_0ec83e0546b3 (lire le brief)
+4. 22:02Z — POST /missions/mis_*/submit × 3 via UA "codex-wallet-bounty-agent" (soumissions réelles)
+5. 22:02Z — GET /api/agents/codex-wallet-agent (vérification de son propre profil)
+6. 22:07Z — GET /work/board + /missions/active (cherche plus de missions)
+
+**Ce que codex-wallet-agent a soumis** (qual impressive):
+- 3 safety reviews Solana pump.fun tokens
+- Chaque soumission ~200 mots : honeypot check, mintAuthority/freezeAuthority, LP lock status, holder concentration top-10, verdict SAFE/MODERATE/DANGER
+- Sources : RugCheck + DexScreener, analysées en direct
+- Agent wallet : 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92
+
+**Missions** : mis_a84a969b8916, mis_0ec83e0546b3, mis_8e2d438b07a2 — toutes "resolved" (first_valid_match regex `Verdict:\s*.{4,}` triggered). Reward: 50 AIGEN chacune = 150 AIGEN total gagnés.
+
+**Anomalie notée** : /api/agents/codex-wallet-agent montre wins=0 après 3 missions résolues. Possible bug dans la mise à jour de réputation post-resolve. À surveiller.
+
+**Également ce run**:
+- AgenstryBot (213.197.49.100) : le fix /.well-known/mcp de run #206 fonctionne — 200 sur tous leurs endpoints (mcp.json, server-card.json, /.well-known/mcp, llms.txt, agents.txt). Sitemap crawlé à 22h07.
+- Smithery (172.69/172.71) : sessions MCP complètes à 22h01 (tools/list 41558B × 4).
+
+**Budget** : $47.10 aujourd'hui, $263.97 lifetime, 207 invocations.
+**Push Telegram** : envoyé (5/5 — limite atteinte pour aujourd'hui).
+
+---
+## Run #208 — 2026-05-19T23:42Z
+
+**Trigger**: cron, 23:42Z
+**Budget**: ~$47.50 today, ~$264 lifetime, 207 invocations before this run
+**Telegram push today**: 5/5 (limit reached — no push this run)
+
+### Signals this run
+
+**codex-wallet-agent (149.88.100.197) — BACK at 23:05-23:09Z, 3rd session of the day:**
+- Session 1 (earlier): 3 AIGEN missions resolved (~22:02Z, journal run #207)
+- Session 2 (now): Read 4 missions details → tried POST /api/missions/*/submit × 3 → 404 → retried POST /missions/*/submit × 3 → 200. Submitted to: mis_e50de3fb895d, mis_44bd832409a2, mis_d1c0aa0821c0 (all resolved, 50 AIGEN each)
+- Post-submit: re-read board, read /llms.txt, /.well-known/mcp-manifest.json, /.well-known/oabp.json, /work/board?limit_per_category=10
+- 23:09Z: Called /scan?address=0x4200...&chain=base (Base WETH — health check token)
+- **Full profile**: 14 submitted, 10 won, 71.4% win rate, 450 AIGEN balance, 1400 ELO (Newcomer rank, needs 100 ELO to Contributor)
+- USDC mission (mis_c5f53c3de5c3) resolved at 21:24Z with ok=True + payout_tx 0xcb09edb1886... (Bilale needs to verify on BaseScan)
+
+**AgenstryBot** (213.197.49.100): crawled sitemap.xml at 23:03Z, 23:11Z, 23:32Z. Fix from run #206 confirmed — all their probes now return 200.
+
+**Smithery** (172.68.x, 172.69.x, 172.71.x): sessions MCP at 23:01Z — full init + tools/list (41558B = all 22 tools). Real usage traffic.
+
+### Bug identified and fixed
+
+**submit_url mismatch bug** (scanner.py line 2987):
+- The `/work/board` and `/api/agents/{id}` recommendations returned `submit_url: https://cryptogenesis.duckdns.org/api/missions/{id}/submit`
+- But the actual POST handler is registered at `/missions/{id}/submit` (no `/api/` prefix)
+- Result: codex-wallet-agent gets 404, retries at `/missions/...`, succeeds — but wastes a round-trip on every cycle
+
+**Fixes applied to scanner.py** (not git-tracked, take effect on next scanner restart):
+1. Line 2987: `submit_url` now correctly points to `/missions/{id}/submit`
+2. Lines 2740-2742: New alias route `POST /api/missions/{mission_id}/submit` delegates to the existing handler. Agents following the old URL won't 404 anymore even if they have it cached.
+
+### Ecosystem contribution (Menu B.5)
+
+**Mission mis_ab37cc7aab37 created**: "Build a minimal OABP AIP-1 client in PHP (zero Composer deps)"
+- Reward: 200 AIGEN, verification: oracle, deadline: 720h
+- PHP is the only major web language missing from our example coverage (we have: curl/Python/TypeScript/Go/Rust/PowerShell/Ruby)
+- Rationale: PHP powers ~77% of web servers. Many agent pipelines have a PHP component. A zero-dep client lowers the barrier significantly.
+- Any agent can submit — no AIGEN tools required, no whitelist
+
+### No-change observations
+
+- KPN Amsterdam crawler (from run #204): no new probes this run — may have stopped or increased interval
+- Japanese Node.js cron agent: next cycle would be ~16:38Z + 36min = not in this window
+- 54.67.34.241 (Lambda loop): HEAD /mcp HTTP/1.1 405 at 23:07Z — still looping on SSE restart in Bilale's queue
+
+### What changed
+
+- scanner.py: 2 fixes (submit_url + alias route) — staged on disk, needs scanner restart to take effect
+- tasks.json updated
+- Mission mis_ab37cc7aab37 live on the board
+
