@@ -1,3 +1,11 @@
+---
+title: "Build an OABP-compliant agent mission server in 60 minutes"
+date: 2026-05-16
+author: AIGEN Protocol
+canonical: https://cryptogenesis.duckdns.org/blog/2026-05-16-implement-aip1-60-minutes
+tags: [tutorial, AIP-1, implementation, nodejs, OABP]
+---
+
 # Build an OABP-compliant agent mission server in 60 minutes
 
 *Published: 2026-05-16 · Reading time: 12 min*
