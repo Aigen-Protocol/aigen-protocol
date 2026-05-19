@@ -8800,3 +8800,119 @@ This run is primarily a maintenance merge (bringing branch work to main). The ec
 - TensorBlock: MERGED ✅ | punkpeye: OPEN ⏳ | awesome-ai-agents (e2b): CLA pending
 
 `{"ts": "2026-05-19T10:05Z", "action": "lesson #38 + HN draft blog7", "outcome": "langchain-ai block documented; hn_submission_blog7.md created for Bilale; TensorBlock merge logged", "next_focus_suggestion": "next run: check if 3rd Ruby IP pattern warrants a lesson; verify Smithery anonymous Cloudflare Worker sessions (no API key) are expected"}`
+
+## 2026-05-19T12:08Z — Run #202
+
+**Trigger**: Cron 30-min cycle. 12h08 UTC.
+
+**Traffic check**:
+- 11:52Z: Smithery "outlook+account" session (162.159.102.84 Cloudflare) — init + tools/list 22 outils. Real user pattern.
+- 12:01Z: Smithery dual-region (172.71.155.42 + 172.68.3.130) — same 1182B + 41558B handshake as the 08:01Z session. Consistent.
+- 12:02Z: Smithery "google+account" session — same pattern.
+- 11:45Z: AgenstryBot/0.3.0 reading /llms.txt and /agents.txt.
+- 80.94.95.211: Ukrainian PHP scanner in full .env harvesting sweep — benign, all 301/404.
+- 54.67.34.241: Still HEAD /mcp at 12:03Z (Lambda loop — SSE restart still pending Bilale).
+- 176.65.139.177: Go-http-client trying /login — generic scanner.
+
+**No new messages from Bilale in chat.**
+
+**PR #6288 status**: OPEN (6 days). Bumped 2 days ago — too soon for another bump.
+
+**Budget**: $42.69/day today, lifetime $259.56, 201 invocations. Within normal range.
+
+**Action taken: Ecosystem contribution A.1 — Cline issue #10843**
+
+Cline/cline issue #10843: "Local Ollama models (Qwen 2.5 Coder) trapped in infinite loop — strict XML parser." Open since 2026-05-18T07:31Z. Only comment was a Linear bot link.
+
+Added first technical response: explained that the root cause is a format negotiation mismatch (Cline expects Anthropic XML, Qwen/open-weight models produce OpenAI-style JSON). Proposed two concrete fixes: (1) per-provider `tool_format` config key (xml/json/auto) — safe, no regression; (2) fast-path auto-detection in the streaming parser (check for `{"name":` prefix before the XML regex). Framed the model behavior as correct-for-its-training — the fix belongs in Cline's parser layer.
+
+URL: https://github.com/cline/cline/issues/10843#issuecomment-4487580022
+
+No AIGEN mention. 1st human comment on a 1-day-old bug with 1.1k Cline stars watching.
+
+**Missions today**: 5/5 cap reached (Java + ES×3 + PT-BR). No new missions this run.
+
+**Ecosystem 🌐 count today**: 10+ — well above 7/week target.
+
+**State**:
+- git: last commit = 2f941a4 (run #200 Ruby client). No new commits this run.
+- Outstanding: Gas topup Codex, SSE restart (3 bots waiting), scanner restart, 10 DMs, HN blog #7 (timing window today).
+
+
+---
+## 2026-05-19T14:08Z — Run #203
+
+**Traffic signals:**
+- 213.197.49.100 (KPN B.V., Amsterdam NL, fixed residential/commercial): new systematic agent discovery poller appeared at 12:11Z. By 14:08Z: 14× sitemap.xml, 7× each of /.well-known/mcp.json, /.well-known/agents.json, /.well-known/agent-directory.json, /mcp.json, /llms.txt, /agents.txt, /agents.json, /agent-directory.json — full discovery sweeps every ~17 minutes on the dot. Also hit /robots.txt and /.well-known/agent-card.json (2× and 4×). Made GET /mcp twice and received 400 (no proper content-type). First contact was 2h ago — no push notification (not real-time, and no real MCP session yet). This is a Dutch developer or research project running an automated agent discovery tool from a static KPN Amsterdam IP.
+- 179.43.146.226: .env credential harvester, all 404 — benign noise.
+- Smithery (Cloudflare): new API key `4a2e5b94-cb53-4a43-a443-3dc609b5a56a` with profile `qq+account` seen at 12:28Z — first time this key appears. Previous key `7606f8d6-7c0c-47f3-ae1c-0398729ebac2` (google+account) still active at 12:02-12:21Z. Two distinct Smithery API users active today.
+- 54.67.34.241 (Lambda loop): still hitting HEAD /mcp at 12:03Z and then GET /mcp/sse at 12:31Z (got 200 for once — SSE endpoint alive). Still blocked on SSE restart for full functionality.
+
+**Action taken: Ecosystem contribution A.1 — lastmile-ai/mcp-agent issue #673**
+
+Issue: "Agent identity for cross-org orchestration workflows" — opened by AgentLair maintainer proposing Ed25519 JWT + JWKS for persistent agent identity in mcp-agent's Orchestrator. 0 comments, 4 weeks old.
+
+Posted substantive technical comment extending the discussion: the missing layer is *behavioral reputation* (task completion history) vs *authentication identity* (JWT). Ed25519 JWT + JWKS solves "is this the same agent?" but not "can I trust this agent's execution quality?" Described the W3C VC bundle pattern at `/.well-known/` as the complement: signed task receipts from past orchestrators that a new orchestrator can verify without contacting the original issuer. Proposed a concrete two-phase `verify_delegate` pattern (JWT identity + optional VC bundle check). No AIGEN mention.
+
+URL: https://github.com/lastmile-ai/mcp-agent/issues/673#issuecomment-4488619343
+
+**Budget:** $43.34 today, $260.20 lifetime, 202 invocations. Normal range.
+
+**HN window reminder:** Blog #7 HN draft ready in distribution/outreach_drafts/hn_submission_blog7.md. Bilale must post before 18h UTC today (4h left) for Stainless news hook to be fresh.
+
+**Outreach DMs:** 10/10 ready, 0/25 sent — Bilale action needed (this weekend recommended).
+
+---
+## 2026-05-19T16:08Z — Run #204
+
+**Traffic signals:**
+- 49.156.213.62 (QTnet,Inc. AS7679, Kitakyushu Fukuoka Japan, residential PPPoE): NEW agent. First contact 15:26Z, returned 16:02Z — interval 36 min (cron). UA: bare `node`. Each session: POST /mcp 400 → GET /mcp 400 → POST /mcp 200 1182B (init) → POST /mcp 202 0B → POST /mcp 200 41558B (tools/list 22 tools) → POST /mcp 200 85B (tool call 1) → POST /mcp 200 87B (tool call 2) → GET /mcp 200 0B (close). Client adapts on 400 errors. Not in access.log.1 (first contact today). Lesson #39 added.
+- 172.71.155.41/42 (Cloudflare/Smithery): real MCP session at 16:01 — init + 41558B tools/list. Normal Smithery user traffic.
+- 213.197.49.100 (AgenstryBot/0.3.0, KPN Amsterdam): 8th cycle at 16:03Z. Still probing all 8 discovery files.
+
+**Actions taken:**
+1. Push Telegram sent (priority high, 4/5 today): Japanese Node.js cron agent, first contact.
+2. Lesson #39 appended to state/lessons.md: full behavioral signature of JP Node.js agent.
+3. Pitfall #10 added to docs/SECOND_IMPLEMENTATION.md: "MCP clients will probe with wrong HTTP methods before connecting" — practical observation for implementors.
+4. Commit ca4c7cc pushed: docs/SECOND_IMPLEMENTATION.md + agent_autonomous/state/lessons.md.
+
+**Note:** 3 duplicate chat messages posted at 14:12Z (run #203 appears to have run 3 concurrent instances). No data loss, just noise. Will monitor next run.
+
+**HN blog #7 deadline:** 2h remaining at time of this run (18:00 UTC). Bilale action needed now.
+
+**Budget:** $44.06 today (at run start), $260.93 lifetime, 203 invocations. Within bounds.
+
+**Ecosystem 🌐 count today**: 11+ (pitfall #10 counts as D.9 update — improves SECOND_IMPLEMENTATION.md for ecosystem implementors).
+
+---
+## 2026-05-19T18:11Z — Run #205
+
+**Traffic signals (18:06-18:07Z):**
+- **OAI-SearchBot/1.3** (74.7.241.156): fetched `/robots.txt` at 18:06Z — OpenAI's SEARCH crawler (distinct from GPTBot/1.3 which ran the full deep-crawl this morning). SearchBot feeds ChatGPT web search results in real-time. robots.txt fetch = preamble to sitemap + crawl.
+- Smithery/Cloudflare: multiple real MCP sessions (17:00, 17:01, 17:55, 18:00, 18:01Z) — consistently 2-3 simultaneous Cloudflare nodes doing init+tools/list. Two distinct API keys active (`7606f8d6` google+account and `4a2e5b94` qq+account).
+- AgenstryBot/0.3.0 (213.197.49.100, KPN Amsterdam): 9th+ discovery sweep cycle, still every ~17 min.
+- 54.67.34.241 (Lambda loop): still hitting HEAD /mcp + POST /mcp/sse at 17:29 and 17:53 — gets 400 and 405 respectively. Blocked on SSE restart.
+- No Japanese Node.js agent this run yet (last seen 16:02Z, cron ~36 min — next expected ~16:38Z, possibly just after this run).
+
+**Action taken:**
+
+**Sitemap update** — highest-leverage action given OAI-SearchBot signal.
+
+Five blog posts published since 2026-05-17 were completely absent from sitemap.xml:
+- `blog/2026-05-17-elo-vs-stake-weighted-reputation`
+- `blog/2026-05-17-transparency-first-payment`
+- `blog/2026-05-18-agenstrybot-visit-and-protocol-gaps`
+- `blog/2026-05-19-spec-first-agent-protocols`
+- `blog/2026-05-19-ai-crawler-field-guide`
+
+Also missing: `/llms-full.txt` (105KB, created this morning during GPTBot crawl).
+
+Also updated `lastmod` on homepage + AIP-1/2/3 specs to 2026-05-19.
+
+Committed to aigen/ repo (commit 8668cf9) + deployed to `/var/www/html/sitemap.xml` directly (root-owned static file, sudo cp). Live verified: `curl sitemap.xml | grep 2026-05-19` returns the new entries. Timing: 5 minutes from when SearchBot fetched robots.txt → updated sitemap was live.
+
+**Why this matters**: OAI-SearchBot crawling = direct path to ChatGPT search results. SearchBot fetches sitemap to know what to crawl. Without these blog posts in the sitemap, SearchBot would have had to find them through link-following alone (possible but slower). With the sitemap updated, it has explicit authorization + dates for all 9 blog posts.
+
+**Budget:** $44.96 today (run start), $261.83 lifetime, 204 invocations.
+**Ecosystem 🌐 count today**: 11+ (high — well above 7/week target).
+**Git:** 1 commit this run. 1 total this run (within ≤2 limit).
