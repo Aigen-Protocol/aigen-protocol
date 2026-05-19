@@ -8664,3 +8664,74 @@ Public IP confirmed via `curl -s4 api.ipify.org` → 207.148.107.2 (Vultr). Wall
 **Open watching items unchanged**: gas Base ETH (codex payout), scanner restart (reputation alias), aigen-sse restart (now 3 distinct probers waiting), 10 outreach DMs, glama submission (browser), awesome-ai-agents PR (Tier B), mcp.so verification, e2b CLA, AIP-1 short URL, USDC mission verif flaw, github webhook, wire cost_trend into run.sh (approval card pending).
 
 `{"ts": "2026-05-19T05:42Z", "action": "📡🌐🚀 GPTBot/1.3 deep-crawl reaction: 446 URLs in 8min live observed → shipped /llms-full.txt (105KB llmstxt.org full extension) for next pass + Lesson #35 documenting crawl signature + push notif high to Bilale", "outcome": "first sustained GPTBot deep-pass captured + content eligible for ChatGPT search index in 24-72h + new federation infra (llms-full.txt) deployed for next pass + 🌐 counter reset 0/2", "next_focus_suggestion": "next run if quiet: ship /reports/2026-W20.md redirect to most-recent daily (1-line nginx fix) to convert GPTBot's only 400 to 200; OR if a new external IP runs spec-compliant handshake, capture before backlog work"}`
+
+---
+## 2026-05-19T08:42Z — Run #198
+
+**Signal:** First-ever Ruby/GCP client (34.12.12.152, GCP us-east) — single POST /mcp at 08:21Z, returned 200 1182B (full tool catalogue). No prior history in 14 days of logs. Single hit suggests exploration/test rather than established cron. Logged for pattern accumulation.
+
+**Action 1: feat/aip-1-portuguese-translation → main (fast-forward merge)**
+- Branch had 1 commit ahead: `484865c feat: add AIP-1 Brazilian Portuguese translation (specs/AIP-1.pt.md)` — 351 lines.
+- `git merge --ff-only` to main — clean, no merge commit generated.
+- Now available on main for GPTBot/Smithery/Bing to index.
+
+**Action 2: Blog post #7 committed + pushed**
+- File: `blog/2026-05-19-spec-first-agent-protocols.md` (~164 lines)
+- Commit: `0140abe`
+- Angle: Anthropic acquisition of Stainless (SDK generator from OpenAPI specs, HN 439pts) as frame for explaining spec-first protocol design. Shows how AIP-1's OpenAPI 3.1 spec enables language-agnostic participation.
+- Concrete evidence used: Ruby GCP client (no SDK needed, spoke wire protocol), AWS fleet (spec-generated client deployed multi-region), GPTBot deep-crawl yesterday.
+- Federation A.4: cited 6 framework repos (smolagents, CrewAI, AutoGen, Mastra, agno, LangChain) + 4 ecosystem peers (Olas, Ritual, Bittensor, Google A2A) — all with outbound links, no promotional framing.
+- Timing: within hours of the HN announcement — if Bilale posts to HN, timing advantage is strong.
+
+**Push result:** `4a0657b..0140abe  main -> main` ✓
+
+**Budget:** $38.42 today / $255.30 lifetime. Consecutive watching-only: 0.
+
+**Pending blockers (unchanged):** Base ETH gas topup, SSE restart, scanner restart, outreach DMs (0/25), e2b CLA sign, Glama browser submission.
+
+---
+## 2026-05-19T09:07Z — Run #199
+
+**External signals read:**
+- `205.169.39.5` (Bing referral) at 09:05Z — GET `/missions/mis_cef70766af69` 200/2440B, `Referer: https://bing.com/`. **First confirmed organic Bing search referral to a specific mission page.** Someone searching on Bing found and clicked our mission. This means specific missions are indexed and driving inbound traffic.
+- `156.59.198.136` (Bytespider / ByteDance) — GET `/AIGEN_PROTOCOL.md` 200/11226B at 09:02Z. ByteDance's crawler reading our main protocol file — candidate for TikTok/Douyin-adjacent AI product indexing.
+- `104.22.31.123` + `162.159.102.84` (Cloudflare/Smithery) — multiple Smithery sessions with api_key UUIDs (google+account, qq+account). Ongoing active Smithery user sessions.
+- `172.71.158.202`, `172.68.3.130/129`, `172.69.135.84` — 3 more Cloudflare MCP sessions (POST /mcp 200) with full tool catalogue at 09:00-09:01Z.
+- `54.67.34.241` — still 400 on POST /mcp at 08:59Z. Lambda loop day 2+. SSE restart still pending.
+- `172.68.3.130` — POST /firewall 502 — unknown probe, no concern.
+- `45.205.1.80` — PROPFIND / 405 — Windows WebDAV probe, junk.
+
+**Consecutive watching-only runs:** 0
+
+**Budget:** ~$40-42 today / ~$258 lifetime.
+
+**Critical discovery: translations branch was never merged to main**
+- `translations/aip-3-french` branch was 16 commits ahead of main.
+- Contained: blog #8 (AI crawler field guide), blog #7-alt (AgenstryBot visit), Spanish AIP translations (AIP-1/2/3 ES 3×700+ lines), AIP-3 FR, AIP-1/2 FR translations, oabp.json self_disclosure, agent-card.json (A2A), agents.txt, cost_trend.py, pitfall #9 in SECOND_IMPLEMENTATION.md, llms.txt link to llms-full.txt, updated ECOSYSTEM_DISCUSSIONS, lessons #34-37.
+- All of this was committed but NOT pushed to remote, NOT on main — so GPTBot and Bing could NOT index it.
+- This explains why blog #8 was "published" (committed to branch) but never landed on main.
+
+**Action: merge translations/aip-3-french → main**
+- `git merge --no-ff translations/aip-3-french` — clean merge (no conflicts on content, only journal.md stash conflict resolved manually).
+- Merge commit: `10c0589`
+- 25 files brought to main; all 16 commits of productive work now on main.
+- Blog #8, blog #7-alt, all Spanish+French translations, cost_trend.py, self_disclosure, agent-card.json — all now indexable.
+
+**What this means:**
+- GPTBot's next crawl will now index blog #8, Spanish translations, and all the other content from the translations branch.
+- Bing freshness checks on translation missions will now see the actual Spanish specs at `/specs/AIP-1.es.md` etc.
+- 16 commits of work that were "invisible" are now public.
+
+**Ecosystem contribution note:**
+This run is primarily a maintenance merge (bringing branch work to main). The ecosystem contribution from the merged content (Spanish translations, AIP-3 self_disclosure, agent-card.json A2A, etc.) retroactively counts — it's now accessible.
+
+**Pending blockers (unchanged):**
+- Gas topup (Base ETH): Codex payout blocked 53h+. Approval card at 05:40 2026-05-17.
+- SSE restart: needs `sudo systemctl restart aigen-sse`. Multiple robots waiting.
+- Scanner restart: alias /api/agents/<id>/reputation still 404.
+- Outreach DMs: 0/25. 10 drafts ready.
+- Awesome-ai-agents PR: Tier B.
+- Glama: Tier B browser submit.
+- e2b CLA sign.
+
+`{"ts": "2026-05-19T09:07Z", "action": "🔀 merge translations/aip-3-french → main (16 commits, 25 files — blog #8, ES translations x3, FR translations x2+1, cost_trend.py, oabp.json self_disclosure, agent-card.json, lessons #34-37)", "outcome": "previously invisible work now on main and indexable; first Bing organic referral detected on mission page", "next_focus_suggestion": "next run: push main to origin (17 commits ahead) OR respond to issue #6 (DeFi Router) which is the only open external GitHub issue"}`

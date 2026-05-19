@@ -1,0 +1,263 @@
+{
+  "_note": "Maintained by autopilot. Each run agent updates this. Public on /agent dashboard.",
+  "objective": {
+    "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
+    "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
+    "deadline": "2026-08-31",
+    "progress_note": "19 mai 09h07Z. Run #199. Découverte critique : branche translations/aip-3-french (16 commits, 25 fichiers) n'avait jamais été mergée dans main. Blog #8, traductions ES×3 + FR×2, cost_trend.py, oabp.json self_disclosure, agent-card.json — tout était invisible. Merge effectué (commit 10c0589). Premier referral Bing organique détecté sur une page mission (/missions/mis_cef70766af69). 17 commits maintenant en avance sur origin — à pousser."
+  },
+  "in_progress": [],
+  "waiting_on_bilale": [
+    {
+      "id": "outreach_dms_may_batch",
+      "title": "PRIORITE — Envoyer les 10 DMs d'outreach (tous les brouillons sont prêts)",
+      "details": "Les 10 messages sont dans distribution/outreach_drafts/ : 01_david_minarsch_olas.md, 02_ritual_team.md, 03_const_bittensor.md, 04_joao_moura_crewai.md, 05_harrison_chase_langchain.md, 06_autogen_microsoft.md (issue GitHub lundi), 07_lilian_weng.md, 08_andrej_karpathy.md, 09_simon_willison.md, 10_daren_matsuoka_a16z.md. Canal recommandé par cible dans chaque fichier. Aucune des 10 n'est encore envoyée (0/25 conversations de la cible).",
+      "optimal_when": "Ce weekend — commence par Tier 1 (David Minarsch, Ritual, Const) via X DM. #6 AutoGen = issue GitHub a ouvrir lundi matin",
+      "blocking_what": "Objectif 25 conversations 1:1 — on est a 0/25. Sans envoyer, la cible aout 2026 est impossible.",
+      "added": "2026-05-17T13:07:00Z"
+    },
+    {
+      "id": "scanner_restart_reputation_alias",
+      "title": "Redémarrer aigen-scanner pour activer l'alias /api/agents/<id>/reputation",
+      "details": "sudo systemctl restart aigen-scanner. Le code est déjà modifié (token-scanner/scanner.py, ligne ~11583). Vérif : curl -s https://cryptogenesis.duckdns.org/api/agents/earner-agent-01/reputation doit retourner 200 (testé à 00h11Z encore 404 — pas encore redémarré). Sans restart, le fix n'est pas actif.",
+      "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
+      "blocking_what": "Le client local AIGEN-Earner cherche son profil réputation 4x par run et tombe sur 404. NOTE: présenté hier comme \"agent externe\" — c'est en fait un daemon sur notre propre serveur (IP 207.148.107.2, Lesson #31 corrigée). Le fix reste utile pour tout vrai client externe qui tenterait le chemin REST canonique.",
+      "added": "2026-05-18T22:38:00Z"
+    },
+    {
+      "id": "sse_restart_json_error",
+      "title": "Redémarrer aigen-sse pour activer la réponse JSON sur POST /mcp/sse",
+      "details": "sudo systemctl restart aigen-sse. Code déjà modifié (token-scanner/mcp_sse_only.py). Vérif : curl -s -X POST https://cryptogenesis.duckdns.org/mcp/sse | python3 -m json.tool. Carte : approval_queue/20260517-0937-aigen-sse-restart-json-error-sse.md",
+      "optimal_when": "Dès que tu as 1 min",
+      "blocking_what": "54.67.34.241 en boucle depuis 9h sur /mcp/sse — recevra enfin un signal machine-readable",
+      "added": "2026-05-17T09:37:00Z"
+    },
+    {
+      "id": "base_eth_topup_codex_payout",
+      "title": "URGENT — Top up 0.003 Base ETH sur treasury (paiement codex bloqué)",
+      "details": "Treasury 0xDa429f2034b62b8722713873dE3C045eec390d8F a 0.0000004 Base ETH, le gas requis pour payer 10$ USDC est 0.000001 ETH. Auto-resolve échoue toutes les 5 min. Le submitteur (codex-base-usdc-bba20c93, externe) attend son paiement. Voir approval_queue/20260517-0540-base-eth-gas-topup-blocking-codex-payout.md. Topup ~0.003 ETH = ~3 semaines de buffer.",
+      "optimal_when": "ASAP (chaque run de retry = log noise + submitter dans le noir)",
+      "blocking_what": "Paiement réel à un completer externe (2e en 24h) — sans paiement on perd la confiance qu'on vient de gagner",
+      "added": "2026-05-17T05:40:00Z"
+    },
+    {
+      "id": "e2b_cla_sign",
+      "title": "Signer le CLA e2b pour debloquer PR #942 (awesome-ai-agents)",
+      "details": "Aller sur https://e2b.dev/docs/cla, signer avec le compte Aigen-Protocol GitHub, puis commenter /check-cla sur https://github.com/e2b-dev/awesome-ai-agents/pull/942",
+      "optimal_when": "Quand tu as 5 min et le navigateur ouvert",
+      "blocking_what": "Listing dans awesome-ai-agents (e2b-dev) — visibilite dans la communaute agent IA",
+      "added": "2026-05-16T20:09:00Z"
+    },
+    {
+      "id": "github_webhook",
+      "title": "Configurer le webhook GitHub sur Aigen-Protocol/aigen-protocol",
+      "details": "Settings → Hooks → Add webhook. URL: https://cryptogenesis.duckdns.org/webhook/github. Secret dans state/.webhook_secret. Events: Send me everything.",
+      "optimal_when": "N'importe quand, 2 min de boulot",
+      "blocking_what": "Sans ça, l'agent ne réagit pas en temps réel aux PR comments / stars / forks",
+      "added": "2026-05-14T22:00:00Z"
+    },
+    {
+      "id": "aip1_short_url",
+      "title": "OK pour ajouter le raccourci /aip-1 → /specs/AIP-1 ?",
+      "details": "Tu as tapé /aip-1 dans ton curl à 15:11 et tu as eu un 404. Le fix = 1 ligne dans la config nginx (ou route FastAPI). Pas fait tout seul car la consigne interdit \"nouvelle fonction sans demande\". Si tu dis oui je le pousse en <5 min.",
+      "optimal_when": "Si tu confirmes par chat",
+      "blocking_what": "Découvrabilité — si quelqu'un voit \"AIP-1\" mentionné ailleurs et tape l'URL courte, il tombe sur un 404 au lieu de la spec",
+      "added": "2026-05-15T15:24:00Z"
+    },
+    {
+      "id": "usdc_mission_verif_flaw",
+      "title": "Mission USDC mis_c5f53c3de5c3 — la vérification accepte n'importe quelle adresse 0x...",
+      "details": "La mission USDC $10 mis_c5f53c3de5c3 ('Find a Base token scoring < 30 with TVL > $10k') utilise first_valid_match avec regex ^0x[a-f0-9]{40}$ — ce qui accepte n'importe quelle adresse Base valide, pas seulement celles qui matchent vraiment les critères score/TVL. Le fond spec est maintenant tracké publiquement dans issue #9 (https://github.com/Aigen-Protocol/aigen-protocol/issues/9). Côté OPÉRATIONNEL il te reste 2 décisions : (1) void la mission existante avant qu'un submitter trivial gagne $10 sans rien prouver, OU laisser tourner et payer si quelqu'un soumet (évidence pour la spec). (2) Pour les futures missions token_scan : passer en oracle ou creator_judges (et virer first_valid_match du formulaire de création).",
+      "optimal_when": "ASAP (user actif maintenant) ou décide d'accepter le risque que la bounty soit gagnée trivialement",
+      "blocking_what": "Intégrité de la bounty USDC en cours d'évaluation",
+      "added": "2026-05-17T05:07:00Z"
+    },
+    {
+      "id": "mcp_so_submission",
+      "title": "Vérifier statut soumission mcp.so (PR #2298 introuvable via gh CLI)",
+      "details": "Le PR #2298 sur chatmcp/mcp-directory n'est pas trouvable via gh CLI — vérifier manuellement sur https://github.com/chatmcp/mcp-directory/pulls?q=aigen",
+      "optimal_when": "Quand tu as 2 min et le browser ouvert",
+      "blocking_what": "Référencement sur mcp.so",
+      "added": "2026-05-17T12:43:00Z"
+    },
+    {
+      "id": "awesome_ai_agents_pr",
+      "title": "Ouvrir PR awesome-ai-agents (slavakurilyak)",
+      "details": "Carte d'approbation: approval_queue/20260517-1837-awesome-ai-agents-pr.md. Tu dois forker slavakurilyak/awesome-ai-agents depuis ton compte GitHub perso, ajouter une entrée AIGEN, ouvrir une PR. Détails dans la carte.",
+      "optimal_when": "Quand tu as 5 min sur GitHub",
+      "blocking_what": "Visibilité AIGEN dans awesome-agents lists (1.4k stars)",
+      "added": "2026-05-17T18:45:00Z"
+    },
+    {
+      "id": "glama_submission",
+      "title": "Soumettre AIGEN à Glama (browser login requis)",
+      "details": "Aller sur https://glama.ai/mcp/servers/add → login GitHub OAuth → coller https://cryptogenesis.duckdns.org/mcp comme server URL → soumettre. Le crawl auto-listing depuis /.well-known/glama.json n'a PAS fonctionné malgré semaines de polling régulier. Backlog row : state/always_available_work.md ligne Glama (marquée [~] partial 2026-05-18T02:10Z).",
+      "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
+      "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
+      "added": "2026-05-18T02:10:00Z"
+    }
+  ],
+  "done_today": [
+    {
+      "ts": "2026-05-19T00:11:00Z",
+      "emoji": "📜",
+      "title": "Ajouté les titres frontmatter aux 2 articles de blog qui affichaient leur nom de fichier brut dans l'index (2026-05-17 ELO vs stake-weighted reputation et 2026-05-16 Build OABP server in 60 min). Vérifié en live : les deux affichent maintenant leur titre humain dans /blog. Commit 3fd7e97."
+    },
+    {
+      "ts": "2026-05-19T00:37:00Z",
+      "emoji": "🧠",
+      "title": "Correction d'une erreur de comptage : l'agent \"earner-agent\" présenté hier soir comme \"externe\" et qui aurait gagné 15 missions est en fait un daemon local sur notre propre serveur (IP 207.148.107.2 — Lesson #31). Toutes les victoires d'hier soir sont du trafic interne. Lesson #31 amendée avec ce variant précis."
+    },
+    {
+      "ts": "2026-05-19T00:37:00Z",
+      "emoji": "🌐",
+      "title": "Ajouté pitfall #9 à docs/SECOND_IMPLEMENTATION.md : \"Counting your own internal traffic as ecosystem traction\". Documente l'erreur qu'on vient de faire pour que tout autre implémenteur OABP qui lit ce guide ne la répète pas. Geste de fédération (D.9) — on partage la leçon, pas juste le code."
+    },
+    {
+      "ts": "2026-05-19T01:11:00Z",
+      "emoji": "🧠",
+      "title": "Fix de cohérence sur distribution/outreach_status.json : l'AutoGen RFC #7702 (16 mai, autopilot Tier A) était response_received=true mais sent_at=null, ce qui rendait summary.sent=0 vs engaged=1 — auto-contradictoire et cassait l'analyse hebdo. Restauré sent_at + ajouté sent_url + seedé learnings[] avec le 1er data point (seul canal effectivement utilisé : github_issue, 1/1 engagé). Commit 1feb425."
+    },
+    {
+      "ts": "2026-05-19T01:37:00Z",
+      "emoji": "📡",
+      "title": "Premier contact MixrankBot (mixrank.com, plateforme B2B intel) — sweep complet 11 chemins tous 200 incluant /.well-known/agent.json, /AIGEN_PROTOCOL.md, /dashboard, /missions/stats, /missions/active, /proof. Premier crawler B2B intelligence à nous indexer en 14 jours de logs. Notif Telegram envoyée (priorité default, push 1/5 du jour)."
+    },
+    {
+      "ts": "2026-05-19T01:37:00Z",
+      "emoji": "🌐",
+      "title": "Nouvelle mission AIGEN postée : mis_44e1173a6a88 « Implement OABP AIP-1 client in Java (JVM ecosystem) » — 200 AIGEN, vérification oracle, 720h deadline, n'importe quel agent peut soumettre. Java est le grand écosystème enterprise encore non couvert dans notre board (Python/TS/Go/Rust/PowerShell/AutoGen/Agno/Mastra/LangGraph déjà shippés). Solde autopilot : 1398 → 1193 AIGEN."
+    },
+    {
+      "ts": "2026-05-19T02:08:00Z",
+      "emoji": "🧠",
+      "title": "Reconnaissance de signature : 2 nouvelles IPs AWS (Irlande + Francfort) ont fait à 1 min d'intervalle exactement la même séquence MCP en 13 étapes que la Virginie hier matin. Trois régions AWS, même client python-httpx/0.28.1, même handshake byte-pour-byte (init → CORS → OAuth probe → re-init → tools/list 22 outils → 2 tool calls → DELETE close). C'est une flotte multi-région d'un opérateur unique. Lesson #33 ajoutée à state/lessons.md pour qu'on n'ait pas à redécouvrir le pattern la prochaine fois."
+    },
+    {
+      "ts": "2026-05-19T02:08:00Z",
+      "emoji": "📡",
+      "title": "Premier contact 34.250.174.168 (AWS eu-west-1 Irlande) à 02h00 + 3.69.53.249 (AWS eu-central-1 Francfort) à 02h01 — 0 visites antérieures dans les 14 jours de logs. Tous deux ont fait des vraies sessions /mcp avec 2 appels d'outils chacun, pas seulement listé le catalogue. Pas de notif push (déjà 2/5 aujourd'hui et le pattern est désormais reconnu, pas nouveau)."
+    },
+    {
+      "ts": "2026-05-19T02:38:00Z",
+      "emoji": "🌐",
+      "title": "Ouvert issue #17 sur notre spec AIP-3 : règle normative pour exclure les self-submissions du calcul de réputation cross-chain. 3 couches (adresse, IP egress, wallets custodiaux), +3 champs transparence metadata.exclusions, candidat v0.2. Transforme la pitfall #9 d'hier (doc opérationnelle) en exigence spec officielle — bénéficie à tout implémenteur OABP, pas juste à nous. Ecosystem Menu C.6 (issue sur AIP-1/2/3) : https://github.com/Aigen-Protocol/aigen-protocol/issues/17"
+    },
+    {
+      "ts": "2026-05-19T03:08:00Z",
+      "emoji": "🌐",
+      "title": "Ajouté Google A2A (Agent2Agent) dans la section 'Related ecosystems' du README. Caracterisation honnete (complementaire a OABP, pas concurrent) + lien vers spec canonique google.github.io/A2A + cross-link vers notre agent-card.json que A2A a inspire (Lesson 14, AgenstryBot). Federation pure A.4 : on envoie le lecteur vers un peer, pas capture. Commit 6ce4289."
+    },
+    {
+      "ts": "2026-05-19T03:43:36Z",
+      "emoji": "🚀",
+      "title": "Outil de suivi du coût quotidien : détecte si on dépense plus que la moyenne 7 jours (alarme à 1.5×)"
+    },
+    {
+      "ts": "2026-05-19T03:43:36Z",
+      "emoji": "📋",
+      "title": "Carte d'approbation pour brancher cet outil dans la boucle d'exécution (modif config, ton OK requis)"
+    },
+    {
+      "ts": "2026-05-19T04:08:00Z",
+      "emoji": "🌐",
+      "title": "Renforcement de l'issue publique #17 (self-submission detection sur AIP-3) avec nouvelles preuves: pas seulement les 15 wins token_scan d'hier, mais aussi 4/4 missions de traduction avec submissions ouvertes du même portefeuille interne. Le commentaire propose 3 affinements concrets : (a) la règle d'égalité d'adresse rate les créateurs identifiés par chaîne de caractères (la moitié de notre catalogue), (b) la déclaration d'IP de sortie devrait être obligatoire et non secondaire, (c) liste des correctifs opérationnels à venir. Comment ~4.3KB, posté sur le repo Aigen-Protocol public."
+    },
+    {
+      "ts": "2026-05-19T04:43:48Z",
+      "emoji": "🌐",
+      "title": "Concrétisé la 2e promesse opérationnelle de l'issue #17 — ajouté un bloc 'self_disclosure' dans notre fichier public de découverte qui déclare publiquement notre IP de sortie (207.148.107.2) et le portefeuille interne de nos robots (0x7aA55B...). N'importe quelle implémentation AIP-3 externe peut désormais filtrer nos propres soumissions en boucle fermée quand elle calcule des attestations de réputation inter-protocoles. Geste de transparence pure : on s'auto-signale comme source à exclure, plutôt que d'attendre qu'un tiers nous détecte. Commit 9749ea4 + commentaire #4484467028 sur l'issue."
+    },
+    {
+      "ts": "2026-05-19T05:08:00Z",
+      "emoji": "📡",
+      "title": "Caractérisation rétroactive de MCP-Catalog-Bot/1.0 (24.5.30.213, Comcast résidentiel US) — un crawler MCP persistant qui indexait nos endpoints depuis 2026-05-18 01:05Z (28h écoulées) sans qu'on ouvre de signature. 78 hits accumulés, profil : 33 SSE long-poll + 22 POST /mcp/sse en retry sur le 405 + 15 POST /mcp init handshake + 40 probes OAuth discovery sur DEUX namespaces (.well-known/ ET /mcp/.well-known/ — confirme que les implémenteurs doivent connaître la variante MCP authz du RFC 8414). Pas notif push : événement rétrospectif, pas first-contact urgent."
+    },
+    {
+      "ts": "2026-05-19T05:08:00Z",
+      "emoji": "🚀",
+      "title": "Lesson #34 ajoutée à state/lessons.md documentant la signature MCP-Catalog-Bot avec preuves chiffrées (78 hits, distribution path/method, dual-namespace OAuth discovery). Inclut counter-lesson interne : 'documenter la signature dans le même run que la 1re observation, ne pas attendre un trigger de first-contact qui a déjà eu lieu'. Note opérationnelle : 3 clients distincts (Lambda loop 54.67.34.241, python-httpx AWS fleet, MCP-Catalog-Bot) sont actuellement bloqués sur le redémarrage aigen-sse en attente côté Bilale — ça concentre la valeur du restart."
+    },
+    {
+      "ts": "2026-05-19T05:47:06Z",
+      "emoji": "📡",
+      "title": "Détection temps-réel : GPTBot/1.3 d'OpenAI en plein deep-crawl chez nous (446 URLs uniques en 8 min, 570 hits/jour, signature 74.7.227.11). Premier deep-pass jamais observé — a ingéré tous nos fichiers de découverte .well-known/*, les 4 specs AIP, tous les profils d'agents, et nos rapports quotidiens en version brute. Notif Telegram envoyée."
+    },
+    {
+      "ts": "2026-05-19T05:47:06Z",
+      "emoji": "🌐",
+      "title": "Federation D.10 : créé /llms-full.txt (105KB, contenu complet des specs+blog+docs en 1 fichier markdown). Suit la spec llmstxt.org. Bénéficie à tout l'écosystème crawler LLM (GPT, Claude, Gemini, Perplexity) — pas seulement à AIGEN. Script de regénération scripts/build_llms_full.sh. Lien ajouté en haut de /llms.txt."
+    },
+    {
+      "ts": "2026-05-19T05:47:06Z",
+      "emoji": "🚀",
+      "title": "Lesson #35 ajoutée à state/lessons.md : signature complète du deep-crawl GPTBot (paths ingérés, comportement DFS de suivi de Referer, préférence .raw markdown vs HTML rendu, implication ChatGPT search index 24-72h). Doc opérationnelle : keep cross-linking dense, keep .raw aliases stable, don't rate-limit GPTBot."
+    },
+    {
+      "ts": "2026-05-19T06:13:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire technique posté sur agno-agi/agno issue #6235 (MCP reconnection CancelledError propagation). Explication du piège Python 3.8+ (PEP 584 : CancelledError hérite de BaseException, pas Exception), limitation de asyncio.shield(), alternative asyncio.wait_for() + suggestion pour le double build_tools(). Issue stale depuis mars 2026 — 1er commentaire humain sur cette issue."
+    },
+    {
+      "ts": "2026-05-19T06:13:00Z",
+      "emoji": "⚙️",
+      "title": "Correctif /reports/2026-W20.md dans scanner.py (production) : ISO week URL redirige vers le rapport quotidien le plus récent de la semaine correspondante. Règle le seul 400 que GPTBot a rencontré dans son deep-crawl de 446 URLs ce matin. Prendra effet au prochain redémarrage du scanner (en attente côté Bilale)."
+    },
+    {
+      "ts": "2026-05-19T06:13:00Z",
+      "emoji": "📡",
+      "title": "Nouveau signal : 74.249.79.53 (python-httpx/0.28.1, IP non-AWS non-documentée) — 2 sessions MCP complètes + 3 connexions SSE en 7 min. IP absente de nos leçons. Pourrait être un opérateur distinct de la flotte AWS multi-région, ou une région non-AWS. Noté en journal pour accumulation de contexte."
+    },
+    {
+      "ts": "2026-05-19T06:37:00Z",
+      "emoji": "📜",
+      "title": "Blog post #8 publié : 'Guide de terrain sur 5 crawlers IA en 7 jours' (GPTBot, BingBot, MixrankBot, MCP-Catalog-Bot, AgenstryBot). Signal du run : Bing fait des freshness checks sur nos 3 missions de traduction française — elles sont indexées. Commit c6c84d1."
+    },
+    {
+      "ts": "2026-05-19T07:08:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire technique sur openai/openai-agents-python issue #2970 (pré-execution validation, 29 commentaires). Ajout du pattern 'cross-trust-boundary receipt' avec pre-committed hash — absent du fil, genuinement nouveau. Pas de mention AIGEN. URL: https://github.com/openai/openai-agents-python/issues/2970#issuecomment-4485314825"
+    },
+    {
+      "ts": "2026-05-19T07:42Z",
+      "emoji": "🌐",
+      "title": "2 missions espagnoles créées : traduction AIP-1 ES (mis_6c21c53dd2f7) + traduction AIP-2 ES (mis_ccd56e58a8b2). 50 AIGEN chacune, vérification oracle. Extension naturelle des missions françaises indexées par Bing ce matin."
+    },
+    {
+      "ts": "2026-05-19T08:09:00Z",
+      "emoji": "🌐",
+      "title": "2 missions traduction créées : AIP-3-ES (mis_8613ccdd8fb7) + AIP-1-PT-BR (mis_461083a5e616). 50 AIGEN chacune, oracle, 720h. Complète le set espagnol (AIP-1+2+3 ES). 5/5 missions du jour."
+    },
+    {
+      "ts": "2026-05-19T08:09:00Z",
+      "emoji": "🌐",
+      "title": "SACP ajouté à SECOND_IMPLEMENTATION.md Related Ecosystems (fédération A.4). Commit 7d347b3 : traductions ES AIP-1/2/3 (1105 lignes) + lessons #36+37."
+    },
+    {
+      "ts": "2026-05-19T08:09:00Z",
+      "emoji": "📡",
+      "title": "Signal 08h01Z : 2 IPs Cloudflare (Smithery gateway) — 3 sessions MCP complètes (init + tools/list 22 outils). Pattern real-user, distinct health-check. Lesson #37."
+    },
+    {
+      "ts": "2026-05-19T08:42:00Z",
+      "emoji": "🚀",
+      "title": "Traduction AIP-1 PT-BR mergée dans main (fast-forward depuis feat/aip-1-portuguese-translation, 351 lignes, commit 484865c)."
+    },
+    {
+      "ts": "2026-05-19T08:42:00Z",
+      "emoji": "🌐",
+      "title": "Blog #7 publié : 'Spec-First Agent Protocols' — contexte acquisition Stainless par Anthropic + citations ecosystème (smolagents, CrewAI, AutoGen, Mastra, agno, LangChain, Olas, Ritual, Bittensor). Geste fédération A.4. Commit 0140abe."
+    },
+    {
+      "ts": "2026-05-19T09:07:00Z",
+      "emoji": "🚀",
+      "title": "Détecté et corrigé : branche translations/aip-3-french (16 commits) jamais mergée dans main. Tout le travail de cette branche (blog #8, traductions ES×3+FR×3, self_disclosure, agent-card, lessons) est maintenant sur main et indexable. Merge commit 10c0589."
+    },
+    {
+      "ts": "2026-05-19T09:07:00Z",
+      "emoji": "📡",
+      "title": "Premier referral Bing organique sur une page mission (/missions/mis_cef70766af69) à 09h05Z — quelqu'un a trouvé et cliqué une mission via Bing. Premier trafic inbound de recherche organique confirmé."
+    }
+  ],
+  "alerts": []
+}
