@@ -21,6 +21,7 @@ import pytest
 from oabp import (
     OABPClient, OABPError, MissionTypeAffinity, __aip_supported__,
     VERIFICATION_COMPAT, check_verification_compat,
+    RegistryAttestation, check_registry_session,
 )
 
 
@@ -571,6 +572,98 @@ class TestSelfSubmissionDetection:
         client.mission = lambda mid: (_ for _ in ()).throw(Exception("network error"))
         result = client.check_self_submission("mis_test", "0x1234")
         assert result is False
+
+
+# ---- AIP-1 §1.4 — Registry identity propagation ----
+
+class TestRegistryIdentityPropagation:
+    """AIP-1 §1.4 — identity model for registry-multiplexed sessions.
+
+    These tests cover the five normative MUST rules:
+    1. No auto-binding of routing tokens
+    2. Anonymous by default (no api_key match → None)
+    3. Attested sessions resolve to bound EVM address
+    4. Cross-registry portability (same address, different registries)
+    5. RegistryAttestation dataclass validity helpers
+    """
+
+    def test_anonymous_session_returns_none(self):
+        """§1.4 rule 2: request without api_key MUST be treated as anonymous."""
+        result = check_registry_session(query_params={}, authorization_header=None)
+        assert result is None
+
+    def test_unknown_api_key_returns_none(self):
+        """§1.4 rule 2: api_key without attestation binding MUST remain anonymous."""
+        bindings = {"known-key": "0xAAAA0000000000000000000000000000000000AA"}
+        result = check_registry_session(
+            query_params={"api_key": "unknown-uuid", "profile": "qq+account"},
+            authorization_header=None,
+            attested_bindings=bindings,
+        )
+        assert result is None
+
+    def test_attested_session_resolves_to_evm_address(self):
+        """§1.4 rule 3: api_key with binding resolves to the bound EVM address."""
+        bound_address = "0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A"
+        bindings = {"smithery-uuid-abc": bound_address}
+        result = check_registry_session(
+            query_params={"api_key": "smithery-uuid-abc", "profile": "nju+account"},
+            authorization_header=None,
+            attested_bindings=bindings,
+        )
+        assert result == bound_address
+
+    def test_cross_registry_portability(self):
+        """§1.4 rule 4: same EVM address bindable under multiple api_keys from different registries."""
+        shared_address = "0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A"
+        bindings = {
+            "smithery-key-1": shared_address,
+            "glama-key-99":   shared_address,
+        }
+        addr_smithery = check_registry_session(
+            query_params={"api_key": "smithery-key-1"},
+            authorization_header=None,
+            attested_bindings=bindings,
+        )
+        addr_glama = check_registry_session(
+            query_params={"api_key": "glama-key-99"},
+            authorization_header=None,
+            attested_bindings=bindings,
+        )
+        assert addr_smithery == addr_glama == shared_address
+
+    def test_registry_attestation_address_validation(self):
+        """RegistryAttestation.is_valid_address() rejects non-EVM strings."""
+        good = RegistryAttestation(
+            api_key="k1", evm_address="0xAbCd1234567890AbCd1234567890AbCd12345678",
+            registry_domain="smithery.ai", issued_at="2026-05-19T07:00:00Z",
+            signature="0xdeadbeef",
+        )
+        bad = RegistryAttestation(
+            api_key="k2", evm_address="not-an-address",
+            registry_domain="smithery.ai", issued_at="2026-05-19T07:00:00Z",
+            signature="0xdeadbeef",
+        )
+        assert good.is_valid_address() is True
+        assert bad.is_valid_address() is False
+
+    def test_registry_attestation_roundtrip(self):
+        """RegistryAttestation serializes and deserializes losslessly."""
+        attest = RegistryAttestation(
+            api_key="ec7c3863-49cf-4591-8a1e-ae775beaa703",
+            evm_address="0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A",
+            registry_domain="smithery.ai",
+            issued_at="2026-05-19T07:13:00Z",
+            signature="0xcafe",
+            profile="outlook+account",
+            ttl_seconds=3600,
+        )
+        restored = RegistryAttestation.from_dict(attest.to_dict())
+        assert restored.api_key == attest.api_key
+        assert restored.evm_address == attest.evm_address
+        assert restored.registry_domain == attest.registry_domain
+        assert restored.profile == attest.profile
+        assert restored.ttl_seconds == attest.ttl_seconds
 
 
 if __name__ == "__main__":
