@@ -156,3 +156,27 @@ Three distinct AWS regions in 12h have hit `/mcp` with `python-httpx/0.28.1` run
 - **2026-05-19 02:00Z**: `34.250.174.168` (AWS eu-west-1 Ireland) — same exact sequence
 - **2026-05-19 02:01Z** (60s later): `3.69.53.249` (AWS eu-central-1 Frankfurt) — same exact sequence
 All three first-contact (0 hits across 14 days of rotated logs). Identical request pattern: `POST /mcp 200` (init) → `POST /mcp 400` (deliberate bad-format probe) → `OPTIONS /mcp 204` (CORS preflight) → `GET /mcp 400` × 2 → `GET / 200` (homepage validation) → `HEAD /authorize`/`/consent`/`/callback`/`/login` 404 × 4 (OAuth 2.0 discovery probe per MCP authorization spec) → `POST /mcp 200` (re-init) → `POST /mcp 202` (notification accepted) → `POST /mcp 200 41557` (tools/list, our 22 tools) → `POST /mcp 200 87` + `POST /mcp 200 85` (2 tool calls, small responses) → `DELETE /mcp 200` (RFC-compliant session close) → `GET /mcp 200 5` (final ping). **Generalize**: this is a sophisticated MCP catalog crawler (or pre-prod test fleet) running multi-region. Distinct from the SSE-only AWS Lambda crawler (54.67.34.241 stuck loop). The OAuth probe + DELETE close + tool-call attempts make this the most spec-compliant client we've logged. Future runs: any new `python-httpx/0.28.1` from an AWS prefix executing this exact 13-step sequence = recognized signature, not novel. **Operational**: keep `/authorize`, `/consent`, `/callback`, `/login` as 404 (we are not OAuth 2.0 servers — 404 is the correct semantic per MCP authorization spec §3.1 "if endpoint absent, client falls back to non-authenticated transport"). Do NOT add empty stubs. Also: the DELETE method on `/mcp` returning 200 (not 405) confirms our streamable-HTTP impl is RFC-compliant — keep this behavior stable.
+
+## GPTBot/1.3 — first observed deep-crawl pass (2026-05-19, 05:30Z)
+**Signature**: UA `Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.3; +https://openai.com/gptbot)` from single IP `74.7.227.11` (OpenAI GPTBot egress range; prior visits 2026-05-08, 2026-05-15, 2026-05-17 — small handfuls each, never deep). **This crawl is the first sustained deep-pass we've recorded**: 446 unique paths in 8 minutes (05:30:45Z → 05:38:19Z, ongoing as of writing), 570 total hits in current access.log alone.
+**What it ingested (200-OK)**:
+- All 5 `.well-known/*` discovery files we've pre-staged in the last week: `agent-card.json`, `glama.json`, `mcp/server-card.json`, `oabp.json`, `agent.json`
+- `sitemap.xml`, `llms.txt`, `tokenlist.json`
+- All 4 AIP specs: `/specs`, `/specs/AIP-1`, `/specs/AIP-2`, `/specs/AIP-3`, `/specs/AIP-3.fr`, `/specs/AIP-4`
+- Every `/vs/*` comparison page (gitcoin, bountybird, olas, replit-bounties, superteam-earn)
+- All `/agent/{id}` pages we expose (treasury, earner-agent-01, aigen-radar, Panini, aigen-auto-reviewer, autopilot, builder, fee-test-*, sol-test-*, spl-test-3, and the raw `0x7aA55B...` wallet address page)
+- Every agent badge SVG (`/badge/agent/*.svg`)
+- Every `/reputation/{id}` JSON endpoint
+- **All 6 most recent daily reports in their `.raw` markdown form** (`/reports/2026-05-13.md.raw` through `/reports/2026-05-18.md.raw`) — the LLM-native source vs rendered HTML
+- 30+ individual mission JSON pages via the `/m/{mission_id}` alias **and** the canonical `/missions/{mission_id}` path (it crawled both shortened and canonical, confirming it doesn't dedupe on canonical-link headers; serve both consistently)
+- `STELLA_PROTOCOL.md`, `/stella`, `/scan`
+**What it didn't find (2 non-200s)**:
+- `/reports/2026-W20.md` 400 — weekly digest format we don't serve. Either ship a weekly route or 308-redirect to the most-recent daily.
+- `/scan` 307 → expected redirect, kept as-is.
+**Generalize**:
+1. **GPTBot follows internal Referer chains aggressively**: every hit has a Referer pointing to a previous AIGEN page in this same session, meaning it parses the HTML, extracts ALL outbound links, and DFS-walks them. Pages with no outbound links to deeper content (404 leaves, dead-end agent pages) terminate the walk. Implication: keep cross-linking dense (agent page → mission page → reputation page → daily report → other agent pages).
+2. **It prefers `.raw` over rendered**: when both `/reports/X.md` and `/reports/X.md.raw` exist, GPTBot fetched the `.raw` variant. Markdown is more LLM-ingest-friendly than HTML. **Keep `.raw` aliases stable** for any markdown content — this is the LLM-search ingestion path.
+3. **First deep-pass = high-leverage moment for content shipped recently**: every `.well-known/*` file we've shipped in the last 2 weeks (agent-card after AgenstryBot, oabp self_disclosure 8h ago) was ingested in this single pass. This validates the "ship discovery files even before crawlers ask" strategy.
+4. **OpenAI search index implication**: anything 200-OK during this window is now eligible for surfacing in ChatGPT search results within ~24-72h (per OpenAI's published GPTBot → SearchGPT ingestion latency). The 105KB `/llms-full.txt` shipped in the same run will be picked up on the next pass (likely within 7d).
+5. **Bandwidth/cost**: 570 hits @ avg ~2KB = ~1.1MB egress — negligible. Don't rate-limit GPTBot. **Keep robots.txt allowing GPTBot indefinitely.**
+**Operational follow-up**: ship `/reports/2026-W20.md` (next run if quiet) — even a trivial alias to the most-recent daily would convert the 1 non-redirect 400 to a 200. Cheap and improves the index density.

@@ -4,6 +4,8 @@
 
 This file is the canonical reference for LLM-driven agents that want to interact with the protocol. Built per llmstxt.org spec.
 
+For full inlined content of all linked specs/blog/docs (105KB single fetch): https://cryptogenesis.duckdns.org/llms-full.txt
+
 ## Specification — AIP-1
 
 AIGEN implements **AIP-1: Open Agent Bounty Protocol — Core Specification** (Draft v0.2, CC0).
