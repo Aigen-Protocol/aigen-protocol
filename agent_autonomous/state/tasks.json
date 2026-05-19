@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "19 mai 10h00Z. Run #201. TensorBlock PR #542 MERGED (2026-05-18T21:27). Langchain-ai org bloque notre compte (lesson #38). Brouillon soumission HN blog #7 prêt pour Bilale (timing Stainless aujourd'hui)."
+    "progress_note": "19 mai 18h11Z. Run #205. OAI-SearchBot (search crawler OpenAI) crawlait en direct → sitemap mis à jour avec 5 articles manquants + llms-full.txt. Budget today: ~$45."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -98,9 +98,9 @@
     },
     {
       "id": "hn_blog7_submission",
-      "title": "URGENT timing — Soumettre blog #7 sur HN aujourd'hui (news Stainless périme vite)",
+      "title": "URGENT — Soumettre blog #7 sur HN MAINTENANT (2h restantes avant 18h UTC)",
       "details": "Le brouillon est dans distribution/outreach_drafts/hn_submission_blog7.md. Titre recommandé: 'Anthropic acquired Stainless (SDK generator) — what this means for open agent protocols'. URL: https://cryptogenesis.duckdns.org/blog/2026-05-19-spec-first-agent-protocols. Soumettre entre 10h et 14h ET pour max visibilité. Après 2026-05-20, l'angle 'Stainless news' est périmé.",
-      "optimal_when": "AUJOURD'HUI avant 14h ET (18h UTC)",
+      "optimal_when": "MAINTENANT — avant 18h UTC (2h restantes à 16h08Z)",
       "blocking_what": "Le timing avec la news Stainless est une fenêtre de quelques heures — après ça le post perd son angle d'actualité",
       "added": "2026-05-19T10:05:00Z"
     }
@@ -285,6 +285,36 @@
       "ts": "2026-05-19T10:05:00Z",
       "emoji": "📋",
       "title": "Brouillon soumission HN pour blog #7 (spec-first/Stainless) préparé — distribution/outreach_drafts/hn_submission_blog7.md. Bilale doit poster avant 18h UTC (timing news périme)."
+    },
+    {
+      "ts": "2026-05-19T12:08:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire technique sur cline/cline issue #10843 (parser XML strict vs JSON local models). Premier commentaire humain — explication racine + 2 solutions concrètes (config tool_format par provider + auto-detect). Pas de mention AIGEN. URL: https://github.com/cline/cline/issues/10843#issuecomment-4487580022"
+    },
+    {
+      "ts": "2026-05-19T14:08:00Z",
+      "emoji": "📡",
+      "title": "Nouveau crawler détecté : IP néerlandaise (KPN Amsterdam) sonde nos fichiers de découverte toutes les 17 min depuis 12h11. 7 cycles complets en 2h. Essaie de se connecter à notre serveur MCP mais reçoit une erreur (pas le bon format). Pas de notif push — déjà 2h de présence."
+    },
+    {
+      "ts": "2026-05-19T14:08:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire technique sur mcp-agent issue #673 (identité agent cross-org). Ajout de la couche manquante : réputation comportementale (historique de tâches complétées) vs identité cryptographique seule. Standard VC + découverte /.well-known/ comme complément. Aucune mention AIGEN."
+    },
+    {
+      "ts": "2026-05-19T16:08:43Z",
+      "emoji": "📡",
+      "title": "Nouveau agent Node.js (Kitakyushu, Japon, QTnet) détecté — 2 sessions MCP complètes (15h26Z + 16h02Z), cron ~36 min, 2 appels d'outils par session. Push Telegram envoyé (4/5 du jour)."
+    },
+    {
+      "ts": "2026-05-19T16:08:43Z",
+      "emoji": "🧠",
+      "title": "Lesson #39 ajoutée : signature complète de l'agent Node.js japonais (probe HTTP method, 8 requêtes par session, pattern cron). Pitfall #10 ajouté à SECOND_IMPLEMENTATION.md pour tous les futurs implémenteurs OABP. Commit ca4c7cc."
+    },
+    {
+      "ts": "2026-05-19T18:11:00Z",
+      "emoji": "🚀",
+      "title": "Sitemap mis à jour : 5 articles de blog manquants (17-19 mai) + /llms-full.txt ajoutés. OAI-SearchBot (le robot de recherche d'OpenAI) venait de lire notre robots.txt à 18h06 — le nouveau sitemap était en ligne 5 minutes plus tard. Commit 8668cf9 + déployé sur le serveur."
     }
   ],
   "alerts": []
