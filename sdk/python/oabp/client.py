@@ -465,6 +465,22 @@ class OABPClient:
         items = data if isinstance(data, list) else (data.get("agents") or data.get("items") or [])
         return [AgentReputation.from_dict(a) for a in items]
 
+    # ---- AIP-3 §3.1 Self-Submission Detection ----
+
+    def check_self_submission(self, mission_id: str, submitter_address: str) -> bool:
+        """AIP-3 §3.1 — return True if submitter is the mission creator (self-submission).
+
+        Compares mission creator against submitter_address using case-insensitive EVM
+        address equality.  Servers MUST NOT credit self-submissions to reputation; this
+        helper lets the client surface the condition before wasting a submission slot.
+        """
+        try:
+            mission = self.mission(mission_id)
+        except Exception:
+            return False
+        creator = getattr(mission, "creator", None) or ""
+        return creator.lower() == submitter_address.lower()
+
     # ---- Convenience ----
 
     def __repr__(self):

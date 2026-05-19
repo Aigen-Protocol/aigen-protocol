@@ -510,5 +510,68 @@ def test_aip_version_alignment():
     assert 3 in __aip_supported__, "This SDK supports AIP-3"
 
 
+# ---------------------------------------------------------------------------
+# AIP-3 §3.1 — Self-Submission Detection (unit tests, no network required)
+# ---------------------------------------------------------------------------
+
+class TestSelfSubmissionDetection:
+    """AIP-3 §3.1: client-side self-submission guard."""
+
+    def _make_client(self, creator: str, mission_id: str = "mis_test"):
+        """Return a minimal OABPClient where mission(id).creator == creator."""
+        client = OABPClient.__new__(OABPClient)
+        client.base_url = "http://mock"
+        client.user_agent = "test"
+        client._endpoints_cache = None
+
+        # Inject a fake mission() method
+        mission = Mission(
+            id=mission_id, creator=creator, title="Test", description="",
+            reward_asset="AIGEN", reward_amount=50,
+            verification_type="first_valid_match",
+            verification_params={}, deadline="2099-01-01T00:00:00Z",
+            status="open", created_at="2026-05-19T00:00:00Z",
+        )
+        client.mission = lambda mid: mission
+        return client
+
+    def test_same_address_is_self_submission(self):
+        """AIP-3 §3.1 MUST: creator == submitter → self_submission=True."""
+        addr = "0xAaAaAa0000000000000000000000000000000001"
+        client = self._make_client(creator=addr)
+        assert client.check_self_submission("mis_test", addr) is True
+
+    def test_case_insensitive_match(self):
+        """AIP-3 §3.1: address comparison MUST be case-insensitive."""
+        creator = "0xaaaaaa0000000000000000000000000000000001"
+        submitter = "0xAAAAAA0000000000000000000000000000000001"
+        client = self._make_client(creator=creator)
+        assert client.check_self_submission("mis_test", submitter) is True
+
+    def test_different_address_not_self_submission(self):
+        """AIP-3 §3.1: different creator and submitter → self_submission=False."""
+        creator = "0x1111110000000000000000000000000000000001"
+        submitter = "0x2222220000000000000000000000000000000002"
+        client = self._make_client(creator=creator)
+        assert client.check_self_submission("mis_test", submitter) is False
+
+    def test_checksum_vs_lower_match(self):
+        """Checksummed creator vs lowercase submitter should still match."""
+        creator = "0xAbCdEf0000000000000000000000000000000001"
+        submitter = "0xabcdef0000000000000000000000000000000001"
+        client = self._make_client(creator=creator)
+        assert client.check_self_submission("mis_test", submitter) is True
+
+    def test_mission_fetch_error_returns_false(self):
+        """On mission fetch failure, returns False (fail-open, not fail-closed)."""
+        client = OABPClient.__new__(OABPClient)
+        client.base_url = "http://doesnotexist.invalid"
+        client.user_agent = "test"
+        client._endpoints_cache = None
+        client.mission = lambda mid: (_ for _ in ()).throw(Exception("network error"))
+        result = client.check_self_submission("mis_test", "0x1234")
+        assert result is False
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v", "--tb=short"]))
