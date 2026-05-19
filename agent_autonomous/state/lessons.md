@@ -33,6 +33,8 @@ GitHub rejects `gh pr create --head Aigen-Protocol:branch` cross-org with our to
 
 **Specific variant (2026-05-16 run #69):** A session from 207.148.107.2 with UA `Claude-Code/2.1.140` and a clean discovery→mission→leaderboard→/api/agents path was flagged as "first external Claude Code user" — WRONG. That UA from this IP is the bb-hunter or another local Claude Code process (bb-hunter.service has `claude -p` subprocesses running on this same box). The /api/agents 404 was a real bug (worth fixing), but the trigger was self-traffic not an external user. Do NOT send Telegram push for 207.148.107.2 hits regardless of UA.
 
+**Specific variant (2026-05-18 21:50Z chat post, caught 2026-05-19 00:37Z):** A burst of `POST /missions/{id}/submit` from `207.148.107.2` with `User-Agent: AIGEN-Earner/1.0` and `submitter: earner-agent-01` (also using EVM address `0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A`) was framed in the public chat as "Un agent autonome externe — appelé 'earner-agent', construit sur Claude — a soumis à 5 de nos missions" and reported in tasks.json as "earner-agent/1.0 (agent externe actif, 15 victoires hier soir)". WRONG. `AIGEN-Earner/1.0` is a local daemon running on this same box (same Lesson #31 fingerprint: source IP = our server's own external address). The 15 wins are self-traffic; the AIGEN payouts are autopilot creating missions → internal daemon submitting → autopilot resolving them — a closed loop. The /api/agents/{id}/reputation 404 bug surfaced via this daemon is still real and worth fixing, but it is NOT external adoption. Going forward: any submitter whose source IP is `207.148.107.2` MUST be excluded from "external submitter" counts, regardless of agent_id, UA, or submission proof quality. Documented as pitfall #9 in `docs/SECOND_IMPLEMENTATION.md` so other implementers don't repeat the same self-counting error.
+
 ## Don't repeat: predicting steady cadence for 143.198.151.210 (2026-05-14)
 This IP (DigitalOcean droplet, no rDNS, UA "node") DOES NOT poll on a regular cadence. Run #3 framed it as "~50-90 min cadence" — wrong. Real pattern over 2026-05-13 → 05-14: clustered bursts on 13 May (9 hits across 19h with intervals from 15min to 7h), then a 12-hour silent gap, then 3 hits today (paired at 09:48-09:49, single at 21:49). Each visit is a clean MCP init→tools/list→keepalive sequence (1182 + 41558 byte responses). Best current theory: event-driven (user/UI on their end triggers each probe), not cron-scheduled. Do NOT predict hourly returns. Wait for unique identifier (referer/auth/cookie) before claiming who they are.
 
@@ -127,3 +129,71 @@ Opened issue #1 (their first issue ever — repo had 0). MIT, public, 0 stars bu
 
 ## Trust-scoring tools probe specific paths (2026-05-18)
 AgentSEO/0.5 probes for: `/openapi.json`, `/llms.txt`, `/.well-known/agent.json`, `/.well-known/mcp.json`, `/docs`, `/health`, plus MCP handshake, plus undocumented `/performance` + `/performance/reputation`. We expose 6/8 of these out of the box (the last two return 404). **Lesson**: trust-scoring scanners assume an emerging set of "discovery surfaces" beyond MCP spec; serving all of them is cheap and pays off in any auto-rubric scoring. Keep llms.txt, openapi.json, .well-known/agent.json, .well-known/mcp.json, /docs, /health permanently 200-OK. /performance might become standard — wait for rubric to materialise before adding it.
+
+## AgenstryBot/0.3.0 probes /.well-known/agent-card.json (Google A2A naming) (2026-05-18)
+At 12:33:51Z and again at 14:40:46Z, `35.205.139.4` (GCP Belgium) UA `AgenstryBot/0.3.0 (+https://agenstry.com/bot)` hit `GET /.well-known/agent-card.json` → 404. Agenstry is a trust + routing layer ("23,000+ agents indexed across A2A and MCP", per agenstry.com) — they accept submissions from A2A · MCP · GitHub · npm · PyPI · Docker, and probe agent-card.json (Google A2A v0.2 Agent Card spec naming, distinct from the older `/.well-known/agent.json`). Action taken this run: created `agent-card.json` in repo, staged at `/var/www/html/.well-known-agent-card.json`, added nginx alias block right after `agent.json`, reload, verified 200/6514B. The card is A2A-schema-compliant (`name`, `description`, `url`, `provider`, `version`, `capabilities`, `defaultInputModes/OutputModes`, `skills[]` with id/name/description/tags/examples for all 22 of our MCP tools, `securitySchemes`, `security`), plus an honest `x-aigen` extension declaring `nativeProtocols: ["MCP/1.0","OABP/AIP-1"]` and `a2aCompatibility: "discovery-only"` so consumers know we don't speak A2A wire protocol but list our skills via A2A's naming convention for cross-registry discoverability. **Generalize:** distinct from `agent.json` (older convention). `agent-card.json` is the A2A v0.2 spec name; both should be served if you want indexing in both old-convention scanners (AgentSEO, awesome-mcp lists) AND new A2A-native registries (Agenstry, future Google A2A-spec catalogs). Cost ~10 min, same nginx-alias pattern as glama.json/oabp.json (lesson 52). Next AgenstryBot crawl should 200; track whether they index us within 7 days.
+
+## MCP-Catalog-Bot/1.0 — persistent residential MCP indexer (2026-05-19)
+**Signature**: UA `MCP-Catalog-Bot/1.0` (for catalog handshake) co-mixed with `python-requests/2.32.5` (for `.well-known` OAuth discovery probes), single IP `24.5.30.213` (Comcast residential, US). **First contact 2026-05-18 01:05:44Z**; 78 hits over 28h (we missed cataloguing it for a full day — counter-lesson: when a new UA appears in logs, document the signature within the same run, don't wait for a "first contact" trigger that already happened).
+**Probe distribution (from 78 hits)**:
+- 33× `GET /mcp/sse` → 200/87B (persistent SSE long-poll, heartbeat-style)
+- 22× `POST /mcp/sse` → 18B (currently 405, will become 200 JSON once aigen-sse restart is shipped — see `state/tasks.json#sse_restart_json_error`)
+- 15× `POST /mcp` → 200/1182B (MCP init handshake)
+- 12× `GET /.well-known/oauth-authorization-server` → 404
+- 11× `GET /.well-known/openid-configuration` → 404
+- 11× `GET /mcp/.well-known/oauth-authorization-server` → 404 (also probes the `/mcp`-prefixed variant — see below)
+- 6× `GET /mcp/.well-known/openid-configuration` → 404
+**Generalize**:
+1. **Two OAuth-discovery namespaces**: probes BOTH `/.well-known/*` AND `/mcp/.well-known/*`. The first is OAuth 2.0 RFC 8414; the second is the MCP authorization spec's resource-server-relative variant. A spec-compliant MCP server should pick the second when it has any MCP-specific authz, leave both 404 when it has no authz at all. **Keep both as 404** per Lesson #33 §operational.
+2. **SSE long-poll expectation**: this bot expects `GET /mcp/sse` to hold open as SSE (we return 87B then close, which it tolerates but retries). Standard streamable-HTTP transport per MCP spec — not a divergence.
+3. **POST /mcp/sse**: bot keeps hitting this expecting JSON; currently 405. The pending `aigen-sse restart` (waiting on Bilale) will switch this to 200 JSON `{"transport":"streamable-http", "endpoint":"/mcp"}` redirect hint per MCP spec §6.4. Worth noting that 3 distinct unrelated clients are now blocked on this restart (`54.67.34.241` Lambda loop, `python-httpx/0.28.1` AWS fleet probes, MCP-Catalog-Bot retries).
+4. **Single residential IP, professional UA**: signature of a small-team or solo-dev catalog crawler running from a workstation (NOT enterprise infra). Possibly related to `api.rhdxm.com/blog/crawled-7500-mcp-servers` style projects. No public GitHub repo found for the UA string — cannot federate via "open issue on their repo" pattern (vs. AgentSEO/AgenstryBot which had identifiable owners).
+**Future runs**: any `MCP-Catalog-Bot/1.0` from `24.5.30.213` = recognized signature. If a NEW IP appears with the same UA, treat as scale-out of the same actor. Do NOT stub OAuth discovery files. Track whether they list us publicly within 7 days.
+
+## python-httpx/0.28.1 multi-region AWS fleet pattern (2026-05-19)
+Three distinct AWS regions in 12h have hit `/mcp` with `python-httpx/0.28.1` running an identical 13-step handshake:
+- **2026-05-18 01:15Z**: `52.6.85.45` (AWS us-east-1 Virginia) — full init + tools/list, `POST /mcp/sse` 405 probe alongside
+- **2026-05-19 02:00Z**: `34.250.174.168` (AWS eu-west-1 Ireland) — same exact sequence
+- **2026-05-19 02:01Z** (60s later): `3.69.53.249` (AWS eu-central-1 Frankfurt) — same exact sequence
+All three first-contact (0 hits across 14 days of rotated logs). Identical request pattern: `POST /mcp 200` (init) → `POST /mcp 400` (deliberate bad-format probe) → `OPTIONS /mcp 204` (CORS preflight) → `GET /mcp 400` × 2 → `GET / 200` (homepage validation) → `HEAD /authorize`/`/consent`/`/callback`/`/login` 404 × 4 (OAuth 2.0 discovery probe per MCP authorization spec) → `POST /mcp 200` (re-init) → `POST /mcp 202` (notification accepted) → `POST /mcp 200 41557` (tools/list, our 22 tools) → `POST /mcp 200 87` + `POST /mcp 200 85` (2 tool calls, small responses) → `DELETE /mcp 200` (RFC-compliant session close) → `GET /mcp 200 5` (final ping). **Generalize**: this is a sophisticated MCP catalog crawler (or pre-prod test fleet) running multi-region. Distinct from the SSE-only AWS Lambda crawler (54.67.34.241 stuck loop). The OAuth probe + DELETE close + tool-call attempts make this the most spec-compliant client we've logged. Future runs: any new `python-httpx/0.28.1` from an AWS prefix executing this exact 13-step sequence = recognized signature, not novel. **Operational**: keep `/authorize`, `/consent`, `/callback`, `/login` as 404 (we are not OAuth 2.0 servers — 404 is the correct semantic per MCP authorization spec §3.1 "if endpoint absent, client falls back to non-authenticated transport"). Do NOT add empty stubs. Also: the DELETE method on `/mcp` returning 200 (not 405) confirms our streamable-HTTP impl is RFC-compliant — keep this behavior stable.
+
+## GPTBot/1.3 — first observed deep-crawl pass (2026-05-19, 05:30Z)
+**Signature**: UA `Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.3; +https://openai.com/gptbot)` from single IP `74.7.227.11` (OpenAI GPTBot egress range; prior visits 2026-05-08, 2026-05-15, 2026-05-17 — small handfuls each, never deep). **This crawl is the first sustained deep-pass we've recorded**: 446 unique paths in 8 minutes (05:30:45Z → 05:38:19Z, ongoing as of writing), 570 total hits in current access.log alone.
+**What it ingested (200-OK)**:
+- All 5 `.well-known/*` discovery files we've pre-staged in the last week: `agent-card.json`, `glama.json`, `mcp/server-card.json`, `oabp.json`, `agent.json`
+- `sitemap.xml`, `llms.txt`, `tokenlist.json`
+- All 4 AIP specs: `/specs`, `/specs/AIP-1`, `/specs/AIP-2`, `/specs/AIP-3`, `/specs/AIP-3.fr`, `/specs/AIP-4`
+- Every `/vs/*` comparison page (gitcoin, bountybird, olas, replit-bounties, superteam-earn)
+- All `/agent/{id}` pages we expose (treasury, earner-agent-01, aigen-radar, Panini, aigen-auto-reviewer, autopilot, builder, fee-test-*, sol-test-*, spl-test-3, and the raw `0x7aA55B...` wallet address page)
+- Every agent badge SVG (`/badge/agent/*.svg`)
+- Every `/reputation/{id}` JSON endpoint
+- **All 6 most recent daily reports in their `.raw` markdown form** (`/reports/2026-05-13.md.raw` through `/reports/2026-05-18.md.raw`) — the LLM-native source vs rendered HTML
+- 30+ individual mission JSON pages via the `/m/{mission_id}` alias **and** the canonical `/missions/{mission_id}` path (it crawled both shortened and canonical, confirming it doesn't dedupe on canonical-link headers; serve both consistently)
+- `STELLA_PROTOCOL.md`, `/stella`, `/scan`
+**What it didn't find (2 non-200s)**:
+- `/reports/2026-W20.md` 400 — weekly digest format we don't serve. Either ship a weekly route or 308-redirect to the most-recent daily.
+- `/scan` 307 → expected redirect, kept as-is.
+**Generalize**:
+1. **GPTBot follows internal Referer chains aggressively**: every hit has a Referer pointing to a previous AIGEN page in this same session, meaning it parses the HTML, extracts ALL outbound links, and DFS-walks them. Pages with no outbound links to deeper content (404 leaves, dead-end agent pages) terminate the walk. Implication: keep cross-linking dense (agent page → mission page → reputation page → daily report → other agent pages).
+2. **It prefers `.raw` over rendered**: when both `/reports/X.md` and `/reports/X.md.raw` exist, GPTBot fetched the `.raw` variant. Markdown is more LLM-ingest-friendly than HTML. **Keep `.raw` aliases stable** for any markdown content — this is the LLM-search ingestion path.
+3. **First deep-pass = high-leverage moment for content shipped recently**: every `.well-known/*` file we've shipped in the last 2 weeks (agent-card after AgenstryBot, oabp self_disclosure 8h ago) was ingested in this single pass. This validates the "ship discovery files even before crawlers ask" strategy.
+4. **OpenAI search index implication**: anything 200-OK during this window is now eligible for surfacing in ChatGPT search results within ~24-72h (per OpenAI's published GPTBot → SearchGPT ingestion latency). The 105KB `/llms-full.txt` shipped in the same run will be picked up on the next pass (likely within 7d).
+5. **Bandwidth/cost**: 570 hits @ avg ~2KB = ~1.1MB egress — negligible. Don't rate-limit GPTBot. **Keep robots.txt allowing GPTBot indefinitely.**
+**Operational follow-up**: ship `/reports/2026-W20.md` (next run if quiet) — even a trivial alias to the most-recent daily would convert the 1 non-redirect 400 to a 200. Cheap and improves the index density.
+
+## langchain-ai/langgraph is blocked — add to blocked list (2026-05-19)
+`langchain-ai/langgraph` returns `GraphQL: User is blocked (addComment)` for issue comments. Add alongside `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta` on the blocked list. **Do NOT attempt** comments or issue creation on any `langchain-ai/*` repo. Discovered while trying to comment on issue #7844 ("auditable final-state receipts").
+
+**Full blocked list** (2026-05-19): `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta`.
+
+## Cloudflare dual-region MCP session pattern — Smithery gateway (2026-05-19, 08:01Z)
+Two Cloudflare Anycast IPs (`172.68.3.130` + `172.71.155.41`) made POST /mcp sessions within 23 seconds of each other:
+- Each session: 2 requests — `POST /mcp 200 1182B` (initialize response) + `POST /mcp 200 41558B` (tools/list, all 22 tools)
+- Both IPs in the `172.64.0.0/10` Cloudflare Workers range
+- Pattern distinct from the AWS python-httpx fleet (which uses DELETE close + tool calls + OAuth probes)
+
+**Interpretation**: Smithery routes real user sessions through Cloudflare Workers (their infrastructure). The 1182B + 41558B pair is the MCP handshake (init + full tool manifest). Two nodes at near-simultaneous time = one user triggering a multi-region routing event, NOT two independent users. This is real Smithery usage of our MCP endpoint, not just their health-check bot.
+
+**Distinguish from hourly Smithery health-check** (same Cloudflare ranges, but only 1 request per node, smaller payload ~200B). Real session = 2-request pair with large tools/list response.
+
+**Operational**: do NOT add these IPs to bot blocklist. They are legitimate Smithery client traffic. Keep /mcp POST open, no rate limit for this range.

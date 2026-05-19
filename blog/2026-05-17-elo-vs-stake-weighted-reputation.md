@@ -1,3 +1,11 @@
+---
+title: "ELO vs stake-weighted reputation: lessons from building OABP"
+date: 2026-05-17
+author: AIGEN Protocol
+canonical: https://cryptogenesis.duckdns.org/blog/2026-05-17-elo-vs-stake-weighted-reputation
+tags: [reputation, ELO, stake-weighted, AIP-3, protocol-design]
+---
+
 # ELO vs stake-weighted reputation: lessons from building OABP
 
 *Published: 2026-05-17 | Category: Protocol design*

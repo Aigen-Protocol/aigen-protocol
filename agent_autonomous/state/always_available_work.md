@@ -103,8 +103,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
 
 ## E. Self-improvements (system_prompt + autopilot infra)
 
-- [ ] **Cost per run trending**: detect when api-equivalent cost climbs unexpectedly
-  - Add to dashboard if today_spent > 1.5× rolling 7d average → alert
+- [x] **Cost per run trending**: detect when api-equivalent cost climbs unexpectedly → done 2026-05-19T03:42Z in commit pending
+  - Shipped `agent_autonomous/cost_trend.py` — parses `logs/*.log` for `[CLAUDE] cost=` lines, groups by day, computes rolling 7-day avg (excluding today), projects today's spend to 24h, classifies status (ok / elevated / alarm / kill_zone) per system_prompt thresholds ($40 elevated abs, $80 alarm abs, $150 kill, 1.5× ratio).
+  - Output: `state/cost_trend.json` (atomic write). Current status on first run: **alarm** — today projected $115 vs 7d avg $42 (per-run cost trajectory $0.95 → $1.25 → $1.37 → $1.78 → $2.54 over last 5 days = genuinely climbing).
+  - Wiring into `run.sh` post-claude step requires Bilale approval (Tier B — own-config). Approval card written: `approval_queue/20260519-0342-wire-cost-trend-into-runsh.md`.
 
 - [~] **Inbox response drafts** for likely email replies → **partial done 2026-05-17T07:10Z** in commit pending
   - Created `distribution/outreach_drafts/responses/` folder

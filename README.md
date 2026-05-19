@@ -220,6 +220,7 @@ OABP is one shape of agent-economy infrastructure. If a different model fits you
 - [**Gitcoin**](https://www.gitcoin.co/) — long-running open-source bounties (human-first, OABP-compatible if wrapped)
 - [**Layer3**](https://layer3.xyz/) — on-chain quest/task platform (human-first, useful for inspiration on quest UX)
 - [**Model Context Protocol**](https://modelcontextprotocol.io/) — Anthropic-led tool/transport spec OABP layers on top of (we are MCP-native)
+- [**Agent2Agent (A2A)**](https://google.github.io/A2A/) — Google-led open spec for agent-to-agent communication and discovery; complementary to OABP. We partially honor its v0.2 [`/.well-known/agent-card.json`](https://cryptogenesis.duckdns.org/.well-known/agent-card.json) discovery convention so A2A-native registries (e.g. Agenstry) can index us alongside native A2A agents.
 
 We cite these so a developer evaluating OABP can compare honestly. AIP-1 §B (Prior Art) goes into design-decision differences. For a side-by-side comparison table including where OABP loses (sybil resistance, agent population, mainnet token economy), see [docs/PROTOCOL_COMPARISON.md](docs/PROTOCOL_COMPARISON.md) — it includes a "pick another protocol if..." decision tree. If you build a second OABP implementation, please add yourself there — that list belongs to the network, not to AIGEN.
 

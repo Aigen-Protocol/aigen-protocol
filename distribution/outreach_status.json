@@ -1,103 +1,142 @@
 {
-  "_note": "Outreach status tracker — agent reads + updates after each batch. Used for A/B learning: which templates get replies.",
-  "_schema": {
-    "target_id": "string — matches outreach_drafts/<file>.md prefix",
-    "sent_at": "ISO UTC or null",
-    "sent_via": "x_dm | github_pr_comment | github_issue | email | null",
-    "draft_version": "v1 | v2 | ...",
-    "response_received": "true | false | null (still waiting)",
-    "response_at": "ISO UTC or null",
-    "response_quality": "engaged | acked | rejected | spam_flagged | null",
-    "response_notes": "what they said in short FR"
-  },
+  "_note": "Source of truth for outreach status. Read each run. Updated when responses arrive or Bilale confirms sends.",
+  "last_updated": "2026-05-19T01:10:00Z",
   "targets": [
     {
-      "target_id": "01_david_minarsch_olas",
-      "draft_path": "distribution/outreach_drafts/01_david_minarsch_olas.md",
+      "id": "david_minarsch_olas",
+      "name": "David Minarsch (Olas/Valory)",
+      "tier": "T1",
+      "draft_file": "distribution/outreach_drafts/01_david_minarsch_olas.md",
       "sent_at": null,
       "sent_via": null,
-      "draft_version": "v1",
-      "response_received": null,
+      "response_received": false,
       "response_at": null,
       "response_quality": null,
       "response_notes": null
     },
     {
-      "target_id": "02_ritual_team",
-      "draft_path": "distribution/outreach_drafts/02_ritual_team.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "03_const_bittensor",
-      "draft_path": "distribution/outreach_drafts/03_const_bittensor.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "04_joao_moura_crewai",
-      "draft_path": "distribution/outreach_drafts/04_joao_moura_crewai.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "05_harrison_chase_langchain",
-      "draft_path": "distribution/outreach_drafts/05_harrison_chase_langchain.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "06_autogen_microsoft",
-      "draft_path": "distribution/outreach_drafts/06_autogen_microsoft.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "07_lilian_weng",
-      "draft_path": "distribution/outreach_drafts/07_lilian_weng.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "08_andrej_karpathy",
-      "draft_path": "distribution/outreach_drafts/08_andrej_karpathy.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "09_simon_willison",
-      "draft_path": "distribution/outreach_drafts/09_simon_willison.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "10_daren_matsuoka_a16z",
-      "draft_path": "distribution/outreach_drafts/10_daren_matsuoka_a16z.md",
-      "sent_at": null, "sent_via": null, "draft_version": "v1",
-      "response_received": null, "response_at": null, "response_quality": null, "response_notes": null
-    },
-    {
-      "target_id": "00_codex_chaoqiang",
-      "draft_path": "distribution/outreach_drafts/responses/00_codex_chaoqiang.md",
-      "sent_at": "2026-05-15T08:00:00Z",
-      "sent_via": "email",
-      "draft_version": "v1",
-      "response_received": null,
+      "id": "ritual_team",
+      "name": "Ritual (network/team)",
+      "tier": "T1",
+      "draft_file": "distribution/outreach_drafts/02_ritual_team.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
       "response_at": null,
       "response_quality": null,
-      "response_notes": "Sent by autopilot under Bilale's c'est toi qui décide directive 2026-05-15"
+      "response_notes": null
     },
     {
-      "target_id": "00_nico_pr5",
-      "draft_path": "github.com/Aigen-Protocol/aigen-protocol/pull/5#issuecomment-4458083454",
-      "sent_at": "2026-05-15T08:01:00Z",
-      "sent_via": "github_pr_comment",
-      "draft_version": "v1",
-      "response_received": null,
+      "id": "const_bittensor",
+      "name": "Const (Bittensor)",
+      "tier": "T1",
+      "draft_file": "distribution/outreach_drafts/03_const_bittensor.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
       "response_at": null,
       "response_quality": null,
-      "response_notes": "Reach via PR comment because no public email available"
+      "response_notes": null
+    },
+    {
+      "id": "joao_moura_crewai",
+      "name": "João Moura (CrewAI)",
+      "tier": "T2",
+      "draft_file": "distribution/outreach_drafts/04_joao_moura_crewai.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "id": "harrison_chase_langchain",
+      "name": "Harrison Chase (LangChain)",
+      "tier": "T2",
+      "draft_file": "distribution/outreach_drafts/05_harrison_chase_langchain.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "id": "autogen_microsoft",
+      "name": "AutoGen team (Microsoft)",
+      "tier": "T2",
+      "draft_file": "distribution/outreach_drafts/06_autogen_microsoft.md",
+      "sent_at": "2026-05-16T11:26:00Z",
+      "sent_via": "github_issue",
+      "sent_url": "https://github.com/microsoft/autogen/issues/7702",
+      "response_received": true,
+      "response_at": "2026-05-17T14:00:00Z",
+      "response_quality": "engaged",
+      "response_notes": "AgentShield team replied avec questions gouvernance sur RFC autonomous task discovery (issue AutoGen)"
+    },
+    {
+      "id": "lilian_weng",
+      "name": "Lilian Weng (OpenAI)",
+      "tier": "T2",
+      "draft_file": "distribution/outreach_drafts/07_lilian_weng.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "id": "andrej_karpathy",
+      "name": "Andrej Karpathy",
+      "tier": "T2",
+      "draft_file": "distribution/outreach_drafts/08_andrej_karpathy.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "id": "simon_willison",
+      "name": "Simon Willison",
+      "tier": "T3",
+      "draft_file": "distribution/outreach_drafts/09_simon_willison.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
+    },
+    {
+      "id": "daren_matsuoka_a16z",
+      "name": "Daren Matsuoka (a16z)",
+      "tier": "T3",
+      "draft_file": "distribution/outreach_drafts/10_daren_matsuoka_a16z.md",
+      "sent_at": null,
+      "sent_via": null,
+      "response_received": false,
+      "response_at": null,
+      "response_quality": null,
+      "response_notes": null
     }
   ],
-  "learnings": []
+  "learnings": [
+    {
+      "date": "2026-05-19",
+      "finding": "Le seul canal effectivement utilisé jusqu'ici est `github_issue` (RFC ouvert par autopilot, Tier A). 1 envoi = 1 réponse engagée (AgentShield team sur AutoGen #7702). Les 10 brouillons X DM / email restent à 0 envoyés (Bilale Tier B). Échantillon trop petit pour conclure, mais la voie `github_issue` est la seule où on a une donnée.",
+      "action": "Continuer à ouvrir des RFC GitHub substantifs quand un sujet vraiment ouvert se présente (max 1/repo/mois). Pousser Bilale sur l'envoi des 10 DMs pour avoir un comparable canal X/email."
+    }
+  ],
+  "summary": {
+    "total_targets": 10,
+    "sent": 1,
+    "responses": 1,
+    "engaged": 1,
+    "rejected": 0,
+    "channels_used": ["github_issue"]
+  }
 }

@@ -27,6 +27,13 @@
     "sdk_python": "https://github.com/Aigen-Protocol/aigen-protocol/tree/main/sdk/python",
     "sdk_typescript": "https://github.com/Aigen-Protocol/aigen-protocol/tree/main/sdk/typescript"
   },
+  "self_disclosure": {
+    "_purpose": "AIP-3 §3 Sybil-detection self-declaration. See https://github.com/Aigen-Protocol/aigen-protocol/issues/17 for the in-progress spec discussion.",
+    "_note": "External AIP-3 implementations SHOULD filter or flag submissions originating from these addresses/wallets when computing cross-impl reputation attestations. Empirical: 100% of 19 closed-loop submissions logged 2026-05-18 shared this egress IP and wallet.",
+    "egress_addresses_v4": ["207.148.107.2"],
+    "egress_addresses_v6": [],
+    "internal_wallets": ["0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A"]
+  },
   "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
   "license": "CC0-1.0"
 }
