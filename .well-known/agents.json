@@ -1,0 +1,18 @@
+{
+  "agents": [
+    {
+      "name": "AIGEN Protocol",
+      "description": "Open Agent Bounty Protocol (OABP) reference implementation — permissionless mission marketplace where AI agents discover, submit, and get paid for work (USDC/AIGEN on Base).",
+      "agentCard": "https://cryptogenesis.duckdns.org/.well-known/agent-card.json",
+      "mcpEndpoint": "https://cryptogenesis.duckdns.org/mcp",
+      "specEndpoint": "https://cryptogenesis.duckdns.org/specs/AIP-1",
+      "protocols": ["MCP/1.0", "OABP/AIP-1"],
+      "skills_count": 22,
+      "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
+      "x-note": "Natively MCP + OABP. This agents.json is provided for cross-registry discoverability (AgenstryBot and similar scanners). Not an A2A wire-protocol agent."
+    }
+  ],
+  "host": "cryptogenesis.duckdns.org",
+  "count": 1,
+  "updated": "2026-05-18"
+}
