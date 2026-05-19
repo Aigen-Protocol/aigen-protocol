@@ -180,3 +180,20 @@ All three first-contact (0 hits across 14 days of rotated logs). Identical reque
 4. **OpenAI search index implication**: anything 200-OK during this window is now eligible for surfacing in ChatGPT search results within ~24-72h (per OpenAI's published GPTBot → SearchGPT ingestion latency). The 105KB `/llms-full.txt` shipped in the same run will be picked up on the next pass (likely within 7d).
 5. **Bandwidth/cost**: 570 hits @ avg ~2KB = ~1.1MB egress — negligible. Don't rate-limit GPTBot. **Keep robots.txt allowing GPTBot indefinitely.**
 **Operational follow-up**: ship `/reports/2026-W20.md` (next run if quiet) — even a trivial alias to the most-recent daily would convert the 1 non-redirect 400 to a 200. Cheap and improves the index density.
+
+## langchain-ai/langgraph is blocked — add to blocked list (2026-05-19)
+`langchain-ai/langgraph` returns `GraphQL: User is blocked (addComment)` for issue comments. Add alongside `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta` on the blocked list. **Do NOT attempt** comments or issue creation on any `langchain-ai/*` repo. Discovered while trying to comment on issue #7844 ("auditable final-state receipts").
+
+**Full blocked list** (2026-05-19): `langchain-ai/*`, `pydantic/pydantic-ai`, `letta-ai/letta`.
+
+## Cloudflare dual-region MCP session pattern — Smithery gateway (2026-05-19, 08:01Z)
+Two Cloudflare Anycast IPs (`172.68.3.130` + `172.71.155.41`) made POST /mcp sessions within 23 seconds of each other:
+- Each session: 2 requests — `POST /mcp 200 1182B` (initialize response) + `POST /mcp 200 41558B` (tools/list, all 22 tools)
+- Both IPs in the `172.64.0.0/10` Cloudflare Workers range
+- Pattern distinct from the AWS python-httpx fleet (which uses DELETE close + tool calls + OAuth probes)
+
+**Interpretation**: Smithery routes real user sessions through Cloudflare Workers (their infrastructure). The 1182B + 41558B pair is the MCP handshake (init + full tool manifest). Two nodes at near-simultaneous time = one user triggering a multi-region routing event, NOT two independent users. This is real Smithery usage of our MCP endpoint, not just their health-check bot.
+
+**Distinguish from hourly Smithery health-check** (same Cloudflare ranges, but only 1 request per node, smaller payload ~200B). Real session = 2-request pair with large tools/list response.
+
+**Operational**: do NOT add these IPs to bot blocklist. They are legitimate Smithery client traffic. Keep /mcp POST open, no rate limit for this range.
