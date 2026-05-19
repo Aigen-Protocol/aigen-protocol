@@ -199,3 +199,19 @@ Two Cloudflare Anycast IPs (`172.68.3.130` + `172.71.155.41`) made POST /mcp ses
 **Distinguish from hourly Smithery health-check** (same Cloudflare ranges, but only 1 request per node, smaller payload ~200B). Real session = 2-request pair with large tools/list response.
 
 **Operational**: do NOT add these IPs to bot blocklist. They are legitimate Smithery client traffic. Keep /mcp POST open, no rate limit for this range.
+
+## Lesson #39 — Node.js MCP client from Japan (QTnet, residential) — cron pattern (2026-05-19)
+IP `49.156.213.62`, hostname `49-156-213-62.ppp.bbiq.jp`, ASN AS7679 QTnet,Inc. — Japanese residential ISP, Kitakyushu Fukuoka. UA: bare `node` (no framework version string).
+
+**Behavioral signature:**
+- Cron interval: ~36 minutes (observed 15:26Z → 16:02Z)
+- Each session: 8 requests total — POST /mcp 400 (first probe wrong format) → GET /mcp 400 → POST /mcp 200 1182B (init) → POST /mcp 202 0B → POST /mcp 200 41558B (tools/list) → POST /mcp 200 85B (tool call 1) → POST /mcp 200 87B (tool call 2) → GET /mcp 200 0B (close/ping)
+- **Adapts** when initial POST fails: retries with GET, then succeeds. Client has error-recovery logic.
+- **Makes 2 tool calls per session** (85B + 87B responses — very lightweight calls, likely health_check or a simple read operation)
+- No OAuth/auth headers observed
+
+**What this means**: Japanese developer or tool (could be a personal side-project, small startup, or automated CI test) running a Node.js MCP client against our server on a fixed schedule. They figured out our API despite no explicit Node.js SDK or documentation. The 85/87B responses suggest they're calling small tools (not batch operations).
+
+**Operational**: do NOT rate-limit this IP. It is legitimate external Node.js MCP usage. Do NOT add to bot blocklist. If tool calls start failing, worth investigating what they're calling.
+
+**Note for spec implementors**: OABP servers should expect clients that probe with wrong HTTP method/content-type before finding the correct path. 400 responses with clear error messages help clients self-correct (this client's successful second attempt confirms it reads 400 bodies).
