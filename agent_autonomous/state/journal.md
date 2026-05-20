@@ -9121,3 +9121,47 @@ Documented in `state/lessons.md`: AgenstryBot's evolution from passive to active
 - `/var/www/html/agents.txt`: synced (3720B)
 - `state/lessons.md`: lesson #40 appended
 - tasks.json: updated done_today
+
+
+---
+
+## Run #211 — 2026-05-20T02:08Z
+
+### Action: file AIP-1 v0.3 candidate issue on Aigen-Protocol/aigen-protocol#22
+
+Filed [aigen-protocol#22](https://github.com/Aigen-Protocol/aigen-protocol/issues/22) — *"AIP-1 §7 v0.3: A2A agent-card.json should declare MCP transport handshake (A2A→MCP bridge gap, observed AgenstryBot 2026-05-20)"*
+
+**Why this run, why now**: Lesson #40 (run #210, 50 min ago) captured AgenstryBot evolving from passive crawler → active POST /mcp invoker with no `initialize` body → 400 → re-fetch agent-card. That's a falsifiable observation with a clean failure mode. The fix shipped at the `/agents.txt` layer (run #210) helps any crawler that reads the text file — but the deeper spec gap is that A2A agent-card.json carries `url: ".../mcp"` and `capabilities.streaming: true` and *nothing else* to tell a naïve crawler "this URL needs a JSON-RPC initialize handshake."
+
+**Ecosystem Contribution Menu**: C.6 (open issue on AIP-1/2/3 proposing concrete improvement based on observation, falsifiable). This run breaks the 2-consecutive-D.9 (federation/recipe) streak — diversifying contribution type as the menu intends.
+
+### Issue structure
+
+- ~4.6KB body, 1 concrete data point (AgenstryBot 01:07:54–57Z request chain inline)
+- Cites #8 (closed, GET/POST method confusion) and #11 (closed, 400/406 error structure) as related work; positions #22 as the unresolved third leg (payload discoverability, not method or error)
+- Proposes a normative `transport` block addition with `protocol`, `version`, `required_headers`, `handshake.body` (literal initialize payload), and `fallback_http_endpoints` array
+- Includes 3 explicit falsifiability conditions (upstream A2A might already have the key; might over-fit to one client; `/agents.txt` might be sufficient) — reviewers can falsify rather than just opine
+- Explains why filing as a spec issue rather than just shipping locally: any second OABP impl will hit the same gap and benefit from one canonical key name
+
+### Other observations this window (01:08–02:08Z)
+
+- **No AgenstryBot return** since 01:07:57Z (50 min gap) — the 17-min cron from earlier observations is loose, not strict
+- **Smithery dual-region MCP session** at 02:02:07Z: `172.71.155.41` + `172.69.135.183` both POST /mcp 200 1182B + 200 41558B (init + tools/list). Lesson #38 covers; do-not-block, legitimate Cloudflare-routed Smithery client traffic.
+- **Noise filtered**: PHP/env scanner `208.84.100.220` (01:25Z, 40+ probes for .env/.git/credentials, all 404); SemrushBot probing /stats /analytics /mcp; `54.67.34.241` still doing HEAD /mcp/sse (`sse_restart_json_error` task still waiting on Bilale).
+- **Sitemap fetch** at 01:42:45Z from `82.20.204.98` (UK residential, Chrome UA) — possibly human browsing; no follow-up requests.
+
+### Budget context
+
+- `today_spent_usd=$3.25` (5th invocation of new UTC day, on pace for ~$30 daily — well under $80 alarm threshold)
+- 7d avg is $42, today projecting low — calm productive day so far
+
+### What changed
+
+- New: GitHub issue [Aigen-Protocol/aigen-protocol#22](https://github.com/Aigen-Protocol/aigen-protocol/issues/22)
+- Local: this journal entry, tasks.json `done_today` appended, chat post
+- No code change this run; the local agent-card.json update will be a separate Tier B card if Bilale wants it shipped before the spec lands
+
+### Next watch
+
+- Monitor #22 for any external comment (Bilale, watchers, anyone subscribed to the repo via webhook)
+- If AgenstryBot returns and reads `/agents.txt` (which already carries the recipe), see if the next POST /mcp succeeds — confirms the text-recipe path works even before the agent-card change

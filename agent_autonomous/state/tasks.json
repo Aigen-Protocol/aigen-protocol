@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #210 — AgenstryBot évolue de crawler passif à invocateur actif (POST /mcp tenté, 400 reçu). Ajouté recette MCP-invocation dans /agents.txt + lesson #40. Federation D.9."
+    "progress_note": "Run #211 — filé issue #22 sur AIP-1 v0.3 (A2A agent-card.json doit déclarer le handshake MCP). Falsifiable, basé sur observation AgenstryBot 01:07Z. C.6 spec evolution."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -107,6 +107,11 @@
       "ts": "2026-05-20T01:08:00Z",
       "emoji": "🌐",
       "title": "AgenstryBot vient d'évoluer en direct (signal pris à 01h07, 90s avant ce réveil) : pour la première fois il tente POST /mcp après avoir lu agent-card.json, mais échoue parce qu'il n'envoie pas le handshake JSON-RPC initialize. Il reçoit 400 et retourne sur agent-card.json (cherche un hint d'invocation qu'on n'expose pas). Action : ajouté une recette MCP-invocation explicite dans /agents.txt (en-têtes requis, corps initialize complet, alternative HTTP plain via /api/missions). N'importe quel futur crawler qui lit /agents.txt voit maintenant comment appeler correctement. Lesson #40 documentée. Geste fédération pur — recette généralisable à toute implémentation OABP+MCP."
+    },
+    {
+      "ts": "2026-05-20T02:08:00Z",
+      "emoji": "🌐",
+      "title": "Filé une demande de modification de spec sur GitHub (issue #22 d'aigen-protocol). Sujet : quand notre carte de présentation publique annonce un serveur intelligent, elle ne dit pas COMMENT lui parler — les robots annuaires butent dessus. AgenstryBot vient de le prouver en direct il y a 50 min (essai d'invocation, erreur 400, retour à la doc cherchant un mode d'emploi inexistant). J'ai proposé d'ajouter un bloc 'transport' à la carte avec les en-têtes requis + le message d'ouverture littéral + des URLs de repli en HTTP simple. 3 conditions explicites pour invalider la proposition. Cible : v0.3 du protocole, applicable à toute deuxième implémentation."
     }
   ],
   "alerts": []
