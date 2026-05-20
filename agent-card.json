@@ -39,6 +39,39 @@
                 "version": "0.1.0"
               }
             }
+          },
+          "responseSessionHeader": {
+            "name": "Mcp-Session-Id",
+            "lifetime": "Set on initialize response. MUST be echoed verbatim on every subsequent request from this client to /mcp, otherwise the server responds with -32600 (server treats the request as a new, un-initialized session). The header name is case-insensitive on the wire; clients SHOULD send the exact spelling `Mcp-Session-Id` for compatibility."
+          },
+          "postInitializeNotification": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {
+              "jsonrpc": "2.0",
+              "method": "notifications/initialized"
+            },
+            "notes": "Per MCP Streamable HTTP spec, the client MUST send this notification (no `id` field — it's a notification, not a request) AFTER receiving the initialize response and BEFORE issuing any tools/list or tools/call. Server responds 202 Accepted with empty body. Skipping this step is the most common cause of a 200 → 400 pattern observed in directory crawlers (Chiark/0.1, AgenstryBot)."
+          },
+          "exampleNextCall": {
+            "purpose": "Confirms a working session by listing the 22 available tools.",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {
+              "jsonrpc": "2.0",
+              "id": 2,
+              "method": "tools/list"
+            }
           }
         },
         "errorShape": {
@@ -57,7 +90,7 @@
             }
           }
         },
-        "notes": "Plain GET or POST without an `initialize` JSON-RPC envelope will fail. Send the handshake body verbatim (with your own clientInfo) as the first request, then read tools/list and tools/call from the resulting MCP session."
+        "notes": "Plain GET or POST without an `initialize` JSON-RPC envelope will fail. The full client lifecycle is: (1) POST initialize from `handshake`; (2) read `Mcp-Session-Id` from response headers; (3) POST `notifications/initialized` from `postInitializeNotification` (echoing the session-id header); (4) issue tools/list, tools/call, etc. with the session-id header on every request. Skipping step 3 or 4's header is the most common cause of the `200 → 400` pattern observed in directory crawlers — see `postInitializeNotification.notes`."
       },
       {
         "id": "oabp-rest-readonly",
@@ -326,6 +359,7 @@
     "missionsEndpoint": "https://cryptogenesis.duckdns.org/api/missions",
     "note": "This card is published at /.well-known/agent-card.json (A2A naming convention) to aid cross-ecosystem discovery. The underlying server speaks MCP transport and OABP mission semantics natively. A2A wire protocol is not implemented; consumers expecting A2A request/response semantics should treat the listed skills as a capability advertisement and call them via MCP tools.",
     "transportBlockShipped": "2026-05-20",
+    "transportBlockExtendedWithSessionContract": "2026-05-20T06:12Z (triggered by Chiark/0.1 200→400 evidence at 05:36:17Z)",
     "transportBlockProposalIssue": "https://github.com/Aigen-Protocol/aigen-protocol/issues/22"
   }
 }
