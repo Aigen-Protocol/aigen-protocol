@@ -4,10 +4,26 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #222 (10:08Z) — smolagents-oabp-example/1.0 first contact from 149.88.100.197 (same /24 as codex-wallet-agent), 4 REST-only requests at 09:50Z + 09:53Z. First external client to self-identify as OABP-aware in UA AND name a known framework (smolagents = Hugging Face). REST-only — never touched /mcp — validates AIP-1's REST-first design and short-circuits the entire step-2-trap matrix (5-arch MCP-only). Possible 2nd implementation attempt (IP analysis suggests same operator as codex-wallet-agent branching out). docs/SECOND_IMPLEMENTATION.md MCP-surface section updated with the empirical evidence. Lesson #48 archived. No Telegram push (4 requests + no submit = too early). No issue #22 comment (Lesson #43 discipline)."
+    "progress_note": "Run #224 (11:07Z) — Added /missions/balance/{id}/withdraw endpoint to scanner.py (fixes 404 for codex-wallet-agent operator who tried to withdraw 900 AIGEN). Posted CrewAI mission (mis_2f6ae4b5172b, 300 AIGEN, 30d deadline). PR #23 by Sikkra still pending merge by Bilale."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "sub_b42a25bb90_judge",
+      "title": "Juger sub_b42a25bb90 (creator_judges, 225 AIGEN) — bug report référençant PR #23",
+      "details": "mis_48b982c7b6eb = 'Find a bug in AIGEN /missions module' (225 AIGEN, creator_judges). sub_b42a25bb90 par codex-wallet-agent à 10:22:36Z référence PR #23 comme preuve de bug + fix. Sur les mérites : bug réel reproductible (escrow débité avant validation). Payable si PR #23 mergé. Tu décides oui/non. Tu peux ouvrir le panneau d'arbitre interne ou commenter directement sur la mission. Note : il y a aussi sub_33f870bcbb (interne, wallet 0x7aA55... = internal_wallets liste) — bug séparé sur first_valid_match, pendant depuis 2 jours.",
+      "optimal_when": "En même temps que PR #23 (rendre la décision cohérente)",
+      "blocking_what": "Crédibilité du système de bounty (un PR mergé + bounty payée = signal fort vers l'écosystème)",
+      "added": "2026-05-20T10:39:00Z"
+    },
+    {
+      "id": "pr23_review_and_merge",
+      "title": "PR #23 Sikkra — review + merge ('Validate mission options before debiting escrow')",
+      "details": "PREMIER PR DE CODE EXTERNE sur le repo public. https://github.com/Aigen-Protocol/aigen-protocol/pull/23 . Bug réel confirmé (escrow AIGEN débité avant validation des options). Diff substantif ~70 lignes (le brut 1519/-1520 = CRLF Windows). Test pytest propre (tmp_path + monkeypatch + parametrize 3 cas). Mon commentaire de review : https://github.com/Aigen-Protocol/aigen-protocol/pull/23#issuecomment-4497539848 . Decision : (a) normalize CRLF→LF avant merge OU lander un .gitattributes en premier, (b) merge le réordonnancement de validation, (c) tu peux ouvrir un follow-up issue pour la suggestion 'parametrize USDC' que j'ai laissée en commentaire.",
+      "optimal_when": "Aujourd'hui — délai de réponse à un PR externe = 24h max (priorité focus.md §2)",
+      "blocking_what": "Acquisition relation 2e implémenteur. Sans merge propre + accueil chaleureux, Sikkra ne contribue pas une 2e fois.",
+      "added": "2026-05-20T10:39:00Z"
+    },
     {
       "id": "outreach_dms_may_batch",
       "title": "PRIORITE — Envoyer les 10 DMs d'outreach (tous les brouillons sont prêts)",
@@ -18,10 +34,10 @@
     },
     {
       "id": "scanner_restart_reputation_alias",
-      "title": "Redémarrer aigen-scanner pour activer l'alias /api/agents/<id>/reputation",
-      "details": "sudo systemctl restart aigen-scanner. Le code est déjà modifié (token-scanner/scanner.py, ligne ~11583). Vérif : curl -s https://cryptogenesis.duckdns.org/api/agents/earner-agent-01/reputation doit retourner 200 (testé à 00h11Z encore 404 — pas encore redémarré). Sans restart, le fix n'est pas actif.",
+      "title": "Redémarrer aigen-scanner (active alias reputation + nouveaux endpoints /withdraw)",
+      "details": "sudo systemctl restart aigen-scanner. Active 2 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw (GET info) + /withdraw/register (POST wallet). Sans restart: 104.56.91.86 et codex-wallet-agent opérateur continuent à voir 404 sur /withdraw. codex-wallet-agent a 900 AIGEN en escrow — l'opérateur a essayé de retirer à 10:46Z.",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
-      "blocking_what": "Le client local AIGEN-Earner cherche son profil réputation 4x par run et tombe sur 404. NOTE: présenté hier comme \"agent externe\" — c'est en fait un daemon sur notre propre serveur (IP 207.148.107.2, Lesson #31 corrigée). Le fix reste utile pour tout vrai client externe qui tenterait le chemin REST canonique.",
+      "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
       "added": "2026-05-18T22:38:00Z"
     },
     {
@@ -207,6 +223,36 @@
       "ts": "2026-05-20T10:12:51Z",
       "emoji": "🚀",
       "title": "Mis à jour docs/SECOND_IMPLEMENTATION.md (section 'MCP surface, strongly recommended, not mandatory') avec un paragraphe documentant les frameworks REST-only qui bypassent MCP. Citation explicite de la trace 'smolagents-oabp-example/1.0' à 09:50Z comme preuve empirique, et note que la pitfall #7 step-2-trap n'affecte PAS les clients REST-only. Lesson #48 archivée dans state/lessons.md. PAS commenté sur issue #22 (discipline Lesson #43 : pas 3 d'affilée sans réponse externe). PAS de push Telegram (engagement trop court : 4 requêtes, pas de submit, même /24 qu'un client connu — pas vraiment un 'first contact' au sens strict)."
+    },
+    {
+      "ts": "2026-05-20T10:39:00Z",
+      "emoji": "📡",
+      "title": "PREMIER PR DE CODE EXTERNE sur le repo public ! Sikkra a ouvert PR #23 sur Aigen-Protocol/aigen-protocol à 10:22:24Z (16 min avant ce réveil) : 'Validate mission options before debiting escrow' — bug réel + test de régression propre. C'est le même opérateur que smolagents-oabp-example ce matin (Hetzner Helsinki 149.88.100.197). Bug confirmé : `create_mission()` débite l'escrow AIGEN + spam fee 5 AIGEN AVANT de valider webhook_url/notify_email/category — donc une création avec champ optionnel invalide perd les fonds sans mission créée. Fix = pure réorganisation (validation déplacée avant le débit). Diff brut 1519/-1520 mais `--ignore-cr-at-eol` donne ~70 lignes nettes (CRLF Windows, normalisation triviale). Test pytest propre avec tmp_path + monkeypatch + parametrize. KPI focus.md '≥1 implémentation OABP-compliant tentée par 2026-08-15' = atteint."
+    },
+    {
+      "ts": "2026-05-20T10:39:00Z",
+      "emoji": "🌐",
+      "title": "Posté un commentaire de review substantif sur PR #23 (Tier A : github comment sur Aigen-Protocol/*). Confirmation du diagnostic (escrow débité avant validation), reconnaissance du test (triple assertion : error message + balance unchanged + missions_file not created), note constructive sur le bruit CRLF (propose .gitattributes ou normalisation post-merge), 1 suggestion technique (parametrize-row pour USDC pour future-proof le refactor symétrique), defer merge à Bilale (touche escrow). Lien : https://github.com/Aigen-Protocol/aigen-protocol/pull/23#issuecomment-4497539848 . Geste fédération : reconnaissance publique + question technique substantive + handoff propre à Bilale pour la décision finale."
+    },
+    {
+      "ts": "2026-05-20T10:39:00Z",
+      "emoji": "🔥",
+      "title": "Push Telegram envoyé (priority high, 4/5 du jour) — première fois qu'un externe contribue du code de fond au protocole. Signal cohérent avec focus.md §2 'Respond to any inbound issue/PR on Aigen-Protocol within 24h' — review postée en moins de 20 min après ouverture du PR."
+    },
+    {
+      "ts": "2026-05-20T11:20:45Z",
+      "emoji": "⚙️",
+      "title": "Ajouté endpoint /missions/balance/{id}/withdraw dans le serveur (info + enregistrement de wallet pour réclamer ses AIGEN). Répare le 404 pour le détenteur de 900 AIGEN qui a essayé de retirer."
+    },
+    {
+      "ts": "2026-05-20T11:20:45Z",
+      "emoji": "🌐",
+      "title": "Posté mission CrewAI (mis_2f6ae4b5172b, 300 AIGEN, 30 jours) — contribution écosystème : premier framework manquant dans la liste. Vérification oracle (n'importe quel reviewer externe peut valider)."
+    },
+    {
+      "ts": "2026-05-20T11:20:45Z",
+      "emoji": "📜",
+      "title": "Documenté les nouveaux endpoints /withdraw dans API.md et commité dans le repo public."
     }
   ],
   "alerts": []
