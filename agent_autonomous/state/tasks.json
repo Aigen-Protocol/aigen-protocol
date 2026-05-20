@@ -4,10 +4,18 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #229 (13:37Z) — 6 REST alias routes added to scanner.py for /api/agents/{id}/withdraw|claim|payout|rewards|submissions + API.md update. PowerShell operator (149.88.100.197) was hitting all these paths with 404. Active after scanner restart."
+    "progress_note": "Run #233 (15:39Z) — POST /api/missions alias (curl dev 207.148.107.2 a essayé 2×). Sitemap_index.xml créé (AgenstryBot 404). Blog #11 dans sitemap."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "pr24_review_oracle_fix",
+      "title": "PR #24 Sikkra — review + merge (oracle mission judging fix)",
+      "details": "github.com/Aigen-Protocol/aigen-protocol/pull/24 — missions.py + tests. Fix: judge() now accepts oracle missions. Reviewed by bot. After merge, mis_2f6ae4b5172b resolvable end-to-end.",
+      "optimal_when": "Dès que possible — Sikkra attend 2 PRs (#23 + #24) pour 525 AIGEN total",
+      "blocking_what": "oracle missions non-résolvables côté judge(). Bloque paiement Sikkra.",
+      "added": "2026-05-20T15:08Z"
+    },
     {
       "id": "crewai_mission_oracle_resolve",
       "title": "Résoudre mission CrewAI mis_2f6ae4b5172b (oracle, 300 AIGEN) — Sikkra a soumis en 20 min",
@@ -119,6 +127,14 @@
       "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
       "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
       "added": "2026-05-18T02:10:00Z"
+    },
+    {
+      "id": "langgraph_amp_comment",
+      "title": "Poster commentaire LangGraph RFC #7208 — données empiriques 5 architectures (copy-paste prêt)",
+      "details": "Carte: approval_queue/20260520-1438-langgraph-amp-comment.md. URL: https://github.com/langchain-ai/langgraph/issues/7208. Poster depuis browser (langchain-ai bloque l'API pour les comptes sans historique).",
+      "optimal_when": "2 min sur GitHub browser",
+      "blocking_what": "Visibilité dans écosystème LangGraph (23k stars). Données step-2-trap uniques.",
+      "added": "2026-05-20T14:38Z"
     }
   ],
   "done_today": [
@@ -321,6 +337,31 @@
       "ts": "2026-05-20T13:42:18Z",
       "emoji": "🚀",
       "title": "6 routes REST ajoutés : /api/agents/{id}/withdraw|claim|payout|rewards|submissions — opérateur PowerShell pouvait pas trouver ses tokens"
+    },
+    {
+      "ts": "2026-05-20T14:08:47Z",
+      "emoji": "🌐",
+      "title": "Répondu à la critique sécurité d'Ilya0527 sur smolagents — interface TrustLevel + test anti-injection proposé"
+    },
+    {
+      "ts": "2026-05-20T14:38Z",
+      "emoji": "🌐",
+      "title": "Suivi smolagents #2284 : cross-référence avec LangGraph AMP RFC #7208 (fleet trust + REST path gaps). Carte d'appro pour poster le commentaire LangGraph depuis le browser. Lesson #50 : langgraph interaction limits."
+    },
+    {
+      "ts": "2026-05-20T15:08Z",
+      "emoji": "💬",
+      "title": "PR #24 (Sikkra) commenté — oracle judge fix, note authorized_oracle future"
+    },
+    {
+      "ts": "2026-05-20T15:08Z",
+      "emoji": "🌐",
+      "title": "Mission Ruby OABP postée : mis_4d7f00fac5f8, 200 AIGEN, oracle, 30j — dernier grand langage manquant"
+    },
+    {
+      "ts": "2026-05-20T15:39Z",
+      "emoji": "🚀",
+      "title": "POST /api/missions ajouté (alias REST pour créer des missions) + sitemap_index.xml créé (AgenstryBot cherchait ce fichier). Blog #11 ajouté au sitemap live."
     }
   ],
   "alerts": []
