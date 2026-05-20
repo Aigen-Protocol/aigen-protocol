@@ -382,6 +382,30 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     now = int(time.time())
     mid = "mis_" + uuid.uuid4().hex[:12]
 
+    # Validate optional fields before any escrow/spam-fee debits. A failed
+    # validation must not burn creator funds or leave an uncreated mission.
+    webhook_clean = ""
+    if webhook_url:
+        wu = webhook_url.strip()
+        if not (wu.startswith("https://") or wu.startswith("http://")):
+            return {"error": "webhook_url must start with http:// or https://"}
+        if len(wu) > 500:
+            return {"error": "webhook_url too long (max 500)"}
+        webhook_clean = wu
+
+    email_clean = ""
+    if notify_email:
+        em = notify_email.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", em):
+            return {"error": "notify_email is not a valid email"}
+        if len(em) > 200:
+            return {"error": "notify_email too long"}
+        email_clean = em
+
+    cat_clean = (category or "other").strip().lower()
+    if cat_clean not in VALID_CATEGORIES:
+        return {"error": f"category must be one of {sorted(VALID_CATEGORIES)}"}
+
     # AIGEN: debit upfront, mission immediately 'open'
     # USDC/ETH: mission starts 'awaiting_funding', creator confirms separately
     if reward_currency == "AIGEN":
@@ -399,31 +423,6 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     else:
         initial_status = "awaiting_funding"
         spam_fee = 0
-
-    # Validate webhook URL (optional)
-    webhook_clean = ""
-    if webhook_url:
-        wu = webhook_url.strip()
-        if not (wu.startswith("https://") or wu.startswith("http://")):
-            return {"error": "webhook_url must start with http:// or https://"}
-        if len(wu) > 500:
-            return {"error": "webhook_url too long (max 500)"}
-        webhook_clean = wu
-
-    # Validate email (optional)
-    email_clean = ""
-    if notify_email:
-        em = notify_email.strip().lower()
-        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", em):
-            return {"error": "notify_email is not a valid email"}
-        if len(em) > 200:
-            return {"error": "notify_email too long"}
-        email_clean = em
-
-    # Validate category (optional, defaults to 'other')
-    cat_clean = (category or "other").strip().lower()
-    if cat_clean not in VALID_CATEGORIES:
-        return {"error": f"category must be one of {sorted(VALID_CATEGORIES)}"}
 
     m = {
         "id": mid,
