@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** v0.3.2
+**Status:** v0.3.3
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
 | v0.3.2 | 2026-05-20 | §7.3.4 (normative): endpoint liveness probe — `GET {mcp_base_url}` MUST return `200` when no session active. Evidence: two independent clients (`52.151.51.77`, `44.234.59.95`) probed `GET /mcp` after DELETE and required `200` to continue. §7.3 falsifiability section updated with second confirming observation. SECOND_IMPLEMENTATION.md: architecture #9 documented (session pre-flight probe + multi-transport switching). |
 | v0.3.1 | 2026-05-20 | §8: SHOULD→MUST for `/openapi.json`; adds `/api/v1/openapi.json` alias requirement and `/api/agents/{id}/balance` sub-resource SHOULD. Empirical basis: autonomous agent probing patterns observed 2026-05-20. |
 | **v0.3** | 2026-05-20 | **Final release.** Promotes §7.2.1 (content-negotiation mismatch structured error, issue #11) and §7.3 (MCP session lifecycle contract, issue #25) from proposed to normative. Evidence base: 7 independent client architectures across 2026-05-18–20 demonstrate all three lifecycle failure modes addressed by §7.3. Includes all v0.3-draft content. Appendix B updated to v0.4 scope. |
@@ -402,6 +403,28 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+### §9.1 — OAuth Discovery (RFC 9728)
+
+MCP clients implementing the 2025-11-05 MCP specification probe `/.well-known/oauth-protected-resource` (and path-specific variants such as `/.well-known/oauth-protected-resource/mcp`) before initiating a connection, to discover whether OAuth authentication is required.
+
+Compliant OABP implementations that require no authentication SHOULD serve a minimal Protected Resource Metadata document at `/.well-known/oauth-protected-resource`:
+
+```json
+{
+  "resource": "https://{your-server}/mcp",
+  "resource_name": "{your-implementation-name}",
+  "authorization_servers": [],
+  "bearer_methods_supported": [],
+  "scopes_supported": []
+}
+```
+
+`authorization_servers: []` explicitly declares that no OAuth flow is required to access the server. A `404` is technically acceptable per RFC 9728 (well-implemented clients fall through gracefully), but a `200` with an explicit empty response removes ambiguity for strict clients and future-proofs against tighter interpretations of the spec.
+
+Server operators using nginx or similar reverse proxies SHOULD use a prefix regex (e.g. `location ~ ^/\.well-known/oauth-protected-resource`) to serve the same document for all path variants, as clients probe the root endpoint AND path-appended variants (e.g. `…/mcp`, `…/mcp/sse`) in sequence.
+
+*Empirical basis*: a Firefox-UA MCP client (2026-05-20T22:34Z) probed all three path variants before connecting. It fell back gracefully on 404, but its pattern demonstrates that some clients re-check OAuth metadata between `initialize` and `notifications/initialized` — making an explicit declaration preferable over relying on fallback behavior.
 
 ## Backwards Compatibility
 
