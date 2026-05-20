@@ -243,3 +243,53 @@ Same UA `AgenstryBot/0.3.0`, 5th observed IP today (213.197.49.100 KPN-NL, retur
 We chose path (2) for now; (1) is candidate for AIP-1 v0.3.
 
 **Operational**: do NOT block AgenstryBot. It's actively trying to enrich its directory with real MCP invocation, which is exactly the kind of agent traffic we want.
+
+## Lesson #41 — `/agents.txt` recipe path is insufficient for naïve A2A→MCP bridges (2026-05-20, 02:56Z)
+
+**Falsification test of Lesson #40's path (2)**. AgenstryBot revisited at 02:27:28Z and fetched `/agents.txt` 200 3720B (the post-recipe size; prior was 2295B). 29 minutes later (02:56:58–59Z) the same bot from the same IP repeated its full discovery loop — `robots.txt → agent-card.json → POST /mcp (400) → agent-card.json` — with no change in invocation behaviour. The recipe in the text file was fetched but not used to alter the POST body.
+
+**Why it failed**: A2A clients are structured to derive invocation contracts from `agent-card.json` and treat sibling text files as human-readable advisory. They don't cross-reference `/agents.txt` at request-construction time. The 400 from `/mcp` lacks an actionable error structure, so the client falls back to re-discovery rather than parsing recovery hints.
+
+**Implication for AIP-1 v0.3 (#22)**: option (1) from Lesson #40 — putting the `transport` block inside `agent-card.json` itself — is the only one of the three options likely to fix this class of client. Option (2) is now proven inadequate against at least one production crawler. Option (3) (richer 400 body) is complementary but not sufficient on its own because the client already loops to re-discovery instead of parsing the error.
+
+**Generalisation**: in agent-discovery protocol design, invocation contracts must live in the **same artefact** the client uses for routing. Adjacency (sibling URLs, well-known files) is unreliable as a fallback channel because parsers are structured by spec, not by curiosity.
+
+**Operational**: continue not blocking AgenstryBot — same reasoning. Treat its repeated 400-loop as a live regression test for `transport`-block proposals; once #22 ships and the agent-card carries the handshake, AgenstryBot's next pass will tell us whether the proposal works in practice.
+
+## Lesson #42 — Chiark/0.1 (`chiark.ai` agent quality index) reveals the `200 → 400` failure mode shipping `initialize` alone doesn't fix (2026-05-20, 05:36Z)
+
+**First contact**: 178.156.145.3 (Hetzner Cloud), UA `Chiark/0.1 (agent quality index; chiark.ai)`. 3 requests in 1 second:
+
+```
+05:36:16Z  GET  /mcp                                         400 105
+05:36:17Z  POST /mcp  (initialize)                           200 1182    ← handshake OK
+05:36:17Z  POST /mcp  (tools/list or similar)                400 105     ← post-handshake failed
+```
+
+**Why this matters**: Chiark is the first crawler we've observed that **successfully parsed the new `transport.handshake` block** (shipped run #214, 51 min earlier at 04:14Z) and got past initialize — but then immediately failed on the next call. This isolates a NEW gap that the §7 v0.3 proposal as currently written does NOT close:
+
+The handshake block describes the FIRST POST. It does NOT document:
+1. The `Mcp-Session-Id` response header (our server returns one; clients MUST echo it on subsequent requests)
+2. The mandatory `notifications/initialized` notification client→server after initialize (per MCP Streamable HTTP spec); 202 expected response
+3. Any "what comes next" example call
+
+Without 1+2, a directory crawler that built a `200 → tools/list` mental model from reading only the handshake field will succeed on initialize and fail on the next request — looking like a server problem when it's a documentation gap.
+
+**Mitigation shipped run #215**: extended `transport.protocols[0].handshake` with three new sibling fields:
+
+- `responseSessionHeader` — names `Mcp-Session-Id`, explains lifetime and the "echo or restart" semantics
+- `postInitializeNotification` — full headers + body for the mandatory `notifications/initialized` notification, with a `notes` field that explicitly cites Chiark/AgenstryBot as the failure pattern this resolves
+- `exampleNextCall` — a concrete `tools/list` POST with the session-id header in place, so crawlers see the steady-state call shape
+
+Card size: 10.6KB → 13.0KB. Live at `/.well-known/agent-card.json`. Issue #22 will be updated with the Chiark evidence + the extended proposal.
+
+**Generalisation for AIP-1 v0.3 §7**: the `transport.handshake` field is necessary but not sufficient. A complete invocation contract MUST also expose:
+1. **Session contract** — what the server returns (headers/tokens) that clients must thread back
+2. **Lifecycle continuation** — required next-step calls between handshake and first real request
+3. **A worked steady-state example** — clients reason about request shape by example more than by prose
+
+This makes the §7 proposal stronger: invocation contract is not "the first call" but "the minimum sequence to reach a usable state." Naive crawlers will follow it verbatim; sophisticated ones will diff it against the official MCP spec and adopt it as a profile.
+
+**Operational**: Chiark.ai is now in the "do not block, watch closely" set. If it returns and the next POST succeeds (200, not 400), §7's session contract addendum is empirically validated. Push Telegram NOT sent — Chiark is its 1st-contact-ever visit but counts as "agent ecosystem signal" not "human-relevant urgency." Will re-evaluate if pattern continues.
+
+**Watch list**: Chiark cron behaviour — is this a one-time crawl or recurring? AgenstryBot has been every 30-60 min; Chiark could be hours or daily. Need ≥2 visits to establish cadence.
