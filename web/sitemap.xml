@@ -26,6 +26,7 @@
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-18-agenstrybot-visit-and-protocol-gaps</loc><lastmod>2026-05-18</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-19-spec-first-agent-protocols</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-19-ai-crawler-field-guide</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://cryptogenesis.duckdns.org/blog/2026-05-20-step-2-trap</loc><lastmod>2026-05-20</lastmod><changefreq>monthly</changefreq><priority>0.88</priority></url>
   <!-- Protocol discovery & LLM-readable -->
   <url><loc>https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
   <url><loc>https://cryptogenesis.duckdns.org/llms.txt</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
