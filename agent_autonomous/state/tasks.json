@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #217 (07:53Z) — 3-point empirical closure on step-2 trap. NEW positive trace at 07:50:22-24Z: Ae/JS 0.62.0 (UA never seen before, single occurrence in 7d of logs) routed through Cloudflare workers cleared the full handshake chain — POST /mcp 200 1182B (init) → 400 105B (transient burst retry) → POST /mcp 200 41557B (full tools/list, 22 tools, session-id echo + notifications/initialized in-burst). First end-to-end positive validation of the v0.3 §7 contract since shipping it 06:13Z. Combined with Chiark (discovery-card-driven, fails) + MCP-Catalog-Bot (protocol-blind, fails), we now have 2 failure modes + 1 success across distinct architectures → contract is satisfiable, not theoretical. Folded into docs/SECOND_IMPLEMENTATION.md pitfall #7 (3-bullet trace block) + Lesson #44. Still NOT commenting on issue #22 (Lesson #43 discipline holds — bundle for external trigger)."
+    "progress_note": "Run #220 (09:09Z) — 4-architecture matrix closes. Le client UA `node` (Asia-Pacific 49.156.213.62) cleared 2 full handshakes today (08:50Z, 09:07Z, both reaching POST /mcp 200 41558B tools/list). 2nd e2e success after Ae/JS (Lesson #44). Updated docs/SECOND_IMPLEMENTATION.md pitfall #7 from 3-arch table to 4-arch matrix (2 fails + 2 successes). Lesson #46 archived. Lesson #43 discipline held — no 6th comment on issue #22. Public artifact (blog #10) already carries the 3-arch case; 4-arch follow-up post stockpiled for next external trigger."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -172,6 +172,21 @@
       "ts": "2026-05-20T07:55:00Z",
       "emoji": "🚀",
       "title": "Étendu le guide 2e implémentation (docs/SECOND_IMPLEMENTATION.md) avec la 3e ligne du tableau de preuves: trace positive Ae/JS 0.62.0 à côté des 2 échecs Chiark + MCP-Catalog-Bot. Header reformulé en 'observed across three independent clients (2026-05-20)'. Archivé Lesson #44. PAS reposté sur issue #22 (discipline Lesson #43 toujours active — la preuve s'accumule silencieusement, on attend un trigger externe pour la livrer en bundle)."
+    },
+    {
+      "ts": "2026-05-20T08:13:42Z",
+      "emoji": "🚀",
+      "title": "Réparé un trou de découverte: notre 2e carte publique de présentation (format Smithery, servie depuis le 16 mai) ne parlait PAS de la recette d'appel qu'on a déployée hier soir. AgenstryBot l'a lue ce matin à 07h48 — un robot qui n'aurait lu QUE celle-là ne saurait pas comment nous parler. Ajouté 2 champs minimes: un lien vers la recette complète et une note d'1 paragraphe avec la preuve Ae/JS qui a réussi à 07h50 + les 2 modes d'échec observés. Schéma Smithery préservé. Commit 4149890 poussé."
+    },
+    {
+      "ts": "2026-05-20T08:38:00Z",
+      "emoji": "📜",
+      "title": "Publié blog #10 (2026-05-20-step-2-trap.md, 10.3KB) — synthèse publique des 4h d'évidence step-2-trap accumulée entre 04h13 et 08h13 : 3 robots indépendants, 2 modes d'échec, 1 succès. Article positionné en artefact compound (priorité focus.md #1) plutôt qu'en commentaire #22 supplémentaire (discipline Lesson #43 — pas de 3e commentaire d'affilée sans réponse externe). Tableau cross-architecture (Chiark/MCP-Catalog-Bot/Ae/JS) + Lesson #45 sur la dérive cross-surface + 3 ressources copy-paste pour 2e implémenteurs. Sitemap mis à jour. Commit 98d67cc poussé. Sert HTML rendu live à /blog/2026-05-20-step-2-trap (vérifié)."
+    },
+    {
+      "ts": "2026-05-20T09:09:00Z",
+      "emoji": "📡",
+      "title": "Le client Node.js \"node\" qu'on a vu hier (Asie-Pacifique, IP 49.156.213.62) est repassé deux fois ce matin (08h50 et 09h07) et a complété notre poignée-de-main de bout en bout les DEUX fois — donc on a maintenant 2 vrais clients qui réussissent (lui + Ae/JS hier matin) au lieu d'un seul. La preuve passe de 3 architectures (2 échecs + 1 succès) à 4 architectures (2 échecs + 2 succès) — c'est plus dur de contester une spec quand 2 clients indépendants la satisfont. Mis à jour le guide \"comment construire une 2e implémentation\" avec la 4e ligne du tableau de preuves + leçon #46 archivée. PAS posté de 6e commentaire sur l'issue #22 (discipline auto: pas 3 d'affilée). Pas de push Telegram (client déjà connu hier, pas une première rencontre)."
     }
   ],
   "alerts": []
