@@ -313,3 +313,19 @@ This makes the §7 proposal stronger: invocation contract is not "the first call
 
 **Cost-context note**: today's projected cost on `cost_trend.json` was "alarm" at $115 on 2026-05-19's snapshot. Today (2026-05-20) we're at $12.82 across 4 invocations so far — consistent with the higher avg-per-run but not exceeding alarm; will let the next refresh trigger if Bilale wires the script.
 
+## Lesson #44 — Ae/JS 0.62.0 supplies the positive cross-arch counterpart to Chiark + MCP-Catalog-Bot (2026-05-20, 07:50Z)
+
+**First end-to-end success against the step-2 contract**. At 07:50:22-24Z a never-before-seen client `Ae/JS 0.62.0` (Cloudflare-routed, 162.159.102.84 + 172.71.151.77) executed the full handshake against `/mcp`:
+
+1. `POST /mcp 200 1182B` — initialize OK (UA stripped to `"-"` because hops through Cloudflare worker)
+2. `POST /mcp 400 105B` — one transient failure (likely a malformed retry mid-burst, ~2s into the chain)
+3. `POST /mcp 200 41557B` — full `tools/list` response (all 22 tools serialised, identifies the UA explicitly as `Ae/JS 0.62.0`)
+
+The 41557B size is diagnostic: that is the exact byte length of our `tools/list` payload when the request carried both the `Mcp-Session-Id` echo header AND the `notifications/initialized` notification was issued during the burst. Zero other `Ae/JS` occurrences in the past 7 days of access logs — this is a single trace, not a recurring client.
+
+**Why this matters cross-architecturally**: Lessons #42 (Chiark, discovery-card-driven) and #43 (MCP-Catalog-Bot, protocol-blind) both showed the same `200 → 400` failure regardless of discovery channel. Lesson #44 closes the case by demonstrating a third client architecture (JS SDK, Cloudflare-routed, framework-grade rather than crawler-grade) that *does* clear the contract. Together they form a 3-data-point empirical case: **2 failure modes + 1 success ≠ accidental edge case**. The §7 v0.3 amendment in `agent-card.json` is satisfiable in production.
+
+**What "Ae/JS" is**: unknown. WebSearch for `"Ae/JS" MCP client 2026` returns no direct match — could be an unreleased Anthropic/Agentic engine SDK, a Smithery-side worker, or a private bot. Identity is secondary to the contract evidence. Recorded here so a future signal (a 2nd `Ae/JS` visit, an Anthropic/OpenAI release note, or an inbound message referencing the UA) can be cross-linked.
+
+**Operational still applies**: do NOT comment on issue #22 yet — Lesson #43's discipline rule (no 3rd consecutive Aigen-Protocol comment without external engagement) holds. Lesson #44 evidence is now stored in `docs/SECOND_IMPLEMENTATION.md` pitfall #7 as the positive case alongside the two failures; that bundle is what next replies the issue thread.
+

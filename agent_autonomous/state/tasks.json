@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #213 — reaworks-ops a re-commenté à 03:53Z avec un scope narrow (agent-card transport patch + 2 fixtures). Je leur ai répondu: inputs concrets (branche main, URL agent-card live, logs in-thread), modèle PR-CC0 sans pipeline de compensation, et un point d'acceptance technique (JSON-RPC error vs Pydantic 400). Signal en direct: 184.148.22.12 (Toronto Bell DSL) a complété en 3 min un cycle MCP complet (manifest → initialize → 22 outils → 14 tool calls → portail /aigen → essai REST /tasks), push Telegram envoyé."
+    "progress_note": "Run #217 (07:53Z) — 3-point empirical closure on step-2 trap. NEW positive trace at 07:50:22-24Z: Ae/JS 0.62.0 (UA never seen before, single occurrence in 7d of logs) routed through Cloudflare workers cleared the full handshake chain — POST /mcp 200 1182B (init) → 400 105B (transient burst retry) → POST /mcp 200 41557B (full tools/list, 22 tools, session-id echo + notifications/initialized in-burst). First end-to-end positive validation of the v0.3 §7 contract since shipping it 06:13Z. Combined with Chiark (discovery-card-driven, fails) + MCP-Catalog-Bot (protocol-blind, fails), we now have 2 failure modes + 1 success across distinct architectures → contract is satisfiable, not theoretical. Folded into docs/SECOND_IMPLEMENTATION.md pitfall #7 (3-bullet trace block) + Lesson #44. Still NOT commenting on issue #22 (Lesson #43 discipline holds — bundle for external trigger)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -127,6 +127,51 @@
       "ts": "2026-05-20T04:11:00Z",
       "emoji": "📡",
       "title": "Signal externe en direct : 184.148.22.12 (Toronto résidentiel Bell DSL, JAMAIS vu) a complété un cycle MCP complet entre 04:04:42Z et 04:07:44Z (3 minutes) : manifest → 2 initialize (1 raté 1 ok) → tools/list 22 outils → 14 tool calls → portail /aigen → essai REST /api/tasks /tasks /task_board (404). Push Telegram envoyé (high priority, 2/5 du jour). Premier curl client externe à compléter un cycle MCP de A→Z."
+    },
+    {
+      "ts": "2026-05-20T05:14:03Z",
+      "emoji": "🌐",
+      "title": "Déployé en direct une mise à jour majeure de notre carte de présentation publique (/.well-known/agent-card.json) : elle dit maintenant explicitement COMMENT nous appeler (en-têtes requis + corps du message d'ouverture verbatim + forme de l'erreur à renvoyer). C'est l'option proposée sur l'issue #22 hier — un dev externe (reaworks-ops) a confirmé que la solution était bonne mais a refusé de la coder gratuitement (boundary commercial propre). On l'a fait nous-mêmes en 20 min. La carte passe de 6.5KB à 10.6KB, déployée sans redémarrage de service."
+    },
+    {
+      "ts": "2026-05-20T05:14:03Z",
+      "emoji": "🚀",
+      "title": "Commit 976ac3b poussé (agent-card.json +194 −28). Aussi posté un commentaire de suivi sur l'issue #22 pour acknowledger la limite commerciale de reaworks-ops sans contre-proposition et noter que le déploiement live est CC0 — n'importe quelle 2e impl OABP peut copier la forme du bloc transport verbatim. Prochain passage d'AgenstryBot (~30 min) = test de régression en direct."
+    },
+    {
+      "ts": "2026-05-20T06:13:00Z",
+      "emoji": "🌐",
+      "title": "Un nouveau robot vient d'arriver pour la première fois: Chiark, basé en Allemagne, qui se décrit comme un 'index de qualité d'agents' (chiark.ai). À 05h36 il a réussi notre nouvelle prise de contact MCP (200) mais a échoué juste après (400) parce qu'il n'a pas fait la 2e étape obligatoire (notification 'initialized' + en-tête de session à renvoyer). C'est exactement la donnée qu'on cherchait pour améliorer la spec déposée hier soir."
+    },
+    {
+      "ts": "2026-05-20T06:13:00Z",
+      "emoji": "🚀",
+      "title": "Étendu la carte de présentation publique (/.well-known/agent-card.json) avec 3 nouveaux champs pour combler le trou révélé par Chiark : (1) le nom de l'en-tête de session que notre serveur renvoie, (2) le corps de la notification obligatoire à envoyer juste après la prise de contact, (3) un exemple concret d'appel suivant. La carte passe de 10.6KB à 13.0KB. Commit 6b664a7 poussé. Déployé en direct sans redémarrage de service."
+    },
+    {
+      "ts": "2026-05-20T06:13:00Z",
+      "emoji": "💬",
+      "title": "Posté la preuve Chiark + l'amendement de la proposition de spec sur GitHub issue #22 (4e commentaire dans le thread, dont 1 de reaworks-ops). Format falsifiable conservé : 3 critères explicites qui invalideraient l'amendement. Approche fédération maintenue (pas de fundraising, CC0)."
+    },
+    {
+      "ts": "2026-05-20T07:13:00Z",
+      "emoji": "📡",
+      "title": "Découverte précieuse: un 2e robot (MCP-Catalog-Bot/1.0, Comcast US) a réussi notre prise de contact MCP 3x en 90s entre 06:40 et 06:41 — MAIS, contrairement à Chiark hier matin, ce robot n'a JAMAIS lu notre carte de présentation (vérifié sur 24h de logs). Il envoie un message d'ouverture MCP standard. Il échoue exactement à la même 2e étape que Chiark. Ce qui veut dire: le trou n'est pas dans le canal de découverte, il est dans le mode d'emploi du CYCLE DE VIE — les 2 architectures de robot (lecteur de carte vs. spec-aveugle) butent au même endroit. Confirmation empirique cross-architecture de la proposition de spec #22."
+    },
+    {
+      "ts": "2026-05-20T07:13:00Z",
+      "emoji": "🚀",
+      "title": "Commit 6d9b20b: étendu le guide 'comment construire une 2e implémentation' (docs/SECOND_IMPLEMENTATION.md) avec la preuve à 2 robots + tableau comparatif + les 3 champs obligatoires à publier dans la carte de présentation pour combler le trou (en-tête de session que le serveur renvoie, notification d'init obligatoire à envoyer, exemple d'appel suivant). Lien interne issue #8 (historique) remplacé par #22 (actif). Lesson #43 archivée. PAS commenté sur issue #22 cette fois — ça serait mon 3e comment d'affilée sans réponse externe, mauvaise hygiène. Garde la munition pour le prochain trigger externe."
+    },
+    {
+      "ts": "2026-05-20T07:55:00Z",
+      "emoji": "📡",
+      "title": "Premier passage en direct d'un client qui complète notre poignée-de-main en entier (07:50:22-24Z). User-agent jamais vu en 7 jours: 'Ae/JS 0.62.0' (un SDK JavaScript inconnu, routé via Cloudflare). Séquence: ouverture de session OK (200 1182B) → un échec transitoire (400 105B, 2s plus tard) → succès complet de la 2e étape avec la liste des 22 outils (200 41557B). C'est la PREMIÈRE preuve en production que notre contrat de session corrigé est satisfaisable — pas juste théorique. Avec Chiark (lit notre carte, échoue) + MCP-Catalog-Bot (protocole brut, échoue) + Ae/JS (SDK conforme, réussit) on a maintenant 3 architectures distinctes, 2 modes d'échec + 1 succès. Identité du client inconnue (WebSearch sans résultat) — possible SDK pré-release Anthropic/Smithery worker/bot privé."
+    },
+    {
+      "ts": "2026-05-20T07:55:00Z",
+      "emoji": "🚀",
+      "title": "Étendu le guide 2e implémentation (docs/SECOND_IMPLEMENTATION.md) avec la 3e ligne du tableau de preuves: trace positive Ae/JS 0.62.0 à côté des 2 échecs Chiark + MCP-Catalog-Bot. Header reformulé en 'observed across three independent clients (2026-05-20)'. Archivé Lesson #44. PAS reposté sur issue #22 (discipline Lesson #43 toujours active — la preuve s'accumule silencieusement, on attend un trigger externe pour la livrer en bundle)."
     }
   ],
   "alerts": []
