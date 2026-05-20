@@ -4,13 +4,14 @@
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-17
+**Updated:** 2026-05-20
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.4-draft | 2026-05-20 | §7.3 *(proposed, non-normative)*: MCP session lifecycle contract — handshake completion window (30s), DELETE teardown MUST→200, session ID non-reuse (issue #25). Evidence: 7 independent client architectures across 2 days. |
 | **v0.3** | 2026-05-19 | §1.4 (normative): identity propagation through registries — no-auto-bind rule, anonymous-by-default, registry attestation flow, cross-registry portability, reward path (closes #12). SDK v0.7.0: `RegistryAttestation`, `check_registry_session()`, 5 conformance tests. |
 | v0.3-draft | 2026-05-18 | §7.2.1 *(proposed, non-normative)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint (issue #11). Appendix C: added "Agent communication protocols (MCP, A2A, ACP, AGNTCY)" subsection — federation with non-Web3 agent protocol drafts. |
 | **v0.2.1** | 2026-05-17 | §7.1 MCP transport declaration (normative); §7.2 structured error response for unsupported transport paths (normative); §9 updated `endpoints.mcp` schema |
@@ -323,6 +324,50 @@ Two independent automated clients have already produced the failure pattern §7.
 - **`24.5.30.213`** (`User-Agent: MCP-Catalog-Bot/1.0`, observed first contact 2026-05-18T01:05Z): Tries `GET /mcp` (400), `GET /mcp/sse` (200 stub), then fetches `/mcp/.well-known/oauth-authorization-server` and `/mcp/.well-known/openid-configuration` (both 404) before succeeding at `POST /mcp` (200, 1182B tool list) at 04:04Z. This catalog crawler self-recovered after multiple probes; an unattended one without exhaustive probing may not.
 
 **Implementation cost in the reference impl:** 2-line change in `token-scanner/mcp_sse_only.py`. Compliance test: a single integration test that issues a malformed POST to the canonical endpoint and asserts presence of all three top-level fields in the 400 body.
+
+#### 7.3 MCP Session Lifecycle Contract — *PROPOSED v0.4*
+
+> **Status:** Draft for v0.4. Tracked in [issue #25](https://github.com/Aigen-Protocol/aigen-protocol/issues/25). Not normative until v0.4 is released.
+
+§7.1 and §7.2 address *path-level* failures (wrong transport path, content-type mismatch). A distinct failure class is *lifecycle-level* failure: the client reaches the correct MCP endpoint and sends a syntactically valid `initialize` request — but the session never becomes operational because neither side enforces what happens after the initial handshake.
+
+**Cross-architecture evidence (seven independent clients, 2026-05-18 to 2026-05-20):**
+
+| Architecture | Sends `initialized` notification | Sends `DELETE` teardown | Outcome |
+|---|---|---|---|
+| Chiark (chiark.greenend.org.uk) | ❌ | ❌ | Handshake stalls — no tool list served |
+| MCP-Catalog-Bot/1.0 (Comcast US) | ❌ | ❌ | Handshake stalls — no tool list served |
+| Vesta inventory (datafenix.ai) | ❌ | ❌ | Intentional stop after init probe |
+| Ae/JS 0.62.0 (Cloudflare-routed) | ✅ | ❌ | Success — tool list served |
+| Node.js client (49.156.213.62, Asia-Pacific) | ✅ | ❌ | Success — tool list served |
+| python-httpx/0.28.1 (Azure, SSE transport) | ✅ | ❌ | Partial — stale session reuse |
+| python-httpx/0.28.1 (Azure, 52.151.51.77) | ✅ | ✅ `DELETE → 200` | **Full lifecycle — success + clean teardown** |
+
+The failure pattern for architectures 1–3: the client POSTs `initialize` and receives the server's `initialize` response, but never sends the follow-up `initialized` notification (MCP §5.2). The session is stuck in a pending-activation limbo. The client may believe the session is active; the server is blocked waiting for handshake completion. Neither side can make progress.
+
+Architecture 7 (the only one to send `DELETE`) is the only one that implements the full session contract as written in the MCP specification — and it is the only one that achieves a clean, resource-safe teardown. The other successful clients (architectures 4–5) succeed functionally but leave server-side session state unreleased.
+
+Proposed normative text for v0.4 §7.3:
+
+**§7.3.1 — Handshake Completion Window**
+
+> After sending its `initialize` response, a compliant server MUST start a handshake timer. If no `initialized` notification (MCP §5.2) is received within **30 seconds**, the server MUST discard the pending session state and release associated resources. The server MUST NOT serve tool-call requests (`tools/list`, `tools/call`, etc.) to a session that has not completed handshake. The 30-second value is the RECOMMENDED default; an implementation MAY configure a different timeout and SHOULD document it in `/.well-known/oabp.json` under `mcp.handshake_timeout_seconds`.
+
+**§7.3.2 — Session Teardown**
+
+> A compliant server MUST accept `DELETE {mcp_base_url}` with the client's active session token and respond with HTTP `200 OK` and an empty body. The server MUST NOT return `404 Not Found`, `405 Method Not Allowed`, or `501 Not Implemented` on this method — a client that receives any of these error codes on DELETE cannot distinguish "server does not support teardown" from "session ID was invalid", breaking the cooperative release contract.
+>
+> A client SHOULD send `DELETE {mcp_base_url}` once it has completed its work and is releasing its session token. A client MUST NOT continue using a session after its DELETE request received `200 OK`.
+
+**§7.3.3 — Session ID Non-Reuse**
+
+> A session ID issued in an `initialize` response MUST NOT be reassigned to a different client while the original session is in `pending` or `active` state. Once a session reaches `terminated` state (via DELETE or TTL expiry), its ID MAY be reissued after a minimum cooling period of **10 seconds** to prevent replay confusion in clients with buffered retry queues.
+
+**Falsifiability — pre-shipping evidence:**
+
+The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
+
+**Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
 
 ### 8. Open API Schema
 
