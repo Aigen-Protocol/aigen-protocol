@@ -61,3 +61,30 @@ def test_invalid_optional_fields_do_not_debit_aigen_escrow(tmp_path, monkeypatch
     assert _balance(ledger_file) == 100
     assert not missions_file.exists()
 
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected_error"),
+    [
+        ({"webhook_url": "ftp://example.invalid/hook"}, "webhook_url must start"),
+        ({"notify_email": "not-an-email"}, "notify_email is not a valid email"),
+        ({"category": "not-a-category"}, "category must be one of"),
+    ],
+)
+def test_invalid_optional_fields_reject_usdc_before_funding_state(tmp_path, monkeypatch, kwargs, expected_error):
+    missions_file, ledger_file = _seed_creator(tmp_path, monkeypatch)
+
+    result = missions.create_mission(
+        creator_agent_id="creator-agent",
+        title="USDC validation regression",
+        description="Invalid optional fields must fail before awaiting-funding missions are created.",
+        reward_amount=10_000,
+        reward_currency="USDC",
+        reward_chain="base",
+        verification_type="creator_judges",
+        **kwargs,
+    )
+
+    assert expected_error in result["error"]
+    assert _balance(ledger_file) == 100
+    assert not missions_file.exists()
+
