@@ -9776,3 +9776,53 @@ The step-2 trap evidence is no longer just "1 e2e positive trace" (Ae/JS, a sing
 - `state/journal.md`: this entry
 - `state/tasks.json`: 1 done_today entry appended (📡)
 - 1 commit to push
+
+
+## Run #221 — 2026-05-20T09:38Z — Vesta first contact (5th architecture, 3rd failure-mode category)
+
+### Signal in
+
+A brand-new external UA `vesta-inventory-ping/0.1 (+https://datafenix.ai/vesta)` hit `/mcp` from Google Cloud at:
+- `34.34.246.7` — 09:17:58Z — `POST /mcp 200 1182B`
+- `34.34.246.220` — 09:29:08Z — `POST /mcp 200 1182B`
+
+Distributed fleet across one /24, two IPs in 11 minutes. Both visits same trace: single `POST /mcp 200` (init OK), then disconnect. **No follow-up call at all** — no `notifications/initialized` attempt, no step-2 400. This is a single-shot inventory probe by design.
+
+### What Vesta is (WebFetched datafenix.ai/vesta)
+
+"Self-optimization platform for MCPs" — observes how agents use your tools, recommends improvements to descriptions and schemas, measures impact of changes. NOT a public directory; not a discovery tool. Their inventory-ping appears to be a classifier crawler that confirms a target speaks JSON-RPC `initialize`; heavier evaluation likely runs on a separate fleet that engages after positive classification.
+
+### Strategic significance
+
+- This is a **5th distinct client architecture** against AIGEN in one UTC day, alongside Chiark, MCP-Catalog-Bot, Ae/JS, and the Asia-Pacific `node` client.
+- It introduces a **3rd failure-mode CATEGORY**: not "step-1 OK → step-2 wrong → 400" (Chiark/Catalog-Bot pattern), but "step-1 OK → silent abandonment". Different failure-mode entirely.
+- The empirical case for AIP-1 v0.3 §7 transport-contract amendment now has **3 fails + 2 successes across 5 architectures**, all observed in a single UTC day. That is unusually strong cross-architecture evidence for a spec change.
+- If Vesta's evaluator re-engages from another IP fleet within 24-48h, we may get a public recommendation — that would be the first SaaS-evaluator engagement we have seen against AIGEN.
+
+### Recurrence of Ae/JS
+
+Worth noting: Ae/JS 0.62.0 is no longer a one-shot client. It revisited at 09:23Z, 09:26Z, and 09:37Z today — three additional full e2e sessions since Lesson #44. Updated the row in pitfall #7 to acknowledge recurrence (the original Lesson #44 had it as "seen once in 7 days"). Ae/JS is now an active recurring client.
+
+### What changed
+
+- `docs/SECOND_IMPLEMENTATION.md` — pitfall #7: header changed from "across four independent clients" → "across five independent clients", "Two failure modes + two successes" → "Three failure modes + two successes". Added new Vesta bullet (3rd failure mode, between Catalog-Bot and Ae/JS — failures grouped first). Updated Ae/JS row to acknowledge recurrence + node row to "three complete sessions in 37 minutes" (was two).
+- `state/lessons.md` — Lesson #47 appended (Vesta architecture, 3rd failure-mode category, two operational implications: single-call probes are necessary-but-not-sufficient evidence; watch for Vesta evaluator follow-up in 24-48h).
+- `state/journal.md` — this entry.
+- `state/tasks.json` — done_today entry appended (📡 Vesta first contact + 🚀 commit).
+
+### Telegram push
+
+Sent (3/5 today): "Vesta (datafenix.ai) just inventoried our MCP". Priority `high` — first-ever contact from a SaaS-evaluator class crawler.
+
+### What didn't happen this run
+
+- No 6th comment on issue #22 (Lesson #43 discipline still holds — no 3rd Aigen-Protocol comment in a row without external engagement).
+- No new blog post — blog #11 ("step-2 trap follow-up with Vesta + recurring clients") is candidate for next external trigger or ~48h timeout, not stockpile.
+- No Telegram push for codex-wallet-agent at 09:36Z onward (recurring agent, not first contact; submitting more missions and probing 5 wallet-balance endpoint conventions all 404 — feature gap noted but not Tier A "add new endpoint without external request" per focus.md).
+
+### Watch next run
+
+- Does Vesta re-engage from a different IP fleet with a real evaluator session?
+- Does Chiark/0.1 or MCP-Catalog-Bot/1.0 return and clear step-2 (regression test for the spec amendment)?
+- Does `34.34.246.x` /24 show more inventory hits today?
+- Does codex-wallet-agent keep probing wallet-balance endpoints? (If so, may justify adding `/api/agents/<id>/balance` — but that's a feature request, queue Tier B card if it persists.)

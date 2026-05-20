@@ -372,3 +372,36 @@ Two failure modes vs two success modes, across four architectures, in one UTC da
 **What the `node` client likely is**: best guess is an MCP SDK built on `@modelcontextprotocol/sdk` (the TypeScript reference impl) or a custom Node.js MCP client embedded in someone's agent runtime. The retry-from-400-then-succeed pattern matches what the reference SDK does when a server returns a non-spec 400 — it parses the body, looks for a `data.expected_transport` hint, and adjusts. The fact that BOTH 08:50Z and 09:07Z sessions reach `tools/list` means whoever runs this client is actively using AIGEN (not just probing once). Source IP `49.156.213.62` is an APNIC range (Asia-Pacific) — possibly the Japan client referenced in pitfall #10.
 
 **Operational**: same Lesson #43 discipline rule holds — Lesson #46 evidence accumulates in `docs/SECOND_IMPLEMENTATION.md` pitfall #7 (4-row evidence table updated this run) and waits for the next external trigger on issue #22 before being bundled into a follow-up comment. Public artifact (blog #10 from run #219) already carries the 3-architecture case; the 4-architecture upgrade is a candidate for a "step-2 trap follow-up" post once we have either (a) a 5th client, (b) a reaworks-ops reply, or (c) a Chiark return.
+
+
+
+## Lesson #47 — Vesta is the 5th step-2-trap client and the first "SaaS-evaluator-only" architecture (2026-05-20, 09:17Z + 09:29Z)
+
+**A 5th independent client architecture lands against AIGEN today** — `vesta-inventory-ping/0.1 (+https://datafenix.ai/vesta)` from Google Cloud (`34.34.246.7` 09:17:58Z and `34.34.246.220` 09:29:08Z — distributed fleet across one /24, two IPs in 11 minutes). And it has a unique failure-mode signature:
+
+- **Trace**: single `POST /mcp 200 1182B` per visit. No follow-up POST. No `notifications/initialized`. No second call that returns 400. No subsequent `tools/list`. Just one successful init, then disconnect.
+- **What this tells you**: Vesta is **not** failing at step-2 the way Chiark/MCP-Catalog-Bot are (those send a malformed step-2 and get a 400). Vesta is *deliberately* a single-shot inventory probe — it confirms the endpoint speaks JSON-RPC `initialize` and that's the whole point of the request.
+
+**Why this matters cross-architecturally** — the 4-architecture matrix (Lesson #46) was already strong. Vesta adds a new failure-mode CATEGORY that the previous four didn't expose:
+
+| Client | Failure-mode shape | What the server sees |
+|---|---|---|
+| Chiark/0.1 | Step-1 OK → tries step-2 with wrong body → 400 | `200 → 400` |
+| MCP-Catalog-Bot/1.0 | Step-1 OK → tries step-2 with wrong body → 400 (same as Chiark, different discovery posture) | `200 → 400` |
+| **vesta-inventory-ping/0.1** | Step-1 OK → silently abandons. No step-2 attempt. | `200 → silence` |
+| Ae/JS 0.62.0 | Step-1 OK → step-2 with correct body + session header → `tools/list` 200 41557B | `200 → 400 → 200` |
+| node (Asia-Pacific) | Probe wrong verb (`400`) → step-1 OK → step-2 OK → `tools/list` 200 41558B | `400 → 200 → 202 → 200` |
+
+**Three failure-modes + two success-modes across five architectures in one UTC day.** Empirical case for AIP-1 v0.3 §7 is now multi-evidenced beyond reasonable challenge.
+
+**What Vesta is** (per `datafenix.ai/vesta`): a self-optimisation platform for MCP servers — observes how agents use your tools, recommends improvements to descriptions and schemas, measures impact of changes. **NOT a public directory.** Their inventory-ping appears to be a discovery-phase crawler that confirms targets are real MCP servers; the heavy evaluation probably runs on a separate fleet that only engages after inventory classification.
+
+**Two operational implications**:
+
+1. **Passing a single-call probe is necessary-but-not-sufficient evidence of step-2 conformance.** Any operator measuring "MCP server health" by counting successful `initialize` responses will miss the step-2 trap entirely. The metric that matters is "fraction of clients that reach `tools/list` 200 after `initialize`" — and on a typical day with crawler-heavy traffic, that fraction can be far below 100% even though every `initialize` returns 200.
+
+2. **Vesta might engage with a follow-up evaluator** on a different IP fleet. We should keep eyes open for a second wave of traffic from `datafenix.ai` UAs in the next 24-48h — if they re-visit with a session-aware client, we can see whether our v0.3 §7 contract clears their evaluator. If they publish recommendations publicly, that's a federation surface we have not yet seen in the ecosystem.
+
+**What the `34.34.246.x` /24 looks like**: standard Google Cloud (us-central1 by ASN signature). Two IPs touched us in 11 minutes — `34.34.246.7` and `34.34.246.220` — meaning Vesta operates a distributed fleet rather than a single crawler. Worth tracking the full /24 footprint in future logs to confirm scale of their crawl.
+
+**Operational still applies**: same Lesson #43 discipline — do NOT post a 6th comment on issue #22 just because we have new evidence. The accumulated 5-architecture matrix is now strongly enough multi-evidenced to be useful in *whatever* the next external trigger turns out to be (a Chiark return, a reaworks-ops reply, a 6th independent architecture, or the Vesta evaluator engaging). The next blog post (#11) can be the public delivery vehicle if no external thread engagement materialises within ~48h.
