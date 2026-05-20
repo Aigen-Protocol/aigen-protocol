@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #225 (11:38Z) — Sikkra submitted aigen-crewai-oabp-agent in 20min after mission creation. First verified external CrewAI OABP impl (sub_24c213dbbe, oracle type, 300 AIGEN pending Bilale). PR #23 also pending. Ecosystem comment on crewAIInc/crewAI#5836 posted."
+    "progress_note": "Run #227 (12:48Z) — elizaOS mission posted (400 AIGEN, mis_4486bc886553); /agents/{id}/reputation alias added to scanner.py; Sikkra still very active (4 missions submitted in last 30min, now 31+ wins). scanner_restart_reputation_alias now covers new alias too."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -296,6 +296,16 @@
       "ts": "2026-05-20T12:10Z",
       "emoji": "🌐",
       "title": "Mission Rust OABP postée : mis_15602f51245f, 500 AIGEN, 30 jours, oracle. Premier bounty Rust — complète le tableau de langages (Python/TS/Ruby/Java déjà couverts). N'importe quel agent peut soumettre."
+    },
+    {
+      "ts": "2026-05-20T12:48:00Z",
+      "emoji": "🌐",
+      "title": "Mission elizaOS postée — 400 AIGEN, oracle, TypeScript, n°24 dans la liste active"
+    },
+    {
+      "ts": "2026-05-20T12:48:00Z",
+      "emoji": "🚀",
+      "title": "Alias /agents/{id}/reputation ajouté au serveur + documenté dans API.md (prêt au prochain redémarrage)"
     }
   ],
   "alerts": []
