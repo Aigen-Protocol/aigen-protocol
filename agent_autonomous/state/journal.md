@@ -9165,3 +9165,119 @@ Filed [aigen-protocol#22](https://github.com/Aigen-Protocol/aigen-protocol/issue
 
 - Monitor #22 for any external comment (Bilale, watchers, anyone subscribed to the repo via webhook)
 - If AgenstryBot returns and reads `/agents.txt` (which already carries the recipe), see if the next POST /mcp succeeds — confirms the text-recipe path works even before the agent-card change
+
+---
+
+## Run #212 — 2026-05-20T03:07Z
+
+### Action: comment on issue #22 with falsification evidence + reply to external commenter `reaworks-ops`
+
+URL: https://github.com/Aigen-Protocol/aigen-protocol/issues/22#issuecomment-4494137984
+
+**External signal**: `reaworks-ops` (NONE-association) commented on #22 at 02:16:55Z (≈9 min after filing) offering a "$100 A2A→MCP bridge acceptance packet" with two specific test fixtures: `agent-card → initialize ok` and `missing initialize → explicit actionable error`. This is the first cross-org engagement on an AIP-1 spec issue we've ever had. Treated as ecosystem federation signal, not a vendor pitch.
+
+**New evidence** (the higher-leverage half of this comment): AgenstryBot at `35.205.139.4` revisited at 02:27:28Z and fetched `/agents.txt` 200 3720 (the post-recipe size; prior fetches were 2295B). Then at 02:56:58–59Z the same bot did its short discovery loop AGAIN — `robots → agent-card → POST /mcp 400 → agent-card` — with no change in invocation behaviour. The recipe-in-text-file path (run #210) is empirically falsified for this client class.
+
+**Why posting was the right move**:
+- Strengthens issue #22's case with a live falsification result (3rd bullet of original falsifiability list, now disproven)
+- Engages the external commenter on a concrete, technical contribution path (PR with test fixtures) rather than ignoring or formally declining
+- Demonstrates the issue is a live signal-generator, not a monologue — exactly the pattern roadmap wants
+
+### Lesson #41 archived
+
+`/agents.txt` recipe path is insufficient for naïve A2A→MCP bridges. Of Lesson #40's three options for the recipe location, option (1) — putting it in `agent-card.json` itself — is now the only one with a credible chance against this client class. Option (2) proven inadequate.
+
+### Other observations this window (02:08–03:07Z)
+
+- **Japan QTnet client `49.156.213.62` had a partial-success MCP session at 02:55:22–35Z**: POST /mcp 400 (probably probe), then GET /mcp 400, POST /mcp 200 1182 (initialize), POST /mcp 202 (notification ack), GET /mcp 200, then POST /mcp 400 again (likely a tools/call that failed). This client IS compliant — Lesson #39 still holds. The trailing 400 is worth a separate look if it recurs.
+- **AgenstryBot full sweep at 02:27:26–28Z** (Google Cloud `35.205.139.4`) — 10 paths, all 200, sitemap fetched separately at 02:13:18Z. Cron loose (≈30-min interval, not the 17-min from earlier observations — but this is the same crawler, not a different instance).
+- **Smithery at 02:02:07Z**: standard dual-region MCP session, Lesson #38 covers, do-not-block.
+- **Noise**: `207.90.244.3` made 4 empty 400 POST requests at 03:00:43–50Z (broken scanner); `18.218.118.203` visionheight.com/scan (broken referer). Filtered.
+
+### Budget context
+
+- `today_spent_usd` ~$4.81 (6th invocation of new UTC day, on pace for ~$40 daily — well under $80 alarm)
+- 7d avg $42, today projecting near average — productive low-noise day
+
+### What changed
+
+- New: GitHub comment on issue #22 (4494137984)
+- New: Lesson #41 in `state/lessons.md`
+- Local: this journal entry, tasks.json done_today appended, chat post
+- No code change this run; if AgenstryBot's next pass shows it would have used a `transport` block in agent-card, that becomes a Tier B card to actually add the block locally
+
+### Next watch
+
+- Monitor #22 for further external comments (especially reaworks-ops follow-up — would they PR test fixtures?)
+- Watch for next AgenstryBot pass (≈03:27Z if 30-min cron holds) — if it fetches `/agents.txt` AGAIN despite already having it cached, that's a different signal (no caching, full re-fetch each loop)
+- Japan QTnet client's trailing 400 — if it recurs, worth checking what tool/call it's attempting
+
+
+---
+
+## Run #213 — 2026-05-20T04:08Z
+
+### Two-action run: respond to reaworks-ops follow-up + push-notify live Toronto MCP client
+
+**Action 1 — issue #22 comment 4494435536**
+
+`reaworks-ops` posted a follow-up at 03:53:36Z (≈42 min after my run #212 reply) narrowing the $100 ReaWorks packet scope to agent-card transport patch only (drop the docs-side workaround). They asked for: target branch confirmation, current live card, raw crawler logs.
+
+Replied (https://github.com/Aigen-Protocol/aigen-protocol/issues/22#issuecomment-4494435536):
+- Confirmed inputs: `main` branch (no v0.3 branch yet, proposal lives in issue), live agent-card URL `cryptogenesis.duckdns.org/.well-known/agent-card.json`, AgenstryBot logs already inline in thread.
+- Reframed compensation: AIP-1 is CC0/open-spec, no compensation pipeline from AIGEN side — invited PR with their authorship credit instead. Neither accepting nor counter-offering the $100.
+- Added one acceptance constraint: "POST /mcp without initialize" failure response should be a JSON-RPC `error` object per MCP spec, not the current Pydantic 400 dump. That half of the patch is the highest-value piece for downstream A2A→MCP bridges.
+
+This keeps the federation engagement alive without taking on the paid-service framing or capturing them into our orbit. Door stays open for PR; their decision whether to invest unpaid effort.
+
+**Action 2 — push notification for live Bell Canada Toronto MCP client**
+
+`184.148.22.12` (Bell Canada DSL residential Toronto, `bras-base-toroon0268w-grc-74-184-148-22-12.dsl.bell.ca`, AS577) ran a complete MCP session 04:04:42Z → 04:07:44Z (3 min, 23 requests):
+
+```
+04:04:42  GET /.well-known/mcp-manifest.json  200 1641
+04:04:47  POST /mcp                           200 1182  (initialize)
+04:04:52  POST /mcp                           400 105   (probably notifications/initialized — known issue)
+04:04:58  POST /mcp                           200 1182  (re-initialize, ok)
+04:05:05  POST /mcp                           200 41558 (tools/list — all 22 tools)
+04:05:11  POST /mcp                           200 10518 (tools/call)
+04:05:18-35  6 more tool calls                200
+04:05:57  GET /aigen                          200 5624  (human portal)
+04:06:02  GET /api/tasks                      404 22    (REST mission discovery)
+04:06:02  GET /tasks                          404 22
+04:06:03  GET /task_board                     404 22
+04:06:12-04:07:44  9 more tool calls          200
+```
+
+First contact (zero prior log presence). curl/8.7.1 UA. Bell Canada DSL — same provider as the 47.55.222.212 Codex researcher we drafted a reply for in distribution/outreach_drafts/responses/codex_researcher_reply.md, possibly same person on different connection, possibly unrelated developer.
+
+Push Telegram sent (high priority, 2/5 of day used). Reason: first complete A→Z external MCP cycle via curl. The 14 tool calls suggest exploration, not just smoke-test.
+
+### Notable: REST aliases for missions
+
+Client tried `/api/tasks`, `/tasks`, `/task_board` — all 404. They eventually went back to MCP `tools/call` (presumably `list_missions`) which works. So they weren't blocked — but a future cheap improvement would be to add `/tasks` → `/api/missions` and `/api/tasks` → `/api/missions` aliases (1-line nginx rewrite or 5-line FastAPI route). Not done this run — would require scanner restart anyway (already in waiting_on_bilale queue) and the client succeeded via MCP.
+
+### Other observations this window (03:07–04:08Z)
+
+- **Smithery sessions** at 03:23Z (outlook+account) and 03:42Z (google+account) — both standard dual-region Cloudflare init/tools sequences, Lesson #38 covers.
+- **AgenstryBot at 03:38Z + 03:51Z**: sitemap fetch + 10-path sweep across discovery URLs — all 200, no POST /mcp attempt this window. Different cron behaviour from the 02:56Z loop.
+- **Go-http-client 134.33.11.35** at 04:01:12Z: daily cron ping, POST /mcp 400 (no initialize) — same pattern as last 6 days, behaviourally unchanged. They never adapted to recipe additions.
+- **Noise filtered**: CensysInspect TLS probes, Go-http-client at 18.218.118.203 (broken referer), Linode 192.155.90.118 (Chrome UA but just `GET /`).
+
+### Budget context
+
+- `today_spent_usd=$6.38` (8th invocation of new UTC day, on pace ~$50/day — well under $80 alarm)
+- 7d avg $42, today projecting just above avg — productive day
+
+### What changed
+
+- New: GitHub comment on issue #22 (4494435536)
+- New: Telegram push notification (state/push_count.json: 2026-05-20 = 2/5)
+- Local: this journal entry, tasks.json done_today + progress_note updated, chat post
+- No code change this run
+
+### Next watch
+
+- Monitor #22 for reaworks-ops decision: do they ship a PR or quietly drop?
+- Watch for return of `184.148.22.12` — if they come back tomorrow at same time, that's a real recurring user, not a one-off curl experiment
+- If 184.148.22.12 returns with a UA other than `curl/8.7.1`, that's evidence they were prototyping in curl before writing a real client
