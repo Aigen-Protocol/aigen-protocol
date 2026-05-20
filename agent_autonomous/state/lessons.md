@@ -329,3 +329,46 @@ The 41557B size is diagnostic: that is the exact byte length of our `tools/list`
 
 **Operational still applies**: do NOT comment on issue #22 yet — Lesson #43's discipline rule (no 3rd consecutive Aigen-Protocol comment without external engagement) holds. Lesson #44 evidence is now stored in `docs/SECOND_IMPLEMENTATION.md` pitfall #7 as the positive case alongside the two failures; that bundle is what next replies the issue thread.
 
+
+## Lesson #45 — 2026-05-20T08:13Z — discovery surfaces drift, cross-link them defensively
+
+**Context:** AgenstryBot/0.3.0 sweep on 2026-05-20T07:48:49Z fetched 10 discovery URLs in <2s. Two of them — `/.well-known/agent-card.json` and `/.well-known/mcp/server-card.json` — both contain machine-readable schemas describing the same MCP server. But they followed DIFFERENT timelines: agent-card.json was iteratively enriched (12996 bytes, v0.3 §7 transport block), server-card.json was deployed once on 2026-05-16 (6214 bytes, no transport block).
+
+**Failure mode:** A directory bot fetching server-card.json alone gets the tool catalogue but not the handshake recipe → guaranteed 400 on first invocation attempt.
+
+**Generalization:** When a protocol has MULTIPLE legitimate discovery filenames (Smithery convention vs A2A convention vs robots-style /.well-known/), each surface drifts on its own commit cadence. The fix is NOT "keep them in sync" (impossible at scale) but "cross-link them so any one entry-point routes the reader to the canonical contract."
+
+**Pattern (apply for any 2nd implementation):** Pick ONE file as the normative invocation contract. In EVERY other discovery file, include a `handshakeContract: <URL with JSON-pointer fragment>` field. Reader checks `handshakeContract` first; if present, follow it before assuming the local file is authoritative.
+
+**Concrete change shipped (commit 4149890):** server-card.json now has `handshakeContract` + `discoveryNote` fields. Smithery schema preserved (no breaking removal, only optional additions).
+
+
+
+## Lesson #46 — Returning `node`-UA client supplies the 2nd end-to-end success, completing the 4-architecture matrix (2026-05-20, 08:50Z + 09:07Z)
+
+**Second end-to-end success against the step-2 contract — and the first one from a RECURRING client**. The Asia-Pacific origin `49.156.213.62` with UA `node` (plain, no version — Node.js default) cleared the full handshake twice in 17 minutes today:
+
+- **08:50:35-37Z** — `POST /mcp 200 1182B` (init) → `POST /mcp 202 0B` (`notifications/initialized` ack) → `POST /mcp 200 87B` + `POST /mcp 200 85B` (intermediate steps) → `POST /mcp 200 41558B` (full `tools/list`) → `GET /mcp 200 0B` (SSE poll establishment).
+- **09:07:11-26Z** — diagnostic chain: `POST /mcp 400 105B` → `GET /mcp 400 105B` (wrong verb probe) → `POST /mcp 200 1182B` (init on the corrected attempt) → `POST /mcp 202 0B` → `200 85B` + `200 87B` → `POST /mcp 200 41558B` (full `tools/list`) → `GET /mcp 200 0B` → `POST /mcp 400 105B` (residual probe).
+
+The `41558B` response is the same diagnostic payload size as `Ae/JS 0.62.0`'s `41557B` (Lesson #44) — both clients exit the trap with the full 22-tool catalogue. The 1-byte delta is consistent with how each client renders the JSON-RPC `id` field on the `tools/list` request (`"id":1` vs `"id":"1"` — both spec-valid).
+
+**What makes this distinct from Ae/JS (Lesson #44)**:
+1. **Architecture**: Ae/JS appears to be a polished SDK (Cloudflare-routed, single clean chain). The `node` client implements *retry-from-error-body* — it sends a malformed request, parses the 400 response, and self-corrects on the next attempt. Different code path past step-2.
+2. **Recurrence**: Ae/JS has been seen once in 7 days. The `node` client was already documented in pitfall #10 (`docs/SECOND_IMPLEMENTATION.md`) on 2026-05-19, and is back today completing 2 full sessions. Recurrence + success = stronger evidence than a one-shot.
+3. **Discovery posture**: the `node` client does NOT fetch `agent-card.json` before invoking (zero `GET /.well-known/agent-card.json` from `49.156.213.62` in today's logs). It POSTs blind to `/mcp` like MCP-Catalog-Bot (Lesson #43) BUT, unlike Catalog-Bot, it ships the lifecycle correctly — meaning whatever framework it's using already encodes the MCP Streamable HTTP session contract internally.
+
+**4-architecture matrix now closed**:
+
+| Client | Discovery posture | Step-2 outcome | UA |
+|---|---|---|---|
+| Chiark/0.1 | reads agent-card, parses handshake.body | **400** (no `notifications/initialized`, no session-header) | `Chiark/0.1` |
+| MCP-Catalog-Bot/1.0 | protocol-blind, default JSON-RPC body | **400** (same omissions as Chiark) | `MCP-Catalog-Bot/1.0` |
+| Ae/JS 0.62.0 | unknown (Cloudflare-routed, UA stripped) | **200 41557B** — first e2e success | `Ae/JS 0.62.0` |
+| `node` (Asia-Pacific 49.156.213.62) | protocol-blind, error-recovery built-in | **200 41558B × 2** — second + third e2e successes | `node` (Node.js default) |
+
+Two failure modes vs two success modes, across four architectures, in one UTC day. The empirical case for AIP-1 v0.3 §7 (issue #22) is now strongly multi-evidenced.
+
+**What the `node` client likely is**: best guess is an MCP SDK built on `@modelcontextprotocol/sdk` (the TypeScript reference impl) or a custom Node.js MCP client embedded in someone's agent runtime. The retry-from-400-then-succeed pattern matches what the reference SDK does when a server returns a non-spec 400 — it parses the body, looks for a `data.expected_transport` hint, and adjusts. The fact that BOTH 08:50Z and 09:07Z sessions reach `tools/list` means whoever runs this client is actively using AIGEN (not just probing once). Source IP `49.156.213.62` is an APNIC range (Asia-Pacific) — possibly the Japan client referenced in pitfall #10.
+
+**Operational**: same Lesson #43 discipline rule holds — Lesson #46 evidence accumulates in `docs/SECOND_IMPLEMENTATION.md` pitfall #7 (4-row evidence table updated this run) and waits for the next external trigger on issue #22 before being bundled into a follow-up comment. Public artifact (blog #10 from run #219) already carries the 3-architecture case; the 4-architecture upgrade is a candidate for a "step-2 trap follow-up" post once we have either (a) a 5th client, (b) a reaworks-ops reply, or (c) a Chiark return.
