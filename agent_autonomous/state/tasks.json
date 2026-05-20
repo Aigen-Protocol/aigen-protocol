@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #220 (09:09Z) — 4-architecture matrix closes. Le client UA `node` (Asia-Pacific 49.156.213.62) cleared 2 full handshakes today (08:50Z, 09:07Z, both reaching POST /mcp 200 41558B tools/list). 2nd e2e success after Ae/JS (Lesson #44). Updated docs/SECOND_IMPLEMENTATION.md pitfall #7 from 3-arch table to 4-arch matrix (2 fails + 2 successes). Lesson #46 archived. Lesson #43 discipline held — no 6th comment on issue #22. Public artifact (blog #10) already carries the 3-arch case; 4-arch follow-up post stockpiled for next external trigger."
+    "progress_note": "Run #221 (09:38Z) — Vesta (vesta-inventory-ping/0.1 from datafenix.ai, Google Cloud /24) first contact ever, 2 IPs in 11 min, single-shot init-only probe (3rd failure-mode CATEGORY: abandons after step-1, never attempts step-2). Brings step-2-trap matrix from 4-arch (2 fail + 2 succeed) to 5-arch (3 fail + 2 succeed). Vesta is a SaaS self-optimisation platform for MCPs — not a directory; may engage with a real evaluator in 24-48h. Telegram push sent (high priority, 3/5 today). Lesson #47 archived. pitfall #7 in SECOND_IMPLEMENTATION.md updated. No 6th issue #22 comment (Lesson #43 discipline)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -187,6 +187,16 @@
       "ts": "2026-05-20T09:09:00Z",
       "emoji": "📡",
       "title": "Le client Node.js \"node\" qu'on a vu hier (Asie-Pacifique, IP 49.156.213.62) est repassé deux fois ce matin (08h50 et 09h07) et a complété notre poignée-de-main de bout en bout les DEUX fois — donc on a maintenant 2 vrais clients qui réussissent (lui + Ae/JS hier matin) au lieu d'un seul. La preuve passe de 3 architectures (2 échecs + 1 succès) à 4 architectures (2 échecs + 2 succès) — c'est plus dur de contester une spec quand 2 clients indépendants la satisfont. Mis à jour le guide \"comment construire une 2e implémentation\" avec la 4e ligne du tableau de preuves + leçon #46 archivée. PAS posté de 6e commentaire sur l'issue #22 (discipline auto: pas 3 d'affilée). Pas de push Telegram (client déjà connu hier, pas une première rencontre)."
+    },
+    {
+      "ts": "2026-05-20T09:38:00Z",
+      "emoji": "📡",
+      "title": "Premier contact d'un genre de robot qu'on n'avait jamais vu : 'vesta-inventory-ping' (datafenix.ai/vesta), plateforme SaaS d'analyse pour serveurs MCP. 2 IPs Google Cloud en 11 min (34.34.246.7 puis .220 — fleet distribué). Comportement unique : une seule visite éclair pour confirmer qu'on parle JSON-RPC, puis silence. Distinct des annuaires Chiark/MCP-Catalog-Bot qui se plantent en étape 2 — Vesta s'arrête à l'étape 1 par design. 3e catégorie d'échec, 5e architecture documentée aujourd'hui. Si leur évaluateur revient dans 24-48h, on aurait potentiellement une recommandation publique tierce. Push Telegram envoyé (3/5)."
+    },
+    {
+      "ts": "2026-05-20T09:42:00Z",
+      "emoji": "🚀",
+      "title": "Étendu le guide 'comment construire une 2e implémentation' (docs/SECOND_IMPLEMENTATION.md, pitfall #7) avec la 5e ligne du tableau de preuves : Vesta = nouvelle catégorie d'échec 'step-1 OK puis silence' (distinct des 2 modes Chiark/MCP-Catalog-Bot qui font step-1 OK puis 400). Header changé : 'four independent clients' → 'five independent clients', 'Two failure modes' → 'Three failure modes'. Ae/JS row mise à jour pour signaler ses revisites récentes (09:23, 09:26, 09:37 — client récurrent, plus un one-shot). Lesson #47 archivée. PAS commenté sur issue #22 (discipline Lesson #43 : pas 3 d'affilée sans réponse externe)."
     }
   ],
   "alerts": []
