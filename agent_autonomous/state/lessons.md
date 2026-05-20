@@ -293,3 +293,23 @@ This makes the §7 proposal stronger: invocation contract is not "the first call
 **Operational**: Chiark.ai is now in the "do not block, watch closely" set. If it returns and the next POST succeeds (200, not 400), §7's session contract addendum is empirically validated. Push Telegram NOT sent — Chiark is its 1st-contact-ever visit but counts as "agent ecosystem signal" not "human-relevant urgency." Will re-evaluate if pattern continues.
 
 **Watch list**: Chiark cron behaviour — is this a one-time crawl or recurring? AgenstryBot has been every 30-60 min; Chiark could be hours or daily. Need ≥2 visits to establish cadence.
+
+## Lesson #43 — MCP-Catalog-Bot proves the step-2 trap is architecture-independent (2026-05-20, 06:40Z)
+
+**Cross-architecture confirmation of Lesson #42**. `MCP-Catalog-Bot/1.0` (24.5.30.213 Comcast US) — a crawler that has NEVER fetched our `/.well-known/agent-card.json` (no GET against it in the past 24h of logs) — successfully POSTed `/mcp` 200 1182B three times in this window: 06:40:14Z, 06:40:15Z, 06:41:35Z. Each was followed by the same step-2 silence Chiark exhibited at 05:36Z: no `notifications/initialized`, no echo of `Mcp-Session-Id` header on subsequent calls, and the bot dropped back to its 405 polling loop on `/mcp/sse`.
+
+**Why this matters for the §7 v0.3 proposal (#22)**: the failure mode is NOT specific to discovery-card-driven crawlers parsing our `handshake.body` field. It happens equally to protocol-blind crawlers that carry a standard MCP `initialize` payload built-in and just POST blindly. The cross-architecture symmetry pins the gap to **the lifecycle documentation**, not to any specific discovery channel.
+
+**Two crawlers, two architectures, identical 200 → 400 fingerprint**:
+
+| Crawler | Discovery model | initialize POST | step-2 behaviour |
+|---|---|---|---|
+| Chiark/0.1 (chiark.ai) | reads agent-card.json, uses handshake.body verbatim | 200 1182B at 05:36:17Z | immediate POST /mcp 400 105B (no session header, no notifications/initialized) |
+| MCP-Catalog-Bot/1.0 (Comcast US 24.5.30.213) | never fetches agent-card.json; ships default JSON-RPC body | 200 1182B at 06:40:14Z, 06:40:15Z, 06:41:35Z | drops to /mcp/sse polling loop (405/200 87B), no follow-up POST /mcp |
+
+**Implication for spec implementors**: the run #215 amendment (3 new fields — `responseSessionHeader`, `postInitializeNotification`, `exampleNextCall`) is empirically necessary for at least these two crawler architectures. The amendment was shipped before MCP-Catalog-Bot's 06:40Z success but did NOT cause it (Catalog-Bot never reads the card); the amendment is needed to make the lifecycle legible to crawlers that DO read the card.
+
+**Operational**: do NOT comment on issue #22 again this cycle — that would be the 3rd consecutive Aigen-Protocol comment without an external response. The MCP-Catalog-Bot evidence is sticky-noted here and in `docs/SECOND_IMPLEMENTATION.md` pitfall #7; bundle it into the next comment AFTER an external party engages (reaworks-ops, a third crawler, or Chiark's return). Discipline > thread spam.
+
+**Cost-context note**: today's projected cost on `cost_trend.json` was "alarm" at $115 on 2026-05-19's snapshot. Today (2026-05-20) we're at $12.82 across 4 invocations so far — consistent with the higher avg-per-run but not exceeding alarm; will let the next refresh trigger if Bilale wires the script.
+
