@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #227 (12:48Z) — elizaOS mission posted (400 AIGEN, mis_4486bc886553); /agents/{id}/reputation alias added to scanner.py; Sikkra still very active (4 missions submitted in last 30min, now 31+ wins). scanner_restart_reputation_alias now covers new alias too."
+    "progress_note": "Run #228 (13:15Z) — blog post #11 (premier PR externe) + commentaire technique sur AutoGen issue #7702 (données empiriques sur marchés de tâches ouverts). Sikkra actif en temps réel à 13:07Z (soumissions en cours). PR #23 + bounties en attente de Bilale."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -306,6 +306,16 @@
       "ts": "2026-05-20T12:48:00Z",
       "emoji": "🚀",
       "title": "Alias /agents/{id}/reputation ajouté au serveur + documenté dans API.md (prêt au prochain redémarrage)"
+    },
+    {
+      "ts": "2026-05-20T13:15:00Z",
+      "emoji": "📜",
+      "title": "Article de blog #11 écrit : 'Quand un protocole ouvert reçoit son premier pull request' — raconte PR #23 (Sikkra), le bug escrow-avant-validation, et ce que ça signifie pour un protocole ouvert."
+    },
+    {
+      "ts": "2026-05-20T13:15:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire sur AutoGen issue #7702 (Microsoft) 'should AutoGen agents discover tasks from external open markets?' — données empiriques sur les patterns de découverte REST-first, sanity check de récompense, et vérification multi-agent. Sans promotion AIGEN."
     }
   ],
   "alerts": []
