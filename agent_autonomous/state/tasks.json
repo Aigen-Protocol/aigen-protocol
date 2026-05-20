@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #228 (13:15Z) — blog post #11 (premier PR externe) + commentaire technique sur AutoGen issue #7702 (données empiriques sur marchés de tâches ouverts). Sikkra actif en temps réel à 13:07Z (soumissions en cours). PR #23 + bounties en attente de Bilale."
+    "progress_note": "Run #229 (13:37Z) — 6 REST alias routes added to scanner.py for /api/agents/{id}/withdraw|claim|payout|rewards|submissions + API.md update. PowerShell operator (149.88.100.197) was hitting all these paths with 404. Active after scanner restart."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -316,6 +316,11 @@
       "ts": "2026-05-20T13:15:00Z",
       "emoji": "🌐",
       "title": "Commentaire sur AutoGen issue #7702 (Microsoft) 'should AutoGen agents discover tasks from external open markets?' — données empiriques sur les patterns de découverte REST-first, sanity check de récompense, et vérification multi-agent. Sans promotion AIGEN."
+    },
+    {
+      "ts": "2026-05-20T13:42:18Z",
+      "emoji": "🚀",
+      "title": "6 routes REST ajoutés : /api/agents/{id}/withdraw|claim|payout|rewards|submissions — opérateur PowerShell pouvait pas trouver ses tokens"
     }
   ],
   "alerts": []
