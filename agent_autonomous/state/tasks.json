@@ -4,14 +4,22 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #224 (11:07Z) — Added /missions/balance/{id}/withdraw endpoint to scanner.py (fixes 404 for codex-wallet-agent operator who tried to withdraw 900 AIGEN). Posted CrewAI mission (mis_2f6ae4b5172b, 300 AIGEN, 30d deadline). PR #23 by Sikkra still pending merge by Bilale."
+    "progress_note": "Run #225 (11:38Z) — Sikkra submitted aigen-crewai-oabp-agent in 20min after mission creation. First verified external CrewAI OABP impl (sub_24c213dbbe, oracle type, 300 AIGEN pending Bilale). PR #23 also pending. Ecosystem comment on crewAIInc/crewAI#5836 posted."
   },
   "in_progress": [],
   "waiting_on_bilale": [
     {
+      "id": "crewai_mission_oracle_resolve",
+      "title": "Résoudre mission CrewAI mis_2f6ae4b5172b (oracle, 300 AIGEN) — Sikkra a soumis en 20 min",
+      "details": "github.com/Sikkra/aigen-crewai-oabp-agent — repo public, 3 pytest passés, dry-run OK. sub_24c213dbbe, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Oracle type = tu peux résoudre en tant que gestionnaire. Action: (1) cloner le repo, (2) pytest -q, (3) si OK -> résoudre la mission sur le panel -> 300 AIGEN à payer.",
+      "optimal_when": "Dès que possible — délai réponse ≤24h pour garder Sikkra engagé",
+      "blocking_what": "Crédibilité système de bounty. PR #23 + mission CrewAI + bounty bug = Sikkra reçoit 525 AIGEN total, signal fort pour l ecosystème.",
+      "added": "2026-05-20T11:38Z"
+    },
+    {
       "id": "sub_b42a25bb90_judge",
       "title": "Juger sub_b42a25bb90 (creator_judges, 225 AIGEN) — bug report référençant PR #23",
-      "details": "mis_48b982c7b6eb = 'Find a bug in AIGEN /missions module' (225 AIGEN, creator_judges). sub_b42a25bb90 par codex-wallet-agent à 10:22:36Z référence PR #23 comme preuve de bug + fix. Sur les mérites : bug réel reproductible (escrow débité avant validation). Payable si PR #23 mergé. Tu décides oui/non. Tu peux ouvrir le panneau d'arbitre interne ou commenter directement sur la mission. Note : il y a aussi sub_33f870bcbb (interne, wallet 0x7aA55... = internal_wallets liste) — bug séparé sur first_valid_match, pendant depuis 2 jours.",
+      "details": "mis_48b982c7b6eb = 'Find a bug in AIGEN /missions module' (225 AIGEN, creator_judges). sub_b42a25bb90 par codex-wallet-agent à 10:22:36Z référence PR #23 comme preuve de bug + fix. Sur les mérites : bug réel reproductible (escrow débité avant validation). Payable si PR #23 mergé. Tu décides oui/non. Tu peux ouvrir le panneau d'arbitre interne ou commenter directement sur la mission. Note : il y a aussi sub_33f870bcbb (interne, wallet 0x7aA55... = internal_wallets liste) — bug séparé sur first_valid_match, pendant depuis 2 jours. [UPDATE 11:38Z: même opérateur que aigen-crewai-oabp-agent — 3 livrables en attente: PR #23 (225 AIGEN) + mission CrewAI (300 AIGEN). Traiter ensemble.]",
       "optimal_when": "En même temps que PR #23 (rendre la décision cohérente)",
       "blocking_what": "Crédibilité du système de bounty (un PR mergé + bounty payée = signal fort vers l'écosystème)",
       "added": "2026-05-20T10:39:00Z"
@@ -34,8 +42,8 @@
     },
     {
       "id": "scanner_restart_reputation_alias",
-      "title": "Redémarrer aigen-scanner (active alias reputation + nouveaux endpoints /withdraw)",
-      "details": "sudo systemctl restart aigen-scanner. Active 2 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw (GET info) + /withdraw/register (POST wallet). Sans restart: 104.56.91.86 et codex-wallet-agent opérateur continuent à voir 404 sur /withdraw. codex-wallet-agent a 900 AIGEN en escrow — l'opérateur a essayé de retirer à 10:46Z.",
+      "title": "Redémarrer aigen-scanner (active alias reputation + /withdraw + /rewards/{id})",
+      "details": "sudo systemctl restart aigen-scanner. Active 3 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé.",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
       "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
       "added": "2026-05-18T22:38:00Z"
@@ -253,6 +261,41 @@
       "ts": "2026-05-20T11:20:45Z",
       "emoji": "📜",
       "title": "Documenté les nouveaux endpoints /withdraw dans API.md et commité dans le repo public."
+    },
+    {
+      "ts": "2026-05-20T11:37Z",
+      "emoji": "📡",
+      "title": "Signal exceptionnel: aigen-crewai-oabp-agent/0.1 (Sikkra) a listé les 22 missions en 13s puis soumis mis_2f6ae4b5172b avec repo GitHub public — 20 min après la création de la mission. 3 tests passés, dry-run OK. Premier agent nommé par framework (CrewAI + OABP dans user-agent)."
+    },
+    {
+      "ts": "2026-05-20T11:37Z",
+      "emoji": "🔥",
+      "title": "Push Telegram envoyé (5/5 du jour, quota atteint) — Sikkra a livré CrewAI OABP agent 20 min après la mission."
+    },
+    {
+      "ts": "2026-05-20T11:38Z",
+      "emoji": "🌐",
+      "title": "Commentaire sur crewAIInc/crewAI#5836 (SunfishLoop) sur portabilité de réputation agent entre réseaux — sans mentionner AIGEN, focus conception : signal social vs tâche, signed identity manifests."
+    },
+    {
+      "ts": "2026-05-20T11:38Z",
+      "emoji": "🚀",
+      "title": "Commit 267beba: section Community implementations dans SECOND_IMPLEMENTATION.md (aigen-crewai-oabp-agent + smolagents-oabp-example). Lesson #49 archivée."
+    },
+    {
+      "ts": "2026-05-20T12:10Z",
+      "emoji": "📡",
+      "title": "Sikkra (149.88.100.197) très actif depuis 11h38 : 3 missions supplémentaires soumises (mis_3a5be9fef88a/f4a9a7896846/011c1810fe6d — all first_valid_match, toutes résolues) → codex-wallet-agent monte à 1350 AIGEN (27 victoires). Nouveau variant d'agent observé : codex-wallet-agent-oracle-fix. Ae/JS SDK a refait 2 sessions MCP complètes à 12h02."
+    },
+    {
+      "ts": "2026-05-20T12:10Z",
+      "emoji": "⚙️",
+      "title": "Ajouté route /rewards/{agent_id} dans scanner.py (alias du endpoint query-param existant) — répare le 404 que Sikkra recevait. Actif au prochain redémarrage. Documenté dans API.md."
+    },
+    {
+      "ts": "2026-05-20T12:10Z",
+      "emoji": "🌐",
+      "title": "Mission Rust OABP postée : mis_15602f51245f, 500 AIGEN, 30 jours, oracle. Premier bounty Rust — complète le tableau de langages (Python/TS/Ruby/Java déjà couverts). N'importe quel agent peut soumettre."
     }
   ],
   "alerts": []
