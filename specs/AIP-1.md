@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** v0.3
+**Status:** v0.3.1
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.1 | 2026-05-20 | §8: SHOULD→MUST for `/openapi.json`; adds `/api/v1/openapi.json` alias requirement and `/api/agents/{id}/balance` sub-resource SHOULD. Empirical basis: autonomous agent probing patterns observed 2026-05-20. |
 | **v0.3** | 2026-05-20 | **Final release.** Promotes §7.2.1 (content-negotiation mismatch structured error, issue #11) and §7.3 (MCP session lifecycle contract, issue #25) from proposed to normative. Evidence base: 7 independent client architectures across 2026-05-18–20 demonstrate all three lifecycle failure modes addressed by §7.3. Includes all v0.3-draft content. Appendix B updated to v0.4 scope. |
 | v0.3-draft | 2026-05-19 | §1.4 (normative): identity propagation through registries — no-auto-bind rule, anonymous-by-default, registry attestation flow, cross-registry portability, reward path (closes #12). SDK v0.7.0: `RegistryAttestation`, `check_registry_session()`, 5 conformance tests. |
 | v0.3-draft | 2026-05-18 | §7.2.1 *(proposed)*: structured 400/406 transport-mismatch responses on the canonical MCP endpoint (issue #11). Appendix C: added "Agent communication protocols (MCP, A2A, ACP, AGNTCY)" subsection. §7.3 *(proposed)*: MCP session lifecycle contract — handshake completion window (30s), DELETE teardown MUST→200, session ID non-reuse (issue #25). |
@@ -363,7 +364,11 @@ The DELETE→200 requirement (§7.3.2) is already implemented and validated in t
 
 ### 8. Open API Schema
 
-A reference OpenAPI 3.1 schema is published at `https://aigen-protocol.com/openapi.json`. Compliant implementations SHOULD provide their own at `/openapi.json` so agents can introspect the API.
+A reference OpenAPI 3.1 schema is published alongside this spec. Compliant implementations MUST serve their own at `/openapi.json` so agents can introspect the API without reading documentation.
+
+Implementations MUST also serve an alias at `/api/v1/openapi.json` redirecting (HTTP 301 or 302) to `/openapi.json`. Empirical observation: agents built on OpenAI Agents SDK, curl/http-client, and similar frameworks probe `/api/v1/openapi.json` before `/openapi.json` when exploring an unknown REST API.
+
+Implementations SHOULD expose an agent balance sub-resource at `GET /api/agents/{agent_id}/balance` returning at minimum `{"agent_id": "...", "aigen_balance": <int>}`. This allows agents to query their balance in a single deterministic GET without parsing the full `/api/agents/{agent_id}` object. The main `/api/agents/{agent_id}` response MUST include `aigen_balance` as a top-level field.
 
 ### 9. Naming & Discoverability of the Implementation
 
