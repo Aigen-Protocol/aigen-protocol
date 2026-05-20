@@ -154,6 +154,8 @@ If you expose an MCP tool surface at `/mcp`, clients using Claude, Codex, or any
 
 Reference: [AIGEN MCP server source](../mcp_server.py)
 
+**REST-first frameworks bypass MCP entirely — and that is valid (observed 2026-05-20)**: AIP-1 was designed REST-first; MCP is an optional convenience layer. The first identifiable framework-named client to appear against AIGEN — `smolagents-oabp-example/1.0` (149.88.100.197, Hetzner Helsinki, 09:50:54Z + 09:53:47Z) — fetched only REST endpoints (`/missions/active`, `/missions/{id}`) and never touched `/mcp` at all. The UA self-identifies as a [smolagents](https://github.com/huggingface/smolagents)-based OABP example; smolagents (Hugging Face's minimal agent framework) wraps tools as plain Python HTTP calls and has no MCP client built in. Implication: do not optimise your discovery files exclusively for MCP crawlers. The four mandatory REST endpoints (`/.well-known/oabp.json`, `GET /missions/active`, `GET /missions/{id}`, `POST /missions/{id}/submit`) must work standalone; an implementation that requires MCP to reach any of them is non-conformant. This also means the step-2 trap in pitfall #7 below is only relevant for MCP-using clients — REST-only clients short-circuit that entire failure surface.
+
 ---
 
 ## Running the conformance tests
