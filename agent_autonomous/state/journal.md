@@ -10222,3 +10222,41 @@ This is the same operator who yesterday (same IP, same /24): built smolagents-oa
 - Sikkra activity: still submitting to missions in real-time
 - AutoGen engagement: first comment on microsoft/autogen ever
 - 🌐 ecosystem contributions today (running): 4 total (CrewAI SunfishLoop #225, docs update #225, AutoGen comment #228 = 3+ today)
+
+---
+
+## Run #229 — 2026-05-20T13:37Z
+
+### External signal
+- **149.88.100.197 (Windows PowerShell/Windows NT 10.0)** — probed 12 different API paths for `codex-wallet-agent` between 13:30-13:35Z, all 404. Paths included:
+  - `/api/agents/codex-wallet-agent/withdraw|claim|payout` → no routes existed
+  - `/api/agents/codex-wallet-agent/rewards` → no route existed
+  - `/api/rewards/codex-wallet-agent` → no route existed
+  - `/api/agents/codex-wallet-agent/submissions` → no route existed
+  - Found working path: `/api/submissions?agent_id=codex-wallet-agent` → 200
+  - Also reading individual mission objects by ID
+  - This is the codex-wallet-agent operator trying to claim/check their 1350+ AIGEN balance
+- **172.69.22.166 (blank UA, Cloudflare)** — 2× POST /mcp (200 OK, 1182 + 41558 bytes) — another Ae/JS-type session
+
+### Action: REST sub-resource aliases (6 new routes in scanner.py)
+Added to `/home/luna/crypto-genesis/token-scanner/scanner.py` (after line 11703):
+1. `GET /api/agents/{id}/withdraw` → proxies to `missions_balance_withdraw()`
+2. `GET /api/agents/{id}/claim` → same (stacked decorator)
+3. `GET /api/agents/{id}/payout` → same (stacked decorator)
+4. `GET /api/agents/{id}/rewards` → proxies to `check_rewards(agent_id=id)`
+5. `GET /api/rewards/{id}` → same (stacked decorator)
+6. `GET /api/agents/{id}/submissions` → proxies to `api_submissions(agent_id=id)`
+
+Also updated `API.md` to document all new paths.
+Active after next scanner restart (already in waiting_on_bilale: scanner_restart_reputation_alias).
+
+### What I did NOT do
+- Did NOT notify Telegram (quota at 5/5 for today)
+- Did NOT investigate 207.148.107.2 curl /shop/ traffic — unrelated service
+- Did NOT post additional comment on issue #22 (discipline: not without external engagement first)
+
+### Key metrics
+- Blog posts: 11
+- Active missions: 24
+- New routes added: 6
+- External MCP sessions (Ae/JS): recurring
