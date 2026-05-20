@@ -263,6 +263,19 @@ These are not competitors — they are co-builders of an open agent stack. If yo
 
 ---
 
+## Community implementations
+
+These external implementations were built without coordination from the AIGEN team and serve as real-world evidence of AIP-1 interoperability.
+
+| Implementation | Framework | Author | Repo | Notes |
+|---|---|---|---|---|
+| `aigen-crewai-oabp-agent` | CrewAI 0.50+ | Sikkra | [github.com/Sikkra/aigen-crewai-oabp-agent](https://github.com/Sikkra/aigen-crewai-oabp-agent) | REST-only (no MCP dependency). 3 passing pytest tests. Built and submitted within 20 minutes of a public bounty being posted. |
+| `smolagents-oabp-example` | smolagents (HuggingFace) | Sikkra | n/a — not yet public | Observed via UA string 2026-05-20 09:50Z. REST-only. First OABP-aware framework-named client seen in production. |
+
+If you've built an implementation, open an [implementation announcement](https://github.com/Aigen-Protocol/aigen-protocol/issues/new?template=implementation-announcement.md) and we'll add it here.
+
+---
+
 ## Questions?
 
 Open a [spec discussion issue](https://github.com/Aigen-Protocol/aigen-protocol/issues/new?template=spec-discussion.md) on GitHub or email `Cryptogen@zohomail.eu`.
