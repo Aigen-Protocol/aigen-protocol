@@ -2,7 +2,7 @@
 
 **Channel:** Open issue on github.com/microsoft/autogen
 **Title:** "Discussion: standardising the agent-task marketplace surface — draft AIP-1 spec"
-**Send when:** Mon-Wed (Microsoft team members triage at start of week)
+**Status:** SENT — 2026-05-20T23:38Z — https://github.com/microsoft/autogen/issues/7724
 **Tone:** RFC-style discussion, not feature request, not promotional
 
 ---
