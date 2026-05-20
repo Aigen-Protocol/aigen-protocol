@@ -9066,3 +9066,58 @@ Pure federation gesture (D.9 — share what we learned about discovery URL conve
 - `/home/luna/crypto-genesis/aigen/agents.txt`: 25 lines → 38 lines, advertises 16 discovery URLs (vs 7 before)
 - `/var/www/html/agents.txt` synced (was 1095B 2026-05-18, now 2295B 2026-05-20)
 - tasks.json `done_today` reset for new UTC day, 1 entry for this run
+
+
+---
+
+## Run #210 — 2026-05-20T01:08Z
+
+### External signal taken in real-time (90s before run start)
+
+**AgenstryBot evolves: passive crawler → active invoker.** Hit at 01:07:54-57Z from `213.197.49.100` (KPN-NL, returning after a 1h gap since 00:06Z). New behavior chain:
+
+```
+GET /robots.txt                  200 498
+GET /.well-known/agent-card.json 200 6514  ← reads A2A agent card
+POST /mcp                        400 105   ← tries to invoke, fails
+GET /.well-known/agent-card.json 200 6514  ← back to discovery
+```
+
+This is **distinct from earlier runs** where AgenstryBot just collected the discovery files and left. Now it's actively trying to POST /mcp — but without the JSON-RPC `initialize` handshake. It gets the 400, then re-fetches agent-card.json (presumably looking for an invocation hint). It's bridging A2A discovery → MCP invocation, and our surface doesn't tell it how.
+
+### Action: add MCP invocation recipe to /agents.txt
+
+Updated `/agents.txt` (repo + `/var/www/html/agents.txt`) to add a new section **"MCP invocation recipe (POST /mcp — Streamable HTTP transport)"** with:
+- Required headers: `Content-Type: application/json`, `Accept: application/json, text/event-stream`, `MCP-Protocol-Version: 2025-06-18`
+- The literal JSON-RPC `initialize` body to POST
+- The follow-up `tools/list` call with `Mcp-Session-Id` capture
+- **Fallback**: pointer to the read-only OABP HTTP endpoints (`/api/missions`, `/api/missions/{id}`, `/api/agents/{id}`, `/openapi.json`) for crawlers that don't want to do JSON-RPC at all
+
+File grew from 2295B → 3720B (+1425B). Deployed to webroot.
+
+### Why this is ecosystem federation (Menu D.9)
+
+This is **not** AIGEN-promo — it's a general recipe for any A2A-discovery+MCP-invocation bridge crawler. Any second-impl OABP server can copy the same `/agents.txt` block. We're publishing what we learned from observing real bot behavior so others don't have to.
+
+### Lesson #40 captured
+
+Documented in `state/lessons.md`: AgenstryBot's evolution from passive to active, why A2A-card + MCP-endpoint creates an invocation gap, and 3 mitigations (text recipe, agent-card transport.protocols[] array proposal, server-side 400-body hint). Path (1) is candidate spec change for AIP-1 v0.3.
+
+### Other observations this window (00:42-01:08Z)
+
+- **AgenstryBot 4th IP**: `35.205.139.4` (Google Cloud Belgium, agenstry.com UA) did full 10-URL sweep at 00:42:47-49Z, including the new 2295B `/agents.txt` deployed in run #209. **Run #209 fix delivered to a real crawler within 30 min** — fastest end-to-end validation we've had.
+- **Smithery sessions** at 01:02Z: dual-region 172.68.3.129 + 172.68.3.130, POST /mcp 200 1182B + 200 41558B (init + tools/list). Real session, not health check.
+- **Smithery worker 502** at 01:03:14Z: POST /firewall HTTP/1.1 502 166 — the `/firewall` route is a known periodic dead route on the worker side, not our problem.
+- **codex-wallet-agent**: no new session since 23:09Z (~2h gap). Cron interval seems irregular, not on a fixed schedule.
+
+### Budget context
+
+- `today_spent_usd=$1.61` so far (3rd run of new UTC day)
+- Yesterday's projection was $115 vs 7d-avg $42 (alarm), but Bilale raised the kill threshold to $150 specifically because productive days like 2026-05-15 (50 runs) captured first external agent contact. Continue normal pace.
+
+### What changed
+
+- `/home/luna/crypto-genesis/aigen/agents.txt`: +29 lines (MCP invocation recipe + plain-HTTP fallback)
+- `/var/www/html/agents.txt`: synced (3720B)
+- `state/lessons.md`: lesson #40 appended
+- tasks.json: updated done_today
