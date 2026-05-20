@@ -10118,3 +10118,107 @@ This is the same operator who yesterday (same IP, same /24): built smolagents-oa
 - Does a `smolagents-oabp-example` repo appear on GitHub (search in next 24h run)?
 - Does SunfishLoop respond to our reputation portability comment?
 - Does Bilale resolve `crewai_mission_oracle_resolve` before Sikkra gets impatient?
+
+---
+
+## Run #227 — 2026-05-20T12:37Z
+
+### State read
+
+**chat.jsonl**: No new messages from Bilale since run #225 (last agent message was 12:15Z).
+
+**External signals (nginx, last 30 min)**:
+- **149.88.100.197 (Sikkra)** submitted 4 more missions between 12:26Z and 12:30Z:
+  - `mis_15602f51245f` (500 AIGEN Rust — first_valid_match, submitted at 12:26Z)
+  - `mis_06713e0ff664`, `mis_91c39e11e760`, `mis_49ece6fca0e8` (token scans, 50 AIGEN each, submitted 12:29Z)
+  - Then browsed all high-value oracle missions (CrewAI, Rust, Go, Java, PowerShell, PHP, smolagents, LangGraph, Mastra — scanning the entire open list)
+  - Hit `/agents/codex-wallet-agent/reputation` → 404 at 12:30Z, then self-corrected to `/api/agents/codex-wallet-agent/reputation` → 200
+- **45.77.207.238** (Java/1.8.0_332, Vultr Netherlands): HEAD requests on `mis_cef70766af69` and `mis_17a0db8a1179` → 405. New client type (Java HEAD probe = likely programmatic mission polling). 405 persists because HEAD method falls back to X402 middleware rejection in current scanner version. Will clear on restart.
+- **AgenstryBot/0.3.0** (35.205.139.4, Google Cloud): standard full-scan of discovery files at 12:32Z. All pages returned 200.
+- **149.88.25.211** (different IP, same /16 as Sikkra — Hetzner Helsinki): read `/.well-known/agent-card.json` at 12:37Z with Chrome UA. Likely Sikkra on a second machine or a second operator who got the link from Sikkra.
+- **Smithery (172.71.158.202/203)**: 2 MCP POST sessions completed at 12:31Z.
+
+### Actions taken
+
+1. **Ecosystem contribution B5 — elizaOS mission posted** (Tier A, no approval needed):
+   - `mis_4486bc886553`: "Build an OABP-aware agent plugin for elizaOS (TypeScript)"
+   - 400 AIGEN reward, oracle verification, 30-day deadline, category=code
+   - elizaOS (elizaOS/eliza) = largest TypeScript agent framework not yet covered in our mission roster (16k+ GitHub stars)
+   - Treasury debit: 405 AIGEN (400 reward + 5 spam fee). Treasury now ~4162 AIGEN.
+   - Rationale: Sikkra has demonstrated multi-framework builder pattern (smolagents → CrewAI, all in 25h). elizaOS fills the TypeScript-native gap. The elizaOS community is large and technically engaged.
+
+2. **Code fix — `/agents/{agent_id}/reputation` alias added to scanner.py**:
+   - Added `@app.get("/agents/{agent_id}/reputation", include_in_schema=False)` after the existing `/api/agents/{agent_id}/reputation` alias at line 11694
+   - Triggered by Sikkra's 404 at 12:30Z (he probed the shorter path first, natural URL intuition)
+   - Will be live on scanner restart (already in waiting_on_bilale)
+   
+3. **API.md updated**: documented the reputation aliases + clarified endpoint distinction between `/rewards/` (AIGEN balance) and `/api/agents/` (reputation ELO + full profile)
+
+4. **Commit 3b16fd9 pushed** to `Aigen-Protocol/aigen-protocol/main`
+
+### What I did NOT do
+- Did NOT push a Telegram notification (daily quota at 5/5 since run #224/225)
+- Did NOT comment on issue #22 again (6th consecutive without external response — discipline)
+- Did NOT fix the Java HEAD 405 issue in this run (X402 middleware may be the cause; needs investigation beyond simple GET alias, and only matters after scanner restart anyway)
+- Did NOT investigate 149.88.25.211 further (same /16 as Sikkra, Chrome UA could be human browser — not push-worthy)
+
+### Key metrics
+- Active missions: 24 (was 23)
+- elizaOS mission fills gap in TypeScript-native coverage
+- Sikkra total wins: 31+ (exact count in scanner DB)
+- Treasury: ~4162 AIGEN remaining
+- Commits today: 4 (this run: 1 — within limit)
+- 🌐 ecosystem contributions today: 3 (crewAI issue comment + Sikkra CrewAI impl documented + elizaOS mission)
+
+### Watch next
+- Does Sikkra attempt `mis_4486bc886553` (elizaOS)? He has the multi-framework pattern and TypeScript capacity
+- Does 45.77.207.238 (Java) return after the 405? If so, it might be checking mission status before attempting submission
+- Does 149.88.25.211 come back? Could be a second operator from Sikkra's network
+
+
+---
+## Run #228 — 2026-05-20T13:07Z
+
+**Trigger**: cron, every 30min
+
+### Observations
+- **149.88.100.197 (Sikkra / PowerShell+node UA)** extremely active 12:59-13:08Z right as this run started:
+  - Submitted to mis_48280ee019bb, mis_5240b74aea04, mis_eff69979a47b (12:59-13:00Z)
+  - Tried mis_bb2498c695fb (13:05Z, 122-byte response — already resolved or bad data)
+  - Submitted to mis_39a8dc984acc via both `/missions/*/submit` AND `/api/missions/*/submit` (13:07Z, 97 bytes — likely duplicate or already won)
+  - Polling `/missions/active` every ~60s — still active at 13:08Z
+- **172.69.135.184 / 172.71.155.x (Cloudflare-proxied)**: POST /mcp at 13:01-13:02Z — likely Ae/JS or similar recurring client
+- **172.236.228.224 + 45.148.10.67**: Chrome UAs visiting `/` from referrer `http://207.148.107.2/` — look like scanning IPs, not real users
+- **Issue #22**: no new external comments since run #225 (reaworks-ops last commented ~03:53Z); my last comment ~05:15Z. 4 consecutive self-comments, not posting again without external trigger.
+- **PR #23 (Sikkra)**: still open, no new activity found (gh CLI returned no output — likely auth issue with public repo view in this network config)
+- **Budget**: $38.78 today, 227 lifetime invocations — well within normal range
+
+### Action 1: Blog post #11 — `blog/2026-05-20-first-external-pr.md`
+- Title: "When an open protocol gets its first pull request"
+- ~950 words, 7 sections
+- Covers: the bug (escrow-before-validation), the fix (validate-first), the behavioral pattern (25h from first contact to PR), protocol guarantees, spec vs implementation distinction, next steps
+- Does NOT name the contributor — uses "a builder"
+- Serves as compound artifact for focus.md priority #1 (compound public artifacts)
+- Blog post #11 of target ≥6 (already exceeded target — compound is the point)
+
+### Action 2: Ecosystem contribution — AutoGen issue #7702
+- Repo: `microsoft/autogen`
+- Issue: #7702 "Discussion: should AutoGen agents discover tasks from external open markets at runtime?"
+- Posted at: https://github.com/microsoft/autogen/issues/7702#issuecomment-4498744244
+- Content: empirical data from running AIGEN — REST-first polling beats SSE, reward sanity check design patterns, multi-agent fleet vs single-agent framing, verification type as key security lever
+- Signed as "Aigen-Protocol bot" with honest disclosure
+- Issue already cited OABP — our comment adds empirical depth, not marketing
+- Rule: max 1/repo/month, this is first comment on microsoft/autogen ✓
+
+### What I did NOT do
+- Did NOT post another comment on issue #22 (discipline: 4 consecutive without external response)
+- Did NOT post Telegram (quota at 5/5 for today since run #225)
+- Did NOT investigate Java client (45.77.207.238) further — would need to check logs beyond run scope
+- Did NOT merge PR #23 — Tier B (human decision on token flow)
+
+### Key metrics
+- Blog posts published: 11
+- Active missions: 24
+- Sikkra activity: still submitting to missions in real-time
+- AutoGen engagement: first comment on microsoft/autogen ever
+- 🌐 ecosystem contributions today (running): 4 total (CrewAI SunfishLoop #225, docs update #225, AutoGen comment #228 = 3+ today)
