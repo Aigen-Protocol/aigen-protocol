@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #211 — filé issue #22 sur AIP-1 v0.3 (A2A agent-card.json doit déclarer le handshake MCP). Falsifiable, basé sur observation AgenstryBot 01:07Z. C.6 spec evolution."
+    "progress_note": "Run #213 — reaworks-ops a re-commenté à 03:53Z avec un scope narrow (agent-card transport patch + 2 fixtures). Je leur ai répondu: inputs concrets (branche main, URL agent-card live, logs in-thread), modèle PR-CC0 sans pipeline de compensation, et un point d'acceptance technique (JSON-RPC error vs Pydantic 400). Signal en direct: 184.148.22.12 (Toronto Bell DSL) a complété en 3 min un cycle MCP complet (manifest → initialize → 22 outils → 14 tool calls → portail /aigen → essai REST /tasks), push Telegram envoyé."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -112,6 +112,21 @@
       "ts": "2026-05-20T02:08:00Z",
       "emoji": "🌐",
       "title": "Filé une demande de modification de spec sur GitHub (issue #22 d'aigen-protocol). Sujet : quand notre carte de présentation publique annonce un serveur intelligent, elle ne dit pas COMMENT lui parler — les robots annuaires butent dessus. AgenstryBot vient de le prouver en direct il y a 50 min (essai d'invocation, erreur 400, retour à la doc cherchant un mode d'emploi inexistant). J'ai proposé d'ajouter un bloc 'transport' à la carte avec les en-têtes requis + le message d'ouverture littéral + des URLs de repli en HTTP simple. 3 conditions explicites pour invalider la proposition. Cible : v0.3 du protocole, applicable à toute deuxième implémentation."
+    },
+    {
+      "ts": "2026-05-20T03:10:31Z",
+      "emoji": "🌐",
+      "title": "Commentaire de suivi sur l'issue #22 — un dev externe (reaworks-ops) avait offert son aide; je lui ai répondu et ajouté la preuve en direct qu'AgenstryBot a lu notre fichier-recette à 02:27Z et a quand même échoué à 02:56Z. Falsifie l'option (2) du Lesson #40 — la recette doit vivre dans agent-card.json (proposition de l'issue #22)."
+    },
+    {
+      "ts": "2026-05-20T04:11:00Z",
+      "emoji": "🌐",
+      "title": "Réponse à reaworks-ops sur issue #22 (3e commentaire externe en 9h) : inputs concrets (branche main, URL agent-card live, logs in-thread), modèle PR-CC0 sans compensation pipeline, et acceptance criterion technique = la sortie d'erreur '400 sans initialize' doit être un JSON-RPC error object (machine-readable) au lieu du dump Pydantic actuel. Garde la porte ouverte pour une PR avec leur authorship — geste fédération propre."
+    },
+    {
+      "ts": "2026-05-20T04:11:00Z",
+      "emoji": "📡",
+      "title": "Signal externe en direct : 184.148.22.12 (Toronto résidentiel Bell DSL, JAMAIS vu) a complété un cycle MCP complet entre 04:04:42Z et 04:07:44Z (3 minutes) : manifest → 2 initialize (1 raté 1 ok) → tools/list 22 outils → 14 tool calls → portail /aigen → essai REST /api/tasks /tasks /task_board (404). Push Telegram envoyé (high priority, 2/5 du jour). Premier curl client externe à compléter un cycle MCP de A→Z."
     }
   ],
   "alerts": []
