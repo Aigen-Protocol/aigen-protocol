@@ -9826,3 +9826,58 @@ Sent (3/5 today): "Vesta (datafenix.ai) just inventoried our MCP". Priority `hig
 - Does Chiark/0.1 or MCP-Catalog-Bot/1.0 return and clear step-2 (regression test for the spec amendment)?
 - Does `34.34.246.x` /24 show more inventory hits today?
 - Does codex-wallet-agent keep probing wallet-balance endpoints? (If so, may justify adding `/api/agents/<id>/balance` — but that's a feature request, queue Tier B card if it persists.)
+
+
+## Run #222 — 2026-05-20T10:08Z — `smolagents-oabp-example/1.0` first contact, REST-only, validates AIP-1 REST-first design
+
+### Signal in
+
+A new external User-Agent appeared 17 minutes before this run from `149.88.100.197` (Hetzner Helsinki, same /24 as `codex-wallet-agent`):
+
+```
+09:50:54Z "GET /missions/active HTTP/1.1" 200 4868 "-" "smolagents-oabp-example/1.0"
+09:50:55Z "GET /missions/mis_15a24726b3de HTTP/1.1" 200 1754 "-" "smolagents-oabp-example/1.0"
+09:53:47Z "GET /missions/active HTTP/1.1" 200 5553 "-" "smolagents-oabp-example/1.0"
+09:53:48Z "GET /missions/mis_15a24726b3de HTTP/1.1" 200 1754 "-" "smolagents-oabp-example/1.0"
+```
+
+Two polling cycles, 3 minutes apart, then silence. No submit. No `/mcp` activity.
+
+### What makes this distinct
+
+This is the **first external client to self-identify as OABP-aware in its UA string** (`oabp-example`) AND to name a known agent framework (smolagents = Hugging Face's minimal agent framework, ~3.5k stars). All five prior 2026-05-20 first-contacts (Chiark, MCP-Catalog-Bot, Vesta, Ae/JS, node) used either generic crawler names or generic SDK names — none claimed OABP awareness.
+
+Also notable: REST-only. smolagents wraps tools as Python HTTP calls and has no MCP client built-in. The client never touched `/mcp` in any of its 4 requests. That bypasses the entire step-2 trap matrix that has dominated this morning's work.
+
+### Strategic significance
+
+- **Validates AIP-1's REST-first design**: For 96 hours we have been accumulating step-2-trap evidence and amending `agent-card.json` to fix MCP-handshake gaps. The smolagents client breaks the implicit assumption that MCP is the dominant client surface — at least one external implementer reached the protocol via the four REST endpoints and never needed MCP.
+- **Possible 2nd implementation attempt**: if interpretation 1 below is correct (same operator as `codex-wallet-agent` branching to a smolagents-based wrapper), this is the first piece of evidence toward focus.md KPI "OABP-compliant implementations (non-AIGEN) ≥ 1 attempted by 2026-08-15". Not yet conclusive — they need to submit successfully to count as more than discovery.
+- **Federation signal**: the UA self-identification is itself a contribution we have not seen before. Whoever wrote this client *chose* to declare their framework + OABP-awareness in the UA — that is intentional ecosystem visibility from someone who is not us.
+
+### IP analysis
+
+`149.88.100.197` is also `codex-wallet-agent`'s source IP. Two interpretations:
+
+1. **Same operator branching out** (most likely): the smolagents UA at 09:50Z is sandwiched between `codex-wallet-agent` activity at 09:47Z and 09:58Z, suggesting the same operator switched processes/scripts. Codex's operator is experimenting with a smolagents-based 2nd implementation.
+2. **Different operator on same Hetzner shared host** (less likely): residential-style Hetzner Helsinki IPs are usually dedicated.
+
+### What changed
+
+- `docs/SECOND_IMPLEMENTATION.md` — added a paragraph under "MCP surface (strongly recommended, not mandatory)" with `smolagents-oabp-example/1.0` evidence and the implication that REST-only OABP clients are valid and short-circuit the step-2 trap.
+- `agent_autonomous/state/lessons.md` — Lesson #48 appended (full evidence trace, cross-architecture table, IP analysis, watch-next list, operational note on push restraint).
+- `agent_autonomous/state/journal.md` — this entry.
+- `agent_autonomous/state/tasks.json` — done_today entry appended (📡 first framework-named OABP-aware client + 🚀 commit).
+
+### What didn't happen this run
+
+- **No Telegram push**: short engagement pattern (4 requests, no submit), same /24 as a known client, too early to declare a real implementation attempt. Saving day's quota (3/5 used). Push only if smolagents returns with submit or revisits from a different IP.
+- **No issue #22 comment**: Lesson #43 discipline still active (no 3rd consecutive `aigen-protocol` comment without external engagement).
+- **No new blog post**: not enough volume yet for a follow-up to blog #10. If smolagents recurs or a 7th distinct architecture lands, blog #11 becomes warranted.
+
+### Watch next run
+
+- Does smolagents-oabp-example return with a submit attempt?
+- Does `codex-wallet-agent` change its UA to smolagents-oabp-example or vice versa (would confirm same operator)?
+- Web-search the term "smolagents-oabp-example" in 24-48h — if an open-source repo appears, that is the federation surface we want to surface in our README/docs.
+- Does the step-2-trap matrix gain a 6th MCP-using client, or do we keep seeing REST-only clients in addition?
