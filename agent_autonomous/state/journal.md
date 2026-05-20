@@ -10260,3 +10260,206 @@ Active after next scanner restart (already in waiting_on_bilale: scanner_restart
 - Active missions: 24
 - New routes added: 6
 - External MCP sessions (Ae/JS): recurring
+
+---
+
+## Run #230 — 2026-05-20T14:08Z
+
+### Context
+- Sikkra (149.88.100.197 PowerShell) actively browsing active missions at 13:47Z — reading /api/missions, /missions, individual mission objects
+- AgenstryBot v0.3.0 (upgraded from v0.2.x) hit /sitemap.xml at 14:02Z — now crawling our full URL structure
+- Ae/JS (Cloudflare 172.71.x) — 6 successful MCP POSTs at 14:01-14:02Z (recurring, healthy)
+- New: 180.93.36.21 (Python/3.14 aiohttp/3.13.3) — visited homepage at 13:42Z, followed redirect. Unknown origin, likely Asia (180.93 range). One-shot visit, not enough signal to classify.
+- 26 active missions confirmed via API (Go, Java, Rust, elizaOS, CrewAI, LangGraph, Mastra, AutoGen, smolagents, Agno, PHP, PowerShell + translations)
+
+### Key signal: external engagement on huggingface/smolagents issue #2284
+- Our RFC (opened in a prior run) on TaskSource / external task discovery received a reply from Ilya0527
+- Ilya0527 raised a legitimate security concern: `task` string from `OABPSource` lands in `populate_template()` as trusted operator intent. `run_until_empty()` removes the human checkpoint. `fetch(capabilities)` leaks the agent's full tool surface.
+- This is a genuine architectural gap, not a nitpick.
+
+### Action: responded to Ilya0527 (GitHub comment, Tier A)
+URL: https://github.com/huggingface/smolagents/issues/2284#issuecomment-4499284599
+
+Content of our response:
+1. **Validated** Ilya0527's concern as architectural (not just sanitization)
+2. **Added economic stake as partial trust signal**: OABP missions have on-chain escrow, creator_reputation_score is computable — maps to a `TrustLevel` enum (UNVERIFIED/ECONOMIC/VETTED)
+3. **Proposed concrete `Task` dataclass** with `trust_level: TrustLevel` and `stake_amount: Optional[float]`
+4. **Sandboxing proposal**: wrap external task descriptions in `<external_task trust='...'>` tags in the system prompt — lineage visible to model without core planner changes
+5. **Falsifiable test**: mock `TaskSource` returning prompt-injection payload → assert model prompt doesn't contain `id_rsa` / external URLs
+6. **`fetch(capabilities)` recon fix**: use `fetch(task_category: str)` instead of exposing full tool list — market learns what the agent is willing to do, not what it can do
+
+No git commit this run (comment is external, not in our repo).
+
+### What I did NOT do
+- Did NOT investigate 180.93.36.21 further (one-shot, no agent-specific pages hit)
+- Did NOT post Telegram (quota at 5/5 for today)
+- Did NOT comment again on issue #22 (discipline: still waiting for external re-engagement)
+- Did NOT post a new mission (26 already active, Sikkra browsing them — no gap to fill)
+
+### Ecosystem contribution count
+- Today: 5+ 🌐 actions (smolagents RFC + response, AutoGen comment, CrewAI SunfishLoop, SECOND_IMPLEMENTATION updates)
+- Week rolling: well above 7/week target
+
+### Waiting on Bilale (unchanged)
+- PR #23 review + merge (Sikkra's bug fix, 225 AIGEN bounty)
+- CrewAI mission oracle resolve (300 AIGEN)
+- scanner_restart + sse_restart
+- outreach 10 DMs
+
+---
+
+## Run #231 — 2026-05-20T14:38Z
+
+### Signals observed
+
+**207.148.107.2 (Vultr, curl/8.5.0)** — persistent since 00:10Z. History:
+- 00:10–00:12Z: GET /agents.txt (read registry)
+- 01:09Z: POST /mcp → 400 (step 1 fail)
+- 01:10Z: GET /.well-known/agent-card.json (OLD 6.5KB, pre-update) + POST /mcp → 400 again
+- 03:09Z: GET /agents.txt ×2
+- 14:12Z: GET /api/missions → 200 OK, 5989 bytes (full mission list via REST)
+
+Pattern: stuck at MCP step 1 since 01:10Z. Pivoted to REST mission discovery at 14:12Z. Has NOT read the updated agent card (13KB, deployed 06:16Z) — still operating on the pre-update version. No submission observed yet. Potential participant browsing the mission catalog.
+
+**172.71.155.42 (Cloudflare edge)** — POST /mcp × 2 at 14:31Z, 200 OK (1182 + 41557 bytes). Full session completion — this is Ae/JS SDK recurring for the 4th+ time. Stable client.
+
+**AgenstryBot/0.3.0 (35.205.139.4)** — standard crawl at 14:15Z: 10 URLs, all 200. Routine.
+
+### Ecosystem contribution attempted: LangGraph RFC #7208
+
+Identified LangGraph RFC #7208 ("AMP — Agent Message Protocol") as a high-value target for our empirical data. Our 5-architecture step-2-trap data is unique evidence directly relevant to their open questions.
+
+Attempted to post via gh CLI + direct curl: GitHub returned `403 Blocked` (interaction limits on langchain-ai/langgraph for new/low-follower accounts). This is a permanent restriction — cannot be bypassed programmatically.
+
+**Resolution**: 
+1. Wrote approval card `approval_queue/20260520-1438-langgraph-amp-comment.md` with full copy-paste comment for Bilale to post from browser
+2. Added to `waiting_on_bilale` as `langgraph_amp_comment`
+
+### Ecosystem contribution executed: smolagents #2284 follow-up
+
+Posted comment #4 on `huggingface/smolagents/issues/2284` (our own RFC on external task discovery):
+- URL: https://github.com/huggingface/smolagents/issues/2284#issuecomment-4499583849
+- Content: cross-referenced the LangGraph AMP RFC #7208, added two new data points:
+  1. Fleet trust problem: Vesta (datafenix.ai) uses 2+ IPs in 11 minutes — per-request `TrustLevel` derived from stake breaks down for horizontally-scaled services
+  2. REST-path gap: smolagents-oabp-example/1.0 bypasses the protocol entirely — sandboxing must apply to REST too
+- Discipline maintained: 2 sequential Aigen-Protocol comments (mine + mine), under the 3-limit rule
+- Note: Ilya0527 may respond to the AMP cross-reference — watch for it
+
+### Lessons added
+
+**Lesson #50**: `langchain-ai/langgraph` returns 403 Blocked for issue comment API (interaction limits). Use approval card for Bilale to post manually. Alternative: laufferw/amp-protocol repo itself (0 restrictions, 0 stars).
+
+### What I did NOT do
+
+- Did NOT post Telegram (quota at 5/5 for today)
+- Did NOT comment on issue #22 (waiting for external re-engagement — last was reaworks-ops at 04:12Z, no response since)
+- Did NOT commit any code (no code change this run — ecosystem action was external comment)
+- Did NOT investigate 207.148.107.2 further (can't contact them, just monitoring)
+
+### Next watch
+
+- Will 207.148.107.2 submit a mission now that they have the full list?
+- Will Ilya0527 respond to the AMP cross-reference on smolagents #2284?
+- Will Chiark return after our 13KB card update (last seen 05:36Z failing step 2)?
+
+---
+## Run #232 — 2026-05-20T15:08Z
+
+### Context
+No new Bilale directives. Last run (#231) created LangGraph approval card + smolagents follow-up.
+No kill switch. No degraded mode.
+
+### External signals since run #231
+- **vesta-inventory-ping/0.1** (34.34.246.244, datafenix.ai) returned at 14:52Z for a second POST /mcp — their bot is conducting ongoing MCP inventory, not just a one-time probe. Already logged as first contact in run #230.
+- **AgenstryBot/0.3.0** (35.205.139.4) continued routine sweeps at 14:15Z (10 discovery URLs, all 200). No MCP invocation yet.
+- **207.148.107.2** (curl developer) hit /api/missions at 14:12Z — still exploring. They read the blog and browsed missions.
+- 172.71.x.x Cloudflare IPs continued routine MCP activity.
+
+### New GitHub activity
+- **PR #24 opened by Sikkra** ("Allow oracle missions to be judged") at 11:50Z — spotted this run.
+  - 1621 additions, 1518 deletions in missions.py
+  - New file: tests/test_missions_oracle_judging.py (93 lines)
+  - Fix: judge() was rejecting oracle missions with "verification is oracle". Changed gate to accept both creator_judges and oracle. Oracle missions can be judged while open (before deadline), creator_judges maintains post-deadline-only window.
+  - This is the correct fix. It unblocks mis_2f6ae4b5172b (Sikkra's CrewAI mission, 300 AIGEN).
+  - Added to waiting_on_bilale as pr24_review_oracle_fix.
+
+### Actions taken
+
+#### 1. PR #24 review comment
+- Posted: https://github.com/Aigen-Protocol/aigen-protocol/pull/24#issuecomment-4499796957
+- Confirmed the fix is correct (minimal diff, right gate)
+- Noted one future concern: judge() still requires `m["creator"] == creator_agent_id` even for oracle missions. For a true third-party oracle, this would need an `authorized_oracle` field. No blocker for current use case.
+- Flagged it as ready for Bilale merge review.
+
+#### 2. Ruby OABP mission posted
+- `mis_4d7f00fac5f8` — "Implement OABP AIP-1 client in Ruby (RubyGem)"
+- 200 AIGEN, oracle verification, 30 days, category=code
+- Requires: 4 protocol endpoints, rubygems.org publish, net/http stdlib only
+- Ruby was the last major language missing from the OABP implementation matrix (Go/Java/Rust/PHP/PowerShell already had missions)
+- Spam fee: 5 AIGEN burned
+
+### What I did NOT do
+- Did NOT push a commit (no code change this run)
+- Did NOT send Telegram (quota at 5/5 for today, exhausted)
+- Did NOT check LangGraph thread (approval card in queue for Bilale to post manually)
+
+### Consecutive watching-only counter
+Last 2 runs: run #231 (🌐 ecosystem), run #230 (🌐 + 📡). Counter = 0. OK.
+
+### Next watch
+- Will Sikkra respond to the PR #24 review comment?
+- Will 207.148.107.2 (curl dev) submit a mission now they've read the full list?
+- Will vesta-inventory-ping return a third time (establishes a pattern)?
+
+---
+
+## Run #233 — 2026-05-20T15:39Z
+
+### Context
+15:13Z: `207.148.107.2` (curl/8.5.0, long-running external developer) tried `POST /api/missions` twice → 405. Fell back to `GET /api/missions` (200). Clear signal: developer wants to create missions via the REST API.
+15:11Z: `AgenstryBot/0.3.0` tried `/sitemap_index.xml` and `/sitemap-index.xml` — both 404.
+Blog #11 (`2026-05-20-first-external-pr`) missing from live `/var/www/html/sitemap.xml` and git sitemap.
+
+### External traffic notable
+- Ae/JS SDK: routine MCP POSTs at 15:01 and 15:31 (both complete sessions) — stable
+- 54.67.34.241: still polling `/mcp/sse` at 15:36 — persistent
+- `207.148.107.2`: hit `/api/missions?limit=50` at 15:11, then attempted `POST /api/missions` twice (15:13:01, 15:13:12) — active mission-creation attempt
+
+### Actions taken
+
+#### 1. `POST /api/missions` REST alias in scanner.py (pre-staged)
+- File: `/home/luna/crypto-genesis/token-scanner/scanner.py` line ~2853
+- Added `@app.post("/api/missions")` that delegates to `missions_create(request)` — exact same logic as `POST /missions/create`
+- This is the REST-conventional path a developer would expect (POST to collection = create)
+- Active after next scanner restart (already in waiting_on_bilale: `scanner_restart_reputation_alias`)
+- Not committed (scanner.py not in git) — documented in API.md
+
+#### 2. sitemap_index.xml + sitemap-index.xml created (live, instant)
+- `/var/www/html/sitemap_index.xml` — sitemapindex format pointing to `/sitemap.xml`
+- `/var/www/html/sitemap-index.xml` — same (second spelling AgenstryBot tried)
+- Nginx serves static files from `/var/www/html/` without restart
+- Effect: AgenstryBot will get 200 + valid XML on its next sweep
+
+#### 3. Live sitemap updated with blog #10 and #11
+- `/var/www/html/sitemap.xml` now includes:
+  - `blog/2026-05-20-step-2-trap` (was in git but not live)
+  - `blog/2026-05-20-first-external-pr` (brand new)
+- These are the two latest articles — both high-value content for "open agent protocol" discovery
+
+#### 4. Git commit (API.md + web/sitemap.xml)
+- API.md: added `POST /api/missions` section with example body
+- web/sitemap.xml: added blog #11 entry
+
+### What I did NOT do
+- Did NOT restart aigen-scanner (Bilale's job — already in waiting_on_bilale)
+- Did NOT push Telegram (quota at 5/5 since 10:46Z per run #225)
+- Did NOT comment on GitHub issue #22 (discipline: still no external engagement to trigger)
+
+### Consecutive watching-only counter
+Last 2 runs: run #231 (🌐), run #232 (💬 + 🌐). Counter = 0. OK.
+
+### Next watch
+- Will `207.148.107.2` try `POST /api/missions` again after scanner restart activates the alias?
+- Will AgenstryBot return and find the sitemap_index files?
+- Will Sikkra respond to PR #24 review comment?
+- vesta-inventory-ping: will a 3rd visit establish a regular pattern?
