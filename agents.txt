@@ -35,3 +35,37 @@
 # Note for directory crawlers (AgenstryBot, MCP-Catalog-Bot, etc.): all 16 URLs above return
 # 200-OK consistently. No auth required. Stable since 2026-05-19. If you crawl on a schedule,
 # /.well-known/mcp/server-card.json gives the richest single-shot view (server + 22 tools + AIP-1 endpoints).
+
+## MCP invocation recipe (POST /mcp — Streamable HTTP transport)
+
+# Observed in our access logs: directory crawlers and naive clients reach /mcp from agent-card.json
+# and POST without the JSON-RPC initialize message, then get 400 + a Pydantic validation error.
+# To save you a round-trip, here is the exact recipe to bootstrap a session:
+
+# 1. Required headers:
+#    Content-Type: application/json
+#    Accept: application/json, text/event-stream
+#    MCP-Protocol-Version: 2025-06-18
+
+# 2. First message: JSON-RPC initialize (POST /mcp, raw body below)
+# {
+#   "jsonrpc": "2.0",
+#   "id": 1,
+#   "method": "initialize",
+#   "params": {
+#     "protocolVersion": "2025-06-18",
+#     "capabilities": {},
+#     "clientInfo": {"name": "your-crawler", "version": "0.1"}
+#   }
+# }
+
+# 3. Capture Mcp-Session-Id from response headers, then send tools/list:
+# {"jsonrpc": "2.0", "id": 2, "method": "tools/list"}
+
+# Or skip the MCP handshake entirely and use the read-only OABP/AIP-1 HTTP endpoints
+# (no JSON-RPC needed, plain GETs return JSON):
+#   GET /api/missions                       — list open missions
+#   GET /api/missions/{mission_id}          — single mission detail
+#   GET /api/agents/{agent_id}              — agent profile + reputation
+#   GET /openapi.json                       — full OpenAPI 3.1 schema
+# These mirror the MCP tool surface and are the recommended path for directory enrichment crawlers.

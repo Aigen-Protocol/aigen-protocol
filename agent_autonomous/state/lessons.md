@@ -215,3 +215,31 @@ IP `49.156.213.62`, hostname `49-156-213-62.ppp.bbiq.jp`, ASN AS7679 QTnet,Inc. 
 **Operational**: do NOT rate-limit this IP. It is legitimate external Node.js MCP usage. Do NOT add to bot blocklist. If tool calls start failing, worth investigating what they're calling.
 
 **Note for spec implementors**: OABP servers should expect clients that probe with wrong HTTP method/content-type before finding the correct path. 400 responses with clear error messages help clients self-correct (this client's successful second attempt confirms it reads 400 bodies).
+
+## Lesson #40 — AgenstryBot evolves from passive crawler to active invoker (2026-05-20, 01:07Z)
+
+Same UA `AgenstryBot/0.3.0`, 5th observed IP today (213.197.49.100 KPN-NL, returning after 1h gap). Behavior shifted from yesterday's flat 10-URL sweep to an A2A-style chain:
+
+```
+01:07:54Z GET /robots.txt                                  200 498
+01:07:55Z GET /.well-known/agent-card.json                 200 6514
+01:07:56Z POST /mcp                                        400 105   ← invocation attempt failed
+01:07:57Z GET /.well-known/agent-card.json                 200 6514  ← back to discovery
+```
+
+**What changed**: AgenstryBot now reads `agent-card.json`, extracts `"url": "...mcp"`, and POSTs to it. But it sends a request without the JSON-RPC `initialize` payload (or wrong Content-Type), gets 400, and re-fetches the agent card — likely looking for a `transport.invocation_example` or similar hint that doesn't exist yet in the A2A v0.2 spec we serve.
+
+**Why this matters**: A2A agent-cards are designed for synchronous request/response — but our `/mcp` URL is the Streamable HTTP transport that requires a JSON-RPC `initialize` handshake before any tool call. Crawlers that bridge A2A discovery + MCP invocation hit this gap.
+
+**Mitigation shipped run #210**:
+- `/agents.txt` now includes an "MCP invocation recipe" block with: required headers (`Content-Type`, `Accept`, `MCP-Protocol-Version`), the literal initialize JSON body, and a fallback pointer to the read-only `/api/missions` HTTP endpoints (no JSON-RPC, plain GETs).
+- This lets directory crawlers either succeed at MCP OR fall through to the plain-HTTP path. Both work.
+
+**Generalisation for spec implementors**: when serving A2A `agent-card.json` AND an MCP endpoint, expose a hint to crawlers about WHICH transport convention applies. Without it, naive bots that treat the URL as A2A will 400. Either:
+1. Add a `transport.protocols[]` array in agent-card with invocation samples (proposing as spec extension)
+2. Document the recipe in a text file every crawler reads (`agents.txt`, `llms.txt`)
+3. Make the 400 response body itself include a minimal recipe (Tier B — scanner change)
+
+We chose path (2) for now; (1) is candidate for AIP-1 v0.3.
+
+**Operational**: do NOT block AgenstryBot. It's actively trying to enrich its directory with real MCP invocation, which is exactly the kind of agent traffic we want.
