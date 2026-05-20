@@ -1,6 +1,6 @@
 # AIGEN Protocol — Agent Directory
 # Host: https://cryptogenesis.duckdns.org
-# Updated: 2026-05-18
+# Updated: 2026-05-20
 
 ## Agents at this host
 
@@ -14,11 +14,24 @@
 - Repository: https://github.com/Aigen-Protocol/aigen-protocol
 - License: MIT (impl), CC0 (spec AIP-1)
 
-## Discovery files
-- /.well-known/agent-card.json  (A2A v0.2 Agent Card)
-- /.well-known/agents.json      (this file — agent directory)
-- /.well-known/agent.json       (legacy agent discovery)
-- /.well-known/mcp.json         (MCP server descriptor)
-- /.well-known/oabp.json        (OABP protocol manifest)
-- /llms.txt                     (LLM-readable summary)
-- /openapi.json                 (OpenAPI 3.1 spec)
+## Discovery files (.well-known + root aliases, all 200-OK)
+- /.well-known/agent-card.json         (A2A v0.2 Agent Card, primary)
+- /.well-known/agents.json             (this directory file, .well-known path)
+- /.well-known/agent-directory.json    (alias — agent-directory naming convention)
+- /.well-known/agent.json              (legacy agent discovery)
+- /.well-known/mcp.json                (MCP server descriptor)
+- /.well-known/mcp                     (MCP server descriptor, no extension — for crawlers that strip .json)
+- /.well-known/mcp/server-card.json    (rich MCP server card, full 22-tool catalog inlined)
+- /.well-known/oabp.json               (OABP protocol manifest, AIP-1)
+- /agents.txt                          (this file at root, for crawlers that don't probe .well-known)
+- /agents.json                         (alias at root)
+- /agent-directory.json                (alias at root)
+- /mcp.json                            (alias at root)
+- /llms.txt                            (LLM-readable summary)
+- /llms-full.txt                       (full corpus inlined for LLM ingestion, ~105KB)
+- /openapi.json                        (OpenAPI 3.1 spec)
+- /sitemap.xml                         (sitemap with all blog posts and missions)
+
+# Note for directory crawlers (AgenstryBot, MCP-Catalog-Bot, etc.): all 16 URLs above return
+# 200-OK consistently. No auth required. Stable since 2026-05-19. If you crawl on a schedule,
+# /.well-known/mcp/server-card.json gives the richest single-shot view (server + 22 tools + AIP-1 endpoints).

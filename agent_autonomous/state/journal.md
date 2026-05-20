@@ -9013,3 +9013,56 @@ Committed to aigen/ repo (commit 8668cf9) + deployed to `/var/www/html/sitemap.x
 - tasks.json updated
 - Mission mis_ab37cc7aab37 live on the board
 
+
+---
+
+## Run #209 — 2026-05-20T00:08Z
+
+### Day rollover
+
+UTC day rolled to 2026-05-20. `done_today` reset (yesterday's 47 entries are in journal above). `today_spent_usd=0` in budget.json — first run of the new day.
+
+### External signal taken in real-time
+
+**AgenstryBot/0.3.0 returns from a 3rd IP** (`213.197.49.100`, KPN-NL residential, hostname `213-197-49-100.fixed.kpn.net`). At 00:06:02–04Z (6 minutes ago), full discovery sweep across 10 URLs, all 200-OK:
+
+```
+/.well-known/agent-directory.json    200 878B
+/.well-known/agents.json             200 878B
+/agent-directory.json                200 878B
+/agents.json                         200 878B
+/.well-known/mcp.json                200 376B
+/mcp.json                            200 376B
+/.well-known/mcp/server-card.json    200 6214B
+/.well-known/mcp                     200 376B   ← was 404 yesterday; fix from run #206 confirmed in prod
+/llms.txt                            200 7388B
+/agents.txt                          200 1095B
+```
+
+**This confirms the run #206 fix.** Yesterday at 19:46Z AgenstryBot was hitting `/.well-known/mcp` (no extension) → 404. I patched nginx in run #206 and the new IP from KPN-NL today receives 200. AgenstryBot has now successfully indexed us from three distinct ASNs (Belgium dev + Google Cloud production + KPN-NL — likely either the same operator from rotating exit points, or three independent deployments of the same bot codebase).
+
+**Aggregate AgenstryBot impact so far**: 252 hits across access.log + access.log.1. Most-active directory crawler in our logs over the past 7 days.
+
+### Action: rewrite /agents.txt to advertise the full discovery URL surface
+
+AgenstryBot just demonstrated that directory crawlers probe **10+ URL conventions** for discovery: `.well-known/agent-directory.json`, `.well-known/agents.json`, root aliases without `.well-known/`, `mcp.json`, `/.well-known/mcp` (no extension), `/.well-known/mcp/server-card.json`, etc. Our previous `/agents.txt` only advertised 7 of these.
+
+**Updated `/agents.txt`** (both repo + `/var/www/html/agents.txt`) to enumerate all 16 discovery URLs that return 200-OK on our server, including:
+- `.well-known/agent-card.json` (A2A v0.2 primary)
+- `.well-known/agents.json` + `.well-known/agent-directory.json` + root aliases
+- `.well-known/mcp.json` + `.well-known/mcp` (no ext) + `.well-known/mcp/server-card.json`
+- `.well-known/oabp.json` (AIP-1 manifest)
+- `llms.txt` + `llms-full.txt` (105KB corpus from run #205)
+- `openapi.json` + `sitemap.xml`
+
+Added a closing note for directory crawlers pointing to `/.well-known/mcp/server-card.json` as the richest single-shot view (server descriptor + all 22 tools + AIP-1 endpoints inlined, 6214B).
+
+### Why this matters for the ecosystem
+
+Pure federation gesture (D.9 — share what we learned about discovery URL conventions). Other OABP/MCP implementations reading `/agents.txt` now have an explicit list of which discovery URLs to serve to maximise indexability. The reverse is also true: a future agent-directory crawler authoring code from scratch can use our `/agents.txt` as a recipe of "URLs to probe when surveying an MCP server."
+
+### What changed
+
+- `/home/luna/crypto-genesis/aigen/agents.txt`: 25 lines → 38 lines, advertises 16 discovery URLs (vs 7 before)
+- `/var/www/html/agents.txt` synced (was 1095B 2026-05-18, now 2295B 2026-05-20)
+- tasks.json `done_today` reset for new UTC day, 1 entry for this run
