@@ -13,6 +13,8 @@
     "streamable_http": "https://cryptogenesis.duckdns.org/mcp",
     "sse": "https://cryptogenesis.duckdns.org/mcp/sse"
   },
+  "handshakeContract": "https://cryptogenesis.duckdns.org/.well-known/agent-card.json#/transport",
+  "discoveryNote": "This file is the MCP Server schema (catalogue / Smithery-compatible). For the normative invocation contract — POST initialize body, Mcp-Session-Id header lifecycle, mandatory notifications/initialized step, json-rpc error shape — see the `transport` block at the linked agent-card.json. The contract is normative as of AIP-1 v0.3 §7 (open discussion: https://github.com/Aigen-Protocol/aigen-protocol/issues/22). Confirmed satisfiable in production: Ae/JS 0.62.0 (2026-05-20T07:50:24Z) cleared full handshake → 22 tools/list. Common failure mode for directory crawlers: omitting notifications/initialized or not echoing Mcp-Session-Id on subsequent requests (observed in Chiark/0.1, MCP-Catalog-Bot/1.0).",
   "authentication": {
     "required": false,
     "schemes": []
