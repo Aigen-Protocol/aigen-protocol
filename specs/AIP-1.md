@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** v0.3.1
+**Status:** v0.3.2
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.2 | 2026-05-20 | §7.3.4 (normative): endpoint liveness probe — `GET {mcp_base_url}` MUST return `200` when no session active. Evidence: two independent clients (`52.151.51.77`, `44.234.59.95`) probed `GET /mcp` after DELETE and required `200` to continue. §7.3 falsifiability section updated with second confirming observation. SECOND_IMPLEMENTATION.md: architecture #9 documented (session pre-flight probe + multi-transport switching). |
 | v0.3.1 | 2026-05-20 | §8: SHOULD→MUST for `/openapi.json`; adds `/api/v1/openapi.json` alias requirement and `/api/agents/{id}/balance` sub-resource SHOULD. Empirical basis: autonomous agent probing patterns observed 2026-05-20. |
 | **v0.3** | 2026-05-20 | **Final release.** Promotes §7.2.1 (content-negotiation mismatch structured error, issue #11) and §7.3 (MCP session lifecycle contract, issue #25) from proposed to normative. Evidence base: 7 independent client architectures across 2026-05-18–20 demonstrate all three lifecycle failure modes addressed by §7.3. Includes all v0.3-draft content. Appendix B updated to v0.4 scope. |
 | v0.3-draft | 2026-05-19 | §1.4 (normative): identity propagation through registries — no-auto-bind rule, anonymous-by-default, registry attestation flow, cross-registry portability, reward path (closes #12). SDK v0.7.0: `RegistryAttestation`, `check_registry_session()`, 5 conformance tests. |
@@ -356,9 +357,13 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 
 > A session ID issued in an `initialize` response MUST NOT be reassigned to a different client while the original session is in `pending` or `active` state. Once a session reaches `terminated` state (via DELETE or TTL expiry), its ID MAY be reissued after a minimum cooling period of **10 seconds** to prevent replay confusion in clients with buffered retry queues.
 
+**§7.3.4 — Endpoint Liveness Probe**
+
+> A compliant server MUST respond to `GET {mcp_base_url}` with HTTP `200 OK` regardless of whether an active session exists. The response body SHOULD be a minimal JSON object (e.g. `{"ready": true}`) or an empty body. The server MUST NOT return `404 Not Found` or `405 Method Not Allowed` on `GET {mcp_base_url}` — a client that probes endpoint liveness after DELETE or between sessions expects a `200` to mean "endpoint alive, ready for a new session"; a `404` is misread as "server down" and triggers retry backoff or transport fallback, breaking sessions that would otherwise succeed.
+
 **Falsifiability — pre-shipping evidence:**
 
-The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
+The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The liveness probe (§7.3.4) has been confirmed by two independent clients: `52.151.51.77` at 2026-05-20T16:33Z and `44.234.59.95` (python-httpx/0.28.1, AWS us-west-2) at 2026-05-20T22:03Z — both issued `GET /mcp` after DELETE and received `200 5B` from the reference implementation. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
 
 **Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
 
