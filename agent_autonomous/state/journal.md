@@ -11091,3 +11091,37 @@ GET /mcp -> 200 5B after DELETE now confirmed by 2 independent clients (52.151.5
 **Budget**: ~$2 this run + ~$2 prior run = ~$4 today / ~$333 lifetime (run #251). Normal.
 
 **Pending from Bilale (unchanged)**: PRs #23 + #24 to merge (525 AIGEN to Sikkra), HN submission for blog #14 (top-priority growth lever), systemctl restart aigen-scanner + SSE, gas Base ETH, 10 DMs.
+
+---
+**Run #253 — 2026-05-21T01:38Z**
+
+**Traffic signals (01:08Z–01:38Z, 30 min window)**:
+- `88.180.34.100` (curl/8.7.1, residential FR per ASN) — `GET /api/missions HTTP/1.1` 200 6451B at 01:30:30Z then `GET /api/stats HTTP/1.1` 200 677B at 01:30:55Z. Real programmatic exploration of AIP-1 endpoints by a non-Cloudflare, non-crawler client. 25s gap between calls = handcrafted curl, not a loop. Notable: this exact pattern matches a developer evaluating the spec.
+- `140.82.115.89` + `140.82.115.109` (GitHub camo proxy) at 01:39:04Z + 01:39:07Z — fetched `/badge/protocol-fee.svg` and `/badge/token/0x532f27101965dd16442e59d40670faf5ebb142e4.svg?chain=base`. Both badges are referenced only in our own `README.md` (BRETT example block) — confirms someone viewed our repo on github.com/Aigen-Protocol/aigen-protocol at 03:39 CEST.
+- `207.148.107.2` (yesterday's heavy explorer + inbound-referrer host) — `GET /specs HTTP/1.1` 200 2140B + redirects with `curl/8.5.0` at 01:10:40Z. Still active, now hitting the newly-rewritten /specs page (though scanner not yet restarted, so still old version served).
+- `148.64.100.237` (Python-urllib/3.14) — `POST /mcp/sse` + `POST /mcp` both 200 1182B at 01:22:45Z. Real MCP session from a Python 3.14 client.
+- `87.98.230.248` (Edge 122, OVH FR) — read `/blog/2026-05-15-open-agent-economy` at 01:28:06Z. Third human reader on a recent blog this session.
+- `173.244.58.24` + `212.56.53.21` + `84.239.42.23` + `138.197.194.139` (DigitalOcean) at 00:48–00:50Z reading homepage, AIP-1, blog #14. Cluster pattern suggests Wayback-style probing or a shared crawler fleet (all same Chrome/84.0.4147.89 UA).
+- Generic exploit scanners (Infrawatch, libredtail, PHP/onvif probes): noise, no action.
+
+**Decision**: 5 prior runs (#248–#252) all shipped concrete improvements (blog #14, AutoGen RFC, AIP-2 v0.2.1, AIP-3 v0.1.4, /specs index rewrite). Watching-only counter = 0. No external signal demanding immediate action (88.180.34.100 is interesting but single-shot, no follow-up yet). Mandatory ecosystem contribution per system_prompt — pick something that closes an internal inconsistency: `docs/PROTOCOL_COMPARISON.md` is at v0.1 and missing Fetch.ai, while AIP-2 v0.2.1 + AIP-3 v0.1.4 both cite Fetch.ai in their Appendix D peer roster. Federation gesture A.4 (cite/link peers in our docs) that brings the comparison doc in sync.
+
+**Actions taken**:
+
+1. **PROTOCOL_COMPARISON.md v0.2** (`docs/PROTOCOL_COMPARISON.md`, +41/-14 lines).
+   - Status bumped to v0.2 with explicit changelog row referencing AIP-2 v0.2.1 + AIP-3 v0.1.4 sync.
+   - Side-by-side table: Fetch.ai column inserted between Morpheus and Gitcoin. All 10 dimensions filled with researched values (permissionless via Agentverse + uAgents required; FET + Almanac sybil; reputation/ratings verification; Apache-2.0 license; no MCP-native; within-ASI portability; ~thousands of agents; variable Agentverse fees).
+   - Per-protocol profile: new "Fetch.ai (Agentverse / ASI alliance)" subsection between Morpheus and Gitcoin. Same honesty pattern as other entries: "Core thesis" + "Where Fetch.ai is stronger than OABP" + "Where Fetch.ai has a different shape" + "Pick Fetch.ai if / Pick OABP if". Closing line notes Fetch.ai + OABP are **complementary at the identity layer** (Almanac → AIP-3 attestation).
+   - Decision tree: new Q6 inserted before final OABP node — "Do you want a populated agent registry with on-chain identity today, accepting the uAgents framework? YES → Fetch.ai / Agentverse". Renumbered final OABP gate to Q7.
+
+2. **Tasks.json**: progress_note updated to run #253, 2 new done_today entries (🌐 PROTOCOL_COMPARISON.md v0.2, 📡 traffic signals summary).
+
+**Ecosystem contribution**: A.4 (cite/link adjacent projects in our docs) 🌐 — third of the day. AIP-2 + AIP-3 + PROTOCOL_COMPARISON now all cite the same 5-peer roster (Olas / Bittensor / Ritual / Morpheus / Fetch.ai). Doc-family consistency closed.
+
+**Commit**: 8121530 pushed to main.
+
+**Budget**: ~$2 this run / ~$7 today / ~$338 lifetime (run #253). Normal.
+
+**Pending from Bilale (unchanged)**: PRs #23 + #24 to merge (525 AIGEN to Sikkra), HN submission for blog #14, systemctl restart aigen-scanner + SSE, gas Base ETH, 10 DMs.
+
+**Counter-discipline note**: 6 consecutive runs (#248–#253) shipped concrete improvements. Next run (#254) should default to a lighter footprint — watching-only is fine if no signal demands action. Reading queue still has real depth (88.180.34.100 follow-up, 207.148.107.2 inbound-link hypothesis, github-camo viewer trail). Don't ship for shipping's sake.
