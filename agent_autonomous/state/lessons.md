@@ -35,6 +35,8 @@ GitHub rejects `gh pr create --head Aigen-Protocol:branch` cross-org with our to
 
 **Specific variant (2026-05-18 21:50Z chat post, caught 2026-05-19 00:37Z):** A burst of `POST /missions/{id}/submit` from `207.148.107.2` with `User-Agent: AIGEN-Earner/1.0` and `submitter: earner-agent-01` (also using EVM address `0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A`) was framed in the public chat as "Un agent autonome externe — appelé 'earner-agent', construit sur Claude — a soumis à 5 de nos missions" and reported in tasks.json as "earner-agent/1.0 (agent externe actif, 15 victoires hier soir)". WRONG. `AIGEN-Earner/1.0` is a local daemon running on this same box (same Lesson #31 fingerprint: source IP = our server's own external address). The 15 wins are self-traffic; the AIGEN payouts are autopilot creating missions → internal daemon submitting → autopilot resolving them — a closed loop. The /api/agents/{id}/reputation 404 bug surfaced via this daemon is still real and worth fixing, but it is NOT external adoption. Going forward: any submitter whose source IP is `207.148.107.2` MUST be excluded from "external submitter" counts, regardless of agent_id, UA, or submission proof quality. Documented as pitfall #9 in `docs/SECOND_IMPLEMENTATION.md` so other implementers don't repeat the same self-counting error.
 
+**Specific variant (2026-05-21 run #260, caught after IP verification):** Across runs #252–#257 the agent celebrated `207.148.107.2 curl/8.5.0` (and once `curl/8.7.1`) as "**l'explorateur lourd qui surveille notre surface en direct**" — claiming it re-tested deployed artifacts within 90 min (the /.well-known/agent-bounty.json alias, the /specs/*.zip bundles), and posted these as the most-exciting external signals of the session in the public chat to Bilale. Verified 2026-05-21T05:11Z via `curl -4 ifconfig.me` and `ip route get 1.1.1.1`: our public IPv4 IS `207.148.107.2`. The "90-min verification cadence" is just `aigen-watcher.timer` firing every 30 min from `run_watcher.sh` on this same box and looping back through our own public hostname. **All `207.148.107.2`-sourced entries across the last 6 runs that were framed as "external explorer/observer/verifier" are self-traffic.** The pattern is bait-shaped because the watcher does exactly what an external explorer would do (well-known fetches, sitemap GETs, /specs probes). **Rule, no exceptions:** before celebrating any 207.148.107.2 hit as external, re-read this lesson and the IP-verification command above. Source IP = `207.148.107.2` always means local. The only legitimate `207.148.107.2`-related external signal is when a *different* IP arrives with `Referer: http://207.148.107.2/` — that means an outside scanner indexed our raw IP and is following it.
+
 ## Don't repeat: predicting steady cadence for 143.198.151.210 (2026-05-14)
 This IP (DigitalOcean droplet, no rDNS, UA "node") DOES NOT poll on a regular cadence. Run #3 framed it as "~50-90 min cadence" — wrong. Real pattern over 2026-05-13 → 05-14: clustered bursts on 13 May (9 hits across 19h with intervals from 15min to 7h), then a 12-hour silent gap, then 3 hits today (paired at 09:48-09:49, single at 21:49). Each visit is a clean MCP init→tools/list→keepalive sequence (1182 + 41558 byte responses). Best current theory: event-driven (user/UI on their end triggers each probe), not cron-scheduled. Do NOT predict hourly returns. Wait for unique identifier (referer/auth/cookie) before claiming who they are.
 
@@ -451,3 +453,39 @@ If interpretation (1) is correct, this is the first *attempted* second OABP impl
 - Does an open-source repo named `smolagents-oabp-example` appear on GitHub (would mean someone open-sourced their 2nd implementation)? Web search this in 24-48h.
 
 **Operational discipline**: NO Telegram push for this signal — it is a one-shot test pattern, not a first contact in the proper sense (same /24 as a known client, and the engagement pattern is too short to confirm a real implementation attempt). If they return with a `POST /missions/{id}/submit` or revisit from a different IP, that is push-worthy. Saving the day's quota (3/5 already used).
+
+---
+
+## Lesson #49 — 2026-05-20T11:37Z
+
+**An engaged ecosystem builder works in bursts — expect multiple outputs in one day.**
+
+On 2026-05-20, `149.88.100.197` (Sikkra / operator behind `codex-wallet-agent`) produced in a single 25-hour window:
+1. `smolagents-oabp-example/1.0` — REST-only probe at 09:50Z (lesson #48)
+2. PR #23 on Aigen-Protocol/aigen-protocol — real bug fix with pytest at 10:22Z
+3. `aigen-crewai-oabp-agent/0.1` — CrewAI agent built, submitted, and repo published at 11:36Z (20 minutes after the bounty was posted)
+
+**Key takeaways**:
+- When someone resonates with the spec, they move fast — faster than our 30-min cron interval
+- Mission bounties with clear verification criteria get responses within one cron cycle  
+- A developer testing multiple frameworks is likely building a multi-framework OABP wrapper (watch for a meta-library or SDK release)
+- Oracle missions (not `creator_judges`) still need a human to verify the external repo and pay out — do NOT auto-resolve oracle missions even when the submission looks correct
+
+**Operational note**: sub_24c213dbbe (CrewAI mission mis_2f6ae4b5172b) was submitted at 11:38Z (unix 1779277106). Verification: `https://github.com/Sikkra/aigen-crewai-oabp-agent`, 3 pytest passing, dry-run working. Added to `waiting_on_bilale` as `crewai_mission_oracle_resolve`. 300 AIGEN at stake.
+
+---
+
+## Lesson #50 — 2026-05-20T14:38Z
+
+**langchain-ai/langgraph GitHub API returns 403 Blocked for issue comments from new/low-follower accounts.**
+
+The `langchain-ai/langgraph` repository has GitHub interaction limits active (repository collaborators only, or similar). Any attempt to POST to `/repos/langchain-ai/langgraph/issues/{n}/comments` via API or gh CLI returns `{"message":"Blocked","status":"403"}` regardless of token scope. This is a GitHub UI/policy restriction, not a token problem.
+
+**Impact**: Cannot programmatically comment on LangGraph issues. Must use approval card for Bilale to post manually.
+
+**Workaround**: 
+1. Write approval card with pre-drafted comment → Bilale posts from browser
+2. OR open a NEW issue in the repo (new issue creation may have different interaction limits than commenting — untested)
+3. OR find a different but related thread (e.g. the AMP spec repo `laufferw/amp-protocol` has 0 interaction limits)
+
+**Alternative used this run**: Posted cross-reference comment on huggingface/smolagents/issues/2284 instead (our own RFC thread — no restrictions). Connected the two RFCs from our thread.
