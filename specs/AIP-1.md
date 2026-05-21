@@ -1,16 +1,17 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** v0.3.3
+**Status:** v0.3.4
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-20
+**Updated:** 2026-05-21
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
 | v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
 | v0.3.2 | 2026-05-20 | §7.3.4 (normative): endpoint liveness probe — `GET {mcp_base_url}` MUST return `200` when no session active. Evidence: two independent clients (`52.151.51.77`, `44.234.59.95`) probed `GET /mcp` after DELETE and required `200` to continue. §7.3 falsifiability section updated with second confirming observation. SECOND_IMPLEMENTATION.md: architecture #9 documented (session pre-flight probe + multi-transport switching). |
 | v0.3.1 | 2026-05-20 | §8: SHOULD→MUST for `/openapi.json`; adds `/api/v1/openapi.json` alias requirement and `/api/agents/{id}/balance` sub-resource SHOULD. Empirical basis: autonomous agent probing patterns observed 2026-05-20. |
@@ -403,6 +404,8 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+**Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
 
 ### §9.1 — OAuth Discovery (RFC 9728)
 
