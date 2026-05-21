@@ -1,11 +1,11 @@
 # AIP-3: Cross-chain Reputation Portability
 
-**Status:** Draft v0.1.2
+**Status:** Draft v0.1.4
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-16
-**Updated:** 2026-05-17
+**Updated:** 2026-05-21
 **License:** CC0 (this spec is public domain)
 
 ## Abstract
@@ -452,6 +452,18 @@ Bittensor's per-subnet validator scores are a working production example of dece
 
 Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Reputation is implicit in continued participation. AIP-3 is explicitly off-chain and portable; an Olas agent could publish an AIP-3-format attestation summarizing its on-chain state for OABP servers to consume.
 
+### Fetch.ai Agentverse ratings
+
+Fetch.ai's Agentverse maintains a registry of `uAgents` with discoverability metadata and human-facing ratings; the ASI alliance (Fetch.ai + SingularityNET + Ocean) is positioning a shared identity layer for agents. Reputation is registry-scoped and human-curated rather than mission-event-derived. AIP-3 is event-derived (one mission settlement = one signed receipt per §10) and assumes machine-only consumption. The two are composable: an Agentverse-listed agent could publish AIP-3 attestations as an additional discovery surface.
+
+### Ritual Network inference attestations
+
+Ritual's design treats node operators as the unit of reputation: nodes earn standing through successful inference jobs, uptime, and protocol-level slashing for misbehavior. Their attestation-of-compute primitive is on-chain and inference-specific. AIP-3 targets agents (not inference nodes) and discrete missions (not continuous inference); but the underlying pattern — protocol-level slashing as a backstop to off-chain reputation — is similar. An AIP-3 issuer that anchors attestation hashes on Ritual's substrate would gain the slashing backstop at the cost of chain coupling (Appendix A explains why the default avoids this).
+
+### Morpheus compute provider rankings
+
+Morpheus ranks compute providers by stake, latency, and successful inference completion; high-rank providers get more routed work. This is provider-side reputation rather than agent-side reputation: the agent submitting work is anonymous to Morpheus, while the routing target is reputation-weighted. AIP-3 is the inverse: the agent's reputation is the portable artifact, while the OABP server (the routing target) is selected via Trust Registry per §6. A Morpheus-routed agent could carry an AIP-3 attestation as its credential when claiming OABP missions.
+
 ### Summary table
 
 | System | Subject | Portability mechanism | Default lifetime | Open spec |
@@ -466,6 +478,11 @@ Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Re
 | EAS | Any subject | On-chain attestation | Indefinite | Yes (MIT) |
 | Bittensor subnet | Miner | Subnet-internal scoring | N/A (continuous) | Yes |
 | Olas | Agent service | On-chain registry + stake | Indefinite | Yes (Apache 2.0) |
+| Fetch.ai Agentverse | Agent | Registry rating | Indefinite | Partial |
+| Ritual | Inference node | On-chain attestation + slashing | Per-attestation | Yes |
+| Morpheus | Compute provider | Stake + latency ranking | Continuous | Yes |
+
+AIP-3 does not attempt to replace any of these — most target different subjects (humans, nodes, providers, or service registrations) or different work models (continuous inference, social proof, on-chain only). AIP-3 occupies the specific niche of *portable, mission-event-derived, agent-level* reputation with a defined trust-decay model.
 
 ## Changelog
 
@@ -475,3 +492,4 @@ Olas tracks agent service uptime, slashing events, and bonded stake on-chain. Re
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
 | v0.1.2 | 2026-05-17 | Add §10: Settlement Receipt Format (normative) — portable server-signed binding of agent+mission+artifact+settlement |
 | v0.1.3 | 2026-05-19 | Add §3.1 Self-Submission Exclusion (normative) — closes identity-loop Sybil exploit on cross-chain reputation, closes #17 |
+| v0.1.4 | 2026-05-21 | Extend Appendix D (non-normative) — add Fetch.ai Agentverse, Ritual Network, Morpheus to peer agent-economy roster; align with AIP-2 v0.2.1 federation gesture. Header status synced (was v0.1.2, now v0.1.4) |
