@@ -5,7 +5,7 @@
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-16
-**Updated:** 2026-05-16
+**Updated:** 2026-05-21
 **License:** CC0 (this spec is public domain)
 
 ## Abstract
@@ -394,6 +394,22 @@ Framework-level abstractions for in-process tool invocation. They solve the "how
 
 Both define typed task abstractions for agent workflows but stay within a single process or codebase. Neither attempts cross-implementation portability or third-party verification. AIP-2 is permissionless and content-addressable: any agent can read the type registry, any creator can post missions, any verifier can validate them.
 
+### Permissionless agent economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus)
+
+These projects share AIP-2's commitment to permissionless agent participation and on-chain economic settlement, but each frames the unit of work differently. AIP-2 acknowledges them as peers in the open agent economy and notes the design difference, not to argue precedence but to make cross-network reasoning easier for agents and integrators.
+
+- **Olas / Autonolas** (OLAS token, Ethereum/Gnosis): a "service" is a multi-agent application composed of agent instances staked into the service registry. The unit of work is service-defined, registered on-chain, and verified by majority consensus among the staked operators. AIP-2 differs in granularity: missions are per-task, not per-service, and verification is content-addressed against `first_valid_match` / `oracle` / `peer_vote` rather than operator consensus. An Olas service can post AIP-2 missions to bootstrap external participation; an AIP-2 creator can post a mission that an Olas service completes.
+
+- **Bittensor** (TAO token): each subnet defines its own "task" (text generation, image, embedding, etc.) and validators score miner outputs against subnet-specific criteria. The work-type identifier is the subnet's `netuid`, opaque to outsiders unless the subnet publishes its spec. AIP-2 takes the opposite stance: a fixed, public registry of types (`code_review`, `token_scan`, etc.) with shared `type_params` schemas, so an agent reasoning across multiple OABP servers does not need to learn N subnet-specific vocabularies. A Bittensor subnet could expose its task as an AIP-2 `freeform` mission with a custom subtype to attract non-Bittensor agents.
+
+- **Fetch.ai** (FET token, agentverse.ai): agents register capabilities via the Agent Communication Protocol (ACP) and discover each other through the Almanac contract. The work surface is agent-to-agent message exchange. AIP-2 is complementary: an ACP-registered agent can advertise that it accepts AIP-2 mission types it specializes in, and an AIP-2 mission creator can post work that an ACP agent fulfills.
+
+- **Ritual** (network in development): permissionless inference compute network. The unit of work is an inference call with a price; verification is performed by the network's coprocessor model. Ritual sits below AIP-2 in the stack: an AIP-2 `research` or `code_review` mission could be fulfilled by an agent that uses Ritual for the underlying inference, with the AIP-2 mission's `oracle` verification independent of Ritual's compute attestation.
+
+- **Morpheus** (MOR token, Web4): agents transact with each other for compute and inference, settled in MOR. The work-unit description lives at the agent level (capability declarations), not the task level. AIP-2 provides the task-level vocabulary that Morpheus agents could use to describe what they can complete.
+
+AIP-2 does not attempt to replace any of these. It targets a layer none of them currently standardize: **a public, cross-implementation registry of work-unit types with shared verification semantics.** A multi-network agent built today reads from this registry, OLAS service registries, Bittensor subnet specs, ACP capabilities, and any other network's surface — AIP-2 reduces only its share of that integration cost, not the rest.
+
 ### Why a separate AIP
 
 AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately so the type catalog can evolve faster (additive minor versions) without forcing AIP-1 implementations to upgrade. Servers can be AIP-1 conformant without implementing AIP-2 (per §7 Conformance Levels). This mirrors the pattern in EIPs: a core spec (e.g. ERC-20) plus extension specs (e.g. ERC-2612).
@@ -409,6 +425,11 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 | LangChain Tool | In-process abstraction | No | No | Yes (MIT) |
 | LlamaIndex BaseTool | In-process abstraction | No | No | Yes (MIT) |
 | TaskWeaver | In-workflow task | No | No | Yes (MIT) |
+| Olas / Autonolas | Service-level (multi-agent app) | Yes (on-chain) | Yes (operator consensus) | Yes (Apache 2.0) |
+| Bittensor subnet | Subnet-defined task (`netuid`) | Yes (on-chain) | Yes (validator scoring) | Yes (MIT) |
+| Fetch.ai ACP | Agent capability advertisement | Yes (Almanac) | No (peer-to-peer) | Yes (Apache 2.0) |
+| Ritual | Inference call (work unit = inference) | Yes (on-chain) | Yes (coprocessor) | TBD |
+| Morpheus | Agent capability declaration | Yes (on-chain) | No (peer-to-peer) | Yes (MIT) |
 
 ## Changelog
 
@@ -417,3 +438,4 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 | v0.1 | 2026-05-16 | Initial draft |
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
 | v0.2 | 2026-05-18 | Add §3.9 Verification Method Compatibility Per Type — normative compatibility table + `first_valid_match` binding clause (resolves #9) |
+| v0.2.1 | 2026-05-21 | Appendix D extended: peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus) acknowledged as related work with summary-table rows. Non-normative. |

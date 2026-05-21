@@ -4,10 +4,18 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #233 (15:39Z) — POST /api/missions alias (curl dev 207.148.107.2 a essayé 2×). Sitemap_index.xml créé (AgenstryBot 404). Blog #11 dans sitemap."
+    "progress_note": "Run #250 (2026-05-21T00:09Z) — AIP-2 v0.2.1: Appendix D extended to acknowledge peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Federation gesture A.4. 14 blog posts, AIP-1 v0.3.3, AIP-2 v0.2.1."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "hn_blog14_submit",
+      "title": "Soumettre blog #14 sur Hacker News (brouillon prêt)",
+      "details": "distribution/outreach_drafts/hn_submission_blog14.md — titre + premier commentaire prêts à copier-coller. URL: https://cryptogenesis.duckdns.org/blog/2026-05-20-ten-mcp-clients-field-notes. Meilleur créneau: Mar-Mer 13-15h CET.",
+      "optimal_when": "Mardi ou Mercredi matin (13-15h CET)",
+      "blocking_what": "Croissance des stars GitHub (actuellement 2 — objectif 200)",
+      "added": "2026-05-20T23:45Z"
+    },
     {
       "id": "pr24_review_oracle_fix",
       "title": "PR #24 Sikkra — review + merge (oracle mission judging fix)",
@@ -139,229 +147,9 @@
   ],
   "done_today": [
     {
-      "ts": "2026-05-20T00:11:00Z",
+      "ts": "2026-05-21T00:09:00Z",
       "emoji": "🌐",
-      "title": "AgenstryBot revient depuis une 3e adresse IP (KPN Pays-Bas, 213.197.49.100) — sweep complet de 10 URLs de découverte tous 200, incluant /.well-known/mcp qui était 404 hier (fix run #206 confirmé en production). Bot crawle aussi /agents.txt — j'ai mis à jour le fichier pour lister les 16 conventions d'URL réellement servies (annonçait 7, maintenant 16), incluant les variants .well-known/agent-directory.json et les alias à la racine. Bénéfice écosystème : tout futur agent-directory crawler trouve la liste exhaustive en 1 fetch. Déployé sur le serveur."
-    },
-    {
-      "ts": "2026-05-20T01:08:00Z",
-      "emoji": "🌐",
-      "title": "AgenstryBot vient d'évoluer en direct (signal pris à 01h07, 90s avant ce réveil) : pour la première fois il tente POST /mcp après avoir lu agent-card.json, mais échoue parce qu'il n'envoie pas le handshake JSON-RPC initialize. Il reçoit 400 et retourne sur agent-card.json (cherche un hint d'invocation qu'on n'expose pas). Action : ajouté une recette MCP-invocation explicite dans /agents.txt (en-têtes requis, corps initialize complet, alternative HTTP plain via /api/missions). N'importe quel futur crawler qui lit /agents.txt voit maintenant comment appeler correctement. Lesson #40 documentée. Geste fédération pur — recette généralisable à toute implémentation OABP+MCP."
-    },
-    {
-      "ts": "2026-05-20T02:08:00Z",
-      "emoji": "🌐",
-      "title": "Filé une demande de modification de spec sur GitHub (issue #22 d'aigen-protocol). Sujet : quand notre carte de présentation publique annonce un serveur intelligent, elle ne dit pas COMMENT lui parler — les robots annuaires butent dessus. AgenstryBot vient de le prouver en direct il y a 50 min (essai d'invocation, erreur 400, retour à la doc cherchant un mode d'emploi inexistant). J'ai proposé d'ajouter un bloc 'transport' à la carte avec les en-têtes requis + le message d'ouverture littéral + des URLs de repli en HTTP simple. 3 conditions explicites pour invalider la proposition. Cible : v0.3 du protocole, applicable à toute deuxième implémentation."
-    },
-    {
-      "ts": "2026-05-20T03:10:31Z",
-      "emoji": "🌐",
-      "title": "Commentaire de suivi sur l'issue #22 — un dev externe (reaworks-ops) avait offert son aide; je lui ai répondu et ajouté la preuve en direct qu'AgenstryBot a lu notre fichier-recette à 02:27Z et a quand même échoué à 02:56Z. Falsifie l'option (2) du Lesson #40 — la recette doit vivre dans agent-card.json (proposition de l'issue #22)."
-    },
-    {
-      "ts": "2026-05-20T04:11:00Z",
-      "emoji": "🌐",
-      "title": "Réponse à reaworks-ops sur issue #22 (3e commentaire externe en 9h) : inputs concrets (branche main, URL agent-card live, logs in-thread), modèle PR-CC0 sans compensation pipeline, et acceptance criterion technique = la sortie d'erreur '400 sans initialize' doit être un JSON-RPC error object (machine-readable) au lieu du dump Pydantic actuel. Garde la porte ouverte pour une PR avec leur authorship — geste fédération propre."
-    },
-    {
-      "ts": "2026-05-20T04:11:00Z",
-      "emoji": "📡",
-      "title": "Signal externe en direct : 184.148.22.12 (Toronto résidentiel Bell DSL, JAMAIS vu) a complété un cycle MCP complet entre 04:04:42Z et 04:07:44Z (3 minutes) : manifest → 2 initialize (1 raté 1 ok) → tools/list 22 outils → 14 tool calls → portail /aigen → essai REST /api/tasks /tasks /task_board (404). Push Telegram envoyé (high priority, 2/5 du jour). Premier curl client externe à compléter un cycle MCP de A→Z."
-    },
-    {
-      "ts": "2026-05-20T05:14:03Z",
-      "emoji": "🌐",
-      "title": "Déployé en direct une mise à jour majeure de notre carte de présentation publique (/.well-known/agent-card.json) : elle dit maintenant explicitement COMMENT nous appeler (en-têtes requis + corps du message d'ouverture verbatim + forme de l'erreur à renvoyer). C'est l'option proposée sur l'issue #22 hier — un dev externe (reaworks-ops) a confirmé que la solution était bonne mais a refusé de la coder gratuitement (boundary commercial propre). On l'a fait nous-mêmes en 20 min. La carte passe de 6.5KB à 10.6KB, déployée sans redémarrage de service."
-    },
-    {
-      "ts": "2026-05-20T05:14:03Z",
-      "emoji": "🚀",
-      "title": "Commit 976ac3b poussé (agent-card.json +194 −28). Aussi posté un commentaire de suivi sur l'issue #22 pour acknowledger la limite commerciale de reaworks-ops sans contre-proposition et noter que le déploiement live est CC0 — n'importe quelle 2e impl OABP peut copier la forme du bloc transport verbatim. Prochain passage d'AgenstryBot (~30 min) = test de régression en direct."
-    },
-    {
-      "ts": "2026-05-20T06:13:00Z",
-      "emoji": "🌐",
-      "title": "Un nouveau robot vient d'arriver pour la première fois: Chiark, basé en Allemagne, qui se décrit comme un 'index de qualité d'agents' (chiark.ai). À 05h36 il a réussi notre nouvelle prise de contact MCP (200) mais a échoué juste après (400) parce qu'il n'a pas fait la 2e étape obligatoire (notification 'initialized' + en-tête de session à renvoyer). C'est exactement la donnée qu'on cherchait pour améliorer la spec déposée hier soir."
-    },
-    {
-      "ts": "2026-05-20T06:13:00Z",
-      "emoji": "🚀",
-      "title": "Étendu la carte de présentation publique (/.well-known/agent-card.json) avec 3 nouveaux champs pour combler le trou révélé par Chiark : (1) le nom de l'en-tête de session que notre serveur renvoie, (2) le corps de la notification obligatoire à envoyer juste après la prise de contact, (3) un exemple concret d'appel suivant. La carte passe de 10.6KB à 13.0KB. Commit 6b664a7 poussé. Déployé en direct sans redémarrage de service."
-    },
-    {
-      "ts": "2026-05-20T06:13:00Z",
-      "emoji": "💬",
-      "title": "Posté la preuve Chiark + l'amendement de la proposition de spec sur GitHub issue #22 (4e commentaire dans le thread, dont 1 de reaworks-ops). Format falsifiable conservé : 3 critères explicites qui invalideraient l'amendement. Approche fédération maintenue (pas de fundraising, CC0)."
-    },
-    {
-      "ts": "2026-05-20T07:13:00Z",
-      "emoji": "📡",
-      "title": "Découverte précieuse: un 2e robot (MCP-Catalog-Bot/1.0, Comcast US) a réussi notre prise de contact MCP 3x en 90s entre 06:40 et 06:41 — MAIS, contrairement à Chiark hier matin, ce robot n'a JAMAIS lu notre carte de présentation (vérifié sur 24h de logs). Il envoie un message d'ouverture MCP standard. Il échoue exactement à la même 2e étape que Chiark. Ce qui veut dire: le trou n'est pas dans le canal de découverte, il est dans le mode d'emploi du CYCLE DE VIE — les 2 architectures de robot (lecteur de carte vs. spec-aveugle) butent au même endroit. Confirmation empirique cross-architecture de la proposition de spec #22."
-    },
-    {
-      "ts": "2026-05-20T07:13:00Z",
-      "emoji": "🚀",
-      "title": "Commit 6d9b20b: étendu le guide 'comment construire une 2e implémentation' (docs/SECOND_IMPLEMENTATION.md) avec la preuve à 2 robots + tableau comparatif + les 3 champs obligatoires à publier dans la carte de présentation pour combler le trou (en-tête de session que le serveur renvoie, notification d'init obligatoire à envoyer, exemple d'appel suivant). Lien interne issue #8 (historique) remplacé par #22 (actif). Lesson #43 archivée. PAS commenté sur issue #22 cette fois — ça serait mon 3e comment d'affilée sans réponse externe, mauvaise hygiène. Garde la munition pour le prochain trigger externe."
-    },
-    {
-      "ts": "2026-05-20T07:55:00Z",
-      "emoji": "📡",
-      "title": "Premier passage en direct d'un client qui complète notre poignée-de-main en entier (07:50:22-24Z). User-agent jamais vu en 7 jours: 'Ae/JS 0.62.0' (un SDK JavaScript inconnu, routé via Cloudflare). Séquence: ouverture de session OK (200 1182B) → un échec transitoire (400 105B, 2s plus tard) → succès complet de la 2e étape avec la liste des 22 outils (200 41557B). C'est la PREMIÈRE preuve en production que notre contrat de session corrigé est satisfaisable — pas juste théorique. Avec Chiark (lit notre carte, échoue) + MCP-Catalog-Bot (protocole brut, échoue) + Ae/JS (SDK conforme, réussit) on a maintenant 3 architectures distinctes, 2 modes d'échec + 1 succès. Identité du client inconnue (WebSearch sans résultat) — possible SDK pré-release Anthropic/Smithery worker/bot privé."
-    },
-    {
-      "ts": "2026-05-20T07:55:00Z",
-      "emoji": "🚀",
-      "title": "Étendu le guide 2e implémentation (docs/SECOND_IMPLEMENTATION.md) avec la 3e ligne du tableau de preuves: trace positive Ae/JS 0.62.0 à côté des 2 échecs Chiark + MCP-Catalog-Bot. Header reformulé en 'observed across three independent clients (2026-05-20)'. Archivé Lesson #44. PAS reposté sur issue #22 (discipline Lesson #43 toujours active — la preuve s'accumule silencieusement, on attend un trigger externe pour la livrer en bundle)."
-    },
-    {
-      "ts": "2026-05-20T08:13:42Z",
-      "emoji": "🚀",
-      "title": "Réparé un trou de découverte: notre 2e carte publique de présentation (format Smithery, servie depuis le 16 mai) ne parlait PAS de la recette d'appel qu'on a déployée hier soir. AgenstryBot l'a lue ce matin à 07h48 — un robot qui n'aurait lu QUE celle-là ne saurait pas comment nous parler. Ajouté 2 champs minimes: un lien vers la recette complète et une note d'1 paragraphe avec la preuve Ae/JS qui a réussi à 07h50 + les 2 modes d'échec observés. Schéma Smithery préservé. Commit 4149890 poussé."
-    },
-    {
-      "ts": "2026-05-20T08:38:00Z",
-      "emoji": "📜",
-      "title": "Publié blog #10 (2026-05-20-step-2-trap.md, 10.3KB) — synthèse publique des 4h d'évidence step-2-trap accumulée entre 04h13 et 08h13 : 3 robots indépendants, 2 modes d'échec, 1 succès. Article positionné en artefact compound (priorité focus.md #1) plutôt qu'en commentaire #22 supplémentaire (discipline Lesson #43 — pas de 3e commentaire d'affilée sans réponse externe). Tableau cross-architecture (Chiark/MCP-Catalog-Bot/Ae/JS) + Lesson #45 sur la dérive cross-surface + 3 ressources copy-paste pour 2e implémenteurs. Sitemap mis à jour. Commit 98d67cc poussé. Sert HTML rendu live à /blog/2026-05-20-step-2-trap (vérifié)."
-    },
-    {
-      "ts": "2026-05-20T09:09:00Z",
-      "emoji": "📡",
-      "title": "Le client Node.js \"node\" qu'on a vu hier (Asie-Pacifique, IP 49.156.213.62) est repassé deux fois ce matin (08h50 et 09h07) et a complété notre poignée-de-main de bout en bout les DEUX fois — donc on a maintenant 2 vrais clients qui réussissent (lui + Ae/JS hier matin) au lieu d'un seul. La preuve passe de 3 architectures (2 échecs + 1 succès) à 4 architectures (2 échecs + 2 succès) — c'est plus dur de contester une spec quand 2 clients indépendants la satisfont. Mis à jour le guide \"comment construire une 2e implémentation\" avec la 4e ligne du tableau de preuves + leçon #46 archivée. PAS posté de 6e commentaire sur l'issue #22 (discipline auto: pas 3 d'affilée). Pas de push Telegram (client déjà connu hier, pas une première rencontre)."
-    },
-    {
-      "ts": "2026-05-20T09:38:00Z",
-      "emoji": "📡",
-      "title": "Premier contact d'un genre de robot qu'on n'avait jamais vu : 'vesta-inventory-ping' (datafenix.ai/vesta), plateforme SaaS d'analyse pour serveurs MCP. 2 IPs Google Cloud en 11 min (34.34.246.7 puis .220 — fleet distribué). Comportement unique : une seule visite éclair pour confirmer qu'on parle JSON-RPC, puis silence. Distinct des annuaires Chiark/MCP-Catalog-Bot qui se plantent en étape 2 — Vesta s'arrête à l'étape 1 par design. 3e catégorie d'échec, 5e architecture documentée aujourd'hui. Si leur évaluateur revient dans 24-48h, on aurait potentiellement une recommandation publique tierce. Push Telegram envoyé (3/5)."
-    },
-    {
-      "ts": "2026-05-20T09:42:00Z",
-      "emoji": "🚀",
-      "title": "Étendu le guide 'comment construire une 2e implémentation' (docs/SECOND_IMPLEMENTATION.md, pitfall #7) avec la 5e ligne du tableau de preuves : Vesta = nouvelle catégorie d'échec 'step-1 OK puis silence' (distinct des 2 modes Chiark/MCP-Catalog-Bot qui font step-1 OK puis 400). Header changé : 'four independent clients' → 'five independent clients', 'Two failure modes' → 'Three failure modes'. Ae/JS row mise à jour pour signaler ses revisites récentes (09:23, 09:26, 09:37 — client récurrent, plus un one-shot). Lesson #47 archivée. PAS commenté sur issue #22 (discipline Lesson #43 : pas 3 d'affilée sans réponse externe)."
-    },
-    {
-      "ts": "2026-05-20T10:12:51Z",
-      "emoji": "📡",
-      "title": "Premier client externe à se nommer 'OABP-aware' dans son user-agent : 'smolagents-oabp-example/1.0' (149.88.100.197, Hetzner Helsinki, même /24 que codex-wallet-agent). Smolagents = mini-framework agent de Hugging Face (~3.5k étoiles). 4 requêtes REST uniquement entre 09:50:54Z et 09:53:48Z (2 cycles d'exploration des missions), puis silence. Particularité : N'a JAMAIS touché /mcp — REST uniquement. C'est la première preuve qu'un client externe atteint le protocole par la voie REST 4-endpoints sans avoir besoin de MCP. Valide le design REST-first d'AIP-1 et court-circuite toute la matrice step-2-trap du matin (5 architectures, toutes MCP). Probablement une 2e implémentation tentée par l'opérateur de codex-wallet-agent (UA sandwiched entre activité codex à 09:47Z et 09:58Z). Pas encore une implémentation complète (pas de submit), mais l'auto-identification dans l'UA est un geste fédération inédit."
-    },
-    {
-      "ts": "2026-05-20T10:12:51Z",
-      "emoji": "🚀",
-      "title": "Mis à jour docs/SECOND_IMPLEMENTATION.md (section 'MCP surface, strongly recommended, not mandatory') avec un paragraphe documentant les frameworks REST-only qui bypassent MCP. Citation explicite de la trace 'smolagents-oabp-example/1.0' à 09:50Z comme preuve empirique, et note que la pitfall #7 step-2-trap n'affecte PAS les clients REST-only. Lesson #48 archivée dans state/lessons.md. PAS commenté sur issue #22 (discipline Lesson #43 : pas 3 d'affilée sans réponse externe). PAS de push Telegram (engagement trop court : 4 requêtes, pas de submit, même /24 qu'un client connu — pas vraiment un 'first contact' au sens strict)."
-    },
-    {
-      "ts": "2026-05-20T10:39:00Z",
-      "emoji": "📡",
-      "title": "PREMIER PR DE CODE EXTERNE sur le repo public ! Sikkra a ouvert PR #23 sur Aigen-Protocol/aigen-protocol à 10:22:24Z (16 min avant ce réveil) : 'Validate mission options before debiting escrow' — bug réel + test de régression propre. C'est le même opérateur que smolagents-oabp-example ce matin (Hetzner Helsinki 149.88.100.197). Bug confirmé : `create_mission()` débite l'escrow AIGEN + spam fee 5 AIGEN AVANT de valider webhook_url/notify_email/category — donc une création avec champ optionnel invalide perd les fonds sans mission créée. Fix = pure réorganisation (validation déplacée avant le débit). Diff brut 1519/-1520 mais `--ignore-cr-at-eol` donne ~70 lignes nettes (CRLF Windows, normalisation triviale). Test pytest propre avec tmp_path + monkeypatch + parametrize. KPI focus.md '≥1 implémentation OABP-compliant tentée par 2026-08-15' = atteint."
-    },
-    {
-      "ts": "2026-05-20T10:39:00Z",
-      "emoji": "🌐",
-      "title": "Posté un commentaire de review substantif sur PR #23 (Tier A : github comment sur Aigen-Protocol/*). Confirmation du diagnostic (escrow débité avant validation), reconnaissance du test (triple assertion : error message + balance unchanged + missions_file not created), note constructive sur le bruit CRLF (propose .gitattributes ou normalisation post-merge), 1 suggestion technique (parametrize-row pour USDC pour future-proof le refactor symétrique), defer merge à Bilale (touche escrow). Lien : https://github.com/Aigen-Protocol/aigen-protocol/pull/23#issuecomment-4497539848 . Geste fédération : reconnaissance publique + question technique substantive + handoff propre à Bilale pour la décision finale."
-    },
-    {
-      "ts": "2026-05-20T10:39:00Z",
-      "emoji": "🔥",
-      "title": "Push Telegram envoyé (priority high, 4/5 du jour) — première fois qu'un externe contribue du code de fond au protocole. Signal cohérent avec focus.md §2 'Respond to any inbound issue/PR on Aigen-Protocol within 24h' — review postée en moins de 20 min après ouverture du PR."
-    },
-    {
-      "ts": "2026-05-20T11:20:45Z",
-      "emoji": "⚙️",
-      "title": "Ajouté endpoint /missions/balance/{id}/withdraw dans le serveur (info + enregistrement de wallet pour réclamer ses AIGEN). Répare le 404 pour le détenteur de 900 AIGEN qui a essayé de retirer."
-    },
-    {
-      "ts": "2026-05-20T11:20:45Z",
-      "emoji": "🌐",
-      "title": "Posté mission CrewAI (mis_2f6ae4b5172b, 300 AIGEN, 30 jours) — contribution écosystème : premier framework manquant dans la liste. Vérification oracle (n'importe quel reviewer externe peut valider)."
-    },
-    {
-      "ts": "2026-05-20T11:20:45Z",
-      "emoji": "📜",
-      "title": "Documenté les nouveaux endpoints /withdraw dans API.md et commité dans le repo public."
-    },
-    {
-      "ts": "2026-05-20T11:37Z",
-      "emoji": "📡",
-      "title": "Signal exceptionnel: aigen-crewai-oabp-agent/0.1 (Sikkra) a listé les 22 missions en 13s puis soumis mis_2f6ae4b5172b avec repo GitHub public — 20 min après la création de la mission. 3 tests passés, dry-run OK. Premier agent nommé par framework (CrewAI + OABP dans user-agent)."
-    },
-    {
-      "ts": "2026-05-20T11:37Z",
-      "emoji": "🔥",
-      "title": "Push Telegram envoyé (5/5 du jour, quota atteint) — Sikkra a livré CrewAI OABP agent 20 min après la mission."
-    },
-    {
-      "ts": "2026-05-20T11:38Z",
-      "emoji": "🌐",
-      "title": "Commentaire sur crewAIInc/crewAI#5836 (SunfishLoop) sur portabilité de réputation agent entre réseaux — sans mentionner AIGEN, focus conception : signal social vs tâche, signed identity manifests."
-    },
-    {
-      "ts": "2026-05-20T11:38Z",
-      "emoji": "🚀",
-      "title": "Commit 267beba: section Community implementations dans SECOND_IMPLEMENTATION.md (aigen-crewai-oabp-agent + smolagents-oabp-example). Lesson #49 archivée."
-    },
-    {
-      "ts": "2026-05-20T12:10Z",
-      "emoji": "📡",
-      "title": "Sikkra (149.88.100.197) très actif depuis 11h38 : 3 missions supplémentaires soumises (mis_3a5be9fef88a/f4a9a7896846/011c1810fe6d — all first_valid_match, toutes résolues) → codex-wallet-agent monte à 1350 AIGEN (27 victoires). Nouveau variant d'agent observé : codex-wallet-agent-oracle-fix. Ae/JS SDK a refait 2 sessions MCP complètes à 12h02."
-    },
-    {
-      "ts": "2026-05-20T12:10Z",
-      "emoji": "⚙️",
-      "title": "Ajouté route /rewards/{agent_id} dans scanner.py (alias du endpoint query-param existant) — répare le 404 que Sikkra recevait. Actif au prochain redémarrage. Documenté dans API.md."
-    },
-    {
-      "ts": "2026-05-20T12:10Z",
-      "emoji": "🌐",
-      "title": "Mission Rust OABP postée : mis_15602f51245f, 500 AIGEN, 30 jours, oracle. Premier bounty Rust — complète le tableau de langages (Python/TS/Ruby/Java déjà couverts). N'importe quel agent peut soumettre."
-    },
-    {
-      "ts": "2026-05-20T12:48:00Z",
-      "emoji": "🌐",
-      "title": "Mission elizaOS postée — 400 AIGEN, oracle, TypeScript, n°24 dans la liste active"
-    },
-    {
-      "ts": "2026-05-20T12:48:00Z",
-      "emoji": "🚀",
-      "title": "Alias /agents/{id}/reputation ajouté au serveur + documenté dans API.md (prêt au prochain redémarrage)"
-    },
-    {
-      "ts": "2026-05-20T13:15:00Z",
-      "emoji": "📜",
-      "title": "Article de blog #11 écrit : 'Quand un protocole ouvert reçoit son premier pull request' — raconte PR #23 (Sikkra), le bug escrow-avant-validation, et ce que ça signifie pour un protocole ouvert."
-    },
-    {
-      "ts": "2026-05-20T13:15:00Z",
-      "emoji": "🌐",
-      "title": "Commentaire sur AutoGen issue #7702 (Microsoft) 'should AutoGen agents discover tasks from external open markets?' — données empiriques sur les patterns de découverte REST-first, sanity check de récompense, et vérification multi-agent. Sans promotion AIGEN."
-    },
-    {
-      "ts": "2026-05-20T13:42:18Z",
-      "emoji": "🚀",
-      "title": "6 routes REST ajoutés : /api/agents/{id}/withdraw|claim|payout|rewards|submissions — opérateur PowerShell pouvait pas trouver ses tokens"
-    },
-    {
-      "ts": "2026-05-20T14:08:47Z",
-      "emoji": "🌐",
-      "title": "Répondu à la critique sécurité d'Ilya0527 sur smolagents — interface TrustLevel + test anti-injection proposé"
-    },
-    {
-      "ts": "2026-05-20T14:38Z",
-      "emoji": "🌐",
-      "title": "Suivi smolagents #2284 : cross-référence avec LangGraph AMP RFC #7208 (fleet trust + REST path gaps). Carte d'appro pour poster le commentaire LangGraph depuis le browser. Lesson #50 : langgraph interaction limits."
-    },
-    {
-      "ts": "2026-05-20T15:08Z",
-      "emoji": "💬",
-      "title": "PR #24 (Sikkra) commenté — oracle judge fix, note authorized_oracle future"
-    },
-    {
-      "ts": "2026-05-20T15:08Z",
-      "emoji": "🌐",
-      "title": "Mission Ruby OABP postée : mis_4d7f00fac5f8, 200 AIGEN, oracle, 30j — dernier grand langage manquant"
-    },
-    {
-      "ts": "2026-05-20T15:39Z",
-      "emoji": "🚀",
-      "title": "POST /api/missions ajouté (alias REST pour créer des missions) + sitemap_index.xml créé (AgenstryBot cherchait ce fichier). Blog #11 ajouté au sitemap live."
+      "title": "AIP-2 v0.2.1 — Appendix D élargi pour reconnaître les réseaux d'agent-économie pairs (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Notre spec citait les abstractions tool-calling (OpenAI/Anthropic/MCP/LangChain) mais ne nommait aucun des 5 vrais projets adjacents qui font la même chose qu'AIGEN à un autre niveau du stack. Maintenant elle le fait, avec une note explicite : 'AIP-2 ne cherche pas à les remplacer.' Geste de fédération pure — leur visibilité augmente depuis chez nous, notre spec gagne en honnêteté technique. +23 lignes, 5 nouvelles lignes dans le tableau récap."
     }
   ],
   "alerts": []
