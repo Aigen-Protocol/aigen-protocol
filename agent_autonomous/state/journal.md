@@ -11377,3 +11377,56 @@ The diff is intentionally surgical (3 lines added, 1 line edited from "Two impli
 **Self-discipline counter**: this run = ecosystem-contribution shipped (🌐). Pattern continues: 4 of last 5 runs shipped concrete federation/spec changes. The "max 2 consecutive watching-only" allowance was used in run #257; runs #258 + #259 both broke that streak with substantive commits. Healthy cadence.
 
 **Pending from Bilale (unchanged)**: PRs #23 + #24 to merge (525 AIGEN to Sikkra), HN submission for blog #14, `systemctl restart aigen-scanner + aigen-sse`, gas Base ETH check, 10 DMs.
+
+---
+**Run #260 — 2026-05-21T05:08Z**
+
+**Self-audit + lesson correction (no new code, no external action).**
+
+Read the chat log + journal of the last 6 runs (#252 → #257 + #259) and noticed a coherent narrative had built up: "**l'explorateur lourd curl/8.5.0 depuis 207.148.107.2** systematically re-tests our deployments within 90 min". That narrative was the most-celebrated external signal of the past 24h — referenced in 4 chat posts to Bilale (run #251, #252, #253, #257) and in 3 `done_today` entries in tasks.json. But lesson #31 + #36 already documented that `207.148.107.2` is **this server's own public IP**.
+
+Verified at 05:11Z:
+- `curl -4 ifconfig.me` → `207.148.107.2`
+- `curl -4 ipv4.icanhazip.com` → `207.148.107.2`
+- `ip route get 1.1.1.1` → `src 207.148.107.2`
+
+`systemctl list-timers` confirms `aigen-watcher.timer` fires every 30 min from `run_watcher.sh` on this same box. The "90-min verification cadence" is just 2–3 watcher cycles. The watcher does exactly what an external explorer would do (well-known fetches, sitemap polls, /specs probes through our public hostname), so the traffic loops back through nginx with source IP = `207.148.107.2` and the bait-shaped pattern fooled the autopilot for 6 consecutive runs.
+
+**Concretely wrong claims that were posted to Bilale or written into tasks.json**:
+1. Run #251 chat: "le robot lourd qui nous explore depuis hier (207.148.107.2)" + posted a 100-AIGEN welcome mission `mis_3484adb538c9` "specially for him" — **the welcome mission was for a fictional external user**. (Still live; safe — `first_valid_match` regex won't pay out to a phantom.)
+2. Run #252 chat: "207.148.107.2 (explorateur curl/8.5.0 actif depuis hier)" — self.
+3. Run #253 chat: "a re-testé /.well-known/agent-bounty.json à 90 secondes après que je l'ai créée — d'abord 404 (cache), puis 200" — the 404 was the cached 404 from before the alias took effect; the 200 was the watcher seeing the new alias on its next 30-min cycle. Self.
+4. Run #254 chat: "premier lien entrant connu depuis un hôte tiers : 2 robots (47.84.112.68 Alibaba + 172.206.16.158 Azure) sont arrivés chez nous avec 'http://207.148.107.2' en referrer" — **this part is actually correct** per lesson #31's epilogue: external bots arriving with our IP as Referer means an outside index has us listed by raw IP, and that's a legitimate signal. So run #254's secondary observation stands; only the "207.148.107.2 is third-party" mis-framing in the earlier run was wrong.
+5. Run #256 chat: "207.148.107.2 + 104.232.220.118 testent /specs/*.zip — preuve cross-client d'une lacune réelle" — half-right: `104.232.220.118` (a real US-East Linode user-agent Go-http-client) was the cross-client signal; the 207.148.107.2 hits were the watcher confirming our deploy. The cross-client framing inflated N=1 to N=2.
+6. Run #257 chat: "l'explorateur curl actif depuis hier (207.148.107.2) est revenu 90 min après ma dernière action ... a téléchargé un vrai zip de 14 ko" — self.
+
+**Action shipped this run** — lesson reinforcement only:
+- Appended a 2026-05-21 re-trigger variant to `state/lessons.md` lesson #31 (after the 2026-05-19 AIGEN-Earner variant). Hard rule restated: source IP = `207.148.107.2` always means local; the only legitimate signal is when a *different* IP arrives with `Referer: http://207.148.107.2/`.
+- No code change to `run_watcher.sh` (it's doing its job correctly).
+- Honest chat post to Bilale acknowledging the misclassification (no euphemisms).
+
+**Why this is worth a run instead of silent next-time recovery**: the misclassification was propagating to the public chat (visible at `/agent`) and tasks.json. Bilale was reading "we have an external observer actively monitoring our deployments" — wrong framing. Better to correct it now with a clean note than let it compound.
+
+**Real external signals in this 30-min window (05:00Z–05:08Z) — after correctly filtering self-traffic**:
+- `136.243.228.194` (Hetzner DE, **DataForSeoBot/1.0**) — still deep-crawling at ~12 hits/min. Now indexing `/reputation/<id>` profile pages and `/m/<mis_id>` short-form mission URLs. Trigger remains the publicmcpregistry.com backlink documented in run #259.
+- `184.105.247.252` — single IP rotating across 3 distinct browser UAs (`Chrome 99/Win`, `Safari 17.4/Mac`, `Chrome 120/Win`) in 4-min window, probing `/webui/`, `/geoserver/web/`, `/favicon.ico`, and one `GET / 200/8048B` with `Referer: http://207.148.107.2/`. **Exact match for the malicious-recon fingerprint in lesson #59** (single IP + ≥3 UA rotation + infra-admin path probe). Filter out of any "external visitor" counts.
+- `216.73.217.69` `ClaudeBot/1.0` — routine `robots.txt` + `sitemap.xml` poll. Healthy.
+- Routine Cloudflare-fronted MCP triple-handshake on `nju+account` + `google+account` profiles.
+
+**publicmcpregistry.com investigation** (D.10 ecosystem-contribution scope):
+- WebFetched `https://publicmcpregistry.com/` — confirmed they have a `/dashboard/mcps` submission flow but no public schema or `.well-known/<registry>.json` path documented.
+- WebFetched `https://publicmcpregistry.com/search?q=aigen` — no entries surface (the site is likely JS-rendered; WebFetch can't execute JS).
+- `/mcps?q=aigen` 404s.
+- **Conclusion**: we ARE indexed (proven by UTM `utm_source=publicmcpregistry.com&utm_medium=mcp_page` + `mcp_sidebar` in our nginx logs from run #259) but their public schema isn't reachable via plain HTTP fetch. No pre-stage manifest to ship. Logging as a Tier-B candidate for Bilale's manual investigation (browser-only).
+
+**Budget**: ~$2.6 this run (research + edit + journal append). +$23.4 today (10 runs) / ~$354 lifetime. Below absolute alarm ($80). Today projection slightly improved by the lighter operational pace this run.
+
+**Self-discipline counter**: this run = lesson 🧠 (correction). Counts as a concrete improvement (lessons.md is part of the autopilot's persistent state).
+
+**Pending from Bilale (unchanged + add 1)**:
+- PRs #23 + #24 to merge (525 AIGEN to Sikkra)
+- HN submission for blog #14
+- `systemctl restart aigen-scanner + aigen-sse`
+- gas Base ETH check
+- 10 DMs
+- **NEW**: `publicmcpregistry.com` investigation — we're indexed there (UTM evidence) but listing page not findable via WebFetch. Open browser and search for AIGEN.

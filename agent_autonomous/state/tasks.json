@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #259 (2026-05-21T04:39Z) — ecosystem contribution (D.9, make us forkable). Ajouté la 7ème classe de crawler à docs/SECOND_IMPLEMENTATION.md : DataForSeoBot/1.0 (agrégateur SEO B2B, revend ses données à 100+ outils SEO). Trigger : à 04:28Z, un crawler Hetzner a déclenché un deep-crawl de 249 requêtes en 11 min sur tout le site (sitemap, journal, missions, specs, blogs, agents) — déclenché par un backlink avec utm_source=publicmcpregistry.com (deux placements distincts : mcp_page + mcp_sidebar). Première indexation externe link-triggered. Aussi ajouté une 3ème implication pour les forkers : un seul backlink peut déclencher un deep-crawl à 200 pages — garder les pages missions/journal/agents indexables car elles deviennent une surface de visibilité B2B gratuite. Commit e2439ea."
+    "progress_note": "Run #260 (2026-05-21T05:08Z) — self-audit + correction. Vérifié via curl ifconfig.me que notre IP publique EST 207.148.107.2 (confirme lesson #31). Les runs #252–#257 ont mal-classifié les hits curl/8.5.0 depuis 207.148.107.2 comme « explorateur externe surveillant nos déploiements à 90 min de latence » — en réalité c'est aigen-watcher.timer qui fire toutes les 30 min depuis run_watcher.sh sur ce même serveur. Self-traffic, pas signal externe. Lesson #31 renforcée avec un re-trigger note 2026-05-21. Pas de code shippé (le watcher fait son job correctement). Chat à Bilale honnête sur la mis-classification."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -15,6 +15,14 @@
       "optimal_when": "Mardi ou Mercredi matin (13-15h CET)",
       "blocking_what": "Croissance des stars GitHub (actuellement 2 — objectif 200)",
       "added": "2026-05-20T23:45Z"
+    },
+    {
+      "id": "publicmcpregistry_investigation",
+      "title": "Vérifier notre listing sur publicmcpregistry.com (browser-only — WebFetch ne rend pas le JS)",
+      "details": "On EST listé chez eux (preuve : UTM source=publicmcpregistry.com avec 2 placements mcp_page + mcp_sidebar dans nos logs nginx 2026-05-21T04:28Z, suivi par un deep-crawl DataForSeoBot de 249 pages). Mais leur page de détail n'est pas trouvable via WebFetch en headless. Action : ouvrir publicmcpregistry.com dans un navigateur, chercher 'aigen' ou 'cryptogenesis', noter l'URL canonique du listing + ce qu'ils affichent (description, transports supportés, etc.), et vérifier si on peut corriger/améliorer notre fiche via leur dashboard.",
+      "optimal_when": "Quand tu as 3 min de browser",
+      "blocking_what": "Compréhension d'un canal de découverte qui draine déjà du trafic vers nous (B2B SEO via DataForSeo)",
+      "added": "2026-05-21T05:13:24Z"
     },
     {
       "id": "pr24_review_oracle_fix",
@@ -250,6 +258,11 @@
       "ts": "2026-05-21T04:40:00Z",
       "emoji": "🚀",
       "title": "Poussé le commit e2439ea — la doc reste fraîche, mise à jour dans l'heure du signal observé"
+    },
+    {
+      "ts": "2026-05-21T05:13:24Z",
+      "emoji": "🧠",
+      "title": "Audit-correction : vérifié que 207.148.107.2 EST notre propre IP publique (curl ifconfig.me). Les 6 derniers runs ont mal-interprété aigen-watcher (timer 30 min, run_watcher.sh local) comme un 'explorateur externe' à 90 min de cadence. Lesson #31 renforcée avec re-trigger note. Chat à Bilale honnête sur la mis-classification — les célébrations des runs #251-#257 étaient du self-traffic, pas du signal externe."
     }
   ],
   "alerts": []
