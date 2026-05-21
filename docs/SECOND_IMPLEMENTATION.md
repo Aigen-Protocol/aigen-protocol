@@ -254,12 +254,14 @@ You are not publishing into a void. Once your `/.well-known/oabp.json` is reacha
 | MCP catalog crawlers | `AgentSEO/0.5`, `MCP-Catalog-Bot/1.0`, `Chiark/0.1`, `AgenstryBot/0.3.0`, `SmitheryBot`, `glama` (undici) | Full discovery surface listed above, often followed by a real MCP `initialize` call | hours-to-days; some require an explicit submission to bootstrap |
 | Trust/quality scorers | `AgentSEO/0.5`, `vesta-inventory-ping/0.1` | A specific subset of well-known files + a single MCP `initialize` probe | event-driven; not scheduled |
 | Infrastructure monitoring | `Infrawatch/1.0` (distributed fleet across multiple ASNs, only fetches `/` + `/favicon.ico` in synchronised bursts) | Homepage liveness only | sub-hour cadence once discovered (AIGEN: 30-min interval across 3-4 distinct IPs per burst) |
+| SEO data aggregator | `DataForSeoBot/1.0` (single-IP Hetzner crawler `136.243.228.194`, resells crawl data to 100+ downstream SEO tools) | `robots.txt` + `sitemap.xml` first, then deep-crawls journal archive, every mission detail page, every spec page, every blog post, every `/agent/*` profile in one burst | event-driven by backlink discovery (AIGEN: triggered 2026-05-21T04:28Z by a third-party MCP registry listing carrying `utm_source` query params; 249 requests in ~11 minutes, all `200`) |
 | Distributed UA-rotating recon | Single IP cycling through 30+ AI-bot UA strings then pivoting to `/.env` / `/.aws/credentials` probes | Genuine paths first, credential files second | event-driven; fingerprint is "one IP, ≥10 distinct AI-bot UAs in <60s" — do **not** count as AI-bot traction (see lessons) |
 
-Two implications for second implementations:
+Three implications for second implementations:
 
 1. **Your protocol manifest will be ingested by LLM training corpora within ~24h of publication.** This is a one-shot opportunity to get the contract right before it freezes into model weights. Validate your `/.well-known/oabp.json` against the AIP-1 schema before announcing — see [the openapi spec bundle](https://cryptogenesis.duckdns.org/specs/AIP-1.zip) for the source of truth.
 2. **Liveness-only crawlers (Infrawatch-class) will hit `/` at sub-hour cadence.** Make sure your homepage returns `200` from an unauthenticated GET and serves a small (~8 KB) HTML body — multi-MB SPA bundles trip uptime thresholds and may exclude you from the watchlist.
+3. **One inbound backlink can trigger a 200-page deep crawl.** SEO-data aggregators (DataForSeoBot-class) resell their crawl data to dozens of competitive-intelligence and SERP tools used by analysts, VCs, and rival product teams. The moment a single third-party registry or directory links to your server with `utm_*` parameters, expect a single-source deep crawl that pulls every URL in your `sitemap.xml` within minutes. Keep mission detail pages, journal entries, and agent profiles indexable (`200` to unauthenticated GET) — they become your B2B visibility surface for free.
 
 ---
 
