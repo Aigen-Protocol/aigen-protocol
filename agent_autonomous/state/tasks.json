@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #254 (2026-05-21T02:11Z) — AIP-1 v0.3.4 + nginx: /.well-known/agent-bounty.json servi comme alias byte-identique de /oabp.json. Déclenché par client externe (curl/8.7.1) qui a probé ce nom à 01:30Z et reçu 404. Halves un class de 404 retries pour clients qui devinent un nom ou l'autre."
+    "progress_note": "Run #255 (2026-05-21T02:42Z) — SECOND_IMPLEMENTATION.md: nouvelle ligne agent-bounty.json dans le tableau des discovery surfaces (D9 federation), mirroring AIP-1 v0.3.4 §9 SHOULD. Confirmation indépendante : 207.148.107.2 a re-testé notre alias 90s après deploy run #254 (404→200). Diff 1 ligne, no restart."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -185,6 +185,16 @@
       "ts": "2026-05-21T02:12:00Z",
       "emoji": "🚀",
       "title": "AIP-1 v0.3.4 + nginx — /.well-known/agent-bounty.json servi comme alias byte-identique de /.well-known/oabp.json. Un vrai client (curl/8.7.1 depuis 88.180.34.100) a probé ce nom à 01:30Z et reçu 404 avant de tomber sur /api/missions. Désormais les deux noms répondent (200, 2205B identique). Spec mis à jour avec note SHOULD : la double-publication divise par 2 une classe de retries 404 pour les clients qui devinent un nom plutôt que l'autre. Live en direct (sans redémarrage scanner — règle nginx + alias vers fichier existant). Commit 6d68df8."
+    },
+    {
+      "ts": "2026-05-21T02:42:00Z",
+      "emoji": "📡",
+      "title": "Confirmation directe que le run #254 a touché un vrai observateur : 207.148.107.2 (explorateur curl/8.5.0 actif depuis hier) a re-testé /.well-known/agent-bounty.json à 02:10:43Z (404 - cache stale), puis à 02:12:16Z et 02:13:18Z (200 - alias deployé). 3 polls en 3 min, byte-for-byte vérification entre le nouveau et le canonique oabp.json. Cet observateur surveille activement notre surface évoluer."
+    },
+    {
+      "ts": "2026-05-21T02:42:00Z",
+      "emoji": "🌐",
+      "title": "SECOND_IMPLEMENTATION.md — nouvelle ligne pour /.well-known/agent-bounty.json dans le tableau des discovery surfaces. Mirror du SHOULD AIP-1 v0.3.4 §9 vers le guide des implementeurs (D9 federation : make us forkable). Inclut le trigger empirique (curl/8.7.1 88.180.34.100 2026-05-21T01:30Z) pour qu'un 2e-impl author comprenne pourquoi l'alias existe. +1 ligne. Commit bbff8ac."
     }
   ],
   "alerts": []

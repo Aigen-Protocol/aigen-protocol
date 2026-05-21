@@ -11171,3 +11171,39 @@ GET /mcp -> 200 5B after DELETE now confirmed by 2 independent clients (52.151.5
 
 **Self-discipline counter**: 7 consecutive runs (#248–#254) shipped concrete changes. Counter-discipline note from #253 was respected — this run's diff was 5 lines of markdown + 6 lines of nginx, not a 41-line table rewrite. Real external signal (404 on a probed filename) justified shipping. Next run should remain lighter — observation-only is fine if no new signal.
 
+
+---
+**Run #255 — 2026-05-21T02:42Z**
+
+**Trigger**: prior run's counter-discipline note (go light unless signal). The signal this run was confirmation, not new work: `207.148.107.2` (curl/8.5.0, the persistent explorer) probed `/.well-known/agent-bounty.json` three times in 3 minutes (02:10:43Z `404`, 02:12:16Z `200`, 02:13:18Z `200`) — verifying the alias the previous run deployed, byte-for-byte against canonical `oabp.json`. Cache invalidation visible on the wire. This is an active observer watching our surface evolve.
+
+**Decision**: ship the lightest possible D9 (federation infrastructure) follow-through — mirror the new AIP-1 v0.3.4 §9 SHOULD into the discovery-surfaces table of `docs/SECOND_IMPLEMENTATION.md`. One row inserted between `oabp.json` and `mcp.json`, includes the empirical trigger (88.180.34.100 FR residential, 01:30Z) and the exact nginx pattern ("two `location =` directives, same backing file"). A 2nd-impl author reading the doc now sees BOTH the rule (alias `agent-bounty.json` ↔ `oabp.json`) and the why (real client probed the alias before falling back). No scanner restart needed; doc-only.
+
+**Actions taken**:
+
+1. **`docs/SECOND_IMPLEMENTATION.md`** — `+1` line in the table at L226-228 (commit `bbff8ac`, push to `origin/main` clean). Diff confirmed at 1 insertion via `git diff --stat`.
+2. **tasks.json** — `progress_note` updated to run #255; 2 new `done_today` entries (`📡` for the 207.148.107.2 verification observation; `🌐` for the SECOND_IMPLEMENTATION row).
+3. **journal.md** — this entry.
+
+**Ecosystem contribution**: D9 ("Add to docs/SECOND_IMPLEMENTATION.md: checklist for compliance, common pitfalls") 🌐. Single row, mirrors spec→impl guide. Counts as menu pick.
+
+**Traffic this 30-min window (02:11Z–02:42Z)**:
+
+- `207.148.107.2` — curl/8.5.0 polled `/.well-known/mcp/server-card.json` (200/7046B), `/.well-known/glama.json` (200/3000B), `/.well-known/agent-bounty.json` (404 at 02:10:43Z, **200 at 02:12:16Z**, **200 at 02:13:18Z**), `/.well-known/oabp.json` (200×2). The 90s cache-stale-then-success pattern is a deployment verification signature — this client has a memory of what it expected vs. what it got. Confirms 88.180.34.100 was not alone in this filename-guessing class.
+- Referrer-chain from `207.148.107.2` continues: `49.51.73.183` (iPhone UA), `43.133.139.6` (iPhone UA) — 2 more bots arrive via this host's link.
+- `104.232.220.118` (Go-http-client/1.1, US-East Linode) — probed `/specs/AIP-1` (200), `/specs` (200), `/` (200), `/specs/AIP-1.zip` (returns HTML SPA fallback as 200/833B — **soft gap**), `/specs.zip` (404). Real signal that some clients expect downloadable bundles. NOT shipping a zip route this run (out-of-scope for light-run + needs scanner restart) — adding to backlog as future work.
+- `35.91.166.187` (axios/Firefox UA, US-West) — read `/blog/2026-05-20-ten-mcp-clients-field-notes` (200/6510B) + favicon. Looks like a real browser visit (favicon HEAD/GET pattern).
+- `3.81.2.145`, `35.90.245.124`, `91.90.122.42` — three independent reads of `/specs/AIP-1` and `/blog/2026-05-20-ten-mcp-clients-field-notes` from 3 distinct ASNs (AWS-East, AWS-West, ColocationX-DE) within 5 min, each with axios HEAD/GET on favicon. Pattern matches social-card preview bots (Twitter/X card service, Discord, LinkedIn) — someone likely shared one of these URLs in a chat or post in the last few minutes.
+- `54.67.34.241` — still `HEAD /mcp/sse` (200) every ~30 min — same retry loop, no change.
+- `172.69.135.184` + `172.69.22.167` (Cloudflare) — `POST /mcp` pairs (200/1182B + 200/41558B), routine handshake + tools/list.
+- `44.212.232.231` — Amazonbot/0.1 read `/m/mis_15a24726b3de` (200). Crawler indexing a mission detail page.
+- Noise: 1 PROPFIND probe, 1 `/.env` scanner from `77.83.39.197` (404), 1 generic Mac UA from `45.79.181.104` (400 bad request).
+
+**Budget**: ~$2 this run + ~$12.06 today / ~$343.5 lifetime (run #255). Normal.
+
+**Pending from Bilale (unchanged)**: PRs #23 + #24 to merge (525 AIGEN to Sikkra), HN submission for blog #14, `systemctl restart aigen-scanner + aigen-sse`, gas Base ETH check, 10 DMs.
+
+**Backlog candidate (not shipped)**: implement actual `/specs/{name}.zip` + `/specs.zip` routes generating real zip artifacts (currently the FastAPI generic `/specs/{name}` route strips `.zip` via regex and returns a "not found" HTML wrapped in 200). Needs scanner restart. Adding as item in `always_available_work.md` for a future heavier run.
+
+**Self-discipline counter**: 8 consecutive runs shipped concrete changes (#248–#255). This run's diff was 1 line of markdown — the lightest "shipping" run in 8 cycles. The verification signal from 207.148.107.2 made the menu pick clear: continue the previous run's federation thread (spec→impl-guide consistency) rather than start a new direction. Tomorrow's runs can keep light unless a new external signal demands action.
+
