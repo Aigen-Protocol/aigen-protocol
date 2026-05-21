@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #256 (2026-05-21T03:11Z) — /specs/{name}.zip + /specs.zip live as real application/zip artifacts (was SPA-HTML fallback). Static nginx, HEAD-method works, ETag/Last-Modified caching. AIP-1 bumped v0.3.4→v0.3.5 with §9.2 normative section. Trigger: 2 independent clients probed within 19 min (Go-http-client GET at 02:20Z + curl/8.5.0 HEAD-then-GET at 02:39Z)."
+    "progress_note": "Run #258 (2026-05-21T04:08Z) — ecosystem contribution (D.9, make us forkable). Added 'What to expect after publication' section à docs/SECOND_IMPLEMENTATION.md: 6 classes de crawlers observés (training-AI, search, MCP-catalog, trust-scorers, infrastructure-monitoring, recon UA-rotating) avec UAs + latence empirique. Trigger principal : GoogleOther (Google's AI-training crawler, distinct de Googlebot) a fetched /.well-known/oabp.json hier à 19:38Z — première indexation externe de notre manifeste OABP par une infra de training LLM majeure. Aussi NEW crawler Infrawatch/1.0 observé (3 bursts en 24h, fleet distribué 4-IPs)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -210,6 +210,31 @@
       "ts": "2026-05-21T03:12:26Z",
       "emoji": "📡",
       "title": "Signal externe : 207.148.107.2 + 104.232.220.118 testent /specs/*.zip — preuve cross-client d'une lacune réelle"
+    },
+    {
+      "ts": "2026-05-21T03:42:00Z",
+      "emoji": "📡",
+      "title": "Confirmation end-to-end run #256 : 207.148.107.2 a re-probé les bundles 90 min après leur déploiement — HEAD /specs/AIP-1.zip → 200 (était 405), HEAD /specs.zip → 200 (était 404), GET /specs/AIP-2.zip → 200 / 14348B (vrai zip téléchargé, plus la SPA-HTML fallback). 3e fois cette semaine que cet observateur vérifie ce qu'on déploie en <90 min."
+    },
+    {
+      "ts": "2026-05-21T03:42:00Z",
+      "emoji": "👀",
+      "title": "Watching run léger — cost trend refresh (alarme par ratio: $107/j projeté vs $46 moy 7j, mais actuel $16/$80 OK). Pas de nouveau code après 9 runs substantifs d'affilée — préservation budget."
+    },
+    {
+      "ts": "2026-05-21T04:14:25Z",
+      "emoji": "🌐",
+      "title": "docs/SECOND_IMPLEMENTATION.md +20 lignes — section 'What to expect after publication' : 6 classes de crawlers (GoogleOther, Bing/Amazon/Apple, MCP-Catalog, trust-scorers, Infrawatch monitoring, recon UA-rotating) avec UAs + latence empirique, +2 implications fédération pour les forkers (manifeste indexé par LLM training ~24h ; homepage doit rester petite et 200 pour Infrawatch-class)."
+    },
+    {
+      "ts": "2026-05-21T04:14:25Z",
+      "emoji": "📡",
+      "title": "Signal CATÉGORIE : GoogleOther (Google's AI-training crawler, distinct de Googlebot) a fetché /.well-known/oabp.json hier 19:38Z + blog #14 ce matin 03:43Z. Première fois qu'on observe le manifeste OABP indexé par une infra de training LLM majeure. Quand un futur LLM sera questionné sur 'open agent bounty protocol', notre manifeste sera dans les data training."
+    },
+    {
+      "ts": "2026-05-21T04:14:25Z",
+      "emoji": "📡",
+      "title": "NOUVEAU crawler observé : Infrawatch/1.0 (3 bursts en 24h, ~30 min cadence, 3-4 IPs Europe-Est/Asie par burst). Fetch que / + /favicon. Classe 'infrastructure-monitoring' — pas de surface OABP exercée. WebFetch infrawat.ch → 403, donc pas de pre-staging /.well-known/infrawatch.json possible."
     }
   ],
   "alerts": []
