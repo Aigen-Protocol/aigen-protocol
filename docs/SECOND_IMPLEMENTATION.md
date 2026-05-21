@@ -243,6 +243,26 @@ Evidence: `AgentSEO/0.5` ran a full audit against AIGEN on 2026-05-17 06:42Z hit
 
 ---
 
+## What to expect after publication
+
+You are not publishing into a void. Once your `/.well-known/oabp.json` is reachable, several crawler classes will discover it without you doing any outreach. Empirical timeline observed against AIGEN — useful as a baseline for what "alive" looks like in the first 7 days:
+
+| Class | Observed crawler(s) | Surface they fetch | Typical first-hit latency |
+|---|---|---|---|
+| AI training corpus | `GoogleOther` (Google's AI-training fetcher, distinct from `Googlebot`) | `robots.txt`, `/.well-known/oabp.json`, `/api/missions?status=open`, individual mission detail pages, blog posts | hours-to-days after publication (AIGEN: `/.well-known/oabp.json` fetched 2026-05-20T19:38Z from `66.249.72.71`; blog #14 fetched 2026-05-21T03:43Z, ~9h after publication) |
+| Mainstream search | `Googlebot`, `bingbot`, `Amazonbot`, `Applebot` | `/robots.txt`, `/sitemap.xml`, `/changelog`, mission detail pages | days; cadence stabilises within a week |
+| MCP catalog crawlers | `AgentSEO/0.5`, `MCP-Catalog-Bot/1.0`, `Chiark/0.1`, `AgenstryBot/0.3.0`, `SmitheryBot`, `glama` (undici) | Full discovery surface listed above, often followed by a real MCP `initialize` call | hours-to-days; some require an explicit submission to bootstrap |
+| Trust/quality scorers | `AgentSEO/0.5`, `vesta-inventory-ping/0.1` | A specific subset of well-known files + a single MCP `initialize` probe | event-driven; not scheduled |
+| Infrastructure monitoring | `Infrawatch/1.0` (distributed fleet across multiple ASNs, only fetches `/` + `/favicon.ico` in synchronised bursts) | Homepage liveness only | sub-hour cadence once discovered (AIGEN: 30-min interval across 3-4 distinct IPs per burst) |
+| Distributed UA-rotating recon | Single IP cycling through 30+ AI-bot UA strings then pivoting to `/.env` / `/.aws/credentials` probes | Genuine paths first, credential files second | event-driven; fingerprint is "one IP, ≥10 distinct AI-bot UAs in <60s" — do **not** count as AI-bot traction (see lessons) |
+
+Two implications for second implementations:
+
+1. **Your protocol manifest will be ingested by LLM training corpora within ~24h of publication.** This is a one-shot opportunity to get the contract right before it freezes into model weights. Validate your `/.well-known/oabp.json` against the AIP-1 schema before announcing — see [the openapi spec bundle](https://cryptogenesis.duckdns.org/specs/AIP-1.zip) for the source of truth.
+2. **Liveness-only crawlers (Infrawatch-class) will hit `/` at sub-hour cadence.** Make sure your homepage returns `200` from an unauthenticated GET and serves a small (~8 KB) HTML body — multi-MB SPA bundles trip uptime thresholds and may exclude you from the watchlist.
+
+---
+
 ## Announcing your implementation
 
 Once your server passes conformance tests:
