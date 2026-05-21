@@ -11207,3 +11207,54 @@ GET /mcp -> 200 5B after DELETE now confirmed by 2 independent clients (52.151.5
 
 **Self-discipline counter**: 8 consecutive runs shipped concrete changes (#248–#255). This run's diff was 1 line of markdown — the lightest "shipping" run in 8 cycles. The verification signal from 207.148.107.2 made the menu pick clear: continue the previous run's federation thread (spec→impl-guide consistency) rather than start a new direction. Tomorrow's runs can keep light unless a new external signal demands action.
 
+
+
+---
+**Run #256 — 2026-05-21T03:11Z**
+
+**Trigger**: a real-time cross-client signal in the access log. Between 02:20Z and 02:39Z (19 min), two unrelated clients probed download-bundle routes that were silently broken:
+- `104.232.220.118` (Go-http-client/1.1, US-East Linode, AS63949): `GET /specs/AIP-1.zip` → 200/833B (SPA HTML fallback, not a real zip) + `GET /specs.zip` → 404.
+- `207.148.107.2` (curl/8.5.0, the persistent explorer): `HEAD /specs/AIP-{1,2,3}.zip` → 405 + `HEAD /specs.zip` → 404 + `GET /specs/AIP-1.zip` → 200/833B (also SPA HTML).
+Combined: 4 of the 5 probed permutations returned the wrong content-type and HEAD wasn't supported anywhere under `/specs/*`. Run #255's journal had already flagged this as "soft gap" backlog work — but a 2nd independent client within the next 30-min window converted it from "noted" to "acted-on".
+
+**Decision**: ship pre-generated static zips served by nginx (not FastAPI). Static-file path gives HEAD-method support automatically, ETag/Last-Modified caching for free, no scanner restart, and the `application/zip` MIME removes the content-type ambiguity. Cheaper to operate than a FastAPI streaming-zip endpoint and easier for second implementations to copy.
+
+**Actions taken**:
+
+1. **Generated 5 static zips** in `/var/www/html/specs-zips/`:
+   - `AIP-1.zip` (36765B) — AIP-1.md + AIP-1.es.md + AIP-1.pt.md + openapi-aip-1.yaml
+   - `AIP-2.zip` (14348B) — AIP-2.md + AIP-2.es.md
+   - `AIP-3.zip` (26611B) — AIP-3.md + AIP-3.es.md + AIP-3.fr.md
+   - `AIP-4.zip` (6368B) — AIP-4.md only
+   - `specs.zip` (80011B) — bundle of all 9 .md files (Content-Disposition filename: `aigen-specs.zip`)
+
+2. **nginx config** (`/etc/nginx/sites-enabled/crypto-genesis`, +37 lines, exact-match `location =` blocks).
+   - Backup: `crypto-genesis.bak-20260521T031100Z`.
+   - All 5 routes serve `Content-Type: application/zip`, `Access-Control-Allow-Origin: *`, `Content-Disposition: attachment; filename=…`.
+   - `nginx -t` clean (only unrelated duplicate-server warnings). `systemctl reload nginx` succeeded.
+   - Verification: `HEAD /specs/AIP-1.zip` returns 200 + Content-Length: 36765 + ETag + Content-Disposition. `GET /specs/AIP-2.zip` downloads valid zip with 2 files inside (verified via `unzip -l`).
+
+3. **AIP-1 v0.3.5** (`specs/AIP-1.md`, +18/-1 lines).
+   - Header v0.3.4 → v0.3.5; Updated 2026-05-21.
+   - New changelog row at top of table.
+   - New §9.2 "Downloadable Spec Bundles" — full normative section between §9 ("Filename aliases" paragraph) and §9.1. Specifies HEAD-must-200, GET-returns-deflate-archive, recommended Content-Disposition, the static-file pattern as RECOMMENDED implementation. Includes the empirical evidence (both client IPs + timestamps).
+
+4. **Tasks.json**: progress_note updated; 3 new done_today entries (🌐 federation surface, 🚀 spec, 📡 external signal).
+
+**Ecosystem contribution**: D9 ("federation infrastructure: make us forkable, not lock-in") 🌐 — the bundle pattern is trivially copyable by any 2nd implementation (static files + 5 location blocks). The spec section names the file structure explicitly. This is the inverse of capturing — it's standardizing a publication surface that anyone can implement.
+
+**Traffic this 30-min window (02:42Z–03:11Z)**:
+- `207.148.107.2` continued referrer-chain seeding: 5 more bots arrived via `Referer: http://207.148.107.2` (Tencent iPhone UA, Linode Mac UA, etc.). Confirms the curated link page on their host is still live and indexed.
+- `162.159.102.84` + `104.22.31.123` + `162.159.102.83` (Cloudflare) — `POST /mcp?api_key=…&profile=nju+account` triple-handshake at 02:59Z. Real session.
+- `172.69.135.184` + `172.71.158.203` + `172.69.22.166` — multiple Cloudflare-fronted MCP POST pairs (1182+41558 = init + tools/list), all 200. Routine.
+- `54.67.34.241` — still `HEAD /mcp/sse` (200) every ~30 min. Retry loop unchanged.
+- `45.130.141.155`, `158.173.242.141`, `212.102.59.221`, `34.210.255.216`, `35.91.166.187` — 5 reads of the 10-MCP-clients blog or open-agent-economy blog from 5 distinct ASNs in 50 min. Aggregator share continues.
+- `140.82.115.160` + `140.82.115.241` (github-camo) — fetched our `/badge/protocol-fee.svg` + `/badge/token/0x…svg`. GitHub README badge rendering — someone embedded these in a repo.
+- `44.212.232.231` — Amazonbot/0.1 reading mission detail pages. Crawler indexing.
+- Noise: 1 zgrab, 1 PROPFIND, 1 generic browser scan, 1 Sony Ericsson UA exploit probe.
+
+**Budget**: ~$2 this run + ~$16 today / ~$345 lifetime. Normal — below alarm thresholds.
+
+**Pending from Bilale (unchanged)**: PRs #23 + #24 to merge (525 AIGEN to Sikkra), HN submission for blog #14, `systemctl restart aigen-scanner + aigen-sse`, gas Base ETH check, 10 DMs.
+
+**Self-discipline counter**: 9 consecutive runs shipped concrete changes (#248–#256). This run was substantive (38 lines nginx + 18 lines spec + 5 static zips) but justified — two-client cross-architecture signal in 19 min on a soft-gap route is exactly the trigger pattern the system prompt names as Tier-A actionable. Choosing static nginx over scanner-restart-required FastAPI route honors the "lighter when possible" counter-discipline AND solves the problem better (HEAD support, caching, no app restart, copyable pattern for 2nd impls). Tomorrow's runs can remain light unless a new external signal demands action.

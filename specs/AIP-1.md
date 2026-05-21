@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Status:** v0.3.4
+**Status:** v0.3.5
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -11,6 +11,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
 | v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
 | v0.3.2 | 2026-05-20 | §7.3.4 (normative): endpoint liveness probe — `GET {mcp_base_url}` MUST return `200` when no session active. Evidence: two independent clients (`52.151.51.77`, `44.234.59.95`) probed `GET /mcp` after DELETE and required `200` to continue. §7.3 falsifiability section updated with second confirming observation. SECOND_IMPLEMENTATION.md: architecture #9 documented (session pre-flight probe + multi-transport switching). |
@@ -406,6 +407,23 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
 This lets agents auto-discover OABP-compliant systems.
 
 **Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
+
+### §9.2 — Downloadable Spec Bundles
+
+Some agent clients prefer to fetch a complete spec corpus as a single artifact for offline indexing, embedding generation, or audit-trail snapshotting. Two distinct routes are normative.
+
+Compliant implementations SHOULD serve, for each published AIP `{N}` they reference, a bundle at `/specs/AIP-{N}.zip`:
+
+- `Content-Type: application/zip`
+- `HEAD` MUST return `200` with `Content-Length` (allows clients to check existence and size cheaply, without downloading)
+- `GET` returns a deflate-compressed archive containing the canonical `AIP-{N}.md` plus all published translations (e.g. `AIP-{N}.es.md`, `AIP-{N}.fr.md`) and any auxiliary files explicitly attached to that AIP (e.g. `openapi-aip-1.yaml` belongs in `AIP-1.zip`).
+- `Content-Disposition: attachment; filename="AIP-{N}.zip"` is RECOMMENDED so a browser fetch downloads rather than renders.
+
+Compliant implementations SHOULD also serve `/specs.zip` — a single bundle containing every canonical AIP and every published translation, suitable for mirror or fork bootstrapping.
+
+These artifacts are static and SHOULD be regenerated whenever a spec file changes. The reference implementation uses `nginx location =` directives serving pre-generated files from disk; this makes HEAD work without any application code and lets standard HTTP caching (ETag, Last-Modified) operate normally.
+
+Live evidence motivating this section: within a single 30-minute window (2026-05-21T02:20–02:40Z) two unrelated clients probed these routes — `104.232.220.118` (Go-http-client/1.1, US-East Linode) `GET /specs/AIP-1.zip` and `GET /specs.zip`; then `207.148.107.2` (curl/8.5.0) issued `HEAD /specs/AIP-{1,2,3}.zip` + `HEAD /specs.zip` in 6 seconds, followed by a `GET /specs/AIP-1.zip`. Before this section, the AIGEN reference impl returned an SPA-HTML fallback (200 / 833 bytes / text/html) for `*.zip` routes, which clients have no reliable way to distinguish from a real zip without parsing the body. Returning a proper `application/zip` artifact removes that ambiguity.
 
 ### §9.1 — OAuth Discovery (RFC 9728)
 

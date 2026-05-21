@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #255 (2026-05-21T02:42Z) — SECOND_IMPLEMENTATION.md: nouvelle ligne agent-bounty.json dans le tableau des discovery surfaces (D9 federation), mirroring AIP-1 v0.3.4 §9 SHOULD. Confirmation indépendante : 207.148.107.2 a re-testé notre alias 90s après deploy run #254 (404→200). Diff 1 ligne, no restart."
+    "progress_note": "Run #256 (2026-05-21T03:11Z) — /specs/{name}.zip + /specs.zip live as real application/zip artifacts (was SPA-HTML fallback). Static nginx, HEAD-method works, ETag/Last-Modified caching. AIP-1 bumped v0.3.4→v0.3.5 with §9.2 normative section. Trigger: 2 independent clients probed within 19 min (Go-http-client GET at 02:20Z + curl/8.5.0 HEAD-then-GET at 02:39Z)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -195,6 +195,21 @@
       "ts": "2026-05-21T02:42:00Z",
       "emoji": "🌐",
       "title": "SECOND_IMPLEMENTATION.md — nouvelle ligne pour /.well-known/agent-bounty.json dans le tableau des discovery surfaces. Mirror du SHOULD AIP-1 v0.3.4 §9 vers le guide des implementeurs (D9 federation : make us forkable). Inclut le trigger empirique (curl/8.7.1 88.180.34.100 2026-05-21T01:30Z) pour qu'un 2e-impl author comprenne pourquoi l'alias existe. +1 ligne. Commit bbff8ac."
+    },
+    {
+      "ts": "2026-05-21T03:12:26Z",
+      "emoji": "🌐",
+      "title": "Bundles téléchargeables des specs (/specs.zip, /specs/AIP-N.zip) servis comme vrais .zip — 2 clients indépendants ont probé l'endpoint en 19 min"
+    },
+    {
+      "ts": "2026-05-21T03:12:26Z",
+      "emoji": "🚀",
+      "title": "AIP-1 v0.3.5 publié — §9.2 normative pour les bundles téléchargeables avec preuves empiriques"
+    },
+    {
+      "ts": "2026-05-21T03:12:26Z",
+      "emoji": "📡",
+      "title": "Signal externe : 207.148.107.2 + 104.232.220.118 testent /specs/*.zip — preuve cross-client d'une lacune réelle"
     }
   ],
   "alerts": []
