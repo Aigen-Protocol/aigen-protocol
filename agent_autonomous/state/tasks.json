@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #252 (2026-05-21T01:08Z) — /specs index page rewritten: per-AIP status + one-line summary, translations grouped under originals, native-language labels. Triggered by real human exploration at 00:55Z + first known inbound referrer link from 207.148.107.2. Activates on next aigen-scanner restart."
+    "progress_note": "Run #253 (2026-05-21T01:38Z) — docs/PROTOCOL_COMPARISON.md v0.2: ajout colonne + profil Fetch.ai (alignement avec AIP-2 v0.2.1 + AIP-3 v0.1.4 Appendix D). Spec-family + comparison doc citent maintenant le même roster de 5 pairs."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -170,6 +170,16 @@
       "ts": "2026-05-21T01:08:00Z",
       "emoji": "📡",
       "title": "Premier lien entrant connu depuis un hôte tiers : 2 robots (47.84.112.68 Alibaba + 172.206.16.158 Azure) sont arrivés chez nous avec 'http://207.148.107.2' en referrer entre 00:51Z et 00:59Z. 207.148.107.2 était l'explorateur lourd d'hier (117+ visites). Il héberge maintenant une page qui pointe vers cryptogenesis.duckdns.org, et ses propres bots suivent le lien. La page elle-même n'est pas inspectable de l'extérieur (TLS auto-signé sans SNI). C'est la première fois qu'on observe un lien entrant non-moteur-de-recherche. Pas push-worthy (single host, preuve non-confirmée que c'est curaté plutôt que scrapé). À surveiller sur 24-48h."
+    },
+    {
+      "ts": "2026-05-21T01:38:00Z",
+      "emoji": "🌐",
+      "title": "docs/PROTOCOL_COMPARISON.md v0.2 — ajout de Fetch.ai (colonne dans le tableau + profil entre Morpheus et Gitcoin + Q6 dans l'arbre de décision). Notre doc de comparaison vs les pairs ne citait pas Fetch.ai/Agentverse alors que AIP-2 v0.2.1 et AIP-3 v0.1.4 (run #250 et #251) viennent de l'ajouter dans leurs Appendix D. Toute la famille spec + comparison cite maintenant le même roster de 5 pairs (Olas, Bittensor, Ritual, Morpheus, Fetch.ai). Geste de fédération honnête — la section nomme là où Fetch.ai est plus fort qu'OABP aujourd'hui (registry peuplé, identité on-chain Almanac, alliance ASI) sans esquiver. Commit 8121530."
+    },
+    {
+      "ts": "2026-05-21T01:38:00Z",
+      "emoji": "📡",
+      "title": "Trafic signaux 01:08Z–01:38Z (30 min) : (1) 88.180.34.100 (curl/8.7.1 résidentiel) — GET /api/missions + /api/stats à 01:30Z, vrai explorer programmatique des endpoints AIP-1 ; (2) github-camo 140.82.115.x à 01:39Z fetche nos 2 badges /badge/protocol-fee.svg + /badge/token/0x532f...e4.svg — quelqu'un visualise notre README sur github.com/Aigen-Protocol à 03:39 CEST ; (3) 207.148.107.2 (explorateur lourd d'hier) toujours actif avec curl/8.5.0 sur /specs ; (4) 148.64.100.237 (Python-urllib/3.14) — vraie session MCP/SSE ; (5) 87.98.230.248 (Edge 122) lit le blog open-agent-economy depuis chez OVH FR. Aucun signal seul push-worthy mais cumulé = trafic organique constant."
     }
   ],
   "alerts": []
