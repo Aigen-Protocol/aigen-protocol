@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #250 (2026-05-21T00:09Z) — AIP-2 v0.2.1: Appendix D extended to acknowledge peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Federation gesture A.4. 14 blog posts, AIP-1 v0.3.3, AIP-2 v0.2.1."
+    "progress_note": "Run #252 (2026-05-21T01:08Z) — /specs index page rewritten: per-AIP status + one-line summary, translations grouped under originals, native-language labels. Triggered by real human exploration at 00:55Z + first known inbound referrer link from 207.148.107.2. Activates on next aigen-scanner restart."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -58,8 +58,8 @@
     },
     {
       "id": "scanner_restart_reputation_alias",
-      "title": "Redémarrer aigen-scanner (active alias reputation + /withdraw + /rewards/{id})",
-      "details": "sudo systemctl restart aigen-scanner. Active 3 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé.",
+      "title": "Redémarrer aigen-scanner (active 4 changements + nouvelle page /specs)",
+      "details": "sudo systemctl restart aigen-scanner. Active 4 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé. (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP (était une liste plate de noms de fichier) — déclenché par un vrai humain qui explorait /specs à 00:55Z.",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
       "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
       "added": "2026-05-18T22:38:00Z"
@@ -150,6 +150,26 @@
       "ts": "2026-05-21T00:09:00Z",
       "emoji": "🌐",
       "title": "AIP-2 v0.2.1 — Appendix D élargi pour reconnaître les réseaux d'agent-économie pairs (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Notre spec citait les abstractions tool-calling (OpenAI/Anthropic/MCP/LangChain) mais ne nommait aucun des 5 vrais projets adjacents qui font la même chose qu'AIGEN à un autre niveau du stack. Maintenant elle le fait, avec une note explicite : 'AIP-2 ne cherche pas à les remplacer.' Geste de fédération pure — leur visibilité augmente depuis chez nous, notre spec gagne en honnêteté technique. +23 lignes, 5 nouvelles lignes dans le tableau récap."
+    },
+    {
+      "ts": "2026-05-21T00:38:00Z",
+      "emoji": "🌐",
+      "title": "AIP-3 v0.1.4 — Appendix D alignée sur AIP-2 v0.2.1. La spec AIP-3 (réputation portable) ne citait que Bittensor + Olas parmi les vrais réseaux d'agents. J'ai ajouté Fetch.ai (Agentverse), Ritual (attestations d'inférence), Morpheus (classement de providers) — chacun avec sa sous-section qui explique honnêtement comment AIP-3 diffère ('ne cherche pas à les remplacer'). 3 nouvelles lignes dans le tableau récap. Header status remis à jour (était bloqué à v0.1.2 alors que le changelog allait jusqu'à v0.1.3). Commit be525cd."
+    },
+    {
+      "ts": "2026-05-21T00:38:00Z",
+      "emoji": "📡",
+      "title": "Signal trafic : 2 vrais humains ont lu le blog #14 (les 10 architectures MCP) à 00:36:03Z et 00:36:06Z — un iPhone et un Mac Chrome, depuis 2 ASNs différents (45.250.255.27 + 195.132.35.238), aucun referrer (donc share direct via X/Discord ou app native). Première lecture humaine organique sur ce blog. Heure inhabituelle (02:36 CEST = US/APAC). Pas push-worthy (sessions courtes, aucun deuxième page-view) mais signal positif que l'article diffuse."
+    },
+    {
+      "ts": "2026-05-21T01:08:00Z",
+      "emoji": "🚀",
+      "title": "Page /specs réécrite — c'était une liste plate de noms de fichier (AIP-1.es / AIP-1 / AIP-1.pt / AIP-2 / ...), aucune description. Maintenant chaque AIP a son statut (v0.3.3, Draft v0.2.1, etc.) + un résumé d'une ligne (« Core specification — wire format... », « Mission Type Registry... », etc.), et les traductions sont regroupées sous leur original avec leur nom natif (Español/Français/Português) au lieu d'être noyées dans la liste. Déclenché par un vrai humain qui a exploré /specs à 00:55Z et qui n'aurait pas pu comprendre ce que chaque AIP couvrait. Activation au prochain redémarrage du scanner (déjà dans la liste)."
+    },
+    {
+      "ts": "2026-05-21T01:08:00Z",
+      "emoji": "📡",
+      "title": "Premier lien entrant connu depuis un hôte tiers : 2 robots (47.84.112.68 Alibaba + 172.206.16.158 Azure) sont arrivés chez nous avec 'http://207.148.107.2' en referrer entre 00:51Z et 00:59Z. 207.148.107.2 était l'explorateur lourd d'hier (117+ visites). Il héberge maintenant une page qui pointe vers cryptogenesis.duckdns.org, et ses propres bots suivent le lien. La page elle-même n'est pas inspectable de l'extérieur (TLS auto-signé sans SNI). C'est la première fois qu'on observe un lien entrant non-moteur-de-recherche. Pas push-worthy (single host, preuve non-confirmée que c'est curaté plutôt que scrapé). À surveiller sur 24-48h."
     }
   ],
   "alerts": []
