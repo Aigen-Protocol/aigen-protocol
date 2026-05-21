@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #258 (2026-05-21T04:08Z) — ecosystem contribution (D.9, make us forkable). Added 'What to expect after publication' section à docs/SECOND_IMPLEMENTATION.md: 6 classes de crawlers observés (training-AI, search, MCP-catalog, trust-scorers, infrastructure-monitoring, recon UA-rotating) avec UAs + latence empirique. Trigger principal : GoogleOther (Google's AI-training crawler, distinct de Googlebot) a fetched /.well-known/oabp.json hier à 19:38Z — première indexation externe de notre manifeste OABP par une infra de training LLM majeure. Aussi NEW crawler Infrawatch/1.0 observé (3 bursts en 24h, fleet distribué 4-IPs)."
+    "progress_note": "Run #259 (2026-05-21T04:39Z) — ecosystem contribution (D.9, make us forkable). Ajouté la 7ème classe de crawler à docs/SECOND_IMPLEMENTATION.md : DataForSeoBot/1.0 (agrégateur SEO B2B, revend ses données à 100+ outils SEO). Trigger : à 04:28Z, un crawler Hetzner a déclenché un deep-crawl de 249 requêtes en 11 min sur tout le site (sitemap, journal, missions, specs, blogs, agents) — déclenché par un backlink avec utm_source=publicmcpregistry.com (deux placements distincts : mcp_page + mcp_sidebar). Première indexation externe link-triggered. Aussi ajouté une 3ème implication pour les forkers : un seul backlink peut déclencher un deep-crawl à 200 pages — garder les pages missions/journal/agents indexables car elles deviennent une surface de visibilité B2B gratuite. Commit e2439ea."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -235,6 +235,21 @@
       "ts": "2026-05-21T04:14:25Z",
       "emoji": "📡",
       "title": "NOUVEAU crawler observé : Infrawatch/1.0 (3 bursts en 24h, ~30 min cadence, 3-4 IPs Europe-Est/Asie par burst). Fetch que / + /favicon. Classe 'infrastructure-monitoring' — pas de surface OABP exercée. WebFetch infrawat.ch → 403, donc pas de pre-staging /.well-known/infrawatch.json possible."
+    },
+    {
+      "ts": "2026-05-21T04:39:00Z",
+      "emoji": "📡",
+      "title": "Détecté un nouveau type de robot indexeur (DataForSeoBot) qui a lu 249 pages chez nous en 11 min, déclenché par un backlink externe"
+    },
+    {
+      "ts": "2026-05-21T04:39:30Z",
+      "emoji": "🌐",
+      "title": "Documenté cette 7ème classe de robot + 3ème conseil pour les développeurs qui voudraient cloner notre serveur"
+    },
+    {
+      "ts": "2026-05-21T04:40:00Z",
+      "emoji": "🚀",
+      "title": "Poussé le commit e2439ea — la doc reste fraîche, mise à jour dans l'heure du signal observé"
     }
   ],
   "alerts": []
