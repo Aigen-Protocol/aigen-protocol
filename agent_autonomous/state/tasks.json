@@ -4,10 +4,18 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Run #260 (2026-05-21T05:08Z) — self-audit + correction. Vérifié via curl ifconfig.me que notre IP publique EST 207.148.107.2 (confirme lesson #31). Les runs #252–#257 ont mal-classifié les hits curl/8.5.0 depuis 207.148.107.2 comme « explorateur externe surveillant nos déploiements à 90 min de latence » — en réalité c'est aigen-watcher.timer qui fire toutes les 30 min depuis run_watcher.sh sur ce même serveur. Self-traffic, pas signal externe. Lesson #31 renforcée avec un re-trigger note 2026-05-21. Pas de code shippé (le watcher fait son job correctement). Chat à Bilale honnête sur la mis-classification."
+    "progress_note": "lobsterai-agent (Tencent fleet) a élargi son comportement : il fait maintenant une reconnaissance complète de la surface (14 endpoints en 11h+, lit /AIGEN_PROTOCOL.md, /analytics, /docs/recipes, des fiches mission spécifiques y compris une déjà résolue par Sikkra). Implique préparation d'une intégration plus profonde. §11 ajoutée à AIGEN_PROTOCOL.md (commit 006e115) pour citer les 5 réseaux pairs — consistance avec AIP-2 v0.2.1. Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "lobsterai_agent_review",
+      "title": "PREMIER agent externe économiquement actif : lobsterai-agent (Tencent China) — 36 submissions, 6 wins, 401 AIGEN balance",
+      "details": "Depuis 2026-05-22T00:00Z, flotte de bots Tencent Cloud (115.190.127.67/72/223, 115.190.107.107, 101.126.19.34) soumet des safety-reviews Solana sur nos missions auto-postées par radar daemon. 36 submissions en ~3h, 6 wins automatiques (radar utilise apparemment first_valid_match ou auto-judge). Format des proofs : 'Honeypot: pump.fun bonding curve, sell may be limited. Owner: mint authority unknown. LP Lock: no evidence found...'. C'est le PREMIER agent externe à extraire de l'AIGEN du protocole économique. Endpoints qu'il essaie mais qu'on renvoie 404 : /api/agents/<id>/stats, /api/agents/<id>/submissions, /api/agents/<id>/balance, /api/agent/profile?agent_id=. Action recommandée : (1) vérifier que les paiements AIGEN partent bien on-chain, (2) décider si on ajoute des aliases pour les 404, (3) regarder si la qualité des reviews mérite d'être valorisée. Issue #26 documente le gap AIP-2.",
+      "optimal_when": "Quand tu vois cette notif — Telegram envoyée en haute priorité",
+      "blocking_what": "Comprendre quel agent c'est, ce qu'il veut, et si on l'accueille ou pas. Premier vrai utilisateur économique du protocole.",
+      "added": "2026-05-22T03:08Z"
+    },
     {
       "id": "hn_blog14_submit",
       "title": "Soumettre blog #14 sur Hacker News (brouillon prêt)",
@@ -15,6 +23,14 @@
       "optimal_when": "Mardi ou Mercredi matin (13-15h CET)",
       "blocking_what": "Croissance des stars GitHub (actuellement 2 — objectif 200)",
       "added": "2026-05-20T23:45Z"
+    },
+    {
+      "id": "mcpmarket_listing_verify",
+      "title": "Vérifier notre fiche sur mcpmarket.com (browser) — lien malformé à corriger",
+      "details": "On est listé sur mcpmarket.com (preuve : GPTBot/1.3 a suivi un lien depuis ce site vers notre /mcp à 07:05Z). Mais le lien dans leur HTML a un bug d'encodage : GPTBot a essayé de GET '/mcp&quot' (404) au lieu de '/mcp'. Côté catalog : 3 vrais utilisateurs OAuth (Google, Outlook, NJU) nous ont accédés via Cloudflare avec des api_key+ profile params — probablement ce même catalogue. Action : ouvrir mcpmarket.com dans le browser, chercher 'aigen' ou 'cryptogenesis', vérifier/corriger l'URL du serveur MCP dans notre fiche.",
+      "optimal_when": "Quand tu as 3 min et browser ouvert",
+      "blocking_what": "GPTBot (OpenAI) reçoit un 404 quand il suit le lien vers notre serveur = bad signal pour les LLMs futurs",
+      "added": "2026-05-21T07:07Z"
     },
     {
       "id": "publicmcpregistry_investigation",
@@ -31,6 +47,14 @@
       "optimal_when": "Dès que possible — Sikkra attend 2 PRs (#23 + #24) pour 525 AIGEN total",
       "blocking_what": "oracle missions non-résolvables côté judge(). Bloque paiement Sikkra.",
       "added": "2026-05-20T15:08Z"
+    },
+    {
+      "id": "rust_mission_oracle_resolve",
+      "title": "Résoudre mission Rust mis_15602f51245f (oracle, 500 AIGEN) — Sikkra soumis en 13 min",
+      "details": "sub_1cfb904b5f par codex-wallet-agent, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Proof: https://github.com/Sikkra/aigen-rust-oabp-agent. Oracle = résoudre manuellement. Action: (1) cargo test dans le repo, (2) vérifier que les 3 endpoints AIP-1 marchent, (3) résoudre la mission → 500 AIGEN à payer. Soumis 13 min après création.",
+      "optimal_when": "Dès que possible — Sikkra a 3 livrables non-récompensés (PR #23, mis_2f6ae4b5172b, mis_15602f51245f) = 825+ AIGEN total",
+      "blocking_what": "Crédibilité bounty. 3e implémentation de Sikkra sans paiement = signal d'abandon.",
+      "added": "2026-05-21T15:13Z"
     },
     {
       "id": "crewai_mission_oracle_resolve",
@@ -155,114 +179,34 @@
   ],
   "done_today": [
     {
-      "ts": "2026-05-21T00:09:00Z",
+      "ts": "2026-05-22T03:08Z",
+      "emoji": "📡",
+      "title": "Premier agent externe à extraire de la valeur économique du protocole : lobsterai-agent (flotte Tencent Cloud, IPs 115.190.x.x + 101.126.19.34) a soumis 36 safety-reviews Solana token sur les missions auto-postées par notre radar daemon depuis 00h00Z. 6 gains confirmés, balance 401 AIGEN. Push Telegram envoyée à Bilale en priorité haute."
+    },
+    {
+      "ts": "2026-05-22T03:08Z",
       "emoji": "🌐",
-      "title": "AIP-2 v0.2.1 — Appendix D élargi pour reconnaître les réseaux d'agent-économie pairs (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Notre spec citait les abstractions tool-calling (OpenAI/Anthropic/MCP/LangChain) mais ne nommait aucun des 5 vrais projets adjacents qui font la même chose qu'AIGEN à un autre niveau du stack. Maintenant elle le fait, avec une note explicite : 'AIP-2 ne cherche pas à les remplacer.' Geste de fédération pure — leur visibilité augmente depuis chez nous, notre spec gagne en honnêteté technique. +23 lignes, 5 nouvelles lignes dans le tableau récap."
+      "title": "Issue #26 ouverte sur AIP-2 — observation falsifiable basée sur traffic externe : notre radar daemon poste des missions category=safety_review qui n'est pas dans les 8 types canoniques de la spec. 3 options falsifiables proposées (ajout 9e type, fix producer côté daemon, ou synonyme non-normatif). Première issue ouverte sur la spec déclenchée par usage réel externe plutôt qu'audit interne."
     },
     {
-      "ts": "2026-05-21T00:38:00Z",
+      "ts": "2026-05-22T07:09Z",
       "emoji": "🌐",
-      "title": "AIP-3 v0.1.4 — Appendix D alignée sur AIP-2 v0.2.1. La spec AIP-3 (réputation portable) ne citait que Bittensor + Olas parmi les vrais réseaux d'agents. J'ai ajouté Fetch.ai (Agentverse), Ritual (attestations d'inférence), Morpheus (classement de providers) — chacun avec sa sous-section qui explique honnêtement comment AIP-3 diffère ('ne cherche pas à les remplacer'). 3 nouvelles lignes dans le tableau récap. Header status remis à jour (était bloqué à v0.1.2 alors que le changelog allait jusqu'à v0.1.3). Commit be525cd."
+      "title": "Issue #27 ouverte sur AIP-3 — deuxième spec gap déclenché par lobsterai-agent : 2 agents externes ont gagné 43 soumissions au total (Sikkra 37, lobsterai 6) mais leurs reputation breakdown affichent 0 partout. Les 4 buckets (predictions/patterns/contributions/revenue) n'ont pas de catégorie pour les wins de bounty. 3 résolutions falsifiables proposées (ajouter bucket 'bounties', mapper sur 'contributions', ou décorréler entièrement de AIP-3). Chaîne issue #22 → #25 → #26 → #27 = artefact crédibilité spec."
     },
     {
-      "ts": "2026-05-21T00:38:00Z",
-      "emoji": "📡",
-      "title": "Signal trafic : 2 vrais humains ont lu le blog #14 (les 10 architectures MCP) à 00:36:03Z et 00:36:06Z — un iPhone et un Mac Chrome, depuis 2 ASNs différents (45.250.255.27 + 195.132.35.238), aucun referrer (donc share direct via X/Discord ou app native). Première lecture humaine organique sur ce blog. Heure inhabituelle (02:36 CEST = US/APAC). Pas push-worthy (sessions courtes, aucun deuxième page-view) mais signal positif que l'article diffuse."
-    },
-    {
-      "ts": "2026-05-21T01:08:00Z",
-      "emoji": "🚀",
-      "title": "Page /specs réécrite — c'était une liste plate de noms de fichier (AIP-1.es / AIP-1 / AIP-1.pt / AIP-2 / ...), aucune description. Maintenant chaque AIP a son statut (v0.3.3, Draft v0.2.1, etc.) + un résumé d'une ligne (« Core specification — wire format... », « Mission Type Registry... », etc.), et les traductions sont regroupées sous leur original avec leur nom natif (Español/Français/Português) au lieu d'être noyées dans la liste. Déclenché par un vrai humain qui a exploré /specs à 00:55Z et qui n'aurait pas pu comprendre ce que chaque AIP couvrait. Activation au prochain redémarrage du scanner (déjà dans la liste)."
-    },
-    {
-      "ts": "2026-05-21T01:08:00Z",
-      "emoji": "📡",
-      "title": "Premier lien entrant connu depuis un hôte tiers : 2 robots (47.84.112.68 Alibaba + 172.206.16.158 Azure) sont arrivés chez nous avec 'http://207.148.107.2' en referrer entre 00:51Z et 00:59Z. 207.148.107.2 était l'explorateur lourd d'hier (117+ visites). Il héberge maintenant une page qui pointe vers cryptogenesis.duckdns.org, et ses propres bots suivent le lien. La page elle-même n'est pas inspectable de l'extérieur (TLS auto-signé sans SNI). C'est la première fois qu'on observe un lien entrant non-moteur-de-recherche. Pas push-worthy (single host, preuve non-confirmée que c'est curaté plutôt que scrapé). À surveiller sur 24-48h."
-    },
-    {
-      "ts": "2026-05-21T01:38:00Z",
+      "ts": "2026-05-22T11:08Z",
       "emoji": "🌐",
-      "title": "docs/PROTOCOL_COMPARISON.md v0.2 — ajout de Fetch.ai (colonne dans le tableau + profil entre Morpheus et Gitcoin + Q6 dans l'arbre de décision). Notre doc de comparaison vs les pairs ne citait pas Fetch.ai/Agentverse alors que AIP-2 v0.2.1 et AIP-3 v0.1.4 (run #250 et #251) viennent de l'ajouter dans leurs Appendix D. Toute la famille spec + comparison cite maintenant le même roster de 5 pairs (Olas, Bittensor, Ritual, Morpheus, Fetch.ai). Geste de fédération honnête — la section nomme là où Fetch.ai est plus fort qu'OABP aujourd'hui (registry peuplé, identité on-chain Almanac, alliance ASI) sans esquiver. Commit 8121530."
+      "title": "Pitfall #10 ajouté à SECOND_IMPLEMENTATION — comportement empirique du PREMIER operator économique externe : lobsterai-agent (Tencent) probe des URL conventions variées (/api/v1/agents/<id>/balance, /api/agent/balance?agent_id=, /api/v1/agents/<id>/tasks?status=open) avant de trouver les canoniques. 3 mitigations concrètes pour les implémenteurs (alias nginx, endpoints map dans oabp.json, JSON body sur 404 avec canonical_paths). Commit 823a1a8 push."
     },
     {
-      "ts": "2026-05-21T01:38:00Z",
-      "emoji": "📡",
-      "title": "Trafic signaux 01:08Z–01:38Z (30 min) : (1) 88.180.34.100 (curl/8.7.1 résidentiel) — GET /api/missions + /api/stats à 01:30Z, vrai explorer programmatique des endpoints AIP-1 ; (2) github-camo 140.82.115.x à 01:39Z fetche nos 2 badges /badge/protocol-fee.svg + /badge/token/0x532f...e4.svg — quelqu'un visualise notre README sur github.com/Aigen-Protocol à 03:39 CEST ; (3) 207.148.107.2 (explorateur lourd d'hier) toujours actif avec curl/8.5.0 sur /specs ; (4) 148.64.100.237 (Python-urllib/3.14) — vraie session MCP/SSE ; (5) 87.98.230.248 (Edge 122) lit le blog open-agent-economy depuis chez OVH FR. Aucun signal seul push-worthy mais cumulé = trafic organique constant."
-    },
-    {
-      "ts": "2026-05-21T02:12:00Z",
-      "emoji": "🚀",
-      "title": "AIP-1 v0.3.4 + nginx — /.well-known/agent-bounty.json servi comme alias byte-identique de /.well-known/oabp.json. Un vrai client (curl/8.7.1 depuis 88.180.34.100) a probé ce nom à 01:30Z et reçu 404 avant de tomber sur /api/missions. Désormais les deux noms répondent (200, 2205B identique). Spec mis à jour avec note SHOULD : la double-publication divise par 2 une classe de retries 404 pour les clients qui devinent un nom plutôt que l'autre. Live en direct (sans redémarrage scanner — règle nginx + alias vers fichier existant). Commit 6d68df8."
-    },
-    {
-      "ts": "2026-05-21T02:42:00Z",
-      "emoji": "📡",
-      "title": "Confirmation directe que le run #254 a touché un vrai observateur : 207.148.107.2 (explorateur curl/8.5.0 actif depuis hier) a re-testé /.well-known/agent-bounty.json à 02:10:43Z (404 - cache stale), puis à 02:12:16Z et 02:13:18Z (200 - alias deployé). 3 polls en 3 min, byte-for-byte vérification entre le nouveau et le canonique oabp.json. Cet observateur surveille activement notre surface évoluer."
-    },
-    {
-      "ts": "2026-05-21T02:42:00Z",
+      "ts": "2026-05-22T15:11Z",
       "emoji": "🌐",
-      "title": "SECOND_IMPLEMENTATION.md — nouvelle ligne pour /.well-known/agent-bounty.json dans le tableau des discovery surfaces. Mirror du SHOULD AIP-1 v0.3.4 §9 vers le guide des implementeurs (D9 federation : make us forkable). Inclut le trigger empirique (curl/8.7.1 88.180.34.100 2026-05-21T01:30Z) pour qu'un 2e-impl author comprenne pourquoi l'alias existe. +1 ligne. Commit bbff8ac."
+      "title": "Architecture #13 ajoutée à SECOND_IMPLEMENTATION — MCP-Catalog-Bot/1.0 (24.5.30.213, US résidentiel) : retry persistant le plus long jamais observé (11h14m, 52 hits depuis 03:55Z), alternance symétrique sse↔streamable après chaque 400, init réussit toujours (200 1182B) mais step-2 échoue (le bot n'echo jamais le mcp-session-id du header). 4 recommandations spec pour implémenteurs (session-id redondant dans le body, hint dans le 400, Retry-After advisory, signature anti-DoS pour distinguer broken-crawler vs malicious). Push Telegram envoyée à Bilale en priorité haute. Commit 205119c rebase → b9a84c2."
     },
     {
-      "ts": "2026-05-21T03:12:26Z",
+      "ts": "2026-05-22T19:12:38Z",
       "emoji": "🌐",
-      "title": "Bundles téléchargeables des specs (/specs.zip, /specs/AIP-N.zip) servis comme vrais .zip — 2 clients indépendants ont probé l'endpoint en 19 min"
-    },
-    {
-      "ts": "2026-05-21T03:12:26Z",
-      "emoji": "🚀",
-      "title": "AIP-1 v0.3.5 publié — §9.2 normative pour les bundles téléchargeables avec preuves empiriques"
-    },
-    {
-      "ts": "2026-05-21T03:12:26Z",
-      "emoji": "📡",
-      "title": "Signal externe : 207.148.107.2 + 104.232.220.118 testent /specs/*.zip — preuve cross-client d'une lacune réelle"
-    },
-    {
-      "ts": "2026-05-21T03:42:00Z",
-      "emoji": "📡",
-      "title": "Confirmation end-to-end run #256 : 207.148.107.2 a re-probé les bundles 90 min après leur déploiement — HEAD /specs/AIP-1.zip → 200 (était 405), HEAD /specs.zip → 200 (était 404), GET /specs/AIP-2.zip → 200 / 14348B (vrai zip téléchargé, plus la SPA-HTML fallback). 3e fois cette semaine que cet observateur vérifie ce qu'on déploie en <90 min."
-    },
-    {
-      "ts": "2026-05-21T03:42:00Z",
-      "emoji": "👀",
-      "title": "Watching run léger — cost trend refresh (alarme par ratio: $107/j projeté vs $46 moy 7j, mais actuel $16/$80 OK). Pas de nouveau code après 9 runs substantifs d'affilée — préservation budget."
-    },
-    {
-      "ts": "2026-05-21T04:14:25Z",
-      "emoji": "🌐",
-      "title": "docs/SECOND_IMPLEMENTATION.md +20 lignes — section 'What to expect after publication' : 6 classes de crawlers (GoogleOther, Bing/Amazon/Apple, MCP-Catalog, trust-scorers, Infrawatch monitoring, recon UA-rotating) avec UAs + latence empirique, +2 implications fédération pour les forkers (manifeste indexé par LLM training ~24h ; homepage doit rester petite et 200 pour Infrawatch-class)."
-    },
-    {
-      "ts": "2026-05-21T04:14:25Z",
-      "emoji": "📡",
-      "title": "Signal CATÉGORIE : GoogleOther (Google's AI-training crawler, distinct de Googlebot) a fetché /.well-known/oabp.json hier 19:38Z + blog #14 ce matin 03:43Z. Première fois qu'on observe le manifeste OABP indexé par une infra de training LLM majeure. Quand un futur LLM sera questionné sur 'open agent bounty protocol', notre manifeste sera dans les data training."
-    },
-    {
-      "ts": "2026-05-21T04:14:25Z",
-      "emoji": "📡",
-      "title": "NOUVEAU crawler observé : Infrawatch/1.0 (3 bursts en 24h, ~30 min cadence, 3-4 IPs Europe-Est/Asie par burst). Fetch que / + /favicon. Classe 'infrastructure-monitoring' — pas de surface OABP exercée. WebFetch infrawat.ch → 403, donc pas de pre-staging /.well-known/infrawatch.json possible."
-    },
-    {
-      "ts": "2026-05-21T04:39:00Z",
-      "emoji": "📡",
-      "title": "Détecté un nouveau type de robot indexeur (DataForSeoBot) qui a lu 249 pages chez nous en 11 min, déclenché par un backlink externe"
-    },
-    {
-      "ts": "2026-05-21T04:39:30Z",
-      "emoji": "🌐",
-      "title": "Documenté cette 7ème classe de robot + 3ème conseil pour les développeurs qui voudraient cloner notre serveur"
-    },
-    {
-      "ts": "2026-05-21T04:40:00Z",
-      "emoji": "🚀",
-      "title": "Poussé le commit e2439ea — la doc reste fraîche, mise à jour dans l'heure du signal observé"
-    },
-    {
-      "ts": "2026-05-21T05:13:24Z",
-      "emoji": "🧠",
-      "title": "Audit-correction : vérifié que 207.148.107.2 EST notre propre IP publique (curl ifconfig.me). Les 6 derniers runs ont mal-interprété aigen-watcher (timer 30 min, run_watcher.sh local) comme un 'explorateur externe' à 90 min de cadence. Lesson #31 renforcée avec re-trigger note. Chat à Bilale honnête sur la mis-classification — les célébrations des runs #251-#257 étaient du self-traffic, pas du signal externe."
+      "title": "Section §11 ajoutée à AIGEN_PROTOCOL.md — reconnaissance des 5 réseaux pairs (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Geste de fédération vers la doc d'aperçu (celle que lobsterai-agent a lu à 18h16 pendant sa reconnaissance complète de la surface). Commit 006e115."
     }
   ],
   "alerts": []
