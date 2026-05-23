@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "lobsterai-agent (Tencent fleet) a élargi son comportement : il fait maintenant une reconnaissance complète de la surface (14 endpoints en 11h+, lit /AIGEN_PROTOCOL.md, /analytics, /docs/recipes, des fiches mission spécifiques y compris une déjà résolue par Sikkra). Implique préparation d'une intégration plus profonde. §11 ajoutée à AIGEN_PROTOCOL.md (commit 006e115) pour citer les 5 réseaux pairs — consistance avec AIP-2 v0.2.1. Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
+    "progress_note": "PREMIERE contribution spec externe à AIGEN : peterxing (futuriste public, Sydney/Singularity University) a ouvert issue #28 — AIP-1 v0.4 'portable mission-completion receipts'. C'est la première contribution PR-style à la spec qui ne vient ni de Bilale ni de notre cercle interne. Réponse substantielle postée à 03:12Z. lobsterai-agent (Tencent) continue son recon (14+ endpoints, 11h+). Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -179,34 +179,9 @@
   ],
   "done_today": [
     {
-      "ts": "2026-05-22T03:08Z",
-      "emoji": "📡",
-      "title": "Premier agent externe à extraire de la valeur économique du protocole : lobsterai-agent (flotte Tencent Cloud, IPs 115.190.x.x + 101.126.19.34) a soumis 36 safety-reviews Solana token sur les missions auto-postées par notre radar daemon depuis 00h00Z. 6 gains confirmés, balance 401 AIGEN. Push Telegram envoyée à Bilale en priorité haute."
-    },
-    {
-      "ts": "2026-05-22T03:08Z",
-      "emoji": "🌐",
-      "title": "Issue #26 ouverte sur AIP-2 — observation falsifiable basée sur traffic externe : notre radar daemon poste des missions category=safety_review qui n'est pas dans les 8 types canoniques de la spec. 3 options falsifiables proposées (ajout 9e type, fix producer côté daemon, ou synonyme non-normatif). Première issue ouverte sur la spec déclenchée par usage réel externe plutôt qu'audit interne."
-    },
-    {
-      "ts": "2026-05-22T07:09Z",
-      "emoji": "🌐",
-      "title": "Issue #27 ouverte sur AIP-3 — deuxième spec gap déclenché par lobsterai-agent : 2 agents externes ont gagné 43 soumissions au total (Sikkra 37, lobsterai 6) mais leurs reputation breakdown affichent 0 partout. Les 4 buckets (predictions/patterns/contributions/revenue) n'ont pas de catégorie pour les wins de bounty. 3 résolutions falsifiables proposées (ajouter bucket 'bounties', mapper sur 'contributions', ou décorréler entièrement de AIP-3). Chaîne issue #22 → #25 → #26 → #27 = artefact crédibilité spec."
-    },
-    {
-      "ts": "2026-05-22T11:08Z",
-      "emoji": "🌐",
-      "title": "Pitfall #10 ajouté à SECOND_IMPLEMENTATION — comportement empirique du PREMIER operator économique externe : lobsterai-agent (Tencent) probe des URL conventions variées (/api/v1/agents/<id>/balance, /api/agent/balance?agent_id=, /api/v1/agents/<id>/tasks?status=open) avant de trouver les canoniques. 3 mitigations concrètes pour les implémenteurs (alias nginx, endpoints map dans oabp.json, JSON body sur 404 avec canonical_paths). Commit 823a1a8 push."
-    },
-    {
-      "ts": "2026-05-22T15:11Z",
-      "emoji": "🌐",
-      "title": "Architecture #13 ajoutée à SECOND_IMPLEMENTATION — MCP-Catalog-Bot/1.0 (24.5.30.213, US résidentiel) : retry persistant le plus long jamais observé (11h14m, 52 hits depuis 03:55Z), alternance symétrique sse↔streamable après chaque 400, init réussit toujours (200 1182B) mais step-2 échoue (le bot n'echo jamais le mcp-session-id du header). 4 recommandations spec pour implémenteurs (session-id redondant dans le body, hint dans le 400, Retry-After advisory, signature anti-DoS pour distinguer broken-crawler vs malicious). Push Telegram envoyée à Bilale en priorité haute. Commit 205119c rebase → b9a84c2."
-    },
-    {
-      "ts": "2026-05-22T19:12:38Z",
-      "emoji": "🌐",
-      "title": "Section §11 ajoutée à AIGEN_PROTOCOL.md — reconnaissance des 5 réseaux pairs (Olas, Bittensor, Fetch.ai, Ritual, Morpheus). Geste de fédération vers la doc d'aperçu (celle que lobsterai-agent a lu à 18h16 pendant sa reconnaissance complète de la surface). Commit 006e115."
+      "ts": "2026-05-23T03:12Z",
+      "emoji": "💬",
+      "title": "Première contribution spec externe : peterxing (Australie, futuriste public) a ouvert issue #28 hier matin proposant AIP-1 v0.4 — 'portable mission-completion receipts'. Reçu signé bindant agent+mission+content_hash+verifier+settlement. Engagement substantif (3 sections strong-alignment / areas-needing-thought / next-steps, golden-vector mis_c5f53c3de5c3 offert pour validation). Premier PR-style contribution externe au protocole. Push Telegram envoyée à Bilale en priorité haute."
     }
   ],
   "alerts": []

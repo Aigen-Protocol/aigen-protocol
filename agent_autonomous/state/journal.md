@@ -1801,3 +1801,81 @@ This is consistent with the v0.2.1 spec update (5 peers acknowledged) but propag
 
 ---
 
+
+## 2026-05-22T23:08Z — Run #276 — sitemap update (Amazonbot indexing surge)
+
+**Signal**: Amazonbot has become the dominant LLM/SE crawler on the property today — 192 hits vs SemrushBot 5, GPTBot 1. 59 distinct paths crawled including /missions/<id> detail pages (mis_b54a17180c0f, mis_3f46d11187bc, mis_f8b5f8aeeb11, mis_15602f51245f, mis_77af9c7743e3, mis_4f84a9726d3a, mis_ea4722be80b0, mis_e3645cda5b18…), /agent/<id> profile pages (codex-wallet-agent), and /og/agent/<id>.png OG images. This is the FIRST search engine to systematically index our mission detail and agent profile surface. Source IPs range across Amazon's AWS US-East-1 fleet (54.x.x.x, 18.x.x.x, 34.x.x.x).
+
+**Why this matters**: Amazonbot feeds Alexa/Rufus/Amazon Q. Being indexed = our pages potentially surface in Alexa AI search and Amazon Q business search adjacent to "AI agent bounty", "open agent protocol" queries downstream. This is exactly the compound-mindshare KPI from focus.md.
+
+**Action taken**: Updated `web/sitemap.xml` (static, served by nginx) to add 2 blog URLs that were missing despite existing on disk + returning 200 live:
+- `blog/2026-05-20-ten-mcp-clients-field-notes` (blog #14, pending HN submission)
+- `blog/2026-05-21-first-real-users-mcpmarket` (blog #15, first real human user observations)
+
+Sitemap URL count: 61 → 63. Static file, no service restart needed (nginx serves directly).
+
+**Bilale presence**: dashboard polling from 176.159.16.136 was active throughout this run (33s cadence) — Bilale watching live. He also seeded a TEST task ("TEST: nouvelle tâche depuis dashboard") at 21:21Z and excluded it 21min later — confirming the dashboard's operator-side task injection works.
+
+**Other observations this cycle**:
+- 2 fresh POST /mcp 200 sessions from CF egress IPs 172.71.155.41 + 172.71.158.202 at 23:01-23:02Z (init + tools/list pattern, 1182B + 41558B response sizes — consistent with prior CF-fronted MCP catalog clients).
+- 54.67.34.241 still in HEAD /mcp/sse loop (background, no change).
+- Stalker portal PHP scanner 195.178.110.162 — generic noise, ignored.
+
+**Not done this run** (deliberately):
+- Did NOT touch oracle missions or Sikkra PRs — still blocked on Bilale's browser actions (queued in waiting_on_bilale).
+- Did NOT post outreach DMs — Tier B, Bilale's job.
+- Did NOT open another GitHub federation comment — already 5 🌐 ecosystem contributions today, headroom but not the marginal-best use of this run when a real fresh signal (Amazonbot) called for a concrete improvement.
+
+**Consecutive watching-only runs**: 0 (concrete commit shipped).
+
+**Blockers unchanged**:
+- lobsterai-agent review (still active, recon-mode beyond polling)
+- PR #23 + #24 Sikkra (825 AIGEN unrewarded)
+- HN blog #14 submission (window passed today)
+- mcpmarket.com listing verify
+- Scanner + SSE restart still pending
+
+---
+
+
+## 2026-05-23T03:08Z — Run #277 — issue #28 peterxing AIP-1 v0.4 receipts response
+
+**Signal**: Issue #28 (https://github.com/Aigen-Protocol/aigen-protocol/issues/28) opened by `peterxing` 2026-05-22T07:20:33Z — sat unanswered for ~20h. Title: "AIP-1 v0.4 proposal: portable mission-completion receipts". 0 prior comments. peterxing = Peter Xing, Australian public futurist (Singularity University Sydney, ex-KPMG, Transhumanist Party Australia) — real identity, not anon. The issue body is technically dense, references our exact terms (`content_hash`, `/.well-known/oabp.json`, AIP-3 attestation flow §1.4), proposes a JSON shape with `signature: ed25519:...`, and links a readback packet on his own pages.dev deployment (https://farmbot-platform-mvp.pages.dev/hire-agent/aigen-oabp-portable-receipt-readback/). This is the FIRST PR-style spec contribution from outside our internal circle (previous external contributors Sikkra + lobsterai = code/economic, not spec).
+
+**Why this matters**: ROADMAP_18M Gate M4 (Aug 2026) requires "AIP-2+AIP-3 published, ≥100 stars, SDK TS shipped". External spec engagement from a credentialed public figure is a credibility multiplier — even if v0.4 doesn't ship as proposed, the mere fact that someone outside spent the time writing a structured proposal binds AIP-1 to a broader conversation. Letting it sit 20h+ unresponded would have been a credibility hit for any subsequent external contributor reading the issue tracker.
+
+**Action taken**: Posted substantive response on issue #28 (issuecomment-4523996672). Structure:
+
+1. **Strong alignment points** (4 bullets): content_hash anchor reuse, settlement enum generalization, /.well-known/oabp.json signing_keys path, spec_version forward-compat handle.
+2. **Areas needing more thought** (4 bullets): creator_judges signature provenance (concrete live case sub_b42a25bb90 referenced), oracle trust model, anonymous registry traffic semantics, JCS canonicalization MUST.
+3. **Concrete next steps** (3 bullets): suggested file structure for the PR (`specs/AIP-1-v0.4-draft-receipts.md`, `schemas/oabp-mission-receipt-v0.4.json`, reference impl endpoint).
+4. **Golden-vector offer**: mis_c5f53c3de5c3 (payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119) offered as interop fixture so peterxing can validate his readback flow before drafting the schema PR.
+
+Signed "— Aigen-Protocol bot" for transparency.
+
+**Verification before quoting**: Confirmed mis_c5f53c3de5c3 + payout_tx 0xcb09edb1... cross-references via tasks.json (waiting_on_bilale.base_eth_topup_codex_payout, added 2026-05-17) and chat.jsonl 2026-05-19T23:48:25Z — this is a real settled USDC mission with on-chain tx, not a fabricated example.
+
+**Push notification**: Sent Telegram push to Bilale at high priority ("First external spec proposal — peterxing #28").
+
+**Other observations this cycle**:
+- /firewall route configured in nginx (proxy_pass http://127.0.0.1:8546/mcp) is dead — upstream port 8546 not running. CF-egress MCP clients (172.71.158.202 etc.) are POSTing /firewall every ~30-60min and receiving 502. Logged 4 instances in past 4h. Not touched this run — touching nginx config is Tier B. Worth raising on next operator-Bilale interaction.
+- 65.49.1.10/17/18 (likely Censys/Shodan-class scanner with multi-UA rotation: Safari/Mac, Firefox/Win, Chrome/Mac) hitting /, /webui/, /favicon.ico, /geoserver/web/ between 02:38-03:04Z. Generic recon, no AIGEN-specific intent. Logged, ignored.
+- 207.244.242.23 libredtail-http phpunit scanner — generic noise, ignored.
+- lobsterai-agent: still active background polling (no change observed this 4h window).
+- MCP-Catalog-Bot/1.0 (24.5.30.213): retry loop persists into hour 22+, unchanged.
+
+**Not done this run** (deliberately):
+- Did NOT touch nginx /firewall config (Tier B — modify infra config requires Bilale approval, the upstream service is dead long enough that a one-cycle delay costs nothing).
+- Did NOT post outreach DMs — Tier B, Bilale's job.
+- Did NOT touch oracle missions or Sikkra PRs — still blocked on Bilale's browser actions (queued in waiting_on_bilale).
+
+**Consecutive watching-only runs**: 0 (concrete engagement shipped on highest-leverage external signal).
+
+**Blockers unchanged**:
+- lobsterai-agent review (still recon-mode)
+- PR #23 + #24 Sikkra (825 AIGEN unrewarded)
+- HN blog #14 submission (window passed)
+- mcpmarket.com listing verify
+- Scanner + SSE restart still pending
+
+---
