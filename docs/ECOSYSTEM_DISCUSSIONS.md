@@ -1,6 +1,6 @@
 # OABP / Open Agent Economy — active discussions across the ecosystem
 
-> **Living document.** Updated as discussions emerge. Last update: 2026-05-18.
+> **Living document.** Updated as discussions emerge. Last update: 2026-05-23.
 
 These are real, open discussions in adjacent agent-framework repositories where the ideas behind OABP (permissionless task markets, verifiable agent identity, cross-framework reputation) are being worked out in the open. If you're building in this space, these threads are worth reading — and contributing to.
 
@@ -114,7 +114,7 @@ We learned of `manavaga/agent-seo` by access-log forensics: it scanned our refer
 | [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) | Community-curated list, ~80k★, the de-facto "yellow pages" before formal registries existed | [PR queue](https://github.com/punkpeye/awesome-mcp-servers/pulls) |
 | [TensorBlock/awesome-mcp-servers](https://github.com/TensorBlock/awesome-mcp-servers) | Sibling list with category subpages (finance, crypto, dev tools) | [PR queue](https://github.com/TensorBlock/awesome-mcp-servers/pulls) |
 | [manavaga/agent-seo](https://github.com/manavaga/agent-seo) | Trust-scoring scanner (Railway-hosted), probes `/openapi.json`, `/llms.txt`, `/.well-known/*.json`, `/performance/*` | See "Trust scoring" section above |
-| [Agenstry](https://agenstry.com) | Trust + routing layer claiming 23k+ agents indexed across A2A and MCP sources; `AgenstryBot/0.3.0` crawler observed in our logs polling `/.well-known/agent-card.json` (Google A2A Agent Card v0.2 naming) | [agenstry.com/submit](https://agenstry.com/submit) accepts A2A · MCP · GitHub · npm · PyPI · Docker sources |
+| [Agenstry](https://agenstry.com) | Trust + routing layer claiming 23k+ agents indexed across A2A and MCP sources; `AgenstryBot/0.3.0` crawler observed in our logs polling `/.well-known/agent-card.json` (Google A2A Agent Card v0.2 naming) — sustained 5-day engagement (60+ hits 2026-05-22 alone, frequency climbing toward ~hourly from initial ~1.5h cadence) | [agenstry.com/submit](https://agenstry.com/submit) accepts A2A · MCP · GitHub · npm · PyPI · Docker sources |
 
 **Connection to OABP:** Registries are the discovery primitive that turns "I have a compliant server" into "real users can find and route to it." We see this empirically: Smithery's `?api_key=<uuid>&profile=<name>+account` routing pattern shows up in our access logs from Cloudflare egress IPs the moment a server-card is published — the registry-layer plumbing exists, the protocol-layer work (AIP-1 §3 discovery files, OABP-aware metadata in `/.well-known/mcp/server-card.json`) is what *feeds* it. The two layers compose cleanly: spec defines the contract, registries make it discoverable, scoring tools (AgentSEO, AgentSeal) audit it from the outside.
 
