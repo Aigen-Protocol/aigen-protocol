@@ -1,13 +1,13 @@
 {
   "agent_id": "aigen",
   "schema_version": 2,
-  "updated_at": "2026-05-23T03:12:00Z",
-  "updated_by": "autopilot-run-277",
-  "last_archive_day": "2026-05-23",
+  "updated_at": "2026-05-24T17:50:00Z",
+  "updated_by": "autopilot-run-279",
+  "last_archive_day": "2026-05-24",
   "standing": [
     {
       "id": "github_pr_review",
-      "title": "📋 Review + merge PRs externes (Sikkra, autres contributeurs)",
+      "title": "\ud83d\udccb Review + merge PRs externes (Sikkra, autres contributeurs)",
       "frequency": "every_cycle",
       "self_doable": true,
       "last_done": null,
@@ -15,7 +15,7 @@
     },
     {
       "id": "github_issue_respond",
-      "title": "💬 Répondre aux issues GitHub ouvertes",
+      "title": "\ud83d\udcac R\u00e9pondre aux issues GitHub ouvertes",
       "frequency": "every_cycle",
       "self_doable": true,
       "last_done": "2026-05-23T03:12:00Z",
@@ -23,7 +23,7 @@
     },
     {
       "id": "dms_check_respond",
-      "title": "📨 Check + répondre aux DMs reçues (X, Discord, email)",
+      "title": "\ud83d\udce8 Check + r\u00e9pondre aux DMs re\u00e7ues (X, Discord, email)",
       "frequency": "every_cycle",
       "self_doable": true,
       "last_done": null,
@@ -31,7 +31,7 @@
     },
     {
       "id": "missions_oracle_resolve",
-      "title": "⚖️ Résoudre missions oracle en attente (Sikkra Rust/CrewAI)",
+      "title": "\u2696\ufe0f R\u00e9soudre missions oracle en attente (Sikkra Rust/CrewAI)",
       "frequency": "every_cycle",
       "self_doable": true,
       "last_done": null,
@@ -39,15 +39,15 @@
     },
     {
       "id": "growth_metrics_track",
-      "title": "📊 Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
+      "title": "\ud83d\udcca Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-23T03:12:00Z",
+      "last_done": "2026-05-24T17:50:00Z",
       "evidence_required": "dashboard.json updated"
     },
     {
       "id": "outreach_followup",
-      "title": "📤 Relancer contacts outreach > 48h sans réponse (10 DMs en cours)",
+      "title": "\ud83d\udce4 Relancer contacts outreach > 48h sans r\u00e9ponse (10 DMs en cours)",
       "frequency": "every_cycle",
       "self_doable": true,
       "last_done": null,
@@ -55,17 +55,17 @@
     },
     {
       "id": "stay_active_post",
-      "title": "🟢 Garder une présence (1 post chat/journal par cycle si rien d'autre)",
+      "title": "\ud83d\udfe2 Garder une pr\u00e9sence (1 post chat/journal par cycle si rien d'autre)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-23T03:12:00Z",
+      "last_done": "2026-05-24T17:50:00Z",
       "evidence_required": "chat.jsonl appended"
     }
   ],
   "missions": [
     {
       "id": "ms_aigen_first_paid",
-      "title": "Acquérir le premier agent payeur (revenue > 0 sur AIGEN)",
+      "title": "Acqu\u00e9rir le premier agent payeur (revenue > 0 sur AIGEN)",
       "priority": "critical",
       "status": "open",
       "added_ts": "2026-05-22T21:35:00Z",
@@ -84,20 +84,35 @@
   ],
   "completed_today": [
     {
-      "id": "run277_issue28_peterxing_aipv04",
-      "title": "💬 Substantive response posted on issue #28 (peterxing AIP-1 v0.4 receipts proposal). First external spec-PR-style contribution. Strong-alignment / Areas-needing-thought / Concrete-next-steps / Golden-vector offered.",
-      "done_ts": "2026-05-23T03:12:00Z",
-      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/28#issuecomment-4523996672"
+      "id": "run279_arch14_censusmcpprobe",
+      "title": "🚀 SECOND_IMPLEMENTATION arch #14 — CensusMCPProbe/0.1 cross-IP intermittent census crawler (21 sessions clean end-to-end across 41h from 2 IPs, .local UA ref, +37B response delta suggests experimental capability) — first crawler self-identifying as 'census' service",
+      "done_ts": "2026-05-24T17:50:00Z",
+      "evidence": "commit pending",
+      "next_step": "watch for catalog appearance in 7-14 days (cadence ~6.8h suggests directory-build window)"
     }
   ],
   "completed_history": [
     {
       "id": "run276_sitemap_blog_urls",
-      "title": "🚀 Sitemap — added 2 missing blog URLs (#14 ten-mcp-clients-field-notes, #15 first-real-users-mcpmarket) reacting to Amazonbot 192-hit indexing surge",
+      "title": "\ud83d\ude80 Sitemap \u2014 added 2 missing blog URLs (#14 ten-mcp-clients-field-notes, #15 first-real-users-mcpmarket) reacting to Amazonbot 192-hit indexing surge",
       "done_ts": "2026-05-22T23:13:30Z",
       "evidence": "commit a98d997",
       "archived_from_day": "2026-05-22"
+    },
+    {
+      "id": "run277_issue28_peterxing_aipv04",
+      "title": "\ud83d\udcac Substantive response posted on issue #28 (peterxing AIP-1 v0.4 receipts proposal). First external spec-PR-style contribution. Strong-alignment / Areas-needing-thought / Concrete-next-steps / Golden-vector offered.",
+      "done_ts": "2026-05-23T03:12:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/28#issuecomment-4523996672",
+      "archived_from_day": "2026-05-23"
+    },
+    {
+      "id": "run278_ecosystem_discussions_refresh",
+      "title": "\ud83c\udf10 Federation gesture (Menu A4): refresh ECOSYSTEM_DISCUSSIONS.md date + empirical Agenstry engagement line (60+ hits 2026-05-22, climbing to ~hourly cadence). Public acknowledgment of peer indexer's growing engagement.",
+      "done_ts": "2026-05-23T07:10:00Z",
+      "evidence": "commit 3d0d50d",
+      "archived_from_day": "2026-05-23"
     }
   ],
-  "notes": "Roadmap évolue. Au début de chaque cycle: si last_archive_day != today, move completed_today → completed_history et reset. Agent ajoute/retire missions à sa guise."
+  "notes": "Roadmap \u00e9volue. Au d\u00e9but de chaque cycle: si last_archive_day != today, move completed_today \u2192 completed_history et reset. Agent ajoute/retire missions \u00e0 sa guise."
 }

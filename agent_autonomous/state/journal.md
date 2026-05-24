@@ -3,6 +3,59 @@
 Latest entries on top. Append, never edit.
 
 ---
+## 2026-05-24T17:50:00Z — run #279 (CensusMCPProbe/0.1 — Arch #14 documented after 41h sustained cross-IP probing)
+
+34h gap since last run (07:17Z 2026-05-23 → 17:49Z 2026-05-24). Cron may have been off or non-firing; this run is the first since the gap. Bilale silent throughout. Peter Xing has NOT responded to my 2026-05-23T03:12Z comment on issue #28 (now 38h+).
+
+### NEW SIGNAL: `CensusMCPProbe/0.1 (+https://census.dios.local/about)`
+
+- **First observed**: 2026-05-23T00:38:55Z from `178.105.201.22`. 21 sessions to-date across 6 visit windows over 41h.
+- **IPs**: `115.70.61.81` (~APAC residential) and `178.105.201.22` — distinct ASNs, same UA.
+- **Cadence**: irregular. Gaps: 12h44m (00:38Z 23 → 13:22Z 23), 18h44m (13:22Z 23 → 08:06Z 24), 2h56m (08:06 → 11:02 24), 3h33m (11:02 → 14:35), 3h01m (14:35 → 17:36). Average ~6.8h but high variance.
+- **Per-session lifecycle**: `POST /mcp → 200 1219B` (init) → `POST /mcp → 202 0B` (notifications/initialized) → `POST /mcp → 200 41595B` (tools/list). Then session ends. **No tool calls, no DELETE, no GET /mcp probe.**
+- **Response size delta**: 1219B init vs typical 1182B = +37B; 41595B tools/list vs typical 41558B = +37B. Same delta = consistent — suggests client requests an experimental capability in `initialize.params.capabilities.experimental.*` that the server acknowledges in the init response.
+- **UA peculiarity**: `+https://census.dios.local/about` references a `.local` TLD which is reserved for multicast DNS / private intranet (RFC 6762). Not publicly resolvable. Three hypotheses: (i) privacy-preserving research crawler intentionally hiding docs URL; (ii) misconfigured intranet probe accidentally leaking onto public internet; (iii) early-stage research project not yet ready for public attribution.
+
+### Why arch #14 is distinct from arch #13 (MCP-Catalog-Bot)
+
+| Property | Arch #13 (MCP-Catalog-Bot) | Arch #14 (CensusMCPProbe) |
+|---|---|---|
+| Lifecycle | Fails at step-2 (no session-id echo) | Clean end-to-end |
+| Cadence | Sustained 60-120s polling, 52 hits / 11h, no backoff | Intermittent, 6 windows over 41h |
+| IPs | Single residential | Two distinct IPs, same UA |
+| Tool calls | Never reaches `tools/list` | Reaches tools/list, then exits |
+| Self-id | "Catalog" | "Census" |
+| Response sizes | Standard | +37B delta (experimental capability) |
+
+### Action
+
+Edited `docs/SECOND_IMPLEMENTATION.md` to add arch #14 with full lifecycle, 4 spec implications, and a fingerprint table. Bumped the arch-count summary from "thirteen" to "fourteen distinct architectures" and refreshed the date-range to `2026-05-18–24`. Single commit.
+
+### Other traffic 16:00-17:49Z
+
+| Time | IP | Path | Class |
+|---|---|---|---|
+| 17:25Z | 80.94.95.211 | 60+ `.env` / credential paths in 15s | Recurring credential scanner (lesson 51) |
+| 17:36Z | 115.70.61.81 | `CensusMCPProbe` 3-call session | NEW arch #14, see above |
+| 17:37Z | 198.235.24.126 | Palo Alto Cortex Xpanse scan | Internet-wide attack-surface monitor (benign) |
+| 17:43Z | 79.124.40.174 | `/actuator/gateway/routes` | Spring Cloud probe — noise |
+| 17:47Z | 35.205.139.4 | AgenstryBot/0.3.0 `sitemap.xml` | Ongoing peer indexer (acknowledged in §11 yesterday) |
+
+### Standing duties status
+
+- github_pr_review: ✗ PRs #23+#24 still need Bilale (cross-org PR merge = Tier B)
+- github_issue_respond: ✓ Issue #28 — no new comments to respond to (waiting on peterxing)
+- dms_check_respond: nothing observed
+- missions_oracle_resolve: ✗ Sikkra missions still pending Bilale (cargo test verification = Tier B)
+- growth_metrics_track: ✓ tasks.json + roadmap.json updated
+- outreach_followup: nothing new
+- stay_active_post: ✓ this run
+
+```json
+{"ts": "2026-05-24T17:50:00Z", "action": "run #279: SECOND_IMPLEMENTATION arch #14 added — CensusMCPProbe/0.1 cross-IP intermittent census crawler. 21 sessions across 41h from 2 IPs (115.70.61.81 + 178.105.201.22), clean init→notif→tools/list lifecycle with +37B response delta suggesting experimental capability. First crawler to self-identify as 'census' and first with .local UA reference. 4 spec implications documented (track separately from tool-using clients, accept capabilities.experimental.*, don't block on .local UA refs, fingerprint distinct from polling/burst/retry-loop crawlers).", "outcome": "1 commit pending (SECOND_IMPLEMENTATION.md), 0 approval cards, 0 lesson updates, 0 chat messages from Bilale during 34h gap", "next_focus_suggestion": "next run: (1) check if CensusMCPProbe returns within next ~7h window (cadence suggests yes), (2) check for Peter Xing response on issue #28 (Sydney is now 04:00 next morning their time, response unlikely until their workday), (3) watch for catalog appearance — if CensusMCPProbe is a directory-build crawler, expect to surface in some MCP catalog in 7-14 days."}
+```
+
+---
 ## 2026-05-16T06:38:10Z — run #51 (DigitalOcean single-IP UA-rotation scanner — non-malicious variant; Azure prober silent ~64m)
 
 30-min poll since run #50 (06:08:30Z). Bilale silent ~15.5h (chat last 15:07:48Z 2026-05-15). github_notifications: 0. approval_queue: empty. tasks.json waiting_on_bilale = 4 (unchanged). focus.md unchanged.
@@ -1877,5 +1930,47 @@ Signed "— Aigen-Protocol bot" for transparency.
 - HN blog #14 submission (window passed)
 - mcpmarket.com listing verify
 - Scanner + SSE restart still pending
+
+---
+
+## Run #278 — 2026-05-23T07:10Z
+
+**Action**: 🌐 Federation gesture (Ecosystem Contribution Menu A4: cite peer projects)
+- Edited `docs/ECOSYSTEM_DISCUSSIONS.md`: refreshed "Last update" header from 2026-05-18 → 2026-05-23, and appended empirical engagement data to the existing Agenstry row in the Registry & discovery table: "sustained 5-day engagement (60+ hits 2026-05-22 alone, frequency climbing toward ~hourly from initial ~1.5h cadence)".
+- Why: Agenstry (agenstry.com) is the third-most-active external crawler hitting our endpoints. They are a TRUST + ROUTING indexer claiming 23k+ indexed agents. Publicly tracking their crawl in our docs is a federation gesture — gives them backlink visibility from our docs, signals we recognize them as a peer indexer. Not capture, not promotion — just naming and acknowledging.
+- Tier: A (edit our own docs, federation menu A4).
+- Commit: 3d0d50d pushed to main.
+
+**Empirical signals this 4h window**:
+- 17 AgenstryBot hits today so far (60 yesterday on access.log.1), full discovery sweep at 00:23 + 00:32 + 01:23 + 07:03Z. POST /mcp still 400 (same JSON-RPC initialize-skip pattern; well-documented in both our agent-card.json and agents.txt — purely client-side bug).
+- 91.198.249.102 (Windows Chrome 133) visited `/blog/2026-05-18-agenstrybot-visit-and-protocol-gaps` at 04:15:58Z. Meta-loop: human reader found our blog about an indexer.
+- 123.58.196.49 (China) ran multi-UA recon at 07:04Z (TLS handshake error → Edge UA → Go-http-client/1.1 on /.well-known/agent.json → Chrome 17 ancient UA on /config.json). Same pattern as 65.49.1.10/17/18 last cycle. Generic scanner with UA rotation. No AIGEN-specific intent. Logged, ignored.
+- 172.68.3.130 (CF egress, likely lobsterai-agent or another OAuth-platform user) continues 30-min poll: POST /mcp → 200 (1182B init ack) → POST /mcp → 200 (41558B tools/list). Stable.
+- 172.68.3.130 occasionally POSTs /firewall → 502 (dead upstream port 8546). Still happening every cycle. waiting_on_bilale entry stands (it's a Tier B fix — nginx config edit).
+- 70.39.198.112 generic POST / scanner (noise). 64.62.156.152 raw TLS attempt (binary garbage, generic scanner). All ignored.
+- AgenstryBot day-by-day count: 60 (2026-05-22, log.1), 17 so far today and 7h elapsed → projecting ~50/day. Climbing.
+
+**Issue #28 (peterxing) follow-up status**: No reply yet (4 hours post our 03:12Z comment). AU timezone +10h, expected window ~Sydney evening. May take 24-48h for a substantive response. No action this cycle.
+
+**Standing duties status**:
+- github_pr_review: still null (Sikkra PRs #23/#24 are Bilale's merge action)
+- github_issue_respond: 03:12Z done (issue #28). No new issues this cycle.
+- dms_check_respond: null (no inbound)
+- missions_oracle_resolve: null (Bilale's job — Sikkra Rust/CrewAI missions await)
+- growth_metrics_track: refreshed via dashboard refresh in run.sh
+- outreach_followup: null (no outreach replies recorded; Bilale has not yet sent the 10 DMs)
+- stay_active_post: this run
+
+**Consecutive watching-only runs**: 0 (concrete federation commit shipped: ecosystem-menu A4 satisfied).
+
+**Cost**: ~$1.85 today. Budget healthy (lifetime $382 over 277 runs, kill threshold $150/day).
+
+**Blockers unchanged from run #277**:
+- lobsterai-agent review (still recon-mode, awaiting Bilale decision)
+- PR #23 + #24 Sikkra (825 AIGEN unrewarded)
+- HN blog #14 submission (window passed, can re-attempt Tuesday)
+- mcpmarket.com listing verify
+- Scanner + SSE restart still pending
+- /firewall 502 (Cloudflare clients still hitting; nginx config Tier B)
 
 ---
