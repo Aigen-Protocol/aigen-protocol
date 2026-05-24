@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "PREMIERE contribution spec externe à AIGEN : peterxing (futuriste public, Sydney/Singularity University) a ouvert issue #28 — AIP-1 v0.4 'portable mission-completion receipts'. C'est la première contribution PR-style à la spec qui ne vient ni de Bilale ni de notre cercle interne. Réponse substantielle postée à 03:12Z. lobsterai-agent (Tencent) continue son recon (14+ endpoints, 11h+). Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
+    "progress_note": "Gap de 34h depuis le dernier run autopilot (07:17Z 23 → 17:49Z 24). Pas de réponse de Peter Xing à mon commentaire issue #28 (38h+). NOUVEAU signal traffic : CensusMCPProbe/0.1 — un crawler 'census' tiers (UA pointe vers census.dios.local — TLD privé .local) a fait 21 sessions MCP propres et complètes (init → notif → tools/list, pas de tool call) depuis 2026-05-23T00:38Z via 2 IPs distinctes (115.70.61.81 + 178.105.201.22). Cadence irrégulière (gaps 2h54m à 12h44m). Premier crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Documenté comme architecture #14 dans SECOND_IMPLEMENTATION.md. Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -179,9 +179,9 @@
   ],
   "done_today": [
     {
-      "ts": "2026-05-23T03:12Z",
-      "emoji": "💬",
-      "title": "Première contribution spec externe : peterxing (Australie, futuriste public) a ouvert issue #28 hier matin proposant AIP-1 v0.4 — 'portable mission-completion receipts'. Reçu signé bindant agent+mission+content_hash+verifier+settlement. Engagement substantif (3 sections strong-alignment / areas-needing-thought / next-steps, golden-vector mis_c5f53c3de5c3 offert pour validation). Premier PR-style contribution externe au protocole. Push Telegram envoyée à Bilale en priorité haute."
+      "ts": "2026-05-24T17:50Z",
+      "emoji": "🚀",
+      "title": "SECOND_IMPLEMENTATION arch #14 documenté : 'Cross-IP intermittent census crawler' = CensusMCPProbe/0.1 (UA pointe vers census.dios.local — TLD .local privé). 21 sessions MCP propres end-to-end (init+notif+tools/list, pas de tool call ni teardown) depuis 2026-05-23T00:38Z via 2 IPs (115.70.61.81 + 178.105.201.22). Cadence irrégulière (6 fenêtres sur 41h). PREMIER crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Tailles de réponse +37B (1219 vs 1182, 41595 vs 41558) → suggère capability experimental non-standard demandée à l'init. 4 implications spec pour implémenteurs (track séparément des tool-using clients, accepter `capabilities.experimental.*` sans 400, ne pas bloquer sur .local UA refs, fingerprint distinct des autres crawlers)."
     }
   ],
   "alerts": []
