@@ -41,6 +41,7 @@ MISSION_REWARD_AIGEN = 50
 MISSION_DEADLINE_HOURS = 12
 RADAR_AGENT = "aigen-radar"
 SUPPORTED_CHAINS = {"base", "ethereum", "optimism", "arbitrum", "solana"}
+EVM_CHAIN_IDS = {"ethereum": 1, "optimism": 10, "base": 8453, "arbitrum": 42161}
 SEEN_FILE = Path("/home/luna/crypto-genesis/aigen/radar_seen.json")
 LEDGER_PATH = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
 
@@ -160,6 +161,15 @@ def cycle() -> int:
             f"Output gets included in the public AIGEN safety feed (RSS)."
         )
 
+        mission_type = "token_scan" if chain in EVM_CHAIN_IDS else "freeform"
+        type_params = {}
+        if mission_type == "token_scan":
+            type_params = {
+                "chain_id": EVM_CHAIN_IDS[chain],
+                "token_address": addr,
+                "checks": ["honeypot", "rug", "ownership", "liquidity", "tax", "blacklist"],
+            }
+
         body = {
             "creator_agent_id": RADAR_AGENT,
             "title": title[:120],
@@ -170,6 +180,8 @@ def cycle() -> int:
             # Broad regex accepts natural language verdicts from external agents
             # (e.g. "Verdict: HIGH RISK" or "Verdict: Exercise caution").
             # Internal auto-reviewer always matches too.
+            "mission_type": mission_type,
+            "type_params": type_params,
             "verification_type": "first_valid_match",
             "verification_params": {
                 "regex": r"Verdict:\s*.{4,}"
