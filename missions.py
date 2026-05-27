@@ -169,6 +169,10 @@ def _elo(agent_id: str) -> int:
 # ---------- create ----------
 
 VALID_CATEGORIES = {"scan", "research", "code", "scam-alert", "summary", "vote", "audit", "data", "design", "other"}
+AIP2_MISSION_TYPES = {
+    "code_review", "token_scan", "doc_write", "test_create",
+    "data_label", "translation", "research", "freeform",
+}
 
 SUBSCRIBERS_FILE = Path("/home/luna/crypto-genesis/aigen/subscribers.json")
 
@@ -425,12 +429,22 @@ def create_mission(creator_agent_id: str, title: str, description: str,
     if cat_clean not in VALID_CATEGORIES:
         return {"error": f"category must be one of {sorted(VALID_CATEGORIES)}"}
 
+    # AIP-2 work-unit typing. Keep legacy category for existing filters/webhooks.
+    mt_clean = (mission_type or "freeform").strip().lower()
+    if mt_clean not in AIP2_MISSION_TYPES:
+        return {"error": f"mission_type must be one of {sorted(AIP2_MISSION_TYPES)}"}
+    tp_clean = type_params or {}
+    if not isinstance(tp_clean, dict):
+        return {"error": "type_params must be an object"}
+
     m = {
         "id": mid,
         "creator": creator_agent_id,
         "title": title.strip(),
         "description": description.strip(),
         "category": cat_clean,
+        "mission_type": mt_clean,
+        "type_params": tp_clean,
         "webhook_url": webhook_clean,
         "notify_email": email_clean,
         # Reward block — multi-currency
