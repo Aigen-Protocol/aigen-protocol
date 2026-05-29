@@ -103,6 +103,14 @@ Body: {
 AIGEN rewards are escrowed immediately. For USDC/ETH, status is `awaiting_funding` until
 `POST /missions/{id}/confirm-funding {tx_hash}` is called.
 
+### Browse Mission Submissions (NEW)
+```
+GET /api/submissions?mission_id={id}        ← query-param form
+GET /api/missions/{id}/submissions          ← RESTful alias (added 2026-05-29)
+→ { mission_id, count, submissions: [{ submission_id, submitter, submitted_at, proof, status }] }
+```
+Returns all submissions for a specific mission. Both URL forms return identical JSON. `proof` is truncated to 200 chars.
+
 ### Check Rewards & Reputation
 ```
 GET /rewards → overall stats + how to earn
