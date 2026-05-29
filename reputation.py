@@ -67,6 +67,10 @@ POINTS = {
     "pattern_yes_wrong":  -20,
     "pattern_no_wrong":   -20,
     "approved_contribution": 25,
+    "mission_won_first_valid_match": 1,
+    "mission_won_oracle": 3,
+    "mission_won_creator_judges": 5,
+    "mission_won_peer_vote": 10,
     "premium_attestation_referral": 15,  # referred a paying customer (premium attestation)
     "saferouter_route_volume_log_bps": 5,  # 5 pts per "log10(USD micros)"
 }
@@ -146,7 +150,40 @@ def derive_reputation(agent_id: str) -> dict:
         score += approved * POINTS["approved_contribution"]
         breakdown["contributions"] = {"approved": approved, "points": approved * POINTS["approved_contribution"]}
 
-    # 4. Premium attestation referrals (revenue-generating work)
+    # 4. Mission bounty wins
+    mission_path = Path("/home/luna/crypto-genesis/aigen/missions.json")
+    if mission_path.exists():
+        d = json.loads(mission_path.read_text())
+        won_by_type = {
+            "first_valid_match": 0,
+            "oracle": 0,
+            "creator_judges": 0,
+            "peer_vote": 0,
+        }
+        rejected = 0
+        for mission in d.get("missions", []):
+            winner_agent_id = (mission.get("resolution") or {}).get("winner_agent_id")
+            verification_type = mission.get("verification_type", "creator_judges")
+            for sub in mission.get("submissions", []):
+                if sub.get("submitter") != agent_id:
+                    continue
+                if sub.get("status") == "winner" or winner_agent_id == agent_id:
+                    if verification_type in won_by_type:
+                        won_by_type[verification_type] += 1
+                elif sub.get("status") == "rejected":
+                    rejected += 1
+        bounty_pts = (
+            won_by_type["first_valid_match"] * POINTS["mission_won_first_valid_match"]
+            + won_by_type["oracle"] * POINTS["mission_won_oracle"]
+            + won_by_type["creator_judges"] * POINTS["mission_won_creator_judges"]
+            + won_by_type["peer_vote"] * POINTS["mission_won_peer_vote"]
+        )
+        score += bounty_pts
+        wins += sum(won_by_type.values())
+        losses += rejected
+        breakdown["bounties"] = {**won_by_type, "rejected": rejected, "points": bounty_pts}
+
+    # 5. Premium attestation referrals (revenue-generating work)
     rev_path = Path("/home/luna/crypto-genesis/aigen/revenue_pool.json")
     referrals = 0
     saferouter_volume_micros = 0
@@ -171,7 +208,7 @@ def derive_reputation(agent_id: str) -> dict:
         "saferouter_fee_micros": saferouter_volume_micros, "saferouter_fee_points": swap_pts,
     }
 
-    # 5. Manual reputation points (legacy)
+    # 6. Manual reputation points (legacy)
     legacy = load().get(agent_id, {}).get("points", 0)
     score += legacy
     if legacy:
@@ -287,6 +324,7 @@ def all_active_agents() -> list:
         "/home/luna/crypto-genesis/aigen/predictions.json",
         "/home/luna/crypto-genesis/aigen/patterns_market.json",
         "/home/luna/crypto-genesis/aigen/contributions.json",
+        "/home/luna/crypto-genesis/aigen/missions.json",
         "/home/luna/crypto-genesis/aigen/revenue_pool.json",
         "/home/luna/crypto-genesis/aigen/agents.json",
     ]:
@@ -301,6 +339,15 @@ def all_active_agents() -> list:
         for s in d.get("submissions", []):
             if "agent_id" in s:
                 seen.add(s["agent_id"])
+        for mission in d.get("missions", []):
+            if "creator" in mission:
+                seen.add(mission["creator"])
+            for s in mission.get("submissions", []):
+                if "submitter" in s:
+                    seen.add(s["submitter"])
+            resolution = mission.get("resolution") or {}
+            if "winner_agent_id" in resolution:
+                seen.add(resolution["winner_agent_id"])
         for m in d.get("markets", []):
             seen.update(m.get("yes_stakes", {}).keys())
             seen.update(m.get("no_stakes", {}).keys())
