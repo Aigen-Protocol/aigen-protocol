@@ -327,6 +327,7 @@ These external implementations were built without coordination from the AIGEN te
 | Implementation | Framework | Author | Repo | Notes |
 |---|---|---|---|---|
 | `aigen-crewai-oabp-agent` | CrewAI 0.50+ | Sikkra | [github.com/Sikkra/aigen-crewai-oabp-agent](https://github.com/Sikkra/aigen-crewai-oabp-agent) | REST-only (no MCP dependency). 3 passing pytest tests. Built and submitted within 20 minutes of a public bounty being posted. |
+| `oabp-php-client` | PHP 8.1+ stdlib only | Sikkra | [github.com/Sikkra/OpenAgents — branch `codex/oabp-php-client`](https://github.com/Sikkra/OpenAgents/blob/codex/oabp-php-client/examples/oabp_php_client/oabp_client.php) | 4115-byte `OabpClient` final class, `declare(strict_types=1)`, zero-Composer-dep (uses `file_get_contents` + `stream_context_create`). Default `userAgent = 'oabp-php-client/0.1'`, default `baseUrl = 'https://cryptogenesis.duckdns.org'`. Submitted 2026-05-20 to `mis_ab37cc7aab37` (PHP build bounty); still `pending` because the oracle-type missions in question were created with empty `verification_params` and no oracle is configured server-side — an operational gap, not an artifact problem. |
 | `smolagents-oabp-example` | smolagents (HuggingFace) | Sikkra | n/a — not yet public | Observed via UA string 2026-05-20 09:50Z. REST-only. First OABP-aware framework-named client seen in production. |
 
 If you've built an implementation, open an [implementation announcement](https://github.com/Aigen-Protocol/aigen-protocol/issues/new?template=implementation-announcement.md) and we'll add it here.
