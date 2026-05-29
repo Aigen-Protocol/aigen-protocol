@@ -1,6 +1,25 @@
 """AIGEN Reputation System — Trust built through work."""
 import json
+import time as _time_mod
 from pathlib import Path
+
+# Module-level cache: {path_str: (loaded_at, data)} — 60s TTL
+# Prevents parsing missions.json (6.3MB) 170× per leaderboard call (85 agents × 2 reads each).
+_FILE_CACHE: dict = {}
+_CACHE_TTL = 60
+
+
+def _load_cached(path: str) -> dict:
+    now = _time_mod.time()
+    entry = _FILE_CACHE.get(path)
+    if entry and now - entry[0] < _CACHE_TTL:
+        return entry[1]
+    p = Path(path)
+    if not p.exists():
+        return {}
+    data = json.loads(p.read_text())
+    _FILE_CACHE[path] = (now, data)
+    return data
 
 REP_FILE = Path("/home/luna/crypto-genesis/aigen/reputation.json")
 
@@ -86,9 +105,9 @@ def derive_reputation(agent_id: str) -> dict:
     losses = 0
 
     # 1. Prediction markets
-    pred_path = Path("/home/luna/crypto-genesis/aigen/predictions.json")
-    if pred_path.exists():
-        d = json.loads(pred_path.read_text())
+    pred_path = "/home/luna/crypto-genesis/aigen/predictions.json"
+    d = _load_cached(pred_path)
+    if d:
         won = lost = voided = 0
         for m in d.get("markets", []):
             if m["status"] != "resolved":
@@ -107,9 +126,9 @@ def derive_reputation(agent_id: str) -> dict:
                                     "points": won * POINTS["prediction_won"] + lost * POINTS["prediction_lost"]}
 
     # 2. Pattern bounty board
-    pat_path = Path("/home/luna/crypto-genesis/aigen/patterns_market.json")
-    if pat_path.exists():
-        d = json.loads(pat_path.read_text())
+    pat_path = "/home/luna/crypto-genesis/aigen/patterns_market.json"
+    d = _load_cached(pat_path)
+    if d:
         validated_subs = 0
         yes_correct = no_correct = yes_wrong = no_wrong = 0
         for p in d.get("patterns", []):
@@ -142,18 +161,18 @@ def derive_reputation(agent_id: str) -> dict:
         }
 
     # 3. Approved contributions (from contributions.json)
-    contrib_path = Path("/home/luna/crypto-genesis/aigen/contributions.json")
-    if contrib_path.exists():
-        d = json.loads(contrib_path.read_text())
+    contrib_path = "/home/luna/crypto-genesis/aigen/contributions.json"
+    d = _load_cached(contrib_path)
+    if d:
         approved = sum(1 for s in d.get("submissions", [])
                        if s.get("agent_id") == agent_id and s.get("status", "").startswith("approved"))
         score += approved * POINTS["approved_contribution"]
         breakdown["contributions"] = {"approved": approved, "points": approved * POINTS["approved_contribution"]}
 
     # 4. Mission bounty wins
-    mission_path = Path("/home/luna/crypto-genesis/aigen/missions.json")
-    if mission_path.exists():
-        d = json.loads(mission_path.read_text())
+    mission_path = "/home/luna/crypto-genesis/aigen/missions.json"
+    d = _load_cached(mission_path)
+    if d:
         won_by_type = {
             "first_valid_match": 0,
             "oracle": 0,
@@ -184,11 +203,11 @@ def derive_reputation(agent_id: str) -> dict:
         breakdown["bounties"] = {**won_by_type, "rejected": rejected, "points": bounty_pts}
 
     # 5. Premium attestation referrals (revenue-generating work)
-    rev_path = Path("/home/luna/crypto-genesis/aigen/revenue_pool.json")
+    rev_path = "/home/luna/crypto-genesis/aigen/revenue_pool.json"
     referrals = 0
     saferouter_volume_micros = 0
-    if rev_path.exists():
-        d = json.loads(rev_path.read_text())
+    d = _load_cached(rev_path)
+    if d:
         for e in d.get("events", []):
             if e.get("attributed_agent_id") != agent_id:
                 continue
@@ -261,9 +280,8 @@ def _last_activity_ts(agent_id: str) -> int | None:
     # Missions: submissions, votes (vote tracked via _credit not directly, fall back to submissions),
     # mission creation
     try:
-        m_path = Path("/home/luna/crypto-genesis/aigen/missions.json")
-        if m_path.exists():
-            d = json.loads(m_path.read_text())
+        d = _load_cached("/home/luna/crypto-genesis/aigen/missions.json")
+        if d:
             for m in d.get("missions", []) or []:
                 if m.get("creator") == agent_id:
                     most_recent = max(most_recent, m.get("created_at", 0))
@@ -282,9 +300,8 @@ def _last_activity_ts(agent_id: str) -> int | None:
 
     # Predictions
     try:
-        p_path = Path("/home/luna/crypto-genesis/aigen/predictions.json")
-        if p_path.exists():
-            d = json.loads(p_path.read_text())
+        d = _load_cached("/home/luna/crypto-genesis/aigen/predictions.json")
+        if d:
             for m in d.get("markets", []) or []:
                 if agent_id in (m.get("yes_stakes", {}) or {}) or agent_id in (m.get("no_stakes", {}) or {}):
                     most_recent = max(most_recent, m.get("created_at", 0), m.get("resolved_at", 0))
@@ -293,9 +310,8 @@ def _last_activity_ts(agent_id: str) -> int | None:
 
     # Patterns
     try:
-        pat_path = Path("/home/luna/crypto-genesis/aigen/patterns.json")
-        if pat_path.exists():
-            d = json.loads(pat_path.read_text())
+        d = _load_cached("/home/luna/crypto-genesis/aigen/patterns.json")
+        if d:
             for s in d.get("submissions", []) or []:
                 if s.get("submitter") == agent_id:
                     most_recent = max(most_recent, s.get("submitted_at", 0))
@@ -304,9 +320,8 @@ def _last_activity_ts(agent_id: str) -> int | None:
 
     # Ledger credits (catches faucet, payouts, etc.)
     try:
-        l_path = Path("/home/luna/crypto-genesis/shield-rewards/ledger.json")
-        if l_path.exists():
-            d = json.loads(l_path.read_text())
+        d = _load_cached("/home/luna/crypto-genesis/shield-rewards/ledger.json")
+        if d:
             a = (d.get("agents") or {}).get(agent_id, {})
             for c in (a.get("credits", []) or []):
                 most_recent = max(most_recent, c.get("ts", 0))
@@ -328,10 +343,9 @@ def all_active_agents() -> list:
         "/home/luna/crypto-genesis/aigen/revenue_pool.json",
         "/home/luna/crypto-genesis/aigen/agents.json",
     ]:
-        p = Path(path)
-        if not p.exists():
+        d = _load_cached(path)
+        if not d:
             continue
-        d = json.loads(p.read_text())
         # Collect agent ids from various structures
         for entry in d.get("agents", []):
             if isinstance(entry, dict) and "id" in entry:
