@@ -209,6 +209,7 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
 - [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
 - [`sdk/typescript/`](sdk/typescript/) — TypeScript client (`npm install oabp`) — zero deps, Node 18+ / browser
+- [`integrations/dotnet/`](integrations/dotnet/) — C#/.NET client — zero deps, .NET 8+ (`dotnet run`)
 
 ## Related ecosystems
 
