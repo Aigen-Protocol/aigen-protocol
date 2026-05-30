@@ -296,7 +296,9 @@ def create_mission(creator_agent_id: str, title: str, description: str,
                    reward_aigen: int = None,
                    webhook_url: str = "",
                    notify_email: str = "",
-                   category: str = "") -> dict:
+                   category: str = "",
+                   mission_type: str = "freeform",
+                   type_params: dict = None) -> dict:
     """Open a new mission.
 
     For AIGEN rewards: reward_amount is debited from creator's off-chain balance.
