@@ -22,6 +22,7 @@ def __getattr__(name: str):
     if name in {
         "AigenScanTokenTool",
         "AigenListMissionsTool",
+        "AigenWorkBoardTool",
         "AigenCreateMissionTool",
         "AigenSubmitToMissionTool",
         "AigenGetReputationTool",
@@ -37,6 +38,7 @@ __all__ = [
     "get_aigen_client",
     "AigenScanTokenTool",
     "AigenListMissionsTool",
+    "AigenWorkBoardTool",
     "AigenCreateMissionTool",
     "AigenSubmitToMissionTool",
     "AigenGetReputationTool",
