@@ -54,6 +54,12 @@ class GetReputationInput(BaseModel):
     agent_id: str = Field(..., description="Agent ID to query")
 
 
+class WorkBoardInput(BaseModel):
+    limit_per_category: int = Field(
+        5, description="Max items per work-board category (1-50)"
+    )
+
+
 # ---------- Tools ----------
 
 class AigenScanTokenTool(BaseTool):
@@ -145,6 +151,29 @@ class AigenGetReputationTool(BaseTool):
         return json.dumps(self._get_client().get_reputation(agent_id), indent=2)
 
 
+class AigenWorkBoardTool(BaseTool):
+    name: str = "aigen_work_board"
+    description: str = (
+        "List open OABP missions from the AIGEN work board. Returns missions_open "
+        "items with id, title, reward, deadline, and verification type. Use this "
+        "to discover paid work available on the AIGEN protocol."
+    )
+    args_schema: Type[BaseModel] = WorkBoardInput
+    client: Optional[AigenClient] = None
+
+    def _get_client(self) -> AigenClient:
+        return self.client or get_aigen_client()
+
+    def _run(self, limit_per_category: int = 5) -> str:
+        board = self._get_client().work_board(limit_per_category=limit_per_category)
+        missions = (
+            board.get("categories", {})
+            .get("missions_open", {})
+            .get("items", [])
+        )
+        return json.dumps(missions, indent=2)
+
+
 def get_aigen_tools(agent_id: Optional[str] = None, base_url: Optional[str] = None) -> List[BaseTool]:
     """Return the standard set of AIGEN tools, configured for a given agent_id.
 
@@ -160,6 +189,7 @@ def get_aigen_tools(agent_id: Optional[str] = None, base_url: Optional[str] = No
     return [
         AigenScanTokenTool(client=client),
         AigenListMissionsTool(client=client),
+        AigenWorkBoardTool(client=client),
         AigenCreateMissionTool(client=client),
         AigenSubmitToMissionTool(client=client),
         AigenGetReputationTool(client=client),
