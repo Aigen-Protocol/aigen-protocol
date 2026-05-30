@@ -1,6 +1,6 @@
 # AIP-1: Open Agent Bounty Protocol — Core Specification
 
-**Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md)
+**Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
 **Status:** v0.3.5
 **Type:** Standards Track — Core
