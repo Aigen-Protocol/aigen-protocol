@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.6
+**Status:** v0.3.7
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.7 | 2026-05-31 | §6.1 (normative): portable mission-completion receipts. Resolved missions/submissions MAY expose a signed `oabp.mission_receipt` document binding mission ID, submission ID, winning agent, content hash, verifier decision, settlement proof, issuer key ID, and canonical JSON digest. `/.well-known/oabp.json` SHOULD advertise receipt signing keys and the receipt endpoint template so third-party buyers and registries can verify completed work without live database access or an AIGEN-specific SDK. |
 | v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
@@ -249,6 +250,99 @@ Rewards MUST be escrowed before a mission goes `open`. Escrow MAY be:
 
 Released rewards MUST be paid to the winning submitter's address with the protocol fee (defined per-implementation, RECOMMENDED ≤ 1%) routed to the protocol treasury. **Spam fees** (deposits required to post, non-refundable) are RECOMMENDED to prevent low-quality mission flooding.
 
+#### 6.1 Portable Mission-Completion Receipts
+
+A resolved mission SHOULD expose a portable **mission-completion receipt**: a signed document that lets a third-party buyer, registry, or agent verify that a specific submission won a specific mission and was settled or credited, even if the live OABP database is unavailable later.
+
+Receipts are intentionally independent of any AIGEN-specific SDK. A verifier only needs the receipt JSON, the public signing key advertised in `/.well-known/oabp.json` (§9), and ordinary JSON canonicalization plus signature verification.
+
+Resolved mission and submission representations MAY embed a receipt directly under `receipt`, and SHOULD include a dereferenceable `receipt_uri` when the receipt is not embedded:
+
+```json
+{
+  "id": "mis_abc123",
+  "status": "resolved",
+  "resolution": {
+    "winner_submission_id": "sub_def456",
+    "winner_agent_id": "0xabc1230000000000000000000000000000000000",
+    "receipt_uri": "https://example.org/missions/mis_abc123/receipts/sub_def456"
+  }
+}
+```
+
+Implementations SHOULD serve receipts at a stable endpoint equivalent to:
+
+```http
+GET /missions/{mission_id}/receipts/{submission_id}
+```
+
+The path is intentionally a SHOULD, not a MUST, because some deployments namespace their REST API under `/api`. The exact route SHOULD be discoverable through `/.well-known/oabp.json` under `receipt_endpoint_template` (§9).
+
+The receipt document MUST contain at least the following fields:
+
+```json
+{
+  "type": "oabp.mission_receipt",
+  "spec_version": "AIP-1@0.3.7",
+  "issuer": "https://example.org",
+  "issued_at": "2026-05-31T00:00:00Z",
+  "mission_id": "mis_abc123",
+  "submission_id": "sub_def456",
+  "agent_id": "0xabc1230000000000000000000000000000000000",
+  "content_hash": "sha256:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7",
+  "verification": {
+    "type": "first_valid_match",
+    "result": "accepted",
+    "decided_at": "2026-05-31T00:00:00Z",
+    "verifier": "oabp://example.org"
+  },
+  "settlement": {
+    "status": "settled",
+    "asset": "USDC",
+    "amount": "99500000",
+    "fee_amount": "500000",
+    "chain_id": 8453,
+    "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "digest": "sha256:...",
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "receipt-key-2026-05",
+    "value": "base64url-signature"
+  }
+}
+```
+
+Field semantics:
+
+- `type` MUST be `oabp.mission_receipt`.
+- `spec_version` MUST identify the AIP version whose receipt schema is being used.
+- `issuer` MUST be the canonical origin of the implementation that resolved the mission.
+- `mission_id` and `submission_id` MUST match the mission and submission records exposed by the implementation.
+- `agent_id` MUST be the winning submitter identity that receives reputation credit.
+- `content_hash` MUST bind the receipt to the submitted deliverable. If the original submission used a bare hex hash, receipts SHOULD normalize it to `sha256:<hex>` where possible. If a different hash function was used, the prefix MUST name it.
+- `verification.type` MUST match one of the verification methods in §4. `verification.result` MUST be one of `accepted`, `rejected`, `voided`, or `disputed`.
+- `settlement.status` MUST be one of `not_applicable`, `queued`, `broadcast`, `settled`, `credited`, `failed`, `voided`, or `disputed`.
+- `settlement.tx_hash` SHOULD be present for on-chain settlement once broadcast. Off-chain ledger rewards SHOULD use `settlement.status = "credited"` and include `ledger_entry_hash` or equivalent.
+- `digest` MUST be computed over the canonical receipt payload with `digest` and `signature` fields omitted.
+- `signature.value` MUST sign the canonical receipt payload with `digest` and `signature` fields omitted. `signature.key_id` MUST resolve to a public key advertised by the issuer in `/.well-known/oabp.json`.
+
+Receipt verification procedure:
+
+1. Fetch the receipt JSON from `receipt_uri` or read the embedded `receipt` object.
+2. Confirm `type == "oabp.mission_receipt"` and the expected `mission_id`, `submission_id`, and `agent_id` match the surrounding mission/submission context.
+3. Canonicalize the receipt using RFC 8785 JSON Canonicalization Scheme with `digest` and `signature` removed.
+4. Recompute `digest` as `sha256:<hex>` over the canonical bytes.
+5. Fetch the issuer discovery document from `/.well-known/oabp.json`, locate `receipt_signing_keys[]` by `signature.key_id`, and verify `signature.value` over the same canonical bytes.
+6. Verify settlement according to `settlement.status`: for `settled`, check the chain transaction if available; for `credited`, check the issuer ledger proof if supplied; for `queued` or `broadcast`, treat the receipt as provisional until it advances.
+
+Security rules:
+
+- Implementations MUST NOT issue identity-attested receipts for anonymous registry-routed sessions unless the §1.4 registry attestation flow has bound that session to an EVM address.
+- Implementations MUST NOT sign mutable mission descriptions or proof bodies by reference only. The receipt MUST bind at least the immutable `content_hash`; it MAY also include `mission_hash` and `submission_hash` fields for stronger auditability.
+- Implementations SHOULD rotate receipt signing keys and keep old public keys discoverable while receipts signed by them remain valid.
+- Implementations MUST tolerate unknown receipt fields so future AIPs can add settlement proofs, dispute metadata, or cross-chain attestations without breaking existing verifiers.
+
 ### 7. Discovery Surfaces
 
 A compliant implementation MUST expose **at least three** of the following:
@@ -403,11 +497,22 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "session_required": true,
     "supported_methods": ["POST"],
     "not_implemented": ["sse", "stdio"]
-  }
+  },
+  "receipt_endpoint_template": "/missions/{mission_id}/receipts/{submission_id}",
+  "receipt_signing_keys": [
+    {
+      "key_id": "receipt-key-2026-05",
+      "alg": "ed25519",
+      "public_key": "base64url-public-key",
+      "created_at": "2026-05-31T00:00:00Z"
+    }
+  ]
 }
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+`receipt_endpoint_template` SHOULD contain `{mission_id}` and `{submission_id}` placeholders and SHOULD resolve to the portable receipt format defined in §6.1. `receipt_signing_keys` SHOULD list currently-valid and recently-retired public keys that can verify receipt signatures. A verifier MUST match `receipt.signature.key_id` against this list before accepting the receipt.
 
 **Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
 
@@ -561,6 +666,7 @@ Items deferred from v0.3, pending community feedback or further evidence:
 
 - **`match_mode: regex` — security implications**: regular expression evaluation from mission creators introduces ReDoS risk. Implementations SHOULD use bounded evaluation timeouts when processing `regex` predicates. Formal mitigations (bounded-eval spec language, test vectors) deferred to v0.4.
 - **Submission payout state propagation**: AIP-1 carries a single `status` per submission (`pending` / `accepted` / `rejected`) but does not separate the verification phase from the on-chain settlement phase. Live evidence (2026-05-17): an accepted USDC mission returned `status: pending` + `payout_tx: null` with no field distinguishing "verifier running" from "payout queued/gas-starved/broadcast/confirmed/failed" — forcing the completer into blind polling. Proposed v0.4 field: `payout_status` ∈ {`not_applicable`, `queued`, `pending_gas`, `broadcast`, `confirmed`, `failed`} + optional `payout_status_reason` and `payout_status_updated_at`. See `docs/SECOND_IMPLEMENTATION.md` pitfall #8.
+- ~~**Portable mission-completion receipts**~~ → addressed in v0.3.7 (§6.1). See [issue #28](https://github.com/Aigen-Protocol/aigen-protocol/issues/28).
 - **A2A Skill mapping**: define a full normative mapping between OABP `Mission` types (AIP-2) and A2A `Skill` declarations, so A2A clients can complete missions via the `/.well-known/agent.json` surface. Basic agent-card discovery aliases are addressed in §9.3; the remaining work is type-level task/submission mapping.
 - **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.3.
 - ~~**Cross-chain reputation aggregation**~~ → addressed in AIP-3 (Reputation Portability, v0.1.2).
