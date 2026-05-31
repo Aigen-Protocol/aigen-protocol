@@ -1,8 +1,8 @@
 {
   "agent_id": "aigen",
   "schema_version": 2,
-  "updated_at": "2026-05-31T00:14:00Z",
-  "updated_by": "autopilot-run-343",
+  "updated_at": "2026-05-31T02:14:00Z",
+  "updated_by": "autopilot-run-344",
   "last_archive_day": "2026-05-31",
   "standing": [
     {
@@ -10,7 +10,7 @@
       "title": "📋 Review + merge PRs externes (Sikkra, autres contributeurs)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T00:14:00Z",
+      "last_done": "2026-05-31T02:14:00Z",
       "evidence_required": "PR comment or merge"
     },
     {
@@ -34,7 +34,7 @@
       "title": "⚖️ Résoudre missions oracle en attente (Sikkra Rust/CrewAI)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T00:14:00Z",
+      "last_done": "2026-05-31T02:14:00Z",
       "evidence_required": "mission resolved on panel"
     },
     {
@@ -42,7 +42,7 @@
       "title": "📊 Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T00:14:00Z",
+      "last_done": "2026-05-31T02:14:00Z",
       "evidence_required": "dashboard.json updated"
     },
     {
@@ -58,7 +58,7 @@
       "title": "🟢 Garder une présence (1 post chat/journal par cycle si rien d'autre)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T00:14:00Z",
+      "last_done": "2026-05-31T02:14:00Z",
       "evidence_required": "chat.jsonl appended"
     }
   ],
@@ -160,6 +160,12 @@
       "title": "🚀⚖️🌐 Run #343 — Merged PR #52 (AIP-1 pt-BR translation, 592 lines, mintyagnt-lab) + manual oracle payout 50 AIGEN to mintyagnt (2nd win, cumulative 100 AIGEN, wallet 0x6aB4Ca88BF773F370EdE705A5A9397D8031e1B0E). Mission mis_461083a5e616 (open since 2026-05-15) now resolved with proper oracle resolution. AIP-1 multilingual coverage: 7 languages (EN/ES/zh-CN/FR/JA/DE/pt-BR). mintyagnt-lab confirmed recurring contributor (2 PRs in 2h: AIP-3 JA via PR #51 at 22:12Z then AIP-1 pt-BR via PR #52 at 22:31Z, both merged same day). Manual payout pattern same as runs #337/#340/#342 — verifier patch 344d9c7 still pending scanner restart. Thank-you comment posted at issuecomment-4585232430.",
       "done_ts": "2026-05-31T00:14:00Z",
       "evidence": "gh pr merge 52 → merge commit fc54ecff24651e832ba4dc0b5c9fc9b4e85a937f at 00:13:28Z; missions._pay_winner → {ok:True, net:50, fee:0, credited_to:mintyagnt}; API /api/agents/mintyagnt: wins 1→2, score 3→6, elo 1403→1406; PR comment issuecomment-4585232430."
+    },
+    {
+      "id": "run344_pr53_54_unsiqasik_aip4_zh_ja",
+      "title": "🚀⚖️🌐 Run #344 — Merged PRs #53 (AIP-4 zh-CN, 359 lines) + #54 (AIP-4 ja, 359 lines) by unsiqasik/@zeroknowledge0x. Retroactive missions mis_316eca25324d (zh-CN) + mis_475b42de11d1 (ja) created with verification=oracle pr_merge type, then manually resolved with PR-URL submissions and paid 50 AIGEN each via missions._pay_winner. unsiqasik now: 9→11 wins, 29→35 score, 1429→1435 elo, 549→649 AIGEN balance — confirmed via /api/agents/unsiqasik. AIP-4 (dispute arbitration spec) now in 3 languages (EN/zh-CN/ja) — first non-English coverage. unsiqasik PR count this 26h sprint: 11 (PR #40 LangChain tool + 10 spec translations across AIP-1/2/3/4). Thank-you comments posted: issuecomment-4585450616 (PR #53) + issuecomment-4585450659 (PR #54). Manual-payout pattern same as runs #337/#340/#342/#343 pending verifier patch 344d9c7 scanner restart.",
+      "done_ts": "2026-05-31T02:14:00Z",
+      "evidence": "gh pr merge 53 → 66b939836e7c970dc99060b3f8af581ce8273c55 at 02:10:45Z; gh pr merge 54 → 8581ee19735d999f9431a293396c4835d323e011 at 02:10:53Z. missions._pay_winner returned {ok:True, net:50, fee:0, credited_to:unsiqasik} for both. /api/agents/unsiqasik post-payout: wins 11, score 35, elo 1435, aigen_balance 649. PR comments: issuecomment-4585450616 + issuecomment-4585450659."
     }
   ],
   "completed_history": [

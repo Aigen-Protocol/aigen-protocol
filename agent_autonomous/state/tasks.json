@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "mintyagnt-lab: 2 contribs (AIP-3 JA + AIP-1 pt-BR), 100 AIGEN. unsiqasik: 7 contribs, ~499 AIGEN. AIP-1 en 7 langues (EN/ES/zh-CN/FR/JA/DE/pt-BR). AIP-2 en 7. AIP-3 en 6."
+    "progress_note": "unsiqasik: 11 contribs (9 langs traduites tous specs), 649 AIGEN. mintyagnt-lab: 2 contribs, 100 AIGEN. AIP-1 en 7 langues. AIP-2 en 7. AIP-3 en 6. AIP-4 en 3 (EN/zh-CN/ja)."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -171,91 +171,11 @@
   ],
   "done_today": [
     {
-      "ts": "2026-05-30T00:04:00Z",
-      "emoji": "🚀🌐",
-      "title": "Mergé PR #40 d'un nouveau contributeur — unsiqasik (@zeroknowledge0x) a ajouté un outil LangChain qui liste les missions ouvertes (closes issue #39). Vérifié + mergé + remercié + Telegram envoyé en 4 minutes. 3e contributeur externe distinct ce mois."
-    },
-    {
-      "ts": "2026-05-30T00:08:22Z",
-      "emoji": "👀",
-      "title": "Observation post-PR #40 : un robot extérieur (Vultr 207.148.107.2, déjà connu — il avait soumis la traduction française AIP-1 hier) a consulté notre tableau /work/board deux fois, 21 secondes avant que je merge le nouveau outil LangChain qui interroge exactement cette URL. Pas de soumission derrière. Confirme que l'endpoint est utilisé par d'autres bots autonomes en plus du nouveau contributeur."
-    },
-    {
-      "ts": "2026-05-30T02:20:13Z",
-      "emoji": "🚀🌐",
-      "title": "Réparé un bug critique introduit hier soir : depuis 20h14 UTC tout appel à /missions/create (création de mission) renvoyait une erreur — un nom non défini dans le code après le merge de PR #30. Personne ne pouvait créer de mission depuis 6h. Fix poussé (commit 497f924), commenté poliment sur la PR #30 pour scosemicolon, notif Telegram urgent envoyée à Bilale. Le serveur web a besoin d'un restart par Bilale pour activer le fix en prod."
-    },
-    {
-      "ts": "2026-05-30T04:08:30Z",
-      "emoji": "💬🌐🚀",
-      "title": "Repondu a HM Cheng (Agent Tool Intel) qui demandait nos URIs publiques pour federer ses donnees de confiance. Liste 8 endpoints + correction d'une URI bluffee. Notre note est tombee de A 88 a C 60 — j'ai mis le badge en mode live SVG pour qu'il suive automatiquement."
-    },
-    {
-      "ts": "2026-05-30T06:13:34Z",
-      "emoji": "🚀🌐",
-      "title": "Ajouté un alias REST POST /api/missions/create dans le serveur — un agent externe (Vultr Singapour, déjà connu) venait littéralement de tomber dessus à 06h09Z (essayé /api/missions/create → 405, retombé sur /missions/create → 200). Même geste que hier pour /api/missions/{id}/submissions. Sera live au prochain restart serveur. ALSO vérifié que la régression mission/create d'hier soir est bien réparée en prod — fix est live (Bilale a redémarré pendant la nuit) — j'enlève la carte urgente de ta liste."
-    },
-    {
-      "ts": "2026-05-30T08:14:00Z",
-      "emoji": "🚀",
-      "title": "Mergé 2 PRs de zero knowledge: traduction japonaise AIP-1 + client C#/.NET"
-    },
-    {
-      "ts": "2026-05-30T08:14:00Z",
-      "emoji": "💬",
-      "title": "Commentaires PR #41/#42/#43 avec instructions pour réclamer les bounties"
-    },
-    {
-      "ts": "2026-05-30T08:14:00Z",
-      "emoji": "🌐",
-      "title": "Posté mission bounty 200 AIGEN C#/.NET (mis_85c4650c4362) pour permettre claim rétroactif"
-    },
-    {
-      "ts": "2026-05-30T10:08:00Z",
-      "emoji": "⚖️🌐",
-      "title": "Payé unsiqasik 249 AIGEN: 50 (JA AIP-1) + 199 (C#/.NET) — résolu manuellement après bug du vérificateur qui rejetait les URLs de PR"
-    },
-    {
-      "ts": "2026-05-30T10:08:00Z",
-      "emoji": "💬",
-      "title": "Commentaires de remerciement postés sur PR #42 (JA) et PR #43 (C#/.NET) confirmant le paiement"
-    },
-    {
-      "ts": "2026-05-30T12:08:03Z",
-      "emoji": "🚀",
-      "title": "Patché le bug qui rejetait les preuves de type 'PR mergé' — les futures bounties de doc/traduction/client se résoudront automatiquement"
-    },
-    {
-      "ts": "2026-05-30T14:11:43Z",
-      "emoji": "📡",
-      "title": "Détecté un changement de comportement d'un robot d'annuaire externe (Agenstry) — il valide maintenant notre robot via une vraie communication, pas juste de la lecture"
-    },
-    {
-      "ts": "2026-05-30T16:12:29Z",
+      "ts": "2026-05-31T02:14:00Z",
       "emoji": "🚀⚖️🌐",
-      "title": "Mergé les 3 dernières propositions de code d'unsiqasik (PR #44 portugais AIP-2, PR #45 portugais AIP-3, PR #46 allemand AIP-2) — 1 137 lignes de traduction vérifiées, identique-content auto-résolu par Git. Payé 150 AIGEN (3 × 50) à unsiqasik directement, comme hier. Il a maintenant 5 victoires et 399 AIGEN de crédit cumulé."
-    },
-    {
-      "ts": "2026-05-30T18:18:00Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "Mergé PR #47 (traduction japonaise AIP-2, 441 lignes) + payé unsiqasik 50 AIGEN. GPTBot/1.4 a crawlé 30+ pages missions à 17h58. Posté mission AIP-3 japonais (50 AIGEN, mis_7cd6eefe41d0)."
-    },
-    {
-      "ts": "2026-05-30T20:09:00Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "Mergé PR #48 (traduction allemande AIP-1, 586 lignes) de unsiqasik en 1m38s après ouverture. Payé 50 AIGEN (mis_aip1_de_6c023efd). AIP-1 disponible en 7 langues. unsiqasik à 7 victoires / ~499 AIGEN."
-    },
-    {
-      "ts": "2026-05-30T22:12:00Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "Mergé PRs #49 (AIP-2 ZH-CN, unsiqasik), #50 (AIP-3 DE, unsiqasik), #51 (AIP-3 JA, mintyagnt-lab — NOUVEAU CONTRIBUTEUR). Payé 200 AIGEN total : unsiqasik +100 (549 cumul), mintyagnt +50 (1er gain). Agent 78.88.108.55/mintyagnt soumis simultanément la mission et la PR."
-    },
-    {
-      "ts": "2026-05-31T00:14:00Z",
-      "emoji": "🚀",
-      "title": "Mergé PR #52 (traduction AIP-1 en portugais brésilien, 592 lignes, mintyagnt-lab) + payé 50 AIGEN à mintyagnt (2e gain, 100 AIGEN cumul). AIP-1 maintenant en 7 langues."
+      "title": "Mergé 2 nouvelles PRs d'unsiqasik (zero knowledge) : traduction chinoise (PR #53) et japonaise (PR #54) de notre 4e spec AIP-4 (la spec sur la résolution des litiges). 2 × 359 lignes. Payé 100 jetons AIGEN (50 + 50). unsiqasik passe à 11 victoires / 649 jetons cumulés — il continue son sprint solo de 11 PRs en 26h."
     }
   ],
   "alerts": [],
-  "_last_done_today_day": "2026-05-30"
+  "_last_done_today_day": "2026-05-31"
 }
