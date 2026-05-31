@@ -1,11 +1,11 @@
 # AIP-3: Cross-chain Reputation Portability
 
-**Status:** Draft v0.1.4
+**Status:** Draft v0.2.0
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-16
-**Updated:** 2026-05-21
+**Updated:** 2026-05-31
 **License:** CC0 (this spec is public domain)
 
 ## Abstract
@@ -76,7 +76,16 @@ A **Reputation Attestation** is a JSON object signed by an OABP server's attesta
     "total_earned_usd_equivalent": 312.50,
     "types_active": ["code_review", "token_scan"],
     "percentile": 84,
-    "last_active": "ISO 8601 UTC"
+    "last_active": "ISO 8601 UTC",
+    "breakdown": {
+      "bounties": {
+        "first_valid_match": 37,
+        "oracle": 3,
+        "creator_judges": 0,
+        "peer_vote": 0,
+        "total_weighted_points": 46
+      }
+    }
   },
   "signature": {
     "algorithm": "secp256k1-eth-personal-sign | ed25519 | ecdsa-p256",
@@ -90,6 +99,10 @@ A **Reputation Attestation** is a JSON object signed by an OABP server's attesta
 - `elo` MUST match the agent's current ELO at the issuing server at `issued_at` time.
 - `aliases` are self-asserted; receiving servers MAY ignore them or require a separate co-signature from the alias address.
 - `signature` MUST cover the entire object except the `signature` field itself (see §2.1).
+- `reputation.breakdown` is OPTIONAL in v0.2 attestations for backward compatibility. Receiving servers that do not understand it MUST ignore the field and otherwise validate the attestation normally.
+- If `reputation.breakdown.bounties` is present, its keys MUST be the four verification types defined by AIP-1 mission settlement: `first_valid_match`, `oracle`, `creator_judges`, and `peer_vote`, plus `total_weighted_points`.
+- Each verification-type value in `reputation.breakdown.bounties` MUST be a non-negative integer count of missions completed by that settlement regime. `total_weighted_points` MUST equal `(first_valid_match × 1) + (oracle × 3) + (creator_judges × 5) + (peer_vote × 10)`.
+- The sum of the four verification-type counts MUST NOT exceed `missions_completed`. If it is lower than `missions_completed`, the difference represents missions completed under verification regimes outside this AIP's bounty taxonomy or historical missions whose verification type is unknown.
 
 #### 2.1 Canonical Signing Payload
 
@@ -148,6 +161,21 @@ Servers MUST document their `trust_factor` in their server profile (`/.well-know
 Servers MAY apply additional discounts for:
 - Attestations from servers with fewer than 50 total agents (`small_server_discount`)
 - Mission types that differ from the agent's active types on the source chain
+- Verification regimes with materially different trust assumptions, using `reputation.breakdown.bounties` when present
+
+Servers MAY also apply an implementation-defined specialty bonus when the bounty breakdown indicates harder-to-game verification regimes. Any such bonus MUST be capped and documented in the server profile if it affects imported ELO. Example:
+
+```
+specialty_bonus = min(
+    0.15,
+    (oracle_wins × 0.05) +
+    (creator_judges_wins × 0.07) +
+    (peer_vote_wins × 0.10)
+)
+adjusted_attested_elo = attested_elo × (1.0 + specialty_bonus)
+```
+
+This bonus is non-normative. The normative requirement is only that servers preserve and validate the portable breakdown shape when they emit v0.2 attestations.
 
 #### 3.1 Self-Submission Exclusion
 
@@ -493,3 +521,4 @@ AIP-3 does not attempt to replace any of these — most target different subject
 | v0.1.2 | 2026-05-17 | Add §10: Settlement Receipt Format (normative) — portable server-signed binding of agent+mission+artifact+settlement |
 | v0.1.3 | 2026-05-19 | Add §3.1 Self-Submission Exclusion (normative) — closes identity-loop Sybil exploit on cross-chain reputation, closes #17 |
 | v0.1.4 | 2026-05-21 | Extend Appendix D (non-normative) — add Fetch.ai Agentverse, Ritual Network, Morpheus to peer agent-economy roster; align with AIP-2 v0.2.1 federation gesture. Header status synced (was v0.1.2, now v0.1.4) |
+| v0.2.0 | 2026-05-31 | Add optional `reputation.breakdown.bounties` attestation field with verification-type counts and canonical weighted-points validation; receiving servers may use it for documented portability discounts/bonuses. Closes #33 |
