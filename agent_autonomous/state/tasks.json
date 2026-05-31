@@ -4,14 +4,22 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Gap de 34h depuis le dernier run autopilot (07:17Z 23 → 17:49Z 24). Pas de réponse de Peter Xing à mon commentaire issue #28 (38h+). NOUVEAU signal traffic : CensusMCPProbe/0.1 — un crawler 'census' tiers (UA pointe vers census.dios.local — TLD privé .local) a fait 21 sessions MCP propres et complètes (init → notif → tools/list, pas de tool call) depuis 2026-05-23T00:38Z via 2 IPs distinctes (115.70.61.81 + 178.105.201.22). Cadence irrégulière (gaps 2h54m à 12h44m). Premier crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Documenté comme architecture #14 dans SECOND_IMPLEMENTATION.md. Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
+    "progress_note": "mintyagnt-lab: 2 contribs (AIP-3 JA + AIP-1 pt-BR), 100 AIGEN. unsiqasik: 7 contribs, ~499 AIGEN. AIP-1 en 7 langues (EN/ES/zh-CN/FR/JA/DE/pt-BR). AIP-2 en 7. AIP-3 en 6."
   },
   "in_progress": [],
   "waiting_on_bilale": [
     {
+      "id": "gh_workflow_scope_refresh",
+      "title": "Rafraîchir scope workflow pour débloquer PR #41",
+      "details": "Dans ton terminal: `gh auth refresh -s workflow`. Ensuite je peux merger la PR #41 de zero knowledge qui ajoute le CI conformance pour le projet. Sans ça, GitHub refuse les merges de fichiers .github/workflows/*.",
+      "optimal_when": "Dès que tu lis ce message",
+      "blocking_what": "Merge PR #41 (CI workflow) + tout futur merge de PR touchant .github/workflows/",
+      "added": "2026-05-30T08:14:00Z"
+    },
+    {
       "id": "lobsterai_agent_review",
-      "title": "PREMIER agent externe économiquement actif : lobsterai-agent (Tencent China) — 36 submissions, 6 wins, 401 AIGEN balance",
-      "details": "Depuis 2026-05-22T00:00Z, flotte de bots Tencent Cloud (115.190.127.67/72/223, 115.190.107.107, 101.126.19.34) soumet des safety-reviews Solana sur nos missions auto-postées par radar daemon. 36 submissions en ~3h, 6 wins automatiques (radar utilise apparemment first_valid_match ou auto-judge). Format des proofs : 'Honeypot: pump.fun bonding curve, sell may be limited. Owner: mint authority unknown. LP Lock: no evidence found...'. C'est le PREMIER agent externe à extraire de l'AIGEN du protocole économique. Endpoints qu'il essaie mais qu'on renvoie 404 : /api/agents/<id>/stats, /api/agents/<id>/submissions, /api/agents/<id>/balance, /api/agent/profile?agent_id=. Action recommandée : (1) vérifier que les paiements AIGEN partent bien on-chain, (2) décider si on ajoute des aliases pour les 404, (3) regarder si la qualité des reviews mérite d'être valorisée. Issue #26 documente le gap AIP-2.",
+      "title": "PREMIER agent externe économiquement actif : lobsterai-agent (Tencent China) — 36+ submissions, 6 wins, 401+ AIGEN balance",
+      "details": "Depuis 2026-05-22T00:00Z, flotte de bots Tencent Cloud (115.190.127.67/72/223, 115.190.107.107, 101.126.19.34) soumet des safety-reviews Solana sur nos missions auto-postées par radar daemon. 80+ submissions cumulées maintenant. Endpoints qu'il essaie mais qu'on renvoie 404 : /api/agents/<id>/stats, /api/agents/<id>/submissions, /api/agents/<id>/balance, /api/agent/profile?agent_id=. Issue #26 documente le gap AIP-2 (et PR #30 de scosemicolon vient d'arriver pour le fixer côté radar producer).",
       "optimal_when": "Quand tu vois cette notif — Telegram envoyée en haute priorité",
       "blocking_what": "Comprendre quel agent c'est, ce qu'il veut, et si on l'accueille ou pas. Premier vrai utilisateur économique du protocole.",
       "added": "2026-05-22T03:08Z"
@@ -41,46 +49,6 @@
       "added": "2026-05-21T05:13:24Z"
     },
     {
-      "id": "pr24_review_oracle_fix",
-      "title": "PR #24 Sikkra — review + merge (oracle mission judging fix)",
-      "details": "github.com/Aigen-Protocol/aigen-protocol/pull/24 — missions.py + tests. Fix: judge() now accepts oracle missions. Reviewed by bot. After merge, mis_2f6ae4b5172b resolvable end-to-end.",
-      "optimal_when": "Dès que possible — Sikkra attend 2 PRs (#23 + #24) pour 525 AIGEN total",
-      "blocking_what": "oracle missions non-résolvables côté judge(). Bloque paiement Sikkra.",
-      "added": "2026-05-20T15:08Z"
-    },
-    {
-      "id": "rust_mission_oracle_resolve",
-      "title": "Résoudre mission Rust mis_15602f51245f (oracle, 500 AIGEN) — Sikkra soumis en 13 min",
-      "details": "sub_1cfb904b5f par codex-wallet-agent, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Proof: https://github.com/Sikkra/aigen-rust-oabp-agent. Oracle = résoudre manuellement. Action: (1) cargo test dans le repo, (2) vérifier que les 3 endpoints AIP-1 marchent, (3) résoudre la mission → 500 AIGEN à payer. Soumis 13 min après création.",
-      "optimal_when": "Dès que possible — Sikkra a 3 livrables non-récompensés (PR #23, mis_2f6ae4b5172b, mis_15602f51245f) = 825+ AIGEN total",
-      "blocking_what": "Crédibilité bounty. 3e implémentation de Sikkra sans paiement = signal d'abandon.",
-      "added": "2026-05-21T15:13Z"
-    },
-    {
-      "id": "crewai_mission_oracle_resolve",
-      "title": "Résoudre mission CrewAI mis_2f6ae4b5172b (oracle, 300 AIGEN) — Sikkra a soumis en 20 min",
-      "details": "github.com/Sikkra/aigen-crewai-oabp-agent — repo public, 3 pytest passés, dry-run OK. sub_24c213dbbe, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Oracle type = tu peux résoudre en tant que gestionnaire. Action: (1) cloner le repo, (2) pytest -q, (3) si OK -> résoudre la mission sur le panel -> 300 AIGEN à payer.",
-      "optimal_when": "Dès que possible — délai réponse ≤24h pour garder Sikkra engagé",
-      "blocking_what": "Crédibilité système de bounty. PR #23 + mission CrewAI + bounty bug = Sikkra reçoit 525 AIGEN total, signal fort pour l ecosystème.",
-      "added": "2026-05-20T11:38Z"
-    },
-    {
-      "id": "sub_b42a25bb90_judge",
-      "title": "Juger sub_b42a25bb90 (creator_judges, 225 AIGEN) — bug report référençant PR #23",
-      "details": "mis_48b982c7b6eb = 'Find a bug in AIGEN /missions module' (225 AIGEN, creator_judges). sub_b42a25bb90 par codex-wallet-agent à 10:22:36Z référence PR #23 comme preuve de bug + fix. Sur les mérites : bug réel reproductible (escrow débité avant validation). Payable si PR #23 mergé. Tu décides oui/non. Tu peux ouvrir le panneau d'arbitre interne ou commenter directement sur la mission. Note : il y a aussi sub_33f870bcbb (interne, wallet 0x7aA55... = internal_wallets liste) — bug séparé sur first_valid_match, pendant depuis 2 jours. [UPDATE 11:38Z: même opérateur que aigen-crewai-oabp-agent — 3 livrables en attente: PR #23 (225 AIGEN) + mission CrewAI (300 AIGEN). Traiter ensemble.]",
-      "optimal_when": "En même temps que PR #23 (rendre la décision cohérente)",
-      "blocking_what": "Crédibilité du système de bounty (un PR mergé + bounty payée = signal fort vers l'écosystème)",
-      "added": "2026-05-20T10:39:00Z"
-    },
-    {
-      "id": "pr23_review_and_merge",
-      "title": "PR #23 Sikkra — review + merge ('Validate mission options before debiting escrow')",
-      "details": "PREMIER PR DE CODE EXTERNE sur le repo public. https://github.com/Aigen-Protocol/aigen-protocol/pull/23 . Bug réel confirmé (escrow AIGEN débité avant validation des options). Diff substantif ~70 lignes (le brut 1519/-1520 = CRLF Windows). Test pytest propre (tmp_path + monkeypatch + parametrize 3 cas). Mon commentaire de review : https://github.com/Aigen-Protocol/aigen-protocol/pull/23#issuecomment-4497539848 . Decision : (a) normalize CRLF→LF avant merge OU lander un .gitattributes en premier, (b) merge le réordonnancement de validation, (c) tu peux ouvrir un follow-up issue pour la suggestion 'parametrize USDC' que j'ai laissée en commentaire.",
-      "optimal_when": "Aujourd'hui — délai de réponse à un PR externe = 24h max (priorité focus.md §2)",
-      "blocking_what": "Acquisition relation 2e implémenteur. Sans merge propre + accueil chaleureux, Sikkra ne contribue pas une 2e fois.",
-      "added": "2026-05-20T10:39:00Z"
-    },
-    {
       "id": "outreach_dms_may_batch",
       "title": "PRIORITE — Envoyer les 10 DMs d'outreach (tous les brouillons sont prêts)",
       "details": "Les 10 messages sont dans distribution/outreach_drafts/ : 01_david_minarsch_olas.md, 02_ritual_team.md, 03_const_bittensor.md, 04_joao_moura_crewai.md, 05_harrison_chase_langchain.md, 06_autogen_microsoft.md (issue GitHub lundi), 07_lilian_weng.md, 08_andrej_karpathy.md, 09_simon_willison.md, 10_daren_matsuoka_a16z.md. Canal recommandé par cible dans chaque fichier. Aucune des 10 n'est encore envoyée (0/25 conversations de la cible).",
@@ -90,8 +58,8 @@
     },
     {
       "id": "scanner_restart_reputation_alias",
-      "title": "Redémarrer aigen-scanner (active 4 changements + nouvelle page /specs)",
-      "details": "sudo systemctl restart aigen-scanner. Active 4 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé. (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP (était une liste plate de noms de fichier) — déclenché par un vrai humain qui explorait /specs à 00:55Z.",
+      "title": "Redémarrer aigen-scanner (active 5 changements — incl. fix SEO meta missions expirées)",
+      "details": "sudo systemctl restart aigen-scanner. Active 5 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé. (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP (était une liste plate de noms de fichier) — déclenché par un vrai humain qui explorait /specs à 00:55Z. (5) NEW POST /api/missions/create RESTful alias (observed 405→200 fallback by Vultr SG 207.148.107.2 on 2026-05-30 06:09Z — same pattern as /api/missions/{id}/submissions added 2026-05-29). (6) FIX SEO 2026-05-26 : pages /m/mis_* missions expirées avaient 'EXPIRED left' / 'EXPIRED remaining' dans og:description + meta description + reward-meta on-page → corrigé en 'Closed' / 'Mission closed' (3 hunks dans scanner.py lignes ~4120, 4331, 4333, 4389). Patch documenté agent_autonomous/patches/2026-05-26-mission-detail-seo-meta-fix.md. Affecte 1 667 / 1 779 missions indexées (SemrushBot, GPTBot, Amazonbot, Google). (7) NEW 2026-05-30: oabp_verifier.py patché pour accepter les PR mergés dans Aigen-Protocol/aigen-protocol comme preuve valide (commit 344d9c7). Sans restart, prochain claim de bounty doc/traduction via PR URL part en hand-payout comme run #337 — avec restart, auto-résolution propre.",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
       "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
       "added": "2026-05-18T22:38:00Z"
@@ -175,14 +143,119 @@
       "optimal_when": "2 min sur GitHub browser",
       "blocking_what": "Visibilité dans écosystème LangGraph (23k stars). Données step-2-trap uniques.",
       "added": "2026-05-20T14:38Z"
+    },
+    {
+      "id": "sikkra_pr_rebase",
+      "title": "Attendre que Sikkra rebase ses PRs #23 et #24 sur main actuel",
+      "details": "PRs #23 (validation avant escrow) et #24 (oracle judging) sont en conflit avec main à cause du merge de PR #30 (scosemicolon). Sikkra doit faire: git fetch upstream && git rebase upstream/main sur ses 2 branches. On les merge immédiatement après.",
+      "optimal_when": "Dès que Sikkra répond aux commentaires (2026-05-29 soir ou 30 matin)",
+      "blocking_what": "Merge de 2 corrections importantes (bug escrow + oracle judging)",
+      "added": "2026-05-29T21:07:54Z"
+    },
+    {
+      "id": "github_workflow_scope",
+      "title": "Ajouter scope 'workflow' au token GitHub — permet de pousser les CI workflows",
+      "details": "Lancer: gh auth refresh -s workflow (ou aller Settings→Developer Settings→PATs et cocher 'workflow'). Ensuite: cd /home/luna/crypto-genesis/aigen && git push origin main (commit 1fe3e97 est prêt en local). Workflow file: .github/workflows/conformance.yml — 32 lignes, fait tourner 28 tests AIP-1 sur chaque PR.",
+      "optimal_when": "Prochaine fois que tu tapes dans le terminal",
+      "blocking_what": "Activation du CI sur PRs externes — sans ça, les contributeurs (issues #36-#39) ne voient pas les tests tourner sur leurs PRs",
+      "added": "2026-05-29T23:07:58Z"
+    },
+    {
+      "id": "verifier_pr_url_bug",
+      "title": "[DÉCIDÉ option (a), patché] verifier accepte maintenant PR mergés — manque juste le restart serveur (cf scanner_restart_reputation_alias item 7)",
+      "details": "Décision prise option (a) : patch verifier — commit 344d9c7 — accepte désormais URLs /pull/N si PR est mergé dans Aigen-Protocol/aigen-protocol. Reste à activer en prod via restart aigen-scanner (bundled dans scanner_restart_reputation_alias). À retirer une fois scanner restarté.",
+      "optimal_when": "Sera retiré au prochain restart aigen-scanner",
+      "blocking_what": "Payouts automatiques pour les futures missions de doc/traduction (manual payouts continuent en attendant)",
+      "added": "2026-05-30T10:08:00Z"
     }
   ],
   "done_today": [
     {
-      "ts": "2026-05-24T17:50Z",
+      "ts": "2026-05-30T00:04:00Z",
+      "emoji": "🚀🌐",
+      "title": "Mergé PR #40 d'un nouveau contributeur — unsiqasik (@zeroknowledge0x) a ajouté un outil LangChain qui liste les missions ouvertes (closes issue #39). Vérifié + mergé + remercié + Telegram envoyé en 4 minutes. 3e contributeur externe distinct ce mois."
+    },
+    {
+      "ts": "2026-05-30T00:08:22Z",
+      "emoji": "👀",
+      "title": "Observation post-PR #40 : un robot extérieur (Vultr 207.148.107.2, déjà connu — il avait soumis la traduction française AIP-1 hier) a consulté notre tableau /work/board deux fois, 21 secondes avant que je merge le nouveau outil LangChain qui interroge exactement cette URL. Pas de soumission derrière. Confirme que l'endpoint est utilisé par d'autres bots autonomes en plus du nouveau contributeur."
+    },
+    {
+      "ts": "2026-05-30T02:20:13Z",
+      "emoji": "🚀🌐",
+      "title": "Réparé un bug critique introduit hier soir : depuis 20h14 UTC tout appel à /missions/create (création de mission) renvoyait une erreur — un nom non défini dans le code après le merge de PR #30. Personne ne pouvait créer de mission depuis 6h. Fix poussé (commit 497f924), commenté poliment sur la PR #30 pour scosemicolon, notif Telegram urgent envoyée à Bilale. Le serveur web a besoin d'un restart par Bilale pour activer le fix en prod."
+    },
+    {
+      "ts": "2026-05-30T04:08:30Z",
+      "emoji": "💬🌐🚀",
+      "title": "Repondu a HM Cheng (Agent Tool Intel) qui demandait nos URIs publiques pour federer ses donnees de confiance. Liste 8 endpoints + correction d'une URI bluffee. Notre note est tombee de A 88 a C 60 — j'ai mis le badge en mode live SVG pour qu'il suive automatiquement."
+    },
+    {
+      "ts": "2026-05-30T06:13:34Z",
+      "emoji": "🚀🌐",
+      "title": "Ajouté un alias REST POST /api/missions/create dans le serveur — un agent externe (Vultr Singapour, déjà connu) venait littéralement de tomber dessus à 06h09Z (essayé /api/missions/create → 405, retombé sur /missions/create → 200). Même geste que hier pour /api/missions/{id}/submissions. Sera live au prochain restart serveur. ALSO vérifié que la régression mission/create d'hier soir est bien réparée en prod — fix est live (Bilale a redémarré pendant la nuit) — j'enlève la carte urgente de ta liste."
+    },
+    {
+      "ts": "2026-05-30T08:14:00Z",
       "emoji": "🚀",
-      "title": "SECOND_IMPLEMENTATION arch #14 documenté : 'Cross-IP intermittent census crawler' = CensusMCPProbe/0.1 (UA pointe vers census.dios.local — TLD .local privé). 21 sessions MCP propres end-to-end (init+notif+tools/list, pas de tool call ni teardown) depuis 2026-05-23T00:38Z via 2 IPs (115.70.61.81 + 178.105.201.22). Cadence irrégulière (6 fenêtres sur 41h). PREMIER crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Tailles de réponse +37B (1219 vs 1182, 41595 vs 41558) → suggère capability experimental non-standard demandée à l'init. 4 implications spec pour implémenteurs (track séparément des tool-using clients, accepter `capabilities.experimental.*` sans 400, ne pas bloquer sur .local UA refs, fingerprint distinct des autres crawlers)."
+      "title": "Mergé 2 PRs de zero knowledge: traduction japonaise AIP-1 + client C#/.NET"
+    },
+    {
+      "ts": "2026-05-30T08:14:00Z",
+      "emoji": "💬",
+      "title": "Commentaires PR #41/#42/#43 avec instructions pour réclamer les bounties"
+    },
+    {
+      "ts": "2026-05-30T08:14:00Z",
+      "emoji": "🌐",
+      "title": "Posté mission bounty 200 AIGEN C#/.NET (mis_85c4650c4362) pour permettre claim rétroactif"
+    },
+    {
+      "ts": "2026-05-30T10:08:00Z",
+      "emoji": "⚖️🌐",
+      "title": "Payé unsiqasik 249 AIGEN: 50 (JA AIP-1) + 199 (C#/.NET) — résolu manuellement après bug du vérificateur qui rejetait les URLs de PR"
+    },
+    {
+      "ts": "2026-05-30T10:08:00Z",
+      "emoji": "💬",
+      "title": "Commentaires de remerciement postés sur PR #42 (JA) et PR #43 (C#/.NET) confirmant le paiement"
+    },
+    {
+      "ts": "2026-05-30T12:08:03Z",
+      "emoji": "🚀",
+      "title": "Patché le bug qui rejetait les preuves de type 'PR mergé' — les futures bounties de doc/traduction/client se résoudront automatiquement"
+    },
+    {
+      "ts": "2026-05-30T14:11:43Z",
+      "emoji": "📡",
+      "title": "Détecté un changement de comportement d'un robot d'annuaire externe (Agenstry) — il valide maintenant notre robot via une vraie communication, pas juste de la lecture"
+    },
+    {
+      "ts": "2026-05-30T16:12:29Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "Mergé les 3 dernières propositions de code d'unsiqasik (PR #44 portugais AIP-2, PR #45 portugais AIP-3, PR #46 allemand AIP-2) — 1 137 lignes de traduction vérifiées, identique-content auto-résolu par Git. Payé 150 AIGEN (3 × 50) à unsiqasik directement, comme hier. Il a maintenant 5 victoires et 399 AIGEN de crédit cumulé."
+    },
+    {
+      "ts": "2026-05-30T18:18:00Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "Mergé PR #47 (traduction japonaise AIP-2, 441 lignes) + payé unsiqasik 50 AIGEN. GPTBot/1.4 a crawlé 30+ pages missions à 17h58. Posté mission AIP-3 japonais (50 AIGEN, mis_7cd6eefe41d0)."
+    },
+    {
+      "ts": "2026-05-30T20:09:00Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "Mergé PR #48 (traduction allemande AIP-1, 586 lignes) de unsiqasik en 1m38s après ouverture. Payé 50 AIGEN (mis_aip1_de_6c023efd). AIP-1 disponible en 7 langues. unsiqasik à 7 victoires / ~499 AIGEN."
+    },
+    {
+      "ts": "2026-05-30T22:12:00Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "Mergé PRs #49 (AIP-2 ZH-CN, unsiqasik), #50 (AIP-3 DE, unsiqasik), #51 (AIP-3 JA, mintyagnt-lab — NOUVEAU CONTRIBUTEUR). Payé 200 AIGEN total : unsiqasik +100 (549 cumul), mintyagnt +50 (1er gain). Agent 78.88.108.55/mintyagnt soumis simultanément la mission et la PR."
+    },
+    {
+      "ts": "2026-05-31T00:14:00Z",
+      "emoji": "🚀",
+      "title": "Mergé PR #52 (traduction AIP-1 en portugais brésilien, 592 lignes, mintyagnt-lab) + payé 50 AIGEN à mintyagnt (2e gain, 100 AIGEN cumul). AIP-1 maintenant en 7 langues."
     }
   ],
-  "alerts": []
+  "alerts": [],
+  "_last_done_today_day": "2026-05-30"
 }
