@@ -19,6 +19,7 @@
     "session_required": true,
     "supported_methods": ["POST"],
     "not_implemented": ["sse", "stdio"],
+    "agent_card_invocation_contract": "https://cryptogenesis.duckdns.org/.well-known/agent-card.json#/transport",
     "_provisional": "Schema reserved pending AIP-1 v0.3 §7.1 transport-declaration. Crawlers may rely on these hints today; see https://github.com/Aigen-Protocol/aigen-protocol/issues/8."
   },
   "integration": {

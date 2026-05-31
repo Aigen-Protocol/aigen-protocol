@@ -160,6 +160,66 @@ class TestDiscoverySurfaces:
             f"MUST: at least 3 discovery surfaces declared (got {len(present)}: {present})"
 
 
+class TestAgentCardMcpInvocationContract:
+    """AIP-1 §7.4 — A2A agent cards SHOULD carry MCP invocation recipes."""
+
+    @pytest.fixture(scope="class")
+    def agent_card(self):
+        import json
+        from pathlib import Path
+
+        card_path = Path(__file__).resolve().parents[3] / "agent-card.json"
+        return json.loads(card_path.read_text(encoding="utf-8"))
+
+    def test_agent_card_declares_transport_block(self, agent_card):
+        transport = agent_card.get("transport")
+        assert isinstance(transport, dict), "SHOULD: agent-card.json includes transport object"
+        assert transport.get("primary") == "mcp-streamable-http"
+        protocols = transport.get("protocols")
+        assert isinstance(protocols, list) and protocols, "SHOULD: transport.protocols is non-empty"
+
+    def test_mcp_protocol_has_copyable_initialize_recipe(self, agent_card):
+        protocols = agent_card["transport"]["protocols"]
+        mcp = next((p for p in protocols if p.get("id") == "mcp-streamable-http"), None)
+        assert mcp is not None, "SHOULD: mcp-streamable-http protocol is declared"
+        handshake = mcp.get("handshake", {})
+        headers = handshake.get("headers", {})
+        body = handshake.get("body", {})
+
+        assert handshake.get("method") == "POST"
+        assert headers.get("Content-Type") == "application/json"
+        assert "text/event-stream" in headers.get("Accept", "")
+        assert headers.get("MCP-Protocol-Version")
+        assert body.get("jsonrpc") == "2.0"
+        assert body.get("method") == "initialize"
+        assert body.get("params", {}).get("protocolVersion")
+
+    def test_mcp_protocol_documents_session_progression(self, agent_card):
+        mcp = next(p for p in agent_card["transport"]["protocols"] if p.get("id") == "mcp-streamable-http")
+        handshake = mcp["handshake"]
+
+        assert handshake.get("responseSessionHeader", {}).get("name") == "Mcp-Session-Id"
+        notification = handshake.get("postInitializeNotification", {})
+        assert notification.get("body", {}).get("method") == "notifications/initialized"
+        assert notification.get("headers", {}).get("Mcp-Session-Id")
+        next_call = handshake.get("exampleNextCall", {})
+        assert next_call.get("body", {}).get("method") == "tools/list"
+        assert next_call.get("headers", {}).get("Mcp-Session-Id")
+
+    def test_mcp_protocol_advertises_machine_readable_error_and_rest_fallback(self, agent_card):
+        protocols = agent_card["transport"]["protocols"]
+        mcp = next(p for p in protocols if p.get("id") == "mcp-streamable-http")
+        missing_initialize = mcp.get("errorShape", {}).get("missingInitialize", {})
+        assert missing_initialize.get("jsonrpc") == "2.0"
+        assert missing_initialize.get("error", {}).get("code") == -32600
+        assert "recipeUrl" in missing_initialize.get("error", {}).get("data", {})
+
+        fallback = next((p for p in protocols if p.get("id") == "oabp-rest-readonly"), None)
+        assert fallback is not None, "SHOULD: REST read-only fallback protocol is declared"
+        endpoints = {(e.get("method"), e.get("path")) for e in fallback.get("endpoints", [])}
+        assert ("GET", "/api/missions") in endpoints
+
+
 # ---- AIP-1 §6 — reward escrow ----
 
 class TestRewardEscrow:
