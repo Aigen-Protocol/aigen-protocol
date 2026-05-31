@@ -90,7 +90,21 @@
             }
           }
         },
-        "notes": "Plain GET or POST without an `initialize` JSON-RPC envelope will fail. The full client lifecycle is: (1) POST initialize from `handshake`; (2) read `Mcp-Session-Id` from response headers; (3) POST `notifications/initialized` from `postInitializeNotification` (echoing the session-id header); (4) issue tools/list, tools/call, etc. with the session-id header on every request. Skipping step 3 or 4's header is the most common cause of the `200 → 400` pattern observed in directory crawlers — see `postInitializeNotification.notes`."
+        "notes": "Plain GET or POST without an `initialize` JSON-RPC envelope will fail. The full client lifecycle is: (1) POST initialize from `handshake`; (2) read `Mcp-Session-Id` from response headers; (3) POST `notifications/initialized` from `postInitializeNotification` (echoing the session-id header); (4) issue tools/list, tools/call, etc. with the session-id header on every request. Skipping step 3 or 4's header is the most common cause of the `200 → 400` pattern observed in directory crawlers — see `postInitializeNotification.notes`.",
+        "transportPaths": {
+          "served": [
+            "/mcp"
+          ],
+          "compatibilityServed": [
+            "/mcp/sse",
+            "/messages/"
+          ],
+          "notServed": [
+            "/sse",
+            "/v1/messages"
+          ],
+          "proposal": "AIP-1 §7.1.1 transport_paths: distinguish transport names from concrete legacy probe paths."
+        }
       },
       {
         "id": "oabp-rest-readonly",

@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.6
+**Status:** v0.3.7
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.7 | 2026-05-31 | §7.1.1 (SHOULD): add `mcp.transport_paths.served` / `compatibility_served` / `not_served` to distinguish transport names from URL path variants. Evidence: Internet Census AS21859 repeatedly completed MCP Streamable HTTP lifecycle, then probed bare `GET /sse` from two datacenters (Lelystad + Dallas), showing legacy root-SSE path enumeration is not covered by `not_implemented: ["sse"]`. |
 | v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
@@ -280,7 +281,38 @@ If a compliant implementation exposes an MCP surface, it MUST declare the transp
 
 The `transport` field MUST be exactly one of: `streamable_http`, `sse`, `stdio`.
 
-The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `/mcp/sse`, `/messages/`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `sse`, `stdio`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+
+#### 7.1.1 MCP Transport Path Enumeration
+
+`not_implemented` identifies unsupported **transport names**. It is not sufficient to describe the concrete URL paths that legacy clients, catalog scanners, and research crawlers may probe while trying to map those transports. A compliant implementation that exposes an MCP surface SHOULD therefore add a `transport_paths` object to `/.well-known/oabp.json` under the `mcp` object:
+
+```json
+"mcp": {
+  "url": "/mcp",
+  "transport": "streamable_http",
+  "session_required": true,
+  "supported_methods": ["POST", "GET", "DELETE"],
+  "not_implemented": ["sse", "stdio"],
+  "transport_paths": {
+    "served": ["/mcp"],
+    "compatibility_served": ["/mcp/sse", "/messages/"],
+    "not_served": ["/sse", "/v1/messages"]
+  }
+}
+```
+
+`transport_paths.served` lists canonical endpoint paths that actually serve the declared MCP transport. Each entry SHOULD be a path-only absolute path beginning with `/`; implementations MAY publish absolute URLs if their discovery document intentionally spans multiple origins.
+
+`transport_paths.compatibility_served` lists paths that are intentionally routed for legacy MCP clients, side-channel message buses, or compatibility shims even though they are not the canonical endpoint for the declared transport. For example, a FastMCP deployment may expose `/mcp/sse` as a legacy SSE endpoint and `/messages/` as its message-bus route while still declaring `/mcp` as the canonical `streamable_http` endpoint. Paths listed here MUST NOT also appear in `transport_paths.not_served`.
+
+`transport_paths.not_served` lists known fallback or legacy paths that an automated client may probe but that this implementation does not serve. For a `streamable_http` canonical server, the list SHOULD include root-level `/sse` and any known unserved message variants such as `/v1/messages` unless those paths are intentionally served as compatibility aliases. Servers MAY add implementation-specific paths observed in logs. A server MUST NOT list a path under `not_served` if that path returns a live MCP stream, a compatibility endpoint, or a session message-bus response.
+
+Clients MUST treat `transport_paths.not_served` as advisory negative discovery, not as a security policy. A client that sees its planned path in `not_served` SHOULD stop probing that path and retry the first compatible path in `served`. A client MUST NOT infer that paths omitted from `not_served` are supported; absence only means the implementation has not declared them.
+
+When a request reaches a path listed in `transport_paths.not_served`, the server SHOULD return the structured unsupported-transport response defined in §7.2. Bare `404` remains technically acceptable for unknown paths, but structured JSON gives retrying clients a canonical endpoint without requiring them to fetch discovery metadata again.
+
+**Falsifiability — observed path-level gap (2026-05-24 to 2026-05-29):** The AIGEN reference server declared `transport: streamable_http` and `not_implemented: ["sse", "stdio"]`, yet a research scanner from Internet Census / Zenlayer AS21859 repeatedly completed the Streamable HTTP lifecycle (`POST /mcp` initialize → `notifications/initialized` → `tools/list`) and then probed bare `GET /sse`, receiving `404`. Bursts came from two datacenters (`185.226.197.0/24` Lelystad and `185.180.141.0/24` Dallas). This shows that path-level probes can persist even after the transport name is clear: legacy MCP clients may distinguish root `/sse` from `/mcp/sse`, and `not_implemented` does not normatively tell them which concrete paths are intentionally absent.
 
 #### 7.2 Server Error Response for Unsupported Transport Paths
 
