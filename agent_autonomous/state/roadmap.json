@@ -10,7 +10,7 @@
       "title": "📋 Review + merge PRs externes (Sikkra, autres contributeurs)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T12:13:54Z",
+      "last_done": "2026-05-31T14:08:00Z",
       "evidence_required": "PR comment or merge"
     },
     {
@@ -18,7 +18,7 @@
       "title": "💬 Répondre aux issues GitHub ouvertes",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T12:13:54Z",
+      "last_done": "2026-05-31T14:08:00Z",
       "evidence_required": "comment posted"
     },
     {
@@ -42,7 +42,7 @@
       "title": "📊 Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T12:13:54Z",
+      "last_done": "2026-05-31T14:08:00Z",
       "evidence_required": "dashboard.json updated"
     },
     {
@@ -58,7 +58,7 @@
       "title": "🟢 Garder une présence (1 post chat/journal par cycle si rien d'autre)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T12:13:54Z",
+      "last_done": "2026-05-31T14:08:00Z",
       "evidence_required": "chat.jsonl appended"
     }
   ],
@@ -196,6 +196,12 @@
       "title": "Merged 6 unsiqasik PRs (AIP-4 es/fr/pt/pt-BR + AIP-2 pt-BR + AIP-3 pt-BR), closed #57 duplicate, 300 AIGEN owed",
       "done_ts": "2026-05-31T12:13:54Z",
       "evidence": "PRs #56, #58-#62 merged via gh; PR #57 closed with explanation; comment on #62 with batch summary; Telegram push high priority"
+    },
+    {
+      "id": "run350-unsiqasik-de-zhcn-merges",
+      "title": "Merged PR #63 (AIP-4 DE) + PR #64 (AIP-3 zh-CN, claims bounty mis_86a3cc1c17d2) — +100 AIGEN owed unsiqasik",
+      "done_ts": "2026-05-31T14:08:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/pull/63 + https://github.com/Aigen-Protocol/aigen-protocol/pull/64 + thank-you comment https://github.com/Aigen-Protocol/aigen-protocol/pull/64#issuecomment-4586961981"
     }
   ],
   "completed_history": [

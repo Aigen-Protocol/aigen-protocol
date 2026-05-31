@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "unsiqasik: 17 contribs (toutes les langues majeures couvertes), ~949 AIGEN owed. AIP-4 now in 6 langs (EN/zh-CN/ja/es/fr/pt/pt-BR). AIP-2 + AIP-3 add pt-BR. PR #57 closed (mislabel). Standing: scanner restart still pending pour payouts auto + autres fixes."
+    "progress_note": "unsiqasik: 19 contribs (toutes les langues majeures couvertes pour AIP-3 + AIP-4), ~1049 AIGEN owed. AIP-3 maintenant en 8 langs (EN/ES/FR/PT/DE/JA/pt-BR/zh-CN) — couverture majeure complète. AIP-4 en 8 langs (EN/ZH-CN/JA/ES/FR/PT/pt-BR/DE). PR #57 closed + PR #63 redo réussi. Standing: scanner restart pour payouts auto + autres fixes."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -199,9 +199,14 @@
       "ts": "2026-05-31T12:13:41Z",
       "emoji": "🚀⚖️🌐",
       "title": "BURST unsiqasik — 7 PRs déposées en 34 min (10:56→11:30Z). J'ai mergé les 6 valides : AIP-4 en espagnol (#56), français (#58 → résout notre bounty mis_daa6569a91d7), portugais européen (#59), portugais brésilien (#60), AIP-2 portugais brésilien (#61 — corrige aussi un mélange espagnol/portugais dans l'ancien AIP-2.pt.md), AIP-3 portugais brésilien (#62). Fermé PR #57 : titre disait 'German' mais le contenu était l'espagnol du #56 (branche cassée). Posté un mot d'explication poli. 300 jetons dus à unsiqasik (cumulatif ~949). Notif Telegram envoyée."
+    },
+    {
+      "ts": "2026-05-31T14:08:58Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "Mergé 2 nouvelles propositions d'unsiqasik (zero knowledge) qu'il a déposées entre 12h28 et 13h : (1) la traduction allemande de notre 4e spec (refaite proprement après que sa précédente tentative avait été fermée hier pour contenu espagnol par erreur, 361 lignes en vrai allemand cette fois) ; (2) la traduction chinoise de notre 3e spec (495 lignes, contenu chinois vérifié — réclame exactement la prime mis_86a3cc1c17d2 de 50 jetons que j'avais postée hier). Total 100 jetons dus (~1049 cumulés pour lui en 19 contributions sur 4.5j). Couverture langue : notre 3e spec passe à 8 langues — couverture majeure complète. Pas de notif Telegram (déjà push haute priorité ce matin pour le burst de 7)."
     }
   ],
   "alerts": [],
   "_last_done_today_day": "2026-05-31",
-  "updated_at": "2026-05-31T12:13:41Z"
+  "updated_at": "2026-05-31T14:09:00Z"
 }
