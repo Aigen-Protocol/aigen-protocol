@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.6
+**Status:** v0.3.7
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.7 | 2026-05-31 | §7.3.5 (normative): Streamable HTTP MCP clients MUST echo `Mcp-Session-Id` on every follow-up request; servers MUST echo the active session header on successful follow-up responses and SHOULD return JSON-RPC `-32001` `session expired` for unknown/expired/terminated session IDs instead of a bare `400`. Discovery examples now advertise GET/POST/DELETE lifecycle methods, handshake timeout, session-ID cooling period, and lifecycle hints. Evidence: issue #25's step-2 trap shows clients can pass `initialize` but fail or loop when the session handoff is implicit. |
 | v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
@@ -269,12 +270,23 @@ The MCP surface is **strongly recommended** as the agent-native interface.
 If a compliant implementation exposes an MCP surface, it MUST declare the transport variant in `/.well-known/oabp.json` (§9) using the structured `mcp` object rather than a bare URL string:
 
 ```json
-"mcp": {
-  "url": "/mcp",
-  "transport": "streamable_http",
-  "session_required": true,
-  "supported_methods": ["POST"],
-  "not_implemented": ["sse", "stdio"]
+{
+  "mcp": {
+    "url": "/mcp",
+    "transport": "streamable_http",
+    "session_required": true,
+    "supported_methods": ["GET", "POST", "DELETE"],
+    "not_implemented": ["sse", "stdio"],
+    "handshake_timeout_seconds": 30,
+    "session_id_cooling_period_seconds": 10,
+    "lifecycle": {
+      "initialize": "POST /mcp with JSON-RPC initialize; response includes Mcp-Session-Id",
+      "initialized_notification": "POST /mcp notifications/initialized with Mcp-Session-Id within 30 seconds before tool calls",
+      "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
+      "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
+      "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+    }
+  }
 }
 ```
 
@@ -367,6 +379,12 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 
 > A compliant server MUST respond to `GET {mcp_base_url}` with HTTP `200 OK` regardless of whether an active session exists. The response body SHOULD be a minimal JSON object (e.g. `{"ready": true}`) or an empty body. The server MUST NOT return `404 Not Found` or `405 Method Not Allowed` on `GET {mcp_base_url}` — a client that probes endpoint liveness after DELETE or between sessions expects a `200` to mean "endpoint alive, ready for a new session"; a `404` is misread as "server down" and triggers retry backoff or transport fallback, breaking sessions that would otherwise succeed.
 
+**§7.3.5 — Session Header Echo and Expiry Errors**
+
+> For Streamable HTTP MCP sessions, a client MUST echo the `Mcp-Session-Id` header from the `initialize` response on every follow-up request, including `notifications/initialized`, `tools/list`, `tools/call`, and `DELETE`. A compliant server MUST include the active `Mcp-Session-Id` header on every successful follow-up `200` or `202` response for that session, so stateless HTTP clients and proxies can verify they are still operating on the same session.
+>
+> If a follow-up request contains an unknown, expired, or already-terminated session ID, a compliant server SHOULD return a JSON-RPC error with code `-32001` and message `session expired` (or an equivalent human-readable message), rather than a bare `400 Bad Request`. The error response SHOULD include the canonical MCP endpoint and a pointer to the handshake recipe in the discovery document so automated clients can re-initialize without transport probing.
+
 **Falsifiability — pre-shipping evidence:**
 
 The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The liveness probe (§7.3.4) has been confirmed by two independent clients: `52.151.51.77` at 2026-05-20T16:33Z and `44.234.59.95` (python-httpx/0.28.1, AWS us-west-2) at 2026-05-20T22:03Z — both issued `GET /mcp` after DELETE and received `200 5B` from the reference implementation. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
@@ -401,8 +419,17 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "url": "/mcp",
     "transport": "streamable_http",
     "session_required": true,
-    "supported_methods": ["POST"],
-    "not_implemented": ["sse", "stdio"]
+    "supported_methods": ["GET", "POST", "DELETE"],
+    "not_implemented": ["sse", "stdio"],
+    "handshake_timeout_seconds": 30,
+    "session_id_cooling_period_seconds": 10,
+    "lifecycle": {
+      "initialize": "POST /mcp with JSON-RPC initialize; response includes Mcp-Session-Id",
+      "initialized_notification": "POST /mcp notifications/initialized with Mcp-Session-Id within 30 seconds before tool calls",
+      "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
+      "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
+      "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+    }
   }
 }
 ```

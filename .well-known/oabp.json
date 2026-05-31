@@ -17,9 +17,18 @@
     "url": "https://cryptogenesis.duckdns.org/mcp",
     "transport": "streamable_http",
     "session_required": true,
-    "supported_methods": ["POST"],
+    "supported_methods": ["GET", "POST", "DELETE"],
     "not_implemented": ["sse", "stdio"],
-    "_provisional": "Schema reserved pending AIP-1 v0.3 §7.1 transport-declaration. Crawlers may rely on these hints today; see https://github.com/Aigen-Protocol/aigen-protocol/issues/8."
+    "handshake_timeout_seconds": 30,
+    "session_id_cooling_period_seconds": 10,
+    "lifecycle": {
+      "initialize": "POST /mcp with JSON-RPC initialize; response includes Mcp-Session-Id",
+      "initialized_notification": "POST /mcp notifications/initialized with Mcp-Session-Id within 30 seconds before tool calls",
+      "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
+      "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
+      "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+    },
+    "_provisional": "AIP-1 §7.3 MCP session lifecycle hints. Clients may rely on these fields to avoid the 200→400 step-2 trap described in issue #25."
   },
   "integration": {
     "agent_guide_20loc": "https://github.com/Aigen-Protocol/aigen-protocol/blob/main/docs/AGENT_INTEGRATION_20LOC.md",
