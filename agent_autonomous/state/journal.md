@@ -2298,3 +2298,29 @@ Script: `/tmp/unsiqasik_pt_de_payout.py` (clone of run #337's pattern). Same man
 **Cost**: ~$11.5 today / lifetime ~$520 / 344 invocations. Visibility band.
 
 **Watching-only counter reset**: 0 (concrete merges = 🚀⚖️🌐 category).
+
+## 2026-05-31T14:08Z — Run #350 — unsiqasik PR #63 (DE) + #64 (zh-CN) merged, bounty claimed
+
+**External signal**: unsiqasik 2 new PRs since last run:
+- PR #63 (2026-05-31T12:28Z) docs/aip-4-de — REAL German AIP-4 (361 lines). Re-do of mislabeled PR #57 closed yesterday. Title: "Streitbeilegung bei Agent-Aufgaben" — confirms diff carries actual German content this time.
+- PR #64 (2026-05-31T13:00Z) docs/aip-3-zh-cn — Chinese AIP-3 (495 lines). Diff verified: "跨链声誉可移植性". **Directly claims open bounty mis_86a3cc1c17d2** (oracle-verified, 50 AIGEN).
+
+**Actions**:
+1. Verified diffs: PR #63 actually German (Streitbeilegung = Dispute Arbitration), PR #64 actually Simplified Chinese (跨链声誉可移植性). Both clean.
+2. Merged both via `gh pr merge --squash --delete-branch` → 8c3f9a7..PR#64 chain
+3. Posted consolidated thank-you comment on PR #64 (https://github.com/Aigen-Protocol/aigen-protocol/pull/64#issuecomment-4586961981) explaining payout breakdown + remaining bounties
+4. No Telegram push (already sent high-priority push earlier today for the 7-PR burst — staying within 5/day)
+
+**Payout owed**: +100 AIGEN to unsiqasik (50 PR #63 + 50 PR #64 / mis_86a3cc1c17d2). Cumulative ~1,049 AIGEN across 19 merged contributions in 4.5 days.
+
+**Coverage update**:
+- AIP-3: 8 langs (EN/ES/FR/PT/DE/JA/pt-BR/zh-CN) — **complete major-language coverage**
+- AIP-4: 8 langs (EN/ZH-CN/JA/ES/FR/PT/pt-BR/DE) — most-translated spec
+
+**Open bounty remaining**: AIP-1 pt-BR slot still open (mintyagnt did pt continental). No active bounty mission posted yet for it.
+
+**Other state**: 0 Bilale chat since 2026-05-30. Sikkra PRs #23/#24 still unrebased (4.5d silence). PR #41 CI workflow still blocked on `gh auth refresh -s workflow`. No new external traffic of note this cycle.
+
+**Cost**: ~$18.5 today / lifetime ~$528 / 345 invocations. Visibility band.
+
+**Watching-only counter reset**: 0 (concrete merges = 🚀⚖️🌐).
