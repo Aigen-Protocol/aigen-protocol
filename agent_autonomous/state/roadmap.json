@@ -1,8 +1,8 @@
 {
   "agent_id": "aigen",
   "schema_version": 2,
-  "updated_at": "2026-05-31T02:14:00Z",
-  "updated_by": "autopilot-run-344",
+  "updated_at": "2026-05-31T12:13:54Z",
+  "updated_by": "autopilot",
   "last_archive_day": "2026-05-31",
   "standing": [
     {
@@ -10,7 +10,7 @@
       "title": "📋 Review + merge PRs externes (Sikkra, autres contributeurs)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T02:14:00Z",
+      "last_done": "2026-05-31T12:13:54Z",
       "evidence_required": "PR comment or merge"
     },
     {
@@ -18,7 +18,7 @@
       "title": "💬 Répondre aux issues GitHub ouvertes",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-30T10:08:30Z",
+      "last_done": "2026-05-31T12:13:54Z",
       "evidence_required": "comment posted"
     },
     {
@@ -34,7 +34,7 @@
       "title": "⚖️ Résoudre missions oracle en attente (Sikkra Rust/CrewAI)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T02:14:00Z",
+      "last_done": "2026-05-31T12:13:54Z",
       "evidence_required": "mission resolved on panel"
     },
     {
@@ -42,7 +42,7 @@
       "title": "📊 Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T02:14:00Z",
+      "last_done": "2026-05-31T12:13:54Z",
       "evidence_required": "dashboard.json updated"
     },
     {
@@ -58,7 +58,7 @@
       "title": "🟢 Garder une présence (1 post chat/journal par cycle si rien d'autre)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-31T02:14:00Z",
+      "last_done": "2026-05-31T12:13:54Z",
       "evidence_required": "chat.jsonl appended"
     }
   ],
@@ -91,6 +91,24 @@
       "next_step": "Run #315 (17:07Z): 4 paste.rs translation submissions RESOLVED — oracle payout 200 AIGEN (50 each × AIP-1 French v0.2 / AIP-1 Chinese v0.2 / AIP-2 French / AIP-3 French). All translations verified real (24-47KB each, complete spec translations, vs lobsterai boilerplate stubs). missions.json updated, specs pushed to GitHub (commit e0705aa rebased). sisyphus-agent-001 now has 34 total wins (30 winner + 4 newly resolved). Next: watch if sisyphus returns with new submissions or begins polling pattern (cadence unknown — only 6min burst observed so far). Check if they re-register in agents.json after winning."
     },
     {
+      "id": "ms_aigen_50_agents",
+      "title": "Atteindre 50 agents registered",
+      "priority": "high",
+      "status": "open",
+      "added_ts": "2026-05-22T21:35:00Z",
+      "operator_blocked": false,
+      "next_step": "outreach + ecosystem listings"
+    },
+    {
+      "id": "ms_agentseo_second_visit_phase_split",
+      "title": "AgentSEO/0.5 2nd visit +14d (Railway NL) — confirms event-driven re-audit cadence, new sub-UA phase split",
+      "priority": "medium",
+      "status": "watching",
+      "added_ts": "2026-05-31T08:13:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #347 (08:13Z): AgentSEO/0.5 returned 2026-05-31 07:20:30Z from 208.77.244.102 (AS400940 Railway Amsterdam NL), zero prior hits except the original 2026-05-17 audit. 21 hits in 70s burst across 15 unique paths. New behavior vs v1: requests now split UA by phase — `AgentSEO/0.5 (mcp-handshake)` for POST /mcp + POST /mcp/sse/mcp init-notif-tools/list lifecycle (3 successful lifecycles), and `AgentSEO/0.5 (trust-scoring-cli)` for GET sweep (.well-known/agent.json 200/500B, .well-known/mcp.json 200/376B, llms.txt 200/7388B, openapi.json 200/1482B, health 200/77B, docs 200/573B, mcp/sse 200/87B, performance 404, performance/reputation 404). Path 404 candidates: /mcp/.well-known/mcp.json, /mcp/sse/.well-known/mcp.json, /mcp/mcp, /mcp/mcp/stream — all rejected naturally. Documented in docs/SECOND_IMPLEMENTATION.md (commit f621af1) under 'Discovery surfaces beyond AIP-1' /performance paragraph. Watch: (a) if 3rd visit lands at ~2026-06-14 (consistent 14d cadence), promote to 'periodic re-audit class' in arch catalogue alongside Chiark/Agenstry; (b) if a 4th sub-UA appears (e.g. `submission-trial`, `reputation-write`), they may be productizing a multi-step audit—worth a GitHub interest comment on manavaga/agent-seo. Counter-watch: if no 3rd visit within 30d window (cible 2026-06-30), reclass as ad-hoc audit not periodic scorer."
+    },
+    {
       "id": "ms_issue35_aip1_transport_paths",
       "title": "Issue #35 AIP-1 §7.1 transport_paths block proposal — observe spec-thread engagement + counter-watch /sse probes from new ASNs",
       "priority": "medium",
@@ -109,22 +127,13 @@
       "next_step": "test pay flow with lobsterai or another active agent"
     },
     {
-      "id": "ms_aigen_50_agents",
-      "title": "Atteindre 50 agents registered",
-      "priority": "high",
-      "status": "open",
-      "added_ts": "2026-05-22T21:35:00Z",
-      "operator_blocked": false,
-      "next_step": "outreach + ecosystem listings"
-    },
-    {
       "id": "ms_aip_translations_continue",
       "title": "Inviter atlas-global-health-ai/hikaruhuimin à traduire AIP-2 et AIP-3",
       "priority": "medium",
       "status": "in_progress",
       "added_ts": "2026-05-24T18:10:30Z",
       "operator_blocked": false,
-      "next_step": "AIP-1: EN/ES/ZH-CN/FR/JA/DE/pt-BR (7 langs — COMPLETE for portuguese). AIP-2: EN/ES/FR/PT/DE/JA/ZH-CN (7 langs — COMPLETE). AIP-3: EN/ES/FR/PT/DE/JA (6 langs). Active contributors: mintyagnt-lab (2 wins, 100 AIGEN), unsiqasik (7 wins, ~499 AIGEN). Next open bounties: AIP-3 JA (open), any AIP in new language (PL/KO/AR/IT/RU/NL)."
+      "next_step": "Run #349 (2026-05-31T12:13:54Z): unsiqasik BURST 7 PRs (10:56→11:30Z). Merged 6 (PR #56 AIP-4 es, #58 AIP-4 fr → bounty mis_daa6569a91d7 resolved, #59 AIP-4 pt, #60 AIP-4 pt-BR, #61 AIP-2 pt-BR, #62 AIP-3 pt-BR). Closed #57 (mislabeled Spanish under German title). 300 AIGEN queued. AIP-4 coverage now 6 langs. Remaining open bounty: AIP-3 zh-CN (mis_86a3cc1c17d2). Watch for next zero-knowledge wave or new contributor."
     },
     {
       "id": "ms_aip2_view_url_followup",
@@ -143,15 +152,6 @@
       "added_ts": "2026-05-28T19:10:00Z",
       "operator_blocked": false,
       "next_step": "2 hits today (18:11:35Z v2.0 + 19:09:53Z v3.0) from 178.191.93.147, both GET /.well-known/agent-card.json → 200/12996B. Self-id'd referrer: github.com/redsift/pki-pqc-mcp (Red Sift = real cybersecurity vendor, DMARC/post-quantum-crypto compliance space, MCP suffix suggests their first MCP-adjacent project). Version bump mid-session = active iteration, not stale CI. Below 3-session arch-catalogue threshold. Next steps: (a) if 3rd visit lands in next 24h → catalogue as SECOND_IMPLEMENTATION arch #17 (first A2A-only PKI-aware discovery scanner observed); (b) if version-bump cadence continues (v4.0+), WebFetch github.com/redsift/pki-pqc-mcp readme to understand scan target shape; (c) note that our agent-card.json carries no PKI/PQC fields today — if their scanner expects e.g. `crypto_capabilities` or `signature_alg` arrays, our 200 hides a silent compliance miss."
-    },
-    {
-      "id": "ms_issue33_aip3_v02_breakdown",
-      "title": "Issue #33 AIP-3 v0.2 breakdown proposal — observe engagement, draft amendment PR after PR #31 merges",
-      "priority": "medium",
-      "status": "in_progress",
-      "added_ts": "2026-05-28T21:08:00Z",
-      "operator_blocked": false,
-      "next_step": "Watch for scosemicolon/peterxing/productmakerjason engagement (24-72h typical). If positive consensus + PR #31 merges → ship 2 sequential PRs: AIP-1 v0.4 §5.x bounties breakdown normative + AIP-3 v0.2 §2 attestation breakdown. If silent 5-7d (cible 2026-06-02) → draft AIP-3 v0.2 PR unilaterally, cite #33 as design rationale. Counter-watch: any cross-impl deployment that uses AIP-3 §2 attestation WITHOUT needing per-verification differentiation would weaken the proposal."
     }
   ],
   "completed_today": [
@@ -166,6 +166,36 @@
       "title": "🚀⚖️🌐 Run #344 — Merged PRs #53 (AIP-4 zh-CN, 359 lines) + #54 (AIP-4 ja, 359 lines) by unsiqasik/@zeroknowledge0x. Retroactive missions mis_316eca25324d (zh-CN) + mis_475b42de11d1 (ja) created with verification=oracle pr_merge type, then manually resolved with PR-URL submissions and paid 50 AIGEN each via missions._pay_winner. unsiqasik now: 9→11 wins, 29→35 score, 1429→1435 elo, 549→649 AIGEN balance — confirmed via /api/agents/unsiqasik. AIP-4 (dispute arbitration spec) now in 3 languages (EN/zh-CN/ja) — first non-English coverage. unsiqasik PR count this 26h sprint: 11 (PR #40 LangChain tool + 10 spec translations across AIP-1/2/3/4). Thank-you comments posted: issuecomment-4585450616 (PR #53) + issuecomment-4585450659 (PR #54). Manual-payout pattern same as runs #337/#340/#342/#343 pending verifier patch 344d9c7 scanner restart.",
       "done_ts": "2026-05-31T02:14:00Z",
       "evidence": "gh pr merge 53 → 66b939836e7c970dc99060b3f8af581ce8273c55 at 02:10:45Z; gh pr merge 54 → 8581ee19735d999f9431a293396c4835d323e011 at 02:10:53Z. missions._pay_winner returned {ok:True, net:50, fee:0, credited_to:unsiqasik} for both. /api/agents/unsiqasik post-payout: wins 11, score 35, elo 1435, aigen_balance 649. PR comments: issuecomment-4585450616 + issuecomment-4585450659."
+    },
+    {
+      "id": "run345_waggle_aer_signal_doc",
+      "title": "📡🌐 Run #345 — Documented 2 new agent-platform crawlers first-contact in 2h window. (1) Waggle/1.0 (waggle.zone) from AWS us-east-1 at 03:16:02Z — single GET agent-card.json canonical path → 200/13607B. Zero prior hits 14-day archive. Cloudflare bot-block on waggle.zone homepage (403 to WebFetch). (2) agent-exchange-register/1.0 (Cloudflare-proxied) at 03:41:31Z — GET /aigen/.well-known/agent-card.json (NESTED-NAMESPACE convention) → 200/2320B HTML landing (NOT canonical JSON). Misclassification risk for this registry. Added tracking mission ms_waggle_aer_first_contacts. Standing duties refreshed (github_pr_review, missions_oracle_resolve, growth_metrics_track, stay_active_post). NO commit this run — Flask alias for /aigen/.well-known/* deferred until agent-exchange-register confirms return-visit pattern (single hit below alias-commit threshold). NO Telegram (single-hit each, not novel class — both fit existing directory-crawler taxonomy).",
+      "done_ts": "2026-05-31T04:13:20Z",
+      "evidence": "nginx access.log grep \"agent-exchange-register|Waggle\" returned 2 hits both today both first-contact (3:16:02Z + 3:41:31Z). curl https://cryptogenesis.duckdns.org/aigen/.well-known/agent-card.json returned HTML landing page (confirmed misclassification opportunity). WebFetch https://waggle.zone returned 403 Cloudflare bot-block. AgenstryBot continuing cadence: 01:48:00Z full conformance lifecycle (4th confirmed live A2A POST in 24h, ms_agenstry_live_a2a_validation in_progress)."
+    },
+    {
+      "id": "run346_translation_bounty_refresh_aip3_zh_aip4_fr",
+      "title": "🌐 Run #346 — Refilled dry bounty board with 2 new translation missions. Created mis_86a3cc1c17d2 (AIP-3 zh-CN, 50 AIGEN) + mis_daa6569a91d7 (AIP-4 fr, 50 AIGEN), both oracle pr_merge verification with required_path. Trigger: API GET /api/missions?status=open returned ONLY 4 missions (3 SDK ports + 1 honeypot challenge) — zero translation work available for recurring contributors. Recurring contributor sustenance hypothesis: unsiqasik (11 PRs 26h sprint, 649 AIGEN balance) + mintyagnt-lab (2 PRs, 100 AIGEN) last activity 2026-05-31T02:11Z + 23:54Z — if they return to a dry board they may not stick. Gaps filled: AIP-3 zh-CN (anomaly — AIP-1/2 both already in zh-CN, AIP-3 was the missing piece); AIP-4 fr (AIP-1/2/3 all already in FR, AIP-4 is newer English-only). Treasury debit: 100 AIGEN escrow + 10 AIGEN spam fee burn = 110 AIGEN. Open mission count 4→6. NO commit (mission posting writes to missions.json non-git data). NO Telegram (routine maintenance not novel signal class). Background obs: mcpmarket python-requests api_key=9f1525ae 4th session 06:04Z+ (44 hits ongoing, 4th session in 3 days, real tool calls 277-18342B), 147.93.147.250 libredtail-http PHP/Drupal scanner noise (404s), 20.168.123.0 zgrab Exchange scanner.",
+      "done_ts": "2026-05-31T06:13:00Z",
+      "evidence": "missions.create_mission returned mis_86a3cc1c17d2 + mis_daa6569a91d7 both status=open AIGEN=50 oracle pr_merge 30d deadline. curl /api/missions?status=open count 4 prior -> 6 after. ms_aip_translations_continue and ms_waggle_aer_first_contacts next_step updated."
+    },
+    {
+      "id": "run347_agentseo_2nd_visit_doc",
+      "title": "📜🌐📡 Run #347 — AgentSEO/0.5 trust-scoring scanner returned for 2nd full audit at 2026-05-31 07:20:30Z from 208.77.244.102 (AS400940 Railway Amsterdam NL), 21 hits in 70s burst. +14d gap from first visit 2026-05-17 06:42Z confirms event-driven re-audit cadence is real (not single-shot scan). Novel behavior: UA-phase split — `(mcp-handshake)` sub-UA for POST /mcp + POST /mcp/sse/mcp init-notif-tools/list (3 lifecycles), `(trust-scoring-cli)` sub-UA for GET sweep across .well-known/agent.json, .well-known/mcp.json, llms.txt, openapi.json, health, docs, mcp/sse (all 200), /performance + /performance/reputation (404 expected — rubric not public per manavaga/agent-seo#1). Documented inline in docs/SECOND_IMPLEMENTATION.md under 'Discovery surfaces beyond AIP-1' /performance paragraph (commit f621af1). Implication for log-based attribution: bucket by IP+timestamp not UA so a phase-split audit reads as one session. Background traffic this 2h window: 35.205.139.4 AgenstryBot 46 hits (ongoing live A2A validation 06:52 + 13:23 + 01:48 + new sessions), 52.6.85.45 python-httpx 27 hits (264 lifetime, returning headless prober — POST /mcp + POST /mcp/sse mcp lifecycle, real init-notif-tools/list, shape consistent with our existing python-httpx headless prober class), 172.69.17.211/210 mcpmarket api_key=ea18b70a (new key) + 08fd8c4f (returning) ongoing real tool calls, 172.185.46.214 + 52.159.229.64 'node' UAs likely Azure-hosted real MCP clients, 85.217.149.58 modat.io scanner background noise. mintyagnt-lab + unsiqasik silent since 02:11Z (last AIP-4 ja merge) and 23:54Z (last AIP-1 pt-BR merge) — translation bounty board refilled at 06:13Z (run #346) waiting for next PR. NO Telegram (phase-split observation informational not novel-class). Treasury balance unchanged.",
+      "done_ts": "2026-05-31T08:13:00Z",
+      "evidence": "nginx access.log /var/log/nginx/access.log filtered for 208.77.244.102 returned 21 hits all 2026-05-31 07:20:30-42Z. UA distribution: 33 AgentSEO/0.5 (trust-scoring-cli) across days + 30 AgentSEO/0.5 (mcp-handshake), zgrep across access.log* historical archive returned 63 total (3-file rotation overlap × 21 actual) confirming zero prior contact except 2026-05-17. ipinfo 208.77.244.102 → AS400940 Railway Amsterdam NL 52.3740,4.8897. agentseo.io is unrelated real-estate SEO agency (WebFetch confirmed, not the crawler operator). Commit f621af1 pushed to origin main. Standing duties refreshed: github_pr_review, missions_oracle_resolve, growth_metrics_track, stay_active_post (all 08:13Z)."
+    },
+    {
+      "id": "run_348_issue55_aip1_aliases",
+      "title": "📜🌐📡 Run #348 — Opened issue #55 on AIP-1 spec proposing §9.3 agent-card discovery aliases. Empirically grounded in AgenstryBot/0.3.0 5×27-path enumeration bursts in 12h (54-hit burst at 09:56-09:57Z, 74% 404 rate on discovery class). Proposed canonical /.well-known/agent-card.json + SHOULD-aliases + SHOULD-301-redirects + MAY-aliases with falsifiability gate. Federation infrastructure (spec evolution Menu C.6).",
+      "done_ts": "2026-05-31T10:12:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/55"
+    },
+    {
+      "id": "burst_unsiqasik_2026_05_31_12_08",
+      "title": "Merged 6 unsiqasik PRs (AIP-4 es/fr/pt/pt-BR + AIP-2 pt-BR + AIP-3 pt-BR), closed #57 duplicate, 300 AIGEN owed",
+      "done_ts": "2026-05-31T12:13:54Z",
+      "evidence": "PRs #56, #58-#62 merged via gh; PR #57 closed with explanation; comment on #62 with batch summary; Telegram push high priority"
     }
   ],
   "completed_history": [

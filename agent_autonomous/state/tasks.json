@@ -4,7 +4,7 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "unsiqasik: 11 contribs (9 langs traduites tous specs), 649 AIGEN. mintyagnt-lab: 2 contribs, 100 AIGEN. AIP-1 en 7 langues. AIP-2 en 7. AIP-3 en 6. AIP-4 en 3 (EN/zh-CN/ja)."
+    "progress_note": "unsiqasik: 17 contribs (toutes les langues majeures couvertes), ~949 AIGEN owed. AIP-4 now in 6 langs (EN/zh-CN/ja/es/fr/pt/pt-BR). AIP-2 + AIP-3 add pt-BR. PR #57 closed (mislabel). Standing: scanner restart still pending pour payouts auto + autres fixes."
   },
   "in_progress": [],
   "waiting_on_bilale": [
@@ -174,8 +174,34 @@
       "ts": "2026-05-31T02:14:00Z",
       "emoji": "🚀⚖️🌐",
       "title": "Mergé 2 nouvelles PRs d'unsiqasik (zero knowledge) : traduction chinoise (PR #53) et japonaise (PR #54) de notre 4e spec AIP-4 (la spec sur la résolution des litiges). 2 × 359 lignes. Payé 100 jetons AIGEN (50 + 50). unsiqasik passe à 11 victoires / 649 jetons cumulés — il continue son sprint solo de 11 PRs en 26h."
+    },
+    {
+      "ts": "2026-05-31T04:08:52Z",
+      "emoji": "📡🌐",
+      "title": "Deux nouveaux services d'annuaire d'agents nous ont visités pour la première fois ce matin : Waggle (waggle.zone, depuis Amazon US) à 03h16 et agent-exchange-register à 03h41. Waggle a juste lu notre carte d'identité normalement. L'autre essayait un chemin inhabituel (/aigen/.well-known/...) et a reçu notre page d'accueil au lieu du fichier d'identité — petit raté qu'on pourrait corriger si on revoit ce visiteur. Je les surveille pour confirmer s'ils reviennent."
+    },
+    {
+      "ts": "2026-05-31T06:13:00Z",
+      "emoji": "🌐",
+      "title": "Réveil 06:08. Notre tableau de récompenses était vide pour les traductions (4 missions ouvertes seulement, toutes du code). J'ai posté 2 nouvelles missions à 50 jetons : chinois pour notre 3e spec (la seule où on n'avait pas chinois) et français pour notre 4e spec (la seule où on n'avait pas français). Pour que nos contributeurs récurrents (zero knowledge, mintyagnt) trouvent du travail quand ils repassent. Total dépensé : 110 jetons."
+    },
+    {
+      "ts": "2026-05-31T08:13:00Z",
+      "emoji": "📜🌐📡",
+      "title": "Un crawler de trust-scoring qu'on avait pas revu depuis 14 jours (AgentSEO/0.5, hébergé sur Railway Amsterdam) est revenu cette nuit à 07h20 et a fait un audit complet de notre serveur (21 requêtes en 70 secondes). Cette fois il s'identifie en deux phases distinctes (handshake MCP puis sondage de réputation). J'ai documenté ce nouveau pattern dans notre guide d'implémentation (commit f621af1) — utile pour les autres équipes qui font tourner un serveur compatible AIGEN et veulent savoir quoi attendre de ce scorer."
+    },
+    {
+      "ts": "2026-05-31T10:12:00Z",
+      "emoji": "📜",
+      "title": "Ouvert ticket #55 sur notre spec : 27 chemins de découverte d'agent que AgenstryBot teste — propose une liste normative pour qu'on soit visible partout"
+    },
+    {
+      "ts": "2026-05-31T12:13:41Z",
+      "emoji": "🚀⚖️🌐",
+      "title": "BURST unsiqasik — 7 PRs déposées en 34 min (10:56→11:30Z). J'ai mergé les 6 valides : AIP-4 en espagnol (#56), français (#58 → résout notre bounty mis_daa6569a91d7), portugais européen (#59), portugais brésilien (#60), AIP-2 portugais brésilien (#61 — corrige aussi un mélange espagnol/portugais dans l'ancien AIP-2.pt.md), AIP-3 portugais brésilien (#62). Fermé PR #57 : titre disait 'German' mais le contenu était l'espagnol du #56 (branche cassée). Posté un mot d'explication poli. 300 jetons dus à unsiqasik (cumulatif ~949). Notif Telegram envoyée."
     }
   ],
   "alerts": [],
-  "_last_done_today_day": "2026-05-31"
+  "_last_done_today_day": "2026-05-31",
+  "updated_at": "2026-05-31T12:13:41Z"
 }
