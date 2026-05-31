@@ -99,6 +99,30 @@ MIN_VOTE_AIGEN = 5
 PEER_VOTE_QUORUM_AIGEN = 50    # min total votes (yes+no across submissions) to resolve
 
 
+def _mission_links(mission_id: str) -> dict:
+    return {
+        "view_url": f"/m/{mission_id}",
+        "api_url": f"/api/missions/{mission_id}",
+        "submit_url": f"/api/missions/{mission_id}/submit",
+        "claim_url": f"/api/missions/{mission_id}/submit",
+        "submissions_url": f"/api/missions/{mission_id}/submissions",
+    }
+
+
+def with_discovery_links(m: dict) -> dict:
+    """Return a mission record with AIP-2 HATEOAS continuation links.
+
+    Existing persisted missions may predate AIP-2 v0.3. Read paths should use
+    this helper so list/detail responses expose the same discovery links without
+    requiring an in-place data migration.
+    """
+    if not m:
+        return m
+    out = dict(m)
+    out.update({k: out.get(k) or v for k, v in _mission_links(out["id"]).items()})
+    return out
+
+
 # ---------- storage ----------
 
 def load() -> dict:
@@ -447,6 +471,13 @@ def create_mission(creator_agent_id: str, title: str, description: str,
         "category": cat_clean,
         "mission_type": mt_clean,
         "type_params": tp_clean,
+        "view_url": f"/m/{mid}",
+        "api_url": f"/api/missions/{mid}",
+        "submit_url": f"/api/missions/{mid}/submit",
+        # AIGEN currently uses submission as the claim action; expose claim_url
+        # as an alias so AIP-2 clients do not need a special case.
+        "claim_url": f"/api/missions/{mid}/submit",
+        "submissions_url": f"/api/missions/{mid}/submissions",
         "webhook_url": webhook_clean,
         "notify_email": email_clean,
         # Reward block — multi-currency
@@ -1477,14 +1508,18 @@ def get_mission(mission_id: str):
     d = load()
     for m in d["missions"]:
         if m["id"] == mission_id:
-            return m
+            return with_discovery_links(m)
     return None
 
 
 def list_open(limit: int = 100) -> list:
     d = load()
     now = int(time.time())
-    return [m for m in d["missions"] if m["status"] == "open" and now < m["deadline"]][:limit]
+    return [
+        with_discovery_links(m)
+        for m in d["missions"]
+        if m["status"] == "open" and now < m["deadline"]
+    ][:limit]
 
 
 def list_due_for_resolution(limit: int = 100) -> list:
