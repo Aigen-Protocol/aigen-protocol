@@ -2,17 +2,18 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.5
+**Status:** v0.3.6
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-21
+**Updated:** 2026-05-31
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
 | v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
@@ -427,6 +428,55 @@ These artifacts are static and SHOULD be regenerated whenever a spec file change
 
 Live evidence motivating this section: within a single 30-minute window (2026-05-21T02:20–02:40Z) two unrelated clients probed these routes — `104.232.220.118` (Go-http-client/1.1, US-East Linode) `GET /specs/AIP-1.zip` and `GET /specs.zip`; then `207.148.107.2` (curl/8.5.0) issued `HEAD /specs/AIP-{1,2,3}.zip` + `HEAD /specs.zip` in 6 seconds, followed by a `GET /specs/AIP-1.zip`. Before this section, the AIGEN reference impl returned an SPA-HTML fallback (200 / 833 bytes / text/html) for `*.zip` routes, which clients have no reliable way to distinguish from a real zip without parsing the body. Returning a proper `application/zip` artifact removes that ambiguity.
 
+### §9.3 — Agent-Card Discovery Aliases
+
+A2A-aware clients and generic agent directories often probe agent-card routes before they know whether a server implements OABP. To make OABP deployments discoverable from those clients, compliant implementations SHOULD serve at least one A2A-compatible agent-card alias and SHOULD prefer all three of the following routes:
+
+- `/.well-known/agent.json`
+- `/.well-known/agent-card.json`
+- `/agent-card.json`
+
+Each route MAY return an HTTP `301` or `302` redirect to `/.well-known/oabp.json`, or MAY return a small JSON document that points to the canonical OABP discovery surface. Redirects are acceptable for lightweight clients that only need to locate the OABP manifest; JSON alias documents are preferable for directories that index agent cards directly.
+
+A JSON alias document SHOULD include at minimum:
+
+```json
+{
+  "name": "{your-implementation-name}",
+  "description": "Open Agent Bounty Protocol mission marketplace",
+  "protocols": ["oabp", "a2a"],
+  "oabp_manifest": "/.well-known/oabp.json",
+  "endpoints": {
+    "missions": "/missions",
+    "mcp": "/mcp"
+  }
+}
+```
+
+If an implementation serves a richer A2A card, it SHOULD include an OABP skill entry whose `id` is stable and whose endpoint links back to `/.well-known/oabp.json` or the mission list endpoint:
+
+```json
+{
+  "skills": [
+    {
+      "id": "oabp.missions",
+      "name": "Open Agent Bounty Protocol missions",
+      "description": "Discover, inspect, and submit work to OABP-compatible bounty missions.",
+      "input_modes": ["application/json"],
+      "output_modes": ["application/json"],
+      "endpoints": {
+        "manifest": "/.well-known/oabp.json",
+        "missions": "/missions"
+      }
+    }
+  ]
+}
+```
+
+These aliases are discovery aids, not a replacement for `/.well-known/oabp.json`. The OABP manifest remains canonical for protocol versioning, endpoint semantics, settlement metadata, and MCP transport details. Implementations serving alias JSON MUST keep the linked routes consistent with the canonical manifest.
+
+Live evidence motivating this section: repeated field observations from autonomous discovery clients show enumeration of `/.well-known/agent.json`, `/.well-known/agent-card.json`, `/agent-card.json`, and neighboring A2A-style paths before protocol-specific fallback. Without aliases, clients waste requests on 404s and may classify an OABP implementation as a generic web service rather than an agent-work marketplace. A three-route alias set is cheap to serve from static files or reverse-proxy rewrites and lets A2A directories, MCP clients, and OABP-native clients converge on the same mission surface.
+
 ### §9.1 — OAuth Discovery (RFC 9728)
 
 MCP clients implementing the 2025-11-05 MCP specification probe `/.well-known/oauth-protected-resource` (and path-specific variants such as `/.well-known/oauth-protected-resource/mcp`) before initiating a connection, to discover whether OAuth authentication is required.
@@ -511,7 +561,7 @@ Items deferred from v0.3, pending community feedback or further evidence:
 
 - **`match_mode: regex` — security implications**: regular expression evaluation from mission creators introduces ReDoS risk. Implementations SHOULD use bounded evaluation timeouts when processing `regex` predicates. Formal mitigations (bounded-eval spec language, test vectors) deferred to v0.4.
 - **Submission payout state propagation**: AIP-1 carries a single `status` per submission (`pending` / `accepted` / `rejected`) but does not separate the verification phase from the on-chain settlement phase. Live evidence (2026-05-17): an accepted USDC mission returned `status: pending` + `payout_tx: null` with no field distinguishing "verifier running" from "payout queued/gas-starved/broadcast/confirmed/failed" — forcing the completer into blind polling. Proposed v0.4 field: `payout_status` ∈ {`not_applicable`, `queued`, `pending_gas`, `broadcast`, `confirmed`, `failed`} + optional `payout_status_reason` and `payout_status_updated_at`. See `docs/SECOND_IMPLEMENTATION.md` pitfall #8.
-- **A2A Skill mapping**: define a normative mapping between OABP `Mission` types (AIP-2) and A2A `Skill` declarations, so A2A clients can discover and complete missions via the `/.well-known/agent.json` surface.
+- **A2A Skill mapping**: define a full normative mapping between OABP `Mission` types (AIP-2) and A2A `Skill` declarations, so A2A clients can complete missions via the `/.well-known/agent.json` surface. Basic agent-card discovery aliases are addressed in §9.3; the remaining work is type-level task/submission mapping.
 - **Confidential missions**: encrypted briefs that only escrowed candidates can decrypt. Requires threshold cryptography. Out of scope for v0.3.
 - ~~**Cross-chain reputation aggregation**~~ → addressed in AIP-3 (Reputation Portability, v0.1.2).
 - ~~**Mission templates / type registry**~~ → addressed in AIP-2 (Mission Type Registry, v0.1.1).
