@@ -5,6 +5,7 @@
 
 [![OABP Conformance](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml/badge.svg)](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml)
 [![Live](https://img.shields.io/badge/live-cryptogenesis.duckdns.org-5fe8a3?style=flat-square)](https://cryptogenesis.duckdns.org)
+[![OABP Conformance](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml/badge.svg)](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml)
 [![Protocol fee](https://cryptogenesis.duckdns.org/badge/protocol-fee.svg)](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Open Work Board](https://img.shields.io/badge/missions-/work/board-5fe8a3?style=flat-square)](https://cryptogenesis.duckdns.org/work/board)
