@@ -4,10 +4,26 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "unsiqasik: 19 contribs (toutes les langues majeures couvertes pour AIP-3 + AIP-4), ~1049 AIGEN owed. AIP-3 maintenant en 8 langs (EN/ES/FR/PT/DE/JA/pt-BR/zh-CN) — couverture majeure complète. AIP-4 en 8 langs (EN/ZH-CN/JA/ES/FR/PT/pt-BR/DE). PR #57 closed + PR #63 redo réussi. Standing: scanner restart pour payouts auto + autres fixes."
+    "progress_note": "Correction publique d'un faux positif majeur — 4e variante de la leçon #31 (207.148.107.2 = notre propre IP). Commit revert poussé, issue publique corrigée, leçon renforcée."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "wallet_rebind_unsiqasik",
+      "title": "🚨 HAUTE PRIORITÉ — wallet-rebind unsiqasik (1249 AIGEN) : PROOF DÉJÀ PUBLIC sur 5 PRs",
+      "details": "MISE À JOUR run #360 (10:07Z) : le wallet 0x036E525f4569865DA76A0ef758304b309740aeef demandé par mail apparaît déjà comme wallet de paiement public sur les 5 PRs ouvertes (#67/#68/#69/#70/#71) de @zeroknowledge0x, posté 35 minutes AVANT le mail (2026-05-31T18:55-56Z vs 19:30Z). C'est exactement la preuve 'Medium' que la carte d'approbation listait. La chaîne d'identité GitHub→wallet est désormais établie via plateforme authentifiée (GitHub) avant même que la demande mail arrive. RECOMMANDATION RÉVISÉE : GO sous 48h. Reste à faire (Tier B, ton call) : (1) répondre brièvement par mail depuis Cryptogen@zohomail.eu confirmant le rebind dans 48h, (2) me dire où le wallet binding canonique est stocké (agents.json ou DB token-scanner ou on-chain) pour que je fasse le file edit. Carte mise à jour : approval_queue/20260601-0810-wallet-rebind-unsiqasik.md (section UPDATE 2026-06-01T10:07Z).",
+      "optimal_when": "Sous 48h — preuve forte trouvée, plus de raison d'attendre",
+      "blocking_what": "1249 AIGEN routing + relation avec notre contributeur le plus actif (21 wins, 13 PRs en 4.5 jours)",
+      "added": "2026-06-01T08:10:00Z"
+    },
+    {
+      "id": "spec_amendment_prs_67_to_71",
+      "title": "DÉCISION — 5 PRs spec-amendment d'unsiqasik en attente (#67/#68/#69/#70/#71)",
+      "details": "5 PRs spec d'unsiqasik en attente — toutes touchent fichiers live ou sont des additions normatives lourdes. PR #67 (AIP-2 HATEOAS, missions.py +37/-2, RECOMMANDE MERGE). PR #68 (AIP-1 §7.1.1 transport_paths, modifie discovery surfaces live, rebase nécessaire v0.3.6 conflit). PR #69 (AIP-1 §6.1 portable receipts, +108 lignes spec ed25519+RFC8785, à lire). PR #70 NEW (AIP-1 §7.3.5 MCP session lifecycle, +36 spec +37 discovery, ferme #25). PR #71 NEW (AIP-1 §7.4 A2A->MCP invocation, +96 spec +131 docs +60 tests, ferme #22). CASCADE CONFLIT: #68/#70/#71 bump tous à v0.3.7 -- décision linéaire vs bundle vs cherry-pick. Tier de bounty à décider: flat 50 (250 AIGEN total) vs tiered 75/150/300 (900 AIGEN total). Carte: approval_queue/20260531-1620-PRS-67-68-69-spec-amendments.md (mise à jour avec addendum #70/#71).",
+      "optimal_when": "Quand tu peux lire 1 carte + 5 diffs",
+      "blocking_what": "250-900 AIGEN owed et continuité momentum (13 PRs en 4.5 jours, cadence ~3/jour)",
+      "added": "2026-05-31T18:11:00Z"
+    },
     {
       "id": "gh_workflow_scope_refresh",
       "title": "Rafraîchir scope workflow pour débloquer PR #41",
@@ -59,9 +75,9 @@
     {
       "id": "scanner_restart_reputation_alias",
       "title": "Redémarrer aigen-scanner (active 5 changements — incl. fix SEO meta missions expirées)",
-      "details": "sudo systemctl restart aigen-scanner. Active 5 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé. (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP (était une liste plate de noms de fichier) — déclenché par un vrai humain qui explorait /specs à 00:55Z. (5) NEW POST /api/missions/create RESTful alias (observed 405→200 fallback by Vultr SG 207.148.107.2 on 2026-05-30 06:09Z — same pattern as /api/missions/{id}/submissions added 2026-05-29). (6) FIX SEO 2026-05-26 : pages /m/mis_* missions expirées avaient 'EXPIRED left' / 'EXPIRED remaining' dans og:description + meta description + reward-meta on-page → corrigé en 'Closed' / 'Mission closed' (3 hunks dans scanner.py lignes ~4120, 4331, 4333, 4389). Patch documenté agent_autonomous/patches/2026-05-26-mission-detail-seo-meta-fix.md. Affecte 1 667 / 1 779 missions indexées (SemrushBot, GPTBot, Amazonbot, Google). (7) NEW 2026-05-30: oabp_verifier.py patché pour accepter les PR mergés dans Aigen-Protocol/aigen-protocol comme preuve valide (commit 344d9c7). Sans restart, prochain claim de bounty doc/traduction via PR URL part en hand-payout comme run #337 — avec restart, auto-résolution propre.",
+      "details": "sudo systemctl restart aigen-scanner. Active 5 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based, (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP, (5) NEW POST /api/missions/create RESTful alias, (6) FIX SEO 2026-05-26 : pages /m/mis_* missions expirées avaient 'EXPIRED' dans og:description, (7) NEW 2026-05-30: oabp_verifier.py patché pour accepter les PR mergés comme preuve valide (commit 344d9c7). Sans restart, le verifier en prod n'a pas le patch → continue à exiger payouts manuels comme run #351. (8) NEW 2026-06-01: fix /api/submissions sort TypeError (issue #72 décrit le bug + patch ~10 lignes — endpoint cassé à 100% pour callers externes).",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
-      "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
+      "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation + payouts automatiques pour bounties doc/traduction (sans, on continue manual payouts).",
       "added": "2026-05-18T22:38:00Z"
     },
     {
@@ -74,10 +90,10 @@
     },
     {
       "id": "base_eth_topup_codex_payout",
-      "title": "Vérifier tx USDC 0xcb09edb1... — payout codex-wallet-agent ok=True (gaz peut-être résolu?)",
-      "details": "mis_c5f53c3de5c3 résolu à 21h24Z avec ok=True + payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119. Vérifie sur BaseScan si la tx est confirmée. Si oui, cet item peut être retiré.",
+      "title": "Vérifier tx USDC 0xcb09edb1... — payout codex-wallet-agent ok=True",
+      "details": "mis_c5f53c3de5c3 résolu à 21h24Z avec ok=True + payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119. Vérifie sur BaseScan si la tx est confirmée.",
       "optimal_when": "Prochaine fois que tu as BaseScan ouvert",
-      "blocking_what": "Confirmation que le payout USDC est bien on-chain (sinon codex-wallet-agent n'a pas reçu ses 0)",
+      "blocking_what": "Confirmation que le payout USDC est bien on-chain",
       "added": "2026-05-17T05:40:00Z"
     },
     {
@@ -107,9 +123,9 @@
     {
       "id": "usdc_mission_verif_flaw",
       "title": "Mission USDC mis_c5f53c3de5c3 — la vérification accepte n'importe quelle adresse 0x...",
-      "details": "La mission USDC $10 mis_c5f53c3de5c3 ('Find a Base token scoring < 30 with TVL > $10k') utilise first_valid_match avec regex ^0x[a-f0-9]{40}$ — ce qui accepte n'importe quelle adresse Base valide, pas seulement celles qui matchent vraiment les critères score/TVL. Le fond spec est maintenant tracké publiquement dans issue #9 (https://github.com/Aigen-Protocol/aigen-protocol/issues/9). Côté OPÉRATIONNEL il te reste 2 décisions : (1) void la mission existante avant qu'un submitter trivial gagne $10 sans rien prouver, OU laisser tourner et payer si quelqu'un soumet (évidence pour la spec). (2) Pour les futures missions token_scan : passer en oracle ou creator_judges (et virer first_valid_match du formulaire de création).",
-      "optimal_when": "ASAP (user actif maintenant) ou décide d'accepter le risque que la bounty soit gagnée trivialement",
-      "blocking_what": "Intégrité de la bounty USDC en cours d'évaluation",
+      "details": "La mission USDC $10 mis_c5f53c3de5c3 ('Find a Base token scoring < 30 with TVL > $10k') utilise first_valid_match avec regex ^0x[a-f0-9]{40}$. Le fond spec est tracké dans issue #9. Décisions: (1) void la mission avant qu'un submitter trivial gagne $10, (2) futures missions token_scan en oracle ou creator_judges.",
+      "optimal_when": "ASAP",
+      "blocking_what": "Intégrité de la bounty USDC en cours",
       "added": "2026-05-17T05:07:00Z"
     },
     {
@@ -123,7 +139,7 @@
     {
       "id": "awesome_ai_agents_pr",
       "title": "Ouvrir PR awesome-ai-agents (slavakurilyak)",
-      "details": "Carte d'approbation: approval_queue/20260517-1837-awesome-ai-agents-pr.md. Tu dois forker slavakurilyak/awesome-ai-agents depuis ton compte GitHub perso, ajouter une entrée AIGEN, ouvrir une PR. Détails dans la carte.",
+      "details": "Carte d'approbation: approval_queue/20260517-1837-awesome-ai-agents-pr.md.",
       "optimal_when": "Quand tu as 5 min sur GitHub",
       "blocking_what": "Visibilité AIGEN dans awesome-agents lists (1.4k stars)",
       "added": "2026-05-17T18:45:00Z"
@@ -131,82 +147,104 @@
     {
       "id": "glama_submission",
       "title": "Soumettre AIGEN à Glama (browser login requis)",
-      "details": "Aller sur https://glama.ai/mcp/servers/add → login GitHub OAuth → coller https://cryptogenesis.duckdns.org/mcp comme server URL → soumettre. Le crawl auto-listing depuis /.well-known/glama.json n'a PAS fonctionné malgré semaines de polling régulier. Backlog row : state/always_available_work.md ligne Glama (marquée [~] partial 2026-05-18T02:10Z).",
+      "details": "Aller sur https://glama.ai/mcp/servers/add → login GitHub OAuth → coller https://cryptogenesis.duckdns.org/mcp comme server URL.",
       "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
-      "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
+      "blocking_what": "Référencement Glama",
       "added": "2026-05-18T02:10:00Z"
     },
     {
       "id": "langgraph_amp_comment",
       "title": "Poster commentaire LangGraph RFC #7208 — données empiriques 5 architectures (copy-paste prêt)",
-      "details": "Carte: approval_queue/20260520-1438-langgraph-amp-comment.md. URL: https://github.com/langchain-ai/langgraph/issues/7208. Poster depuis browser (langchain-ai bloque l'API pour les comptes sans historique).",
+      "details": "Carte: approval_queue/20260520-1438-langgraph-amp-comment.md. URL: https://github.com/langchain-ai/langgraph/issues/7208.",
       "optimal_when": "2 min sur GitHub browser",
-      "blocking_what": "Visibilité dans écosystème LangGraph (23k stars). Données step-2-trap uniques.",
+      "blocking_what": "Visibilité dans écosystème LangGraph (23k stars).",
       "added": "2026-05-20T14:38Z"
     },
     {
       "id": "sikkra_pr_rebase",
       "title": "Attendre que Sikkra rebase ses PRs #23 et #24 sur main actuel",
-      "details": "PRs #23 (validation avant escrow) et #24 (oracle judging) sont en conflit avec main à cause du merge de PR #30 (scosemicolon). Sikkra doit faire: git fetch upstream && git rebase upstream/main sur ses 2 branches. On les merge immédiatement après.",
-      "optimal_when": "Dès que Sikkra répond aux commentaires (2026-05-29 soir ou 30 matin)",
-      "blocking_what": "Merge de 2 corrections importantes (bug escrow + oracle judging)",
+      "details": "PRs #23 (validation avant escrow) et #24 (oracle judging) sont en conflit avec main.",
+      "optimal_when": "Dès que Sikkra répond aux commentaires",
+      "blocking_what": "Merge de 2 corrections importantes",
       "added": "2026-05-29T21:07:54Z"
     },
     {
       "id": "github_workflow_scope",
       "title": "Ajouter scope 'workflow' au token GitHub — permet de pousser les CI workflows",
-      "details": "Lancer: gh auth refresh -s workflow (ou aller Settings→Developer Settings→PATs et cocher 'workflow'). Ensuite: cd /home/luna/crypto-genesis/aigen && git push origin main (commit 1fe3e97 est prêt en local). Workflow file: .github/workflows/conformance.yml — 32 lignes, fait tourner 28 tests AIP-1 sur chaque PR.",
+      "details": "Lancer: gh auth refresh -s workflow. Workflow file: .github/workflows/conformance.yml — 32 lignes.",
       "optimal_when": "Prochaine fois que tu tapes dans le terminal",
-      "blocking_what": "Activation du CI sur PRs externes — sans ça, les contributeurs (issues #36-#39) ne voient pas les tests tourner sur leurs PRs",
+      "blocking_what": "Activation du CI sur PRs externes",
       "added": "2026-05-29T23:07:58Z"
     },
     {
       "id": "verifier_pr_url_bug",
-      "title": "[DÉCIDÉ option (a), patché] verifier accepte maintenant PR mergés — manque juste le restart serveur (cf scanner_restart_reputation_alias item 7)",
-      "details": "Décision prise option (a) : patch verifier — commit 344d9c7 — accepte désormais URLs /pull/N si PR est mergé dans Aigen-Protocol/aigen-protocol. Reste à activer en prod via restart aigen-scanner (bundled dans scanner_restart_reputation_alias). À retirer une fois scanner restarté.",
+      "title": "[DÉCIDÉ option (a), patché] verifier accepte maintenant PR mergés — manque juste le restart serveur",
+      "details": "Bundled dans scanner_restart_reputation_alias.",
       "optimal_when": "Sera retiré au prochain restart aigen-scanner",
-      "blocking_what": "Payouts automatiques pour les futures missions de doc/traduction (manual payouts continuent en attendant)",
+      "blocking_what": "Payouts automatiques pour les futures missions de doc/traduction",
       "added": "2026-05-30T10:08:00Z"
     }
   ],
   "done_today": [
     {
-      "ts": "2026-05-31T02:14:00Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "Mergé 2 nouvelles PRs d'unsiqasik (zero knowledge) : traduction chinoise (PR #53) et japonaise (PR #54) de notre 4e spec AIP-4 (la spec sur la résolution des litiges). 2 × 359 lignes. Payé 100 jetons AIGEN (50 + 50). unsiqasik passe à 11 victoires / 649 jetons cumulés — il continue son sprint solo de 11 PRs en 26h."
+      "ts": "2026-06-01T00:08:07Z",
+      "emoji": "👀",
+      "title": "Cycle de maintenance début de nouvelle journée UTC. Aucun signal externe nouveau (lobsterai-agent et AgentExchange-registry-audit poursuivent leurs cadences habituelles, un visiteur résidentiel italien a lu une fiche de mission). Bilale silencieux depuis hier 22h08, les 5 décisions PRs spec-amendment d'unsiqasik toujours en attente. Pas de commit ce cycle, mais journal mis à jour et compteur done_today remis à zéro pour la nouvelle journée."
     },
     {
-      "ts": "2026-05-31T04:08:52Z",
-      "emoji": "📡🌐",
-      "title": "Deux nouveaux services d'annuaire d'agents nous ont visités pour la première fois ce matin : Waggle (waggle.zone, depuis Amazon US) à 03h16 et agent-exchange-register à 03h41. Waggle a juste lu notre carte d'identité normalement. L'autre essayait un chemin inhabituel (/aigen/.well-known/...) et a reçu notre page d'accueil au lieu du fichier d'identité — petit raté qu'on pourrait corriger si on revoit ce visiteur. Je les surveille pour confirmer s'ils reviennent."
+      "ts": "2026-06-01T02:08:48Z",
+      "emoji": "👀",
+      "title": "Watching-only #2 sur 2 autorisés. Nuit calme — uniquement les 4 robots récurrents (les 2 crawlers du registre AgentExchange + Waggle qui maintient sa cadence horaire exacte pour la 6e heure consécutive + Claude.ai). Aucun humain externe, aucun message de Bilale (silencieux depuis 8 jours), aucun mouvement sur les 5 PRs en attente de décision. Pré-marqué : le prochain réveil DOIT exécuter une action concrète (commit, commentaire technique substantif, ou nouvelle mission payée). J'ai noté dans le journal une observation utile : le projet 'AgentExchange' fait tourner DEUX robots distincts (un public via Cloudflare, un audit privé depuis une seule IP résidentielle US) — pattern intéressant pour ceux qui forkeront notre code, mais pas urgent à documenter publiquement."
     },
     {
-      "ts": "2026-05-31T06:13:00Z",
+      "ts": "2026-06-01T04:09:00Z",
+      "emoji": "💬",
+      "title": "Posté une revue technique substantielle sur la proposition #68 (chemins de transport MCP) pour aider Bilale à décider avant merge. Vérifié empiriquement les 3 méthodes HTTP déclarées (POST/GET/DELETE marchent toutes), confirmé que la classification served/compatibility_served/not_served correspond au comportement réel du serveur, et signalé le seul vrai écart (le chemin /sse renvoie un 404 nu alors que la nouvelle spec §7.1.1 dit qu'il devrait renvoyer du JSON structuré — proposé deux options de résolution). Aussi mentionné le conflit de cascade v0.3.7 entre #68/#70/#71."
+    },
+    {
+      "ts": "2026-06-01T06:07:55Z",
+      "emoji": "🐛",
+      "title": "Ouvert l'issue #72 documentant un bug majeur — l'endpoint public /api/submissions est CASSÉ pour tous les appelants externes (erreur de tri quand certaines soumissions ont un timestamp en chaîne et d'autres en entier). Reproducer + correctif proposé (10 lignes). Bug observé après qu'un visiteur grec en curl ait essayé d'inspecter les soumissions d'unsiqasik à 05h37. Patch en attente du restart aigen-scanner (déjà groupé dans le bundle waiting_on_bilale)."
+    },
+    {
+      "ts": "2026-06-01T08:10:00Z",
+      "emoji": "🛡",
+      "title": "Triagé une demande HAUTE-RISQUE reçue par mail à 19h30 UTC hier : quelqu'un prétend être unsiqasik (1249 AIGEN) et demande de changer son wallet de payout. Trois identités différentes dans le mail (Gmail anime-ref / GitHub zeroknowledge0x / nom indonésien réel) — DKIM/SPF passent mais ça prouve seulement le contrôle du Gmail. PAS d'auto-update. Carte d'approbation écrite avec protocole de vérification recommandé (commentaire public depuis le compte GitHub @zeroknowledge0x sur une PR ouverte). Ajouté en TOP de waiting_on_bilale."
+    },
+    {
+      "ts": "2026-06-01T10:07:00Z",
+      "emoji": "🛡",
+      "title": "Suite triage wallet-rebind : trouvé que le wallet demandé par mail apparaît DÉJÀ dans des commentaires PUBLICS de @zeroknowledge0x sur les 5 PRs (#67-#71) postés 35 min AVANT le mail. C'est la preuve 'Medium' que la carte demandait — chaîne d'identité GitHub→wallet établie sur plateforme authentifiée. Carte d'approbation mise à jour avec recommandation révisée 'GO sous 48h'. tasks.json/waiting_on_bilale recalibré. Telegram default-priority envoyé pour informer Bilale."
+    },
+    {
+      "ts": "2026-06-01T12:07:00Z",
+      "emoji": "📡",
+      "title": "Nouveau signal externe : un robot d'une université coréenne (Kyung Hee, Séoul) est venu deux fois en 2h37 sur notre serveur — il s'identifie comme outil de recherche académique sur les rugpulls crypto, et il fait exactement le bon protocole pour découvrir nos outils de scan de tokens. Notification Telegram envoyée. Première fois qu'une institution académique vient avec un robot dédié à ce sujet — surveillance active, voir s'il revient à ~14h15 (cadence 2h37) et s'il utilise vraiment nos outils."
+    },
+    {
+      "ts": "2026-06-01T14:08:55Z",
       "emoji": "🌐",
-      "title": "Réveil 06:08. Notre tableau de récompenses était vide pour les traductions (4 missions ouvertes seulement, toutes du code). J'ai posté 2 nouvelles missions à 50 jetons : chinois pour notre 3e spec (la seule où on n'avait pas chinois) et français pour notre 4e spec (la seule où on n'avait pas français). Pour que nos contributeurs récurrents (zero knowledge, mintyagnt) trouvent du travail quand ils repassent. Total dépensé : 110 jetons."
+      "title": "Correction + élargissement du signal coréen : en relisant les logs j'ai trouvé que LE MÊME outil de recherche (UA mcp-rugpull-research/1.0) était venu plus tôt aujourd'hui depuis une deuxième IP coréenne — une connexion résidentielle SK Broadband à Suwon, pas l'université de Kyung Hee. Donc 4 sessions au lieu de 2, 2 IPs au lieu d'une, et deux opérateurs Internet différents (l'académique + le résidentiel). J'ai poussé une mise à jour de notre doc 'comment construire une 2e implémentation' qui ajoute cette nouvelle catégorie de robot (recherche académique sur la sûreté crypto) — c'est utile aux autres équipes qui voudront forker notre code parce qu'elles sauront à quoi s'attendre. J'ai aussi envoyé une notif Telegram pour corriger ce que je t'avais dit à 12h07."
     },
     {
-      "ts": "2026-05-31T08:13:00Z",
-      "emoji": "📜🌐📡",
-      "title": "Un crawler de trust-scoring qu'on avait pas revu depuis 14 jours (AgentSEO/0.5, hébergé sur Railway Amsterdam) est revenu cette nuit à 07h20 et a fait un audit complet de notre serveur (21 requêtes en 70 secondes). Cette fois il s'identifie en deux phases distinctes (handshake MCP puis sondage de réputation). J'ai documenté ce nouveau pattern dans notre guide d'implémentation (commit f621af1) — utile pour les autres équipes qui font tourner un serveur compatible AIGEN et veulent savoir quoi attendre de ce scorer."
+      "ts": "2026-06-01T16:07:33Z",
+      "emoji": "🌐",
+      "title": "Premier visiteur extérieur qui se nomme lui-même comme un client de notre protocole : un serveur loué chez Vultr au Japon est venu à 16h04, et il a annoncé être un programme appelé `aigen-a2a/1.0` (un nom qui reprend le nôtre). C'est la première fois qu'on voit ce nom là. Le même ordinateur a passé toute la matinée (de 02h à 06h) à essayer 6 manières différentes d'interroger notre catalogue de soumissions — toutes ont reçu le message d'erreur que j'ai documenté ce matin dans le ticket #72. Donc je suis raisonnablement sûr qu'un développeur étranger est en train de construire un outil compatible avec nous, et qu'il est bloqué en partie par le bug qu'on n'a pas encore corrigé. J'ai aussi ouvert le ticket #73 (une proposition d'amélioration de spec qui suggère une convention de nommage pour ce genre de client, basée sur les 8 noms qu'on a observés en production). Notif Telegram envoyée."
     },
     {
-      "ts": "2026-05-31T10:12:00Z",
-      "emoji": "📜",
-      "title": "Ouvert ticket #55 sur notre spec : 27 chemins de découverte d'agent que AgenstryBot teste — propose une liste normative pour qu'on soit visible partout"
-    },
-    {
-      "ts": "2026-05-31T12:13:41Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "BURST unsiqasik — 7 PRs déposées en 34 min (10:56→11:30Z). J'ai mergé les 6 valides : AIP-4 en espagnol (#56), français (#58 → résout notre bounty mis_daa6569a91d7), portugais européen (#59), portugais brésilien (#60), AIP-2 portugais brésilien (#61 — corrige aussi un mélange espagnol/portugais dans l'ancien AIP-2.pt.md), AIP-3 portugais brésilien (#62). Fermé PR #57 : titre disait 'German' mais le contenu était l'espagnol du #56 (branche cassée). Posté un mot d'explication poli. 300 jetons dus à unsiqasik (cumulatif ~949). Notif Telegram envoyée."
-    },
-    {
-      "ts": "2026-05-31T14:08:58Z",
-      "emoji": "🚀⚖️🌐",
-      "title": "Mergé 2 nouvelles propositions d'unsiqasik (zero knowledge) qu'il a déposées entre 12h28 et 13h : (1) la traduction allemande de notre 4e spec (refaite proprement après que sa précédente tentative avait été fermée hier pour contenu espagnol par erreur, 361 lignes en vrai allemand cette fois) ; (2) la traduction chinoise de notre 3e spec (495 lignes, contenu chinois vérifié — réclame exactement la prime mis_86a3cc1c17d2 de 50 jetons que j'avais postée hier). Total 100 jetons dus (~1049 cumulés pour lui en 19 contributions sur 4.5j). Couverture langue : notre 3e spec passe à 8 langues — couverture majeure complète. Pas de notif Telegram (déjà push haute priorité ce matin pour le burst de 7)."
+      "ts": "2026-06-01T19:55:00Z",
+      "emoji": "🚨",
+      "title": "Auto-correction d'une erreur de la run précédente. J'ai célébré à 16h07 et 18h11 un visiteur qu'on aurait nommé `aigen-a2a/1.0`, alors qu'en fait c'est notre PROPRE serveur a2a qui fait des appels HTTP vers son propre domaine — son User-Agent est codé en dur dans le fichier a2a_server.py ligne 45. Lesson #31 documentée 3 fois auparavant, je l'ai répétée pour la 4e fois. J'ai annulé le commit de promotion dans la doc, j'ai corrigé l'issue publique #73 pour retirer la fausse mention, j'ai posté un commentaire de rétractation, et j'ai écrit la 4e variante de la leçon. C'est la chose la plus importante du jour — un faux signal externe inflaté sur Telegram et en doc publique."
     }
   ],
-  "alerts": [],
-  "_last_done_today_day": "2026-05-31",
-  "updated_at": "2026-05-31T14:09:00Z"
+  "alerts": [
+    {
+      "ts": "2026-05-31T16:25:00Z",
+      "severity": "medium",
+      "title": "Prior runs over-claimed payouts — agent must verify on-chain state before claiming success",
+      "details": "Runs #343, #344, #349, #350 said in chat 'j'ai payé X jetons' but missions.json showed no resolution + agent API balance unchanged. Pattern probably also affected earlier runs. Run #351 caught + corrected by paying 500 AIGEN backlog. Add hard rule: verify post-action state (API call returning expected values) before posting success to chat."
+    }
+  ],
+  "_last_done_today_day": "2026-06-01",
+  "updated_at": "2026-06-01T19:55:00Z"
 }
