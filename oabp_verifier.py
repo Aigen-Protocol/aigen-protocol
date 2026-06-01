@@ -118,6 +118,139 @@ def verify_github_repo(proof, req_lang=None):
             "languages": detected, "readme": readme, "non_empty": non_empty}
 
 
+# ---------------------------------------------------------------------------
+# GoPlus safety-review oracle (added 2026-06-01, rebuilt after 05-31 revert).
+# Verifies a token safety review against real on-chain GoPlus data WITHOUT
+# executing anything. passed=True (review matches chain) / False (review lies)
+# / None (indeterminate -> never auto-reject). Solana + EVM.
+# ---------------------------------------------------------------------------
+_GOPLUS = "https://api.gopluslabs.io/api/v1"
+_EVM_RE = re.compile(r"0x[a-fA-F0-9]{40}")
+_SOL_RE = re.compile(r"\b[1-9A-HJ-NP-Za-km-z]{32,44}\b")
+_EVM_CHAINS = {"base": "8453", "bsc": "56", "binance": "56", "polygon": "137",
+               "arbitrum": "42161", "optimism": "10", "avalanche": "43114", "ethereum": "1"}
+
+
+def _goplus_json(url, timeout=12):
+    req = urllib.request.Request(url, headers={"User-Agent": "aigen-oracle/1.0",
+                                               "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode())
+
+
+def _extract_token(text):
+    text = text or ""
+    m = _EVM_RE.search(text)
+    if m:
+        return ("evm", m.group(0))
+    m = _SOL_RE.search(text)
+    if m:
+        return ("solana", m.group(0))
+    return (None, None)
+
+
+def _evm_chain_id(text):
+    t = (text or "").lower()
+    for name, cid in _EVM_CHAINS.items():
+        if name in t:
+            return cid
+    return "1"
+
+
+def _goplus_reality(chain, addr, mission_text):
+    if chain == "solana":
+        d = _goplus_json(_GOPLUS + "/solana/token_security?contract_addresses=" + addr)
+        res = (d.get("result") or {}).get(addr) or {}
+        if not res:
+            return None
+        return {
+            "mintable": str((res.get("mintable") or {}).get("status", "")) == "1",
+            "freezable": str((res.get("freezable") or {}).get("status", "")) == "1",
+            "honeypot": None,
+        }
+    cid = _evm_chain_id(mission_text)
+    a = addr.lower()
+    d = _goplus_json(_GOPLUS + "/token_security/" + cid + "?contract_addresses=" + a)
+    res = (d.get("result") or {}).get(a) or {}
+    if not res:
+        return None
+    return {
+        "mintable": str(res.get("is_mintable", "")) == "1",
+        "freezable": str(res.get("transfer_pausable", "")) == "1",
+        "honeypot": str(res.get("is_honeypot", "")) == "1",
+    }
+
+
+def _claim(p, pos, neg):
+    has_pos = any(k in p for k in pos)
+    has_neg = any(k in p for k in neg)
+    if has_pos and not has_neg:
+        return True
+    if has_neg and not has_pos:
+        return False
+    return None
+
+
+_MINT_POS = ["is mintable", "mintable: yes", "mintable=yes", "can be minted", "can mint more",
+             "mint authority is active", "mint authority active", "active mint authority",
+             "unlimited supply", "owner can mint", "supply can increase"]
+_MINT_NEG = ["mint authority revoked", "no active authority", "no mint authority", "not mintable",
+             "mintable: no", "mintable=no", "mint disabled", "renounced", "fixed supply",
+             "supply is fixed", "authority revoked"]
+_FREEZE_POS = ["freeze authority is active", "freeze authority active", "freezable: yes",
+               "can freeze", "can be frozen", "active freeze authority", "transfers can be paused"]
+_FREEZE_NEG = ["freeze authority revoked", "not freezable", "freezable: no", "no freeze authority",
+               "cannot freeze", "cannot be frozen"]
+_HP_POS = ["honeypot: yes", "is a honeypot", "is honeypot", "cannot sell", "can't sell", "unable to sell"]
+_HP_NEG = ["not a honeypot", "honeypot: no", "no honeypot", "can sell", "sellable"]
+
+
+def verify_safety_review(mission, submission):
+    """Validate a token safety review vs GoPlus on-chain reality."""
+    proof = (submission.get("proof", "") or "")
+    desc = mission.get("description", "") or ""
+    chain, addr = _extract_token(desc)
+    if not addr:
+        chain, addr = _extract_token(proof)
+    if not addr:
+        return {"passed": None, "reason": "no token address found to verify against"}
+    try:
+        reality = _goplus_reality(chain, addr, desc + " " + mission.get("title", ""))
+    except Exception as e:
+        return {"passed": None, "reason": "GoPlus unavailable: " + str(e)[:80]}
+    if not reality:
+        return {"passed": None, "reason": "GoPlus has no data for " + addr[:10]}
+    p = proof.lower()
+    claims = {
+        "mintable": _claim(p, _MINT_POS, _MINT_NEG),
+        "freezable": _claim(p, _FREEZE_POS, _FREEZE_NEG),
+        "honeypot": _claim(p, _HP_POS, _HP_NEG),
+    }
+    contradictions, matches = [], []
+    for dim, claimed in claims.items():
+        real = reality.get(dim)
+        if claimed is None or real is None:
+            continue
+        (matches if claimed == real else contradictions).append((dim, claimed, real))
+    short = addr[:8] + "…"
+    if contradictions:
+        dim, c, r = contradictions[0]
+        return {"passed": False, "goplus": reality,
+                "reason": "review LIES on " + dim + ": claims " + str(c) + " but GoPlus on-chain is " + str(r) + " (" + short + ")"}
+    if matches:
+        return {"passed": True, "goplus": reality,
+                "reason": "review matches GoPlus on " + ",".join(m[0] for m in matches) + " (" + short + ")"}
+    return {"passed": None, "goplus": reality, "reason": "no checkable on-chain claim in review (" + short + ")"}
+
+
+def _is_safety_mission(mission):
+    vp = mission.get("verification_params", {}) or {}
+    blob = (vp.get("regex", "") + " " + vp.get("oracle_description", "") + " "
+            + mission.get("title", "") + " " + mission.get("description", "")).lower()
+    return any(k in blob for k in ["safety review", "safety", "honeypot", "rug", "token security",
+                                   "mintable", "freeze authority", "mint authority", "verdict:"])
+
+
 def _is_repo_mission(mission):
     vp = mission.get("verification_params", {}) or {}
     blob = (vp.get("regex", "") + " " + vp.get("oracle_description", "") + " " + mission.get("description", "")).lower()
@@ -129,4 +262,6 @@ def verify_submission(mission, submission):
     proof = submission.get("proof", "") or ""
     if _is_repo_mission(mission):
         return verify_github_repo(proof, required_language(mission))
+    if _is_safety_mission(mission):
+        return verify_safety_review(mission, submission)
     return {"passed": None, "reason": "no automated verifier for this mission category yet"}

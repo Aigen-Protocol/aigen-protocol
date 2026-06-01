@@ -15,6 +15,7 @@ import sys
 import time
 import shutil
 import hashlib
+import json
 from datetime import datetime, timedelta, timezone
 
 STATE = "/home/luna/crypto-genesis/aigen/agent_autonomous/state"
@@ -22,6 +23,12 @@ ARCHIVE = "/home/luna/crypto-genesis/aigen/agent_autonomous/journal_archive"
 JOURNAL = f"{STATE}/journal.md"
 LESSONS = f"{STATE}/lessons.md"
 PUBLIC_DIGESTS = "/home/luna/crypto-genesis/aigen/reports"
+ROADMAP = f"{STATE}/roadmap.json"
+ROADMAP_HISTORY = f"{STATE}/roadmap_history.json"
+CHAT = f"{STATE}/chat.jsonl"
+CHAT_ARCHIVE = f"{STATE}/chat_archive.jsonl"
+ROADMAP_HISTORY_KEEP = 10   # completed_history items kept hot (read first every run)
+CHAT_KEEP = 40              # chat.jsonl messages kept hot (agent reads last ~20)
 
 os.makedirs(ARCHIVE, exist_ok=True)
 os.makedirs(PUBLIC_DIGESTS, exist_ok=True)
@@ -69,7 +76,7 @@ def consolidate_journal(force_emergency=False):
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=7)
 
-    if not force_emergency and size < 200_000 and now.weekday() != 4:  # Friday=4
+    if not force_emergency and size < 60_000 and now.weekday() != 4:  # Friday=4
         print(f"journal size {size} bytes, not Friday, skipping")
         return
 
@@ -231,9 +238,65 @@ def dedupe_lessons():
         print(f"deduped lessons: {len(sections)} → {len(deduped)} sections")
 
 
+def compact_roadmap():
+    """roadmap.json is read FIRST every run; completed_history is cold archive data.
+    Keep the last ROADMAP_HISTORY_KEEP, overflow the rest to roadmap_history.json.
+    Atomic; the agent carries forward only the trimmed list, so it stays small."""
+    if not os.path.exists(ROADMAP):
+        return
+    try:
+        with open(ROADMAP) as f:
+            d = json.load(f)
+    except Exception as e:
+        print(f"roadmap: parse error, skipping ({e})")
+        return
+    hist = d.get("completed_history")
+    if not isinstance(hist, list) or len(hist) <= ROADMAP_HISTORY_KEEP:
+        print("roadmap: completed_history small, no compaction")
+        return
+    overflow, keep = hist[:-ROADMAP_HISTORY_KEEP], hist[-ROADMAP_HISTORY_KEEP:]
+    archive = []
+    if os.path.exists(ROADMAP_HISTORY):
+        try:
+            with open(ROADMAP_HISTORY) as f:
+                archive = json.load(f)
+        except Exception:
+            archive = []
+    archive.extend(overflow)
+    with open(ROADMAP_HISTORY + ".tmp", "w") as f:
+        json.dump(archive, f)
+    os.rename(ROADMAP_HISTORY + ".tmp", ROADMAP_HISTORY)
+    d["completed_history"] = keep
+    with open(ROADMAP + ".tmp", "w") as f:
+        json.dump(d, f, indent=2)
+    os.rename(ROADMAP + ".tmp", ROADMAP)
+    print(f"roadmap: archived {len(overflow)} completed_history items "
+          f"(roadmap.json now {os.path.getsize(ROADMAP)} bytes, archive {len(archive)} total)")
+
+
+def compact_chat():
+    """Keep chat.jsonl to the last CHAT_KEEP messages; overflow to chat_archive.jsonl."""
+    if not os.path.exists(CHAT):
+        return
+    with open(CHAT) as f:
+        lines = [l for l in f if l.strip()]
+    if len(lines) <= CHAT_KEEP:
+        print("chat: small, no compaction")
+        return
+    overflow, keep = lines[:-CHAT_KEEP], lines[-CHAT_KEEP:]
+    with open(CHAT_ARCHIVE, "a") as f:
+        f.writelines(overflow)
+    with open(CHAT + ".tmp", "w") as f:
+        f.writelines(keep)
+    os.rename(CHAT + ".tmp", CHAT)
+    print(f"chat: archived {len(overflow)} messages (chat.jsonl now {os.path.getsize(CHAT)} bytes)")
+
+
 if __name__ == "__main__":
     force = "--force" in sys.argv
     consolidate_journal(force_emergency=force)
     dedupe_lessons()
+    compact_roadmap()
+    compact_chat()
     if datetime.now(timezone.utc).weekday() == 4 or force:
         emit_weekly_digest()

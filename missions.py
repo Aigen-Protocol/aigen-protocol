@@ -535,6 +535,10 @@ def confirm_funding(mission_id: str, tx_hash: str) -> dict:
         return {"error": "tx_hash must be EVM 0x-hex (64 chars) or Solana base58 signature"}
 
     d = load()
+    # anti-replay: a deposit tx can fund at most one mission
+    for _mm in d["missions"]:
+        if (_mm.get("reward") or {}).get("deposit_tx") == tx_hash:
+            return {"error": f"deposit tx already used to fund mission {_mm['id']}"}
     for m in d["missions"]:
         if m["id"] != mission_id:
             continue
@@ -668,6 +672,9 @@ def submit(submitter_agent_id: str, mission_id: str, proof: str,
             return {"error": "creator cannot submit to their own mission"}
         if m["min_submitter_elo"] > 0 and _elo(submitter_agent_id) < m["min_submitter_elo"]:
             return {"error": f"reputation ELO {_elo(submitter_agent_id)} below required {m['min_submitter_elo']}"}
+        _gate = _required_tier_for_mission(m)
+        if _gate > 0 and _tier(submitter_agent_id)[0] < _gate:
+            return {"error": f"mission requires reputation tier '{_TIER_NAMES[_gate]}' (yours: '{_tier(submitter_agent_id)[1]}') — earn AIGEN on smaller missions first"}
         if any(s["submitter"] == submitter_agent_id for s in m["submissions"]):
             return {"error": "you already submitted to this mission"}
 
@@ -880,6 +887,14 @@ def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> d
         to_cs = Web3.to_checksum_address(to_wallet)
         nonce = w3.eth.get_transaction_count(me, "pending")
 
+        # --- payout safety guards (defense-in-depth before real-money send) ---
+        if currency == "USDC" and int(amount) > 1_000_000_000:
+            return {"error": "payout exceeds USDC hard cap (1000 USDC)"}
+        if currency == "ETH" and int(amount) > 5 * 10**17:
+            return {"error": "payout exceeds ETH hard cap (0.5 ETH)"}
+        if currency == "ETH" and w3.eth.get_balance(me) < int(amount):
+            return {"error": "treasury ETH balance below payout amount"}
+
         if currency == "ETH":
             tx = {"from": me, "to": to_cs, "value": int(amount), "nonce": nonce,
                   "gas": 21000,
@@ -898,7 +913,11 @@ def _onchain_payout(currency: str, chain: str, to_wallet: str, amount: int) -> d
                 {"name":"transfer","type":"function","stateMutability":"nonpayable",
                  "inputs":[{"name":"to","type":"address"},{"name":"amt","type":"uint256"}],
                  "outputs":[{"name":"","type":"bool"}]},
+                {"name":"balanceOf","type":"function","stateMutability":"view",
+                 "inputs":[{"name":"a","type":"address"}],"outputs":[{"name":"","type":"uint256"}]},
             ])
+            if erc20.functions.balanceOf(me).call() < int(amount):
+                return {"error": "treasury USDC balance below payout amount"}
             fn = erc20.functions.transfer(to_cs, int(amount))
             try:
                 gas = fn.estimate_gas({"from": me})
@@ -1094,6 +1113,17 @@ def _pay_winner(m: dict, winner_sub: dict) -> dict:
     r = m["reward"]
     currency = r["currency"]
     gross = r["amount"]
+    # --- anti-farm guards (added 2026-05-29) ---
+    # A: protocol-internal agents never receive AIGEN rewards (kills self-dealing).
+    # B: first_valid_match is a spam-prone race -> zero net AIGEN payout (kills farm EV).
+    if currency == "AIGEN":
+        _wid = (winner_sub.get("submitter") or "").lower()
+        _internal = _wid.startswith(("aigen", "treasury", "autopilot")) or _wid.endswith("-probe")
+        _verified = (winner_sub.get("oracle_check") or {}).get("passed") is True
+        if _internal or (m.get("verification_type") == "first_valid_match" and not _verified):
+            return {"ok": True, "currency": "AIGEN", "gross": gross, "net": 0, "fee": 0,
+                    "credited_to": None,
+                    "blocked": "internal-agent" if _internal else "first_valid_race"}
     net, fee = _split_with_fee(gross)
 
     # Persist split on the reward block for transparency
@@ -1230,6 +1260,8 @@ def resolve(mission_id: str) -> dict:
         # Different types have different "ready to resolve" conditions
         if vt == "first_valid_match":
             result = _resolve_first_valid(d, m, now)
+        elif vt == "oracle":
+            result = _resolve_oracle(d, m, now)
         elif vt == "peer_vote":
             if now < m["deadline"]:
                 return {"error": "voting window not over", "deadline": m["deadline"], "now": now}
@@ -1264,13 +1296,85 @@ def resolve(mission_id: str) -> dict:
     return {"error": "mission not found"}
 
 
+def _oracle_verify(m: dict, s: dict) -> dict:
+    """Real verification of a submission (no code execution). Returns
+    {passed: True|False|None, reason}. None = indeterminate -> retry, do not reject."""
+    try:
+        import sys as _sys
+        if "/home/luna/crypto-genesis/aigen" not in _sys.path:
+            _sys.path.insert(0, "/home/luna/crypto-genesis/aigen")
+        import oabp_verifier
+        return oabp_verifier.verify_submission(m, s)
+    except Exception as e:
+        return {"passed": None, "reason": f"verifier unavailable: {e}"}
+
+
+def _resolve_oracle(d: dict, m: dict, now: int) -> dict:
+    """First submission that PASSES real verification wins (paid via _pay_winner,
+    which enforces anti-farm guards). Failed = rejected; indeterminate = retried."""
+    subs_sorted = sorted(m["submissions"], key=lambda s: s["submitted_at"])
+    winner = None
+    pending_left = False
+    changed = False
+    for s in subs_sorted[:3]:
+        if s.get("status") in ("rejected", "winner"):
+            continue
+        res = _oracle_verify(m, s)
+        s["oracle_check"] = {"passed": res.get("passed"), "reason": res.get("reason"), "checked_at": now}
+        changed = True
+        if res.get("passed") is True:
+            winner = s
+            break
+        elif res.get("passed") is False:
+            s["status"] = "rejected"
+        else:
+            pending_left = True
+    if winner:
+        pay = _pay_winner(m, winner)
+        if "error" in pay:
+            save(d)
+            return {"error": f"payout failed: {pay['error']}"}
+        winner["status"] = "winner"
+        for s in m["submissions"]:
+            if s["id"] != winner["id"] and s.get("status") != "winner":
+                s["status"] = "rejected"
+        m["status"] = "resolved"
+        m["resolution"] = {"type": "oracle", "winner_submission_id": winner["id"],
+                           "winner_agent_id": winner["submitter"], "payout": pay, "resolved_at": now}
+        d["resolved"] = d.get("resolved", 0) + 1
+        if m["reward"]["currency"] == "AIGEN":
+            d["lifetime_reward_aigen_paid"] = d.get("lifetime_reward_aigen_paid", 0) + pay.get("net", 0)
+        _record_fee_collected(d, m["reward"]["currency"], pay.get("fee", 0))
+        save(d)
+        return {"ok": True, "winner": winner["submitter"], "payout": pay, "verified": True}
+    if now >= m["deadline"] and not pending_left:
+        refund = _refund_creator_onchain(m)
+        m["status"] = "voided"
+        m["resolution"] = {"type": "oracle", "outcome": "VOID_NO_VERIFIED_SUBMISSION",
+                           "creator_refund": refund, "resolved_at": now}
+        d["voided"] = d.get("voided", 0) + 1
+        save(d)
+        return {"ok": True, "outcome": "VOID_NO_VERIFIED_SUBMISSION", "creator_refund": refund}
+    if changed:
+        save(d)
+    return {"error": "no verified submission yet", "pending": pending_left}
+
+
 def _resolve_first_valid(d: dict, m: dict, now: int) -> dict:
     rx = m["verification_params"].get("regex", "")
     pattern = re.compile(rx) if rx else None
     subs_sorted = sorted(m["submissions"], key=lambda s: s["submitted_at"])
     winner = None
     for s in subs_sorted:
+        if s.get("status") == "rejected":
+            continue
         if pattern and pattern.search(s["proof"]):
+            v = _oracle_verify(m, s)  # real-verification gate (GoPlus for safety reviews)
+            if v.get("passed") is False:
+                s["status"] = "rejected"
+                s["oracle_check"] = {"passed": False, "reason": v.get("reason"), "checked_at": now}
+                continue
+            s["oracle_check"] = {"passed": v.get("passed"), "reason": v.get("reason"), "checked_at": now}
             winner = s
             break
 
@@ -1487,6 +1591,115 @@ def list_open(limit: int = 100) -> list:
     return [m for m in d["missions"] if m["status"] == "open" and now < m["deadline"]][:limit]
 
 
+# ---------- reputation tiers + leaderboard (AIGEN = engagement/reputation) ----------
+_TIER_THRESHOLDS = [0, 100, 1000, 10000]
+_TIER_NAMES = ["Newcomer", "Contributor", "Trusted", "Elite"]
+
+
+def _tier(agent_id: str):
+    bal = _balance(agent_id)
+    t = 0
+    for i, thr in enumerate(_TIER_THRESHOLDS):
+        if bal >= thr:
+            t = i
+    return t, _TIER_NAMES[t]
+
+
+def _required_tier_for_mission(m: dict) -> int:
+    # Only AIGEN-reward missions are reputation-gated; reward size sets the bar.
+    if (m.get("reward") or {}).get("currency") != "AIGEN":
+        return 0
+    amt = (m.get("reward") or {}).get("amount", 0)
+    if amt >= 1000:
+        return 2
+    if amt >= 200:
+        return 1
+    return 0
+
+
+def leaderboard(limit: int = 20, include_internal: bool = False) -> dict:
+    L = _ledger()
+    agents = L.get("agents", {})
+
+    def _intern(a):
+        a = (a or "").lower()
+        return a.startswith(("aigen", "treasury", "autopilot")) or a.endswith("-probe")
+
+    def _tier_name(bal):
+        t = 0
+        for i, thr in enumerate(_TIER_THRESHOLDS):
+            if bal >= thr:
+                t = i
+        return _TIER_NAMES[t]
+    rows = []
+    for aid, v in agents.items():
+        if not include_internal and _intern(aid):
+            continue
+        bal = v.get("balance", 0)
+        if bal <= 0 and v.get("total_earned", 0) <= 0:
+            continue
+        rows.append({"agent": aid, "aigen": bal, "total_earned": v.get("total_earned", 0),
+                     "tier": _tier_name(bal), "actions": v.get("actions", 0)})
+    rows.sort(key=lambda r: (-r["aigen"], -r["total_earned"]))
+    out = rows[:limit]
+    for i, r in enumerate(out):
+        r["rank"] = i + 1
+        try:
+            r["elo"] = _elo(r["agent"])
+        except Exception:
+            r["elo"] = None
+    return {"count": len(rows), "leaderboard": out}
+
+
+def tokenomics() -> dict:
+    # Transparent net-issuance view of the uncapped AIGEN reputation ledger (read-only).
+    L = _ledger()
+    agents = L.get("agents", {})
+    balances = {a: v.get("balance", 0) for a, v in agents.items()}
+    circulating = sum(balances.values())
+    lifetime_emitted = L.get("total_distributed", 0)
+    try:
+        lifetime_burned = load().get("lifetime_spam_fees_burned", 0)
+    except Exception:
+        lifetime_burned = 0
+
+    def _intern(a):
+        a = (a or "").lower()
+        return a.startswith(("aigen", "treasury", "autopilot")) or a.endswith("-probe")
+
+    internal_held = sum(b for a, b in balances.items() if _intern(a))
+    ranked = sorted(((b, a) for a, b in balances.items() if b > 0), reverse=True)
+    top5 = ranked[:5]
+    return {
+        "model": "uncapped reputation ledger (off-chain); intradable by design; NOT a tradeable asset",
+        "supply": {
+            "lifetime_emitted": lifetime_emitted,
+            "lifetime_burned": lifetime_burned,
+            "circulating": circulating,
+            "burn_ratio_pct": round(lifetime_burned / lifetime_emitted * 100, 3) if lifetime_emitted else 0,
+        },
+        "holders": {
+            "count": sum(1 for b in balances.values() if b > 0),
+            "internal_held": internal_held,
+            "external_held": circulating - internal_held,
+            "internal_share_pct": round(internal_held / circulating * 100, 1) if circulating else 0,
+            "top1_share_pct": round(top5[0][0] / circulating * 100, 1) if circulating and top5 else 0,
+            "top5_share_pct": round(sum(b for b, _ in top5) / circulating * 100, 1) if circulating else 0,
+            "top5": [{"agent": a, "balance": b} for b, a in top5],
+        },
+        "onchain_ref": {
+            "note": "ledger AIGEN is NOT backed by/convertible to the on-chain token",
+            "token": "0xF6EFc5D5902d1a0ce58D9ab1715Cf30f077D8f6e",
+            "chain": "optimism (vestigial; roadmap: Base)",
+        },
+        "discipline": {
+            "note": "uncapped holds value ETH-style only if sinks+burn ~= emission",
+            "sinks_active": ["mission_creation_spam_fee"],
+            "sinks_todo": ["submitter_stake", "access_gating", "scaled_burn"],
+        },
+    }
+
+
 def list_due_for_resolution(limit: int = 100) -> list:
     """Missions ready to be resolved (anyone can call resolve)."""
     d = load()
@@ -1513,6 +1726,9 @@ def list_due_for_resolution(limit: int = 100) -> list:
                         pass
         elif vt == "creator_judges" and now >= m.get("judge_deadline", 0):
             out.append(m)
+        elif vt == "oracle":
+            if now >= m["deadline"] or any(s.get("status") == "pending" for s in m["submissions"]):
+                out.append(m)
     return out[:limit]
 
 
