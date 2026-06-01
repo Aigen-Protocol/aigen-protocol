@@ -4,10 +4,18 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Correction publique d'un faux positif majeur — 4e variante de la leçon #31 (207.148.107.2 = notre propre IP). Commit revert poussé, issue publique corrigée, leçon renforcée."
+    "progress_note": "Blog post #2 rédigé (blog/2026-06-01-first-external-contributors.md). Bug /api/submissions réparé. PR #70 reviewé. Agentexchange.work GPTBot signal capté."
   },
   "in_progress": [],
   "waiting_on_bilale": [
+    {
+      "id": "ruby_mission_manual_reject",
+      "title": "ORACLE — Rejeter manuellement 3 soumissions invalides pour mission Ruby (mis_4d7f00fac5f8)",
+      "details": "Sub 1 (lobsterai-agent): paste.rs/KGCF5 = Python Hedera agent, pas Ruby. Sub 2 (lobsterai): même paste = Python. Sub 3 (stark-orchestrator): Ruby mais OAuth inutile + endpoints manquants + pas publié sur rubygems.org. Approuver option A (rejet) / B (void) / C (laisser expirer dans 18j). Carte d'approbation: approval_queue/20260601-2110-ruby-mission-manual-reject.md",
+      "optimal_when": "Quand tu regardes les PRs unsiqasik",
+      "blocking_what": "3 soumissions invalides polluent la mission, mais la mission se void auto dans 18j si pas d'action",
+      "added": "2026-06-01T21:10:00Z"
+    },
     {
       "id": "wallet_rebind_unsiqasik",
       "title": "🚨 HAUTE PRIORITÉ — wallet-rebind unsiqasik (1249 AIGEN) : PROOF DÉJÀ PUBLIC sur 5 PRs",
@@ -235,6 +243,76 @@
       "ts": "2026-06-01T19:55:00Z",
       "emoji": "🚨",
       "title": "Auto-correction d'une erreur de la run précédente. J'ai célébré à 16h07 et 18h11 un visiteur qu'on aurait nommé `aigen-a2a/1.0`, alors qu'en fait c'est notre PROPRE serveur a2a qui fait des appels HTTP vers son propre domaine — son User-Agent est codé en dur dans le fichier a2a_server.py ligne 45. Lesson #31 documentée 3 fois auparavant, je l'ai répétée pour la 4e fois. J'ai annulé le commit de promotion dans la doc, j'ai corrigé l'issue publique #73 pour retirer la fausse mention, j'ai posté un commentaire de rétractation, et j'ai écrit la 4e variante de la leçon. C'est la chose la plus importante du jour — un faux signal externe inflaté sur Telegram et en doc publique."
+    },
+    {
+      "ts": "2026-06-01T20:08:00Z",
+      "emoji": "👀",
+      "title": "mcp-spider/0.2 (résidentiel Slovène) 2e visite à 20m04s exactes du premier — vérifié externe (grep + IP), promu low→medium en interne, attente du 3e passage avant promotion publique."
+    },
+    {
+      "ts": "2026-06-01T20:38:00Z",
+      "emoji": "👀",
+      "title": "PRÉDICTION FALSIFIÉE — mcp-spider/0.2 3e hit attendu à 20:22:50Z (±90s) n'a pas eu lieu. 35 min de silence depuis le 2e burst. Hypothèse 'cadence 20-min' partiellement invalidée. Disciplinairement post-rétractation : pas de promotion docs, pas de commit, pas de Telegram (négatif). Watching-only #2/2 — j'ai pré-engagé dans le journal le choix pour le run #368 (item 1 du always_available_work : paragraphe diagnostic 2-hit-then-silence dans SECOND_IMPLEMENTATION.md)."
+    },
+    {
+      "ts": "2026-06-01T20:46:00Z",
+      "emoji": "🚀",
+      "title": "Section 'Reading your log: two diagnostic pitfalls' ajoutée à docs/SECOND_IMPLEMENTATION.md (commit e850447, +12 lignes). Distille les 2 erreurs d'aujourd'hui en discipline forker-facing : (1) 2-hits-puis-silence ≠ cadence (exemple mcp-spider concret avec timestamps), (2) UA de notre propre serveur sortant ressemble à du trafic externe dans nginx (vérification 3-étapes grep+IP+rDNS). Compteur watching-only réinitialisé. Ecosystem Menu D9 (forker pitfalls/checklist)."
+    },
+    {
+      "ts": "2026-06-01T21:10:00Z",
+      "emoji": "⚖️",
+      "title": "Oracle check sur mission Ruby — 3 soumissions toutes invalides (mauvaise langue / endpoints manquants / non publié). Mission reste ouverte, carte d'approbation écrite pour rejet manuel."
+    },
+    {
+      "ts": "2026-06-01T21:10:00Z",
+      "emoji": "🌐",
+      "title": "Nouvelle mission AIGEN postée : client Go (Golang) pour AIP-1 — 200 jetons de récompense, vérificateur automatique GitHub actif (mis_2bbc63696ffd)."
+    },
+    {
+      "ts": "2026-06-01T21:37:58Z",
+      "emoji": "💬",
+      "title": "Commentaire substantiel sur CrewAI issue #5832 — répondu à supertrained: champs ProviderProfile pré-commit (payout_success_rate, escrow_verifier_url, dispute_resolution). Contribution technique, pas promotionnelle."
+    },
+    {
+      "ts": "2026-06-01T21:37:58Z",
+      "emoji": "📡",
+      "title": "AgenstryBot élargi à /.well-known/agent-directory.json (nouveau chemin, 200 OK). Cloudflare MCP sessions actives 21:02Z+21:31Z."
+    },
+    {
+      "ts": "2026-06-01T22:08:23Z",
+      "emoji": "🌐",
+      "title": "Nouvelle mission LangChain postée (300 AIGEN) — étend notre présence à l'écosystème LangChain"
+    },
+    {
+      "ts": "2026-06-01T22:45:00Z",
+      "emoji": "⚙️",
+      "title": "Bug fix: /api/submissions TypeError réparé — 2382 soumissions accessibles à nouveau (scanner redémarré)"
+    },
+    {
+      "ts": "2026-06-01T22:46:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire issue #73 — nouveau visiteur 'node' depuis San Jose comme preuve empirique pour §7.5 (naming UA)"
+    },
+    {
+      "ts": "2026-06-01T22:47:00Z",
+      "emoji": "💬",
+      "title": "Revue PR #70 zeroknowledge0x — MCP lifecycle contract, prêt à merger, recommandation + 75 AIGEN"
+    },
+    {
+      "ts": "2026-06-01T22:59:00Z",
+      "emoji": "📡",
+      "title": "Premier contact Meta AI — meta-externalagent/1.1 a visité notre endpoint A2A depuis Facebook (AS32934)"
+    },
+    {
+      "ts": "2026-06-01T23:08:21Z",
+      "emoji": "🚀",
+      "title": "Blog post #2 rédigé : 'Three weeks, 21 contributions: lessons from AIGEN's first external sprint' — couvre la progression wrapper→traduction→client→amendement de spec, le bug /api/submissions, et la couche découverte non-humaine (Agenstry, Waggle, GPTBot via agentexchange.work)."
+    },
+    {
+      "ts": "2026-06-01T23:08:21Z",
+      "emoji": "📡",
+      "title": "GPTBot/1.4 à 22h23 avec referrer agentexchange.work — on est listé dans leur annuaire 23K bots (x402/Base). Signal confirmé par l'en-tête HTTP, pas visible sur la homepage HTML."
     }
   ],
   "alerts": [
@@ -246,5 +324,5 @@
     }
   ],
   "_last_done_today_day": "2026-06-01",
-  "updated_at": "2026-06-01T19:55:00Z"
+  "updated_at": "2026-06-01T23:08:21Z"
 }
