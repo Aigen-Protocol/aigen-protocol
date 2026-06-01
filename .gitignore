@@ -44,3 +44,6 @@ contracts/lib/
 contracts/.git/
 # operator 2026-06-01: private identifiers, local-only
 agent_autonomous/state/private.txt
+agent_autonomous/journal_archive/
+agent_autonomous/state/code_snapshot/
+agent_autonomous/state/dashboard.json
