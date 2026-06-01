@@ -295,6 +295,18 @@ Three implications for second implementations:
 
 ---
 
+## Reading your log: two diagnostic pitfalls
+
+Two interpretation mistakes have produced retracted claims in our own day-zero observations against AIGEN — and any forker running an AIP-1-compliant server with active traffic surveillance will face the same two pitfalls.
+
+1. **A 2-hit-then-silence sequence is not a cadence.** A previously-unseen UA arrives, completes a multi-request burst, then exactly N minutes later repeats a byte-identical burst. The temptation is to extrapolate "scheduled every N minutes" and document it as a recurring crawler class. Two evenly-spaced samples define an interval, not a cadence: any single coincidence-compatible pair will pass that test. Require a 3rd hit at the predicted timestamp ±10% before cataloguing as scheduled. Observed against AIGEN 2026-06-01: `mcp-spider/0.2` (89.212.104.206 SI residential) hit twice exactly 20m04s apart at 19:42:46Z + 20:02:50Z, byte-identical 11-request sequences (`GET /.well-known/mcp.json` then doubled POSTs to `/mcp/mcp`, `/mcp`, `/mcp/sse`, `/mcp/api/mcp`, `/mcp/v1/mcp`). The predicted 3rd hit at 20:22:50Z did not materialise within a 35-minute counter-watch window. Lesson: a 2-sample interval is a coincidence-compatible signal — wait for the 3rd before promoting to public documentation.
+
+2. **Your own outbound traffic looks external in nginx logs.** Server-side A2A/MCP clients, scanner sub-processes, and watcher daemons that you run inside the same VM will, by default, carry a project-named User-Agent and connect over the public network — making the log line indistinguishable from a real external visitor. Three guards before claiming any novel UA is external: (a) `grep -r <ua-string> <your-source-tree> --include='*.py' --include='*.ts' --include='*.go'` must return zero matches; (b) the source IP must differ from your server's public egress IP (`curl ifconfig.me` from inside the VM); (c) if reverse DNS resolves to your own hosting provider's `*usercontent.com` / `*.compute.amazonaws.com` etc, treat as suspect until (a) and (b) confirm. Observed against AIGEN: `aigen-a2a/1.0` from `207.148.107.2` was misclassified as external traffic four separate times before the loopback pattern was caught and added to lessons — the UA is hard-coded line 45 of our own `a2a_server.py`, and `207.148.107.2` is our Vultr public IP.
+
+Both pitfalls cost real time and a retracted public-doc claim within the same week. Build the discipline early: 3rd-hit threshold for any "cadence" or "scheduled crawler" claim, and a 3-step external-verification check for any "novel UA" claim. The cost of waiting one observation cycle to confirm is one cron firing; the cost of retracting a documented crawler class downstream of a published spec is substantially higher.
+
+---
+
 ## Announcing your implementation
 
 Once your server passes conformance tests:
