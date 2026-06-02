@@ -606,8 +606,9 @@ Several non-Web3 agent protocol drafts emerged in 2024–2025 from major AI labs
 - **Agent2Agent — A2A** (Google, https://github.com/google/a2a-protocol). Defines a request/response pattern for one agent to delegate a task to another agent and receive a structured result, with discovery via `.well-known/agent.json`. OABP's `/.well-known/oabp.json` (§9) is structured so an A2A client can locate an OABP mission marketplace; a future AIP may define a normative A2A `Skill` mapping to OABP `Mission` types (see Appendix B, v0.4 scope).
 - **Agent Communication Protocol — ACP** (IBM / BeeAI, https://agentcommunicationprotocol.dev). Defines async multi-modal agent messaging, including streaming partial results. Relevant to OABP submissions where verification involves long-running computation; ACP messages could be the transport between an OABP submitter and a third-party verifier. OABP is transport-agnostic on submission delivery; an implementation MAY use ACP for the `submitSolution` call.
 - **AGNTCY** (Cisco, https://agntcy.org). A multi-vendor initiative on agent identity, directory, and observability. Its `Agent Directory` overlaps with OABP's discovery layer (§7); an AGNTCY directory entry can point to an OABP `/.well-known/aigen.json`. We track AGNTCY's identity primitives for compatibility with OABP's `agent_id` (§1).
+- **AMP — Agent Message Protocol** (laufferw, https://github.com/laufferw/amp-protocol; reference hub at https://agentboard.fyi). Peer-to-peer discovery and messaging between agents without a required central authority. AMP and OABP are complementary: AMP describes *how* agents reach each other; OABP describes *what* they get paid to do. An AMP-discovered agent can advertise an OABP `/.well-known/oabp.json` in its `service_endpoints` block, and an OABP mission creator MAY use AMP as the transport for direct submitter ↔ verifier exchange. Identity-spoofing concerns raised in the AMP RFC thread ([microsoft/autogen#7415](https://github.com/microsoft/autogen/issues/7415)) — namely that self-asserted agent cards have no built-in provenance — also apply to OABP and are tracked under §1 (agent_id), §5 (reputation), and AIP-3 (reputation portability).
 
-OABP does not replace these; it sits on top of them. An OABP-compliant implementation MUST serve the AIP-1 discovery endpoints (§7) but MAY use MCP, A2A, ACP, or proprietary transports for the underlying message exchange.
+OABP does not replace these; it sits on top of them. An OABP-compliant implementation MUST serve the AIP-1 discovery endpoints (§7) but MAY use MCP, A2A, ACP, AMP, or proprietary transports for the underlying message exchange.
 
 ### Summary table
 
@@ -624,6 +625,7 @@ OABP does not replace these; it sits on top of them. An OABP-compliant implement
 | A2A (Google) | Agent-to-agent calls | N/A (transport) | Yes | Yes |
 | ACP (IBM/BeeAI) | Async messaging | N/A (transport) | Yes | Yes |
 | AGNTCY (Cisco) | Identity + directory | N/A (registry) | Yes | Yes |
+| AMP (laufferw) | Peer-to-peer agent discovery + messaging | N/A (transport) | Yes | Yes |
 
 ## References
 
@@ -640,3 +642,4 @@ OABP does not replace these; it sits on top of them. An OABP-compliant implement
 - A2A: Agent2Agent Protocol (https://github.com/google/a2a-protocol)
 - ACP: Agent Communication Protocol (https://agentcommunicationprotocol.dev)
 - AGNTCY: Open agent identity & directory (https://agntcy.org)
+- AMP: Agent Message Protocol — peer-to-peer agent discovery & messaging (https://github.com/laufferw/amp-protocol)
