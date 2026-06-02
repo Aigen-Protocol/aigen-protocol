@@ -2,17 +2,18 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.6
+**Status:** v0.3.7
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-31
+**Updated:** 2026-06-02
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.7 | 2026-06-02 | §7.5 (normative): Client Identification — §7.5.1 SHOULD format for `User-Agent` (`<name>/<version> (+<url>)`); §7.5.2 SHOULD NOT use UA as access-control or routing trust anchor (hint-not-anchor). Evidence: 14+ distinct UA cohorts observed across 2026-05-18–06-02; three cohorts (relay-registry/1.0, Waggle/1.0, mcp-rugpull-research/1.0) rotate IPs while keeping stable UA, confirming UA = observability hint, not identity anchor. Co-authored with external contributor 0xbrainkid (issue #73). |
 | v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
@@ -372,6 +373,16 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The liveness probe (§7.3.4) has been confirmed by two independent clients: `52.151.51.77` at 2026-05-20T16:33Z and `44.234.59.95` (python-httpx/0.28.1, AWS us-west-2) at 2026-05-20T22:03Z — both issued `GET /mcp` after DELETE and received `200 5B` from the reference implementation. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
 
 **Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
+
+#### 7.5 Client Identification
+
+OABP clients operate across a three-layer identification model: `User-Agent` header (legibility/observability), signed discoverable metadata (identity), and operator-defined policy (routing). This section is normative for layer 1; layers 2–3 are TBD in AIP-3.
+
+**§7.5.1** — OABP clients SHOULD include a `User-Agent` header of the form `<name>/<version> (+<url>)` on all HTTP transport requests. `<name>` SHOULD be the implementation name; `<version>` SHOULD be the semantic version; `+<url>` is OPTIONAL and SHOULD point to a machine-readable agent card or documentation. Example: `MyAgent/1.2.0 (+https://example.com/.well-known/agent-card.json)`.
+
+**§7.5.2** — `User-Agent` strings SHOULD NOT be used as access-control or routing trust anchors. They are observability hints, spoofable by design. For client identity beyond legibility, implementations SHOULD use signed discoverable metadata (see §8 agent card — client attestation is TBD in AIP-3) rather than the `User-Agent` header.
+
+*Empirical basis*: Cross-architecture analysis of 14+ distinct client user-agents observed on the AIGEN reference server (2026-05-18 to 2026-06-02) shows consistent correlation between well-formed UA strings and successful session completion. Three independent client cohorts (relay-registry/1.0, Waggle/1.0, mcp-rugpull-research/1.0) rotate IP addresses between sessions while maintaining a stable UA — confirming UA as a useful observability signal, not a reliable identity anchor. §7.5.2 prevents a recurring production failure mode: rate-limiting or access-control keyed on UA strings, which breaks any client that legitimately rotates IPs or runs behind a proxy. *Co-authored with external contributor 0xbrainkid (issue #73, 2026-06-02).*
 
 ### 8. Open API Schema
 
