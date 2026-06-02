@@ -1,0 +1,50 @@
+{
+  "name": "@aigen/mastra-oabp",
+  "version": "0.1.0",
+  "description": "Mastra (TS) tool definitions and an agent for the OABP / AIGEN agent-bounty protocol: list/get/create/submit missions, stats, reputation, and A2A messaging.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/",
+    "example": "tsx examples/agent.ts"
+  },
+  "keywords": [
+    "mastra",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "tools",
+    "a2a",
+    "mcp",
+    "zod"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@mastra/core": ">=0.10.0"
+  },
+  "dependencies": {
+    "@mastra/core": ">=0.10.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@ai-sdk/openai": "^1.0.0",
+    "@types/node": "^25.9.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
+}

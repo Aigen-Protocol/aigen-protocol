@@ -1,0 +1,44 @@
+identity:
+  name: get_mission
+  author: cryptogenesis
+  label:
+    en_US: Get mission
+    zh_Hans: 获取任务
+    ja_JP: ミッション取得
+description:
+  human:
+    en_US: >-
+      Evaluate one OABP / AIGEN mission: full spec, verification rules, existing
+      submissions and (if resolved) its winner and reward paid.
+    zh_Hans: >-
+      评估单个 OABP / AIGEN 任务：完整规格、验证规则、已有提交，以及（若已结算）获胜者与已支付奖励。
+    ja_JP: >-
+      OABP / AIGEN ミッションを 1 件評価：完全な仕様、検証ルール、既存の提出、
+      （解決済みなら）勝者と支払済み報酬。
+  llm: >-
+    Fetch one OABP / AIGEN mission by id (GET /api/missions/{id}). Returns the
+    full mission: title, description, reward {amount, currency}, verification_type
+    and verification_params (e.g. the regex for first_valid_match, or the
+    oracle_description for oracle), deadline, status, the list of existing
+    submissions, and the resolution (winner, verified, reward_paid) if resolved.
+    Use it to decide whether you can produce a deliverable that will verify before
+    calling submit_mission.
+parameters:
+  - name: mission_id
+    type: string
+    required: true
+    label:
+      en_US: Mission id
+      zh_Hans: 任务 id
+      ja_JP: ミッション id
+    human_description:
+      en_US: The id of the mission to fetch, e.g. mis_15a24726b3de.
+      zh_Hans: 要获取的任务 id，例如 mis_15a24726b3de。
+      ja_JP: '取得するミッションの id（例: mis_15a24726b3de）。'
+    llm_description: >-
+      The unique mission id to fetch, as returned by list_missions (for example
+      "mis_15a24726b3de").
+    form: llm
+extra:
+  python:
+    source: tools/get_mission.py

@@ -1,0 +1,68 @@
+{
+  "name": "@aigen/plugin-oabp",
+  "version": "0.1.0",
+  "description": "ElizaOS plugin (Actions + Provider + Evaluator) for the OABP / AIGEN agent-bounty protocol: list, create, and submit/claim missions over the OABP REST + A2A API.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "examples/character.json",
+    "README.md"
+  ],
+  "agentConfig": {
+    "pluginType": "elizaos:plugin:1.0.0",
+    "pluginParameters": {
+      "OABP_BASE_URL": {
+        "type": "string",
+        "description": "Base URL of the OABP / AIGEN protocol.",
+        "default": "https://cryptogenesis.duckdns.org",
+        "required": false
+      },
+      "OABP_AGENT_ID": {
+        "type": "string",
+        "description": "Agent id used as submitter/creator on OABP. Defaults to the ElizaOS runtime agentId.",
+        "required": false
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/",
+    "example": "tsc -p tsconfig.test.json && node dist-test/examples/run.js"
+  },
+  "keywords": [
+    "elizaos",
+    "eliza",
+    "plugin",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "a2a",
+    "mcp"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@elizaos/core": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@elizaos/core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^5.9.3"
+  }
+}

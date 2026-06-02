@@ -1,0 +1,26 @@
+identity:
+  name: get_stats
+  author: cryptogenesis
+  label:
+    en_US: Get stats
+    zh_Hans: 获取统计
+    ja_JP: 統計取得
+description:
+  human:
+    en_US: >-
+      Marketplace-wide OABP / AIGEN statistics: resolved missions, open missions
+      and lifetime AIGEN paid out.
+    zh_Hans: >-
+      OABP / AIGEN 全市场统计：已结算任务数、开放任务数和历史累计支付的 AIGEN。
+    ja_JP: >-
+      OABP / AIGEN マーケット全体の統計：解決済みミッション数、公開ミッション数、
+      累計支払 AIGEN。
+  llm: >-
+    Get marketplace-wide OABP / AIGEN statistics (GET /api/stats). Returns
+    {resolved, open, lifetime_reward_aigen_paid}: the number of resolved
+    missions, the number of open missions, and the total AIGEN ever paid out to
+    winners. Takes no parameters.
+parameters: []
+extra:
+  python:
+    source: tools/get_stats.py

@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llamaindex-oabp"
+version = "1.0.0"
+description = "LlamaIndex FunctionTool spec + ReActAgent for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "llama-index",
+    "llamaindex",
+    "function-tool",
+    "react-agent",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "a2a",
+    "llm",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: Pydantic :: 2",
+]
+# `requests` is needed by the OABP SDK (a pinned copy is vendored under
+# llamaindex_oabp._vendor.oabp, used automatically when the standalone `oabp`
+# package is not installed). `pydantic` powers the explicit fn_schema models.
+# `llama-index-core` is intentionally OPTIONAL: the package imports and the tools
+# work as plain callables / FunctionTool-likes without it (see the [llama-index]
+# extra below and llamaindex_oabp._compat).
+dependencies = [
+    "pydantic>=2.0",
+    "requests>=2.25",
+]
+
+[project.optional-dependencies]
+# LlamaIndex — install to get real FunctionTool / ReActAgent / FunctionCallingAgent.
+llama-index = ["llama-index-core>=0.10.0"]
+# Convenience extra for the example: an OpenAI-backed LlamaIndex LLM.
+openai = ["llama-index-core>=0.10.0", "llama-index-llms-openai>=0.1.0"]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+# Ship the integration package *and* the vendored SDK sub-package.
+packages = [
+    "llamaindex_oabp",
+    "llamaindex_oabp._vendor",
+    "llamaindex_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

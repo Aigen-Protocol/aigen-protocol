@@ -1,0 +1,266 @@
+{
+  "description": "OABP / AIGEN agent — a Tool Agent (ChatOpenAI) wired to the four flowise-oabp Tool nodes: list, create and submit missions, and read protocol stats.",
+  "nodes": [
+    {
+      "id": "chatOpenAI_0",
+      "position": { "x": 120, "y": 80 },
+      "type": "customNode",
+      "width": 300,
+      "height": 520,
+      "data": {
+        "id": "chatOpenAI_0",
+        "label": "ChatOpenAI",
+        "version": 6,
+        "name": "chatOpenAI",
+        "type": "ChatOpenAI",
+        "baseClasses": ["ChatOpenAI", "BaseChatModel", "BaseLanguageModel", "Runnable"],
+        "category": "Chat Models",
+        "description": "Wrapper around OpenAI large language models that use the Chat endpoint",
+        "inputParams": [
+          { "label": "Connect Credential", "name": "credential", "type": "credential", "credentialNames": ["openAIApi"], "id": "chatOpenAI_0-input-credential-credential" },
+          { "label": "Model Name", "name": "modelName", "type": "asyncOptions", "loadMethod": "listModels", "default": "gpt-4o-mini", "id": "chatOpenAI_0-input-modelName-asyncOptions" },
+          { "label": "Temperature", "name": "temperature", "type": "number", "default": 0.2, "optional": true, "id": "chatOpenAI_0-input-temperature-number" }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "modelName": "gpt-4o-mini",
+          "temperature": 0.2
+        },
+        "outputAnchors": [
+          {
+            "id": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel|Runnable",
+            "name": "chatOpenAI",
+            "label": "ChatOpenAI",
+            "type": "ChatOpenAI | BaseChatModel | BaseLanguageModel | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    },
+    {
+      "id": "oabpListMissions_0",
+      "position": { "x": 120, "y": 640 },
+      "type": "customNode",
+      "width": 300,
+      "height": 300,
+      "data": {
+        "id": "oabpListMissions_0",
+        "label": "OABP List Missions",
+        "version": 1,
+        "name": "oabpListMissions",
+        "type": "OabpListMissions",
+        "baseClasses": ["Tool", "DynamicStructuredTool", "StructuredTool", "Runnable"],
+        "category": "Tools",
+        "description": "List the OPEN missions (bounties) on the OABP / AIGEN agent-bounty protocol.",
+        "inputParams": [
+          { "label": "Connect Credential", "name": "credential", "type": "credential", "credentialNames": ["oabpApi"], "optional": true, "id": "oabpListMissions_0-input-credential-credential" },
+          { "label": "Base URL", "name": "baseUrl", "type": "string", "optional": true, "additionalParams": true, "id": "oabpListMissions_0-input-baseUrl-string" }
+        ],
+        "inputAnchors": [],
+        "inputs": { "baseUrl": "" },
+        "outputAnchors": [
+          {
+            "id": "oabpListMissions_0-output-oabpListMissions-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+            "name": "oabpListMissions",
+            "label": "Tool",
+            "type": "Tool | DynamicStructuredTool | StructuredTool | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    },
+    {
+      "id": "oabpCreateMission_0",
+      "position": { "x": 460, "y": 640 },
+      "type": "customNode",
+      "width": 300,
+      "height": 360,
+      "data": {
+        "id": "oabpCreateMission_0",
+        "label": "OABP Create Mission",
+        "version": 1,
+        "name": "oabpCreateMission",
+        "type": "OabpCreateMission",
+        "baseClasses": ["Tool", "DynamicStructuredTool", "StructuredTool", "Runnable"],
+        "category": "Tools",
+        "description": "Post a new mission (bounty) on the OABP / AIGEN protocol.",
+        "inputParams": [
+          { "label": "Connect Credential", "name": "credential", "type": "credential", "credentialNames": ["oabpApi"], "optional": true, "id": "oabpCreateMission_0-input-credential-credential" },
+          { "label": "Default Creator Agent ID", "name": "creatorAgentId", "type": "string", "optional": true, "additionalParams": true, "id": "oabpCreateMission_0-input-creatorAgentId-string" },
+          { "label": "Base URL", "name": "baseUrl", "type": "string", "optional": true, "additionalParams": true, "id": "oabpCreateMission_0-input-baseUrl-string" }
+        ],
+        "inputAnchors": [],
+        "inputs": { "creatorAgentId": "flowise-oabp-agent", "baseUrl": "" },
+        "outputAnchors": [
+          {
+            "id": "oabpCreateMission_0-output-oabpCreateMission-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+            "name": "oabpCreateMission",
+            "label": "Tool",
+            "type": "Tool | DynamicStructuredTool | StructuredTool | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    },
+    {
+      "id": "oabpSubmitMission_0",
+      "position": { "x": 800, "y": 640 },
+      "type": "customNode",
+      "width": 300,
+      "height": 360,
+      "data": {
+        "id": "oabpSubmitMission_0",
+        "label": "OABP Submit Mission",
+        "version": 1,
+        "name": "oabpSubmitMission",
+        "type": "OabpSubmitMission",
+        "baseClasses": ["Tool", "DynamicStructuredTool", "StructuredTool", "Runnable"],
+        "category": "Tools",
+        "description": "Submit a deliverable ('proof') to an OABP / AIGEN mission.",
+        "inputParams": [
+          { "label": "Connect Credential", "name": "credential", "type": "credential", "credentialNames": ["oabpApi"], "optional": true, "id": "oabpSubmitMission_0-input-credential-credential" },
+          { "label": "Default Submitter Agent ID", "name": "submitterAgentId", "type": "string", "optional": true, "additionalParams": true, "id": "oabpSubmitMission_0-input-submitterAgentId-string" },
+          { "label": "Base URL", "name": "baseUrl", "type": "string", "optional": true, "additionalParams": true, "id": "oabpSubmitMission_0-input-baseUrl-string" }
+        ],
+        "inputAnchors": [],
+        "inputs": { "submitterAgentId": "flowise-oabp-agent", "baseUrl": "" },
+        "outputAnchors": [
+          {
+            "id": "oabpSubmitMission_0-output-oabpSubmitMission-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+            "name": "oabpSubmitMission",
+            "label": "Tool",
+            "type": "Tool | DynamicStructuredTool | StructuredTool | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    },
+    {
+      "id": "oabpStats_0",
+      "position": { "x": 1140, "y": 640 },
+      "type": "customNode",
+      "width": 300,
+      "height": 300,
+      "data": {
+        "id": "oabpStats_0",
+        "label": "OABP Stats",
+        "version": 1,
+        "name": "oabpStats",
+        "type": "OabpStats",
+        "baseClasses": ["Tool", "DynamicStructuredTool", "StructuredTool", "Runnable"],
+        "category": "Tools",
+        "description": "Read protocol-wide OABP / AIGEN counters.",
+        "inputParams": [
+          { "label": "Connect Credential", "name": "credential", "type": "credential", "credentialNames": ["oabpApi"], "optional": true, "id": "oabpStats_0-input-credential-credential" },
+          { "label": "Base URL", "name": "baseUrl", "type": "string", "optional": true, "additionalParams": true, "id": "oabpStats_0-input-baseUrl-string" }
+        ],
+        "inputAnchors": [],
+        "inputs": { "baseUrl": "" },
+        "outputAnchors": [
+          {
+            "id": "oabpStats_0-output-oabpStats-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+            "name": "oabpStats",
+            "label": "Tool",
+            "type": "Tool | DynamicStructuredTool | StructuredTool | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    },
+    {
+      "id": "toolAgent_0",
+      "position": { "x": 820, "y": 80 },
+      "type": "customNode",
+      "width": 300,
+      "height": 480,
+      "data": {
+        "id": "toolAgent_0",
+        "label": "Tool Agent",
+        "version": 2,
+        "name": "toolAgent",
+        "type": "AgentExecutor",
+        "baseClasses": ["AgentExecutor", "BaseChain", "Runnable"],
+        "category": "Agents",
+        "description": "Agent that uses Function Calling to pick the tools and args to call",
+        "inputParams": [
+          {
+            "label": "System Message",
+            "name": "systemMessage",
+            "type": "string",
+            "rows": 4,
+            "optional": true,
+            "default": "You are an autonomous agent on the OABP / AIGEN agent-bounty protocol (https://cryptogenesis.duckdns.org). Your agent id is 'flowise-oabp-agent'. Use oabp_list_missions to discover open bounties, oabp_create_mission to post one (rewards in AIGEN points or USDC; a 0.5% fee applies so winners net reward*0.995), oabp_submit_mission to submit a deliverable ('proof'), and oabp_stats for protocol counters. Verification is permissionless: first_valid_match checks a regex; oracle checks GoPlus token-security or a GitHub repo.",
+            "id": "toolAgent_0-input-systemMessage-string"
+          }
+        ],
+        "inputAnchors": [
+          { "label": "Tools", "name": "tools", "type": "Tool", "list": true, "id": "toolAgent_0-input-tools-Tool" },
+          { "label": "Memory", "name": "memory", "type": "BaseChatMemory", "optional": true, "id": "toolAgent_0-input-memory-BaseChatMemory" },
+          { "label": "Chat Model", "name": "model", "type": "BaseChatModel", "id": "toolAgent_0-input-model-BaseChatModel" }
+        ],
+        "inputs": {
+          "tools": [
+            "{{oabpListMissions_0.data.instance}}",
+            "{{oabpCreateMission_0.data.instance}}",
+            "{{oabpSubmitMission_0.data.instance}}",
+            "{{oabpStats_0.data.instance}}"
+          ],
+          "model": "{{chatOpenAI_0.data.instance}}",
+          "memory": "",
+          "systemMessage": "You are an autonomous agent on the OABP / AIGEN agent-bounty protocol (https://cryptogenesis.duckdns.org). Your agent id is 'flowise-oabp-agent'. Use oabp_list_missions to discover open bounties, oabp_create_mission to post one (rewards in AIGEN points or USDC; a 0.5% fee applies so winners net reward*0.995), oabp_submit_mission to submit a deliverable ('proof'), and oabp_stats for protocol counters. Verification is permissionless: first_valid_match checks a regex; oracle checks GoPlus token-security or a GitHub repo."
+        },
+        "outputAnchors": [
+          {
+            "id": "toolAgent_0-output-toolAgent-AgentExecutor|BaseChain|Runnable",
+            "name": "toolAgent",
+            "label": "AgentExecutor",
+            "type": "AgentExecutor | BaseChain | Runnable"
+          }
+        ],
+        "selected": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "chatOpenAI_0",
+      "sourceHandle": "chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel|Runnable",
+      "target": "toolAgent_0",
+      "targetHandle": "toolAgent_0-input-model-BaseChatModel",
+      "type": "buttonedge",
+      "id": "chatOpenAI_0-chatOpenAI_0-output-chatOpenAI-ChatOpenAI|BaseChatModel|BaseLanguageModel|Runnable-toolAgent_0-toolAgent_0-input-model-BaseChatModel"
+    },
+    {
+      "source": "oabpListMissions_0",
+      "sourceHandle": "oabpListMissions_0-output-oabpListMissions-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+      "target": "toolAgent_0",
+      "targetHandle": "toolAgent_0-input-tools-Tool",
+      "type": "buttonedge",
+      "id": "oabpListMissions_0-oabpListMissions_0-output-oabpListMissions-Tool|DynamicStructuredTool|StructuredTool|Runnable-toolAgent_0-toolAgent_0-input-tools-Tool"
+    },
+    {
+      "source": "oabpCreateMission_0",
+      "sourceHandle": "oabpCreateMission_0-output-oabpCreateMission-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+      "target": "toolAgent_0",
+      "targetHandle": "toolAgent_0-input-tools-Tool",
+      "type": "buttonedge",
+      "id": "oabpCreateMission_0-oabpCreateMission_0-output-oabpCreateMission-Tool|DynamicStructuredTool|StructuredTool|Runnable-toolAgent_0-toolAgent_0-input-tools-Tool"
+    },
+    {
+      "source": "oabpSubmitMission_0",
+      "sourceHandle": "oabpSubmitMission_0-output-oabpSubmitMission-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+      "target": "toolAgent_0",
+      "targetHandle": "toolAgent_0-input-tools-Tool",
+      "type": "buttonedge",
+      "id": "oabpSubmitMission_0-oabpSubmitMission_0-output-oabpSubmitMission-Tool|DynamicStructuredTool|StructuredTool|Runnable-toolAgent_0-toolAgent_0-input-tools-Tool"
+    },
+    {
+      "source": "oabpStats_0",
+      "sourceHandle": "oabpStats_0-output-oabpStats-Tool|DynamicStructuredTool|StructuredTool|Runnable",
+      "target": "toolAgent_0",
+      "targetHandle": "toolAgent_0-input-tools-Tool",
+      "type": "buttonedge",
+      "id": "oabpStats_0-oabpStats_0-output-oabpStats-Tool|DynamicStructuredTool|StructuredTool|Runnable-toolAgent_0-toolAgent_0-input-tools-Tool"
+    }
+  ]
+}

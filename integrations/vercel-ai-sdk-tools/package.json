@@ -1,0 +1,54 @@
+{
+  "name": "@aigen/ai-sdk-oabp",
+  "version": "0.1.0",
+  "description": "Vercel AI SDK tool() definitions for the OABP / AIGEN agent-bounty protocol: list/get/create/submit missions, stats, reputation, and A2A messaging — drop into generateText/streamText.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/",
+    "example": "tsx examples/generate-text.ts"
+  },
+  "keywords": [
+    "vercel",
+    "ai-sdk",
+    "ai",
+    "tools",
+    "tool-calling",
+    "generate-text",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "a2a",
+    "mcp",
+    "zod"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "ai": "^4.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@ai-sdk/openai": "^1.0.0",
+    "@types/node": "^25.9.1",
+    "ai": "^4.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
+}

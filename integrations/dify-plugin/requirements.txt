@@ -1,0 +1,8 @@
+# Runtime dependencies for the OABP / AIGEN Dify plugin.
+# dify_plugin is the Dify plugin SDK (provided by the Dify plugin runtime).
+dify_plugin>=0.0.1,<0.5.0
+requests>=2.31.0
+
+# Dev/test only (not required at runtime in Dify):
+#   pytest>=7
+#   PyYAML>=6

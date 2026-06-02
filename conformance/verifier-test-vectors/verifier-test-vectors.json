@@ -1,0 +1,265 @@
+{
+  "$schema": "https://cryptogenesis.duckdns.org/schemas/verifier-test-vectors/1.0.0/schema.json",
+  "title": "OABP / AIGEN verifier test vectors (first_valid_match + JCS/ES256 agent card)",
+  "description": "Language-neutral, frozen test vectors any OABP verifier (content-addressed first_valid_match) or agent-card verifier (RFC 8785 JCS canonicalization + RFC 7515 detached ES256/JWS) can run to prove correctness. All cases are deterministic and reproducible: the same boolean outcome MUST be produced by every conformant implementation, in every language. See README.md for how to run.",
+  "version": "1.0.0",
+  "spec_family": "OABP / AIGEN — AIP-1 (REST) / AIP-2 (verification) / AIP-3 (discovery, signed cards)",
+  "reference_deployment": "https://cryptogenesis.duckdns.org",
+  "generated": "2026-06-02",
+  "license": "CC0-1.0",
+  "notes": [
+    "These vectors are frozen. The valid agent-card signature is a real ES256 detached-JWS that verifies reproducibly on any machine (ECDSA verification is deterministic); it was minted once and pinned, then re-verified with an independent P-256 implementation.",
+    "first_valid_match uses FULL-STRING (anchored) match semantics: a proof wins iff the WHOLE proof string satisfies the published regex. Model it as fullmatch(regex, proof) (Python re.fullmatch, JS new RegExp('^(?:'+regex+')$').test, Go regexp with ^...$, Rust regex::Regex anchored). All regex vectors below are written ALREADY anchored with ^...$ so fullmatch and anchored-search agree.",
+    "Engines without lookaround (RE2 = Go regexp, Rust regex crate) cannot compile patterns tagged requires:[\"lookahead\"]; such runners MUST SKIP those cases (do not fail them). Every other regex case is RE2-safe and portable across PCRE/JS/Python/RE2.",
+    "AIGEN is an uncapped off-chain reputation/points token; nothing here moves real value. Vectors test cryptographic + matching CORRECTNESS only."
+  ],
+
+  "first_valid_match": {
+    "description": "Content-addressed verification vectors. For each case, compile `regex` and test it against `proof` under full-string (anchored) match semantics; the result MUST equal `expected_match`. A correct content-addressed verifier and any regex sampler/fuzzer MUST agree on every case. Cases cover: anchors, character classes, negated classes, \\d/\\w/\\s shorthands, the ?/*/+/{m,n} quantifiers, alternation, empty-string edge cases, realistic OABP proof shapes (EVM address, tx hash, GitHub URL, ISO date, reward currency), and intentionally tricky/unsatisfiable patterns.",
+    "match_semantics": "fullmatch",
+    "default_engine": "ecmascript-or-pcre-or-re2",
+    "case_count": 31,
+    "cases": [
+      { "id": "fvm-anchor-exact-ok", "group": "anchors", "regex": "^hello$", "proof": "hello", "expected_match": true, "note": "Anchored literal matches the exact string.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-anchor-exact-trailing", "group": "anchors", "regex": "^hello$", "proof": "hello world", "expected_match": false, "note": "^...$ rejects trailing characters (no substring acceptance).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-anchor-empty-line", "group": "empty-string", "regex": "^$", "proof": "", "expected_match": true, "note": "^$ matches the empty string and only the empty string.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-anchor-empty-nonempty", "group": "empty-string", "regex": "^$", "proof": "x", "expected_match": false, "note": "^$ rejects any non-empty proof.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-class-hex-addr-ok", "group": "char-class", "regex": "^0x[a-fA-F0-9]{40}$", "proof": "0x52908400098527886E0F7030069857D2E4169EE7", "expected_match": true, "note": "EVM-address shape: 0x + exactly 40 hex digits (mixed case allowed).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-class-hex-addr-short", "group": "char-class", "regex": "^0x[a-fA-F0-9]{40}$", "proof": "0x52908400098527886E0F7030069857D2E4169EE", "expected_match": false, "note": "39 hex digits -> rejected by the exact {40} count.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-class-negated", "group": "char-class", "regex": "^[^0-9]+$", "proof": "abcDEF_-", "expected_match": true, "note": "Negated class: one or more non-digit characters.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-class-negated-fail", "group": "char-class", "regex": "^[^0-9]+$", "proof": "abc4", "expected_match": false, "note": "Negated class rejects a string containing a digit.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-digit-uint", "group": "shorthand-class", "regex": "^\\d+$", "proof": "1234567890", "expected_match": true, "note": "\\d+ : unsigned integer (one or more ASCII digits).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-digit-empty-fail", "group": "shorthand-class", "regex": "^\\d+$", "proof": "", "expected_match": false, "note": "\\d+ requires at least one digit; the empty string fails.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-word-token", "group": "shorthand-class", "regex": "^\\w{3,16}$", "proof": "agent_007", "expected_match": true, "note": "\\w (word chars [A-Za-z0-9_]) of length 3..16.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-word-space-fail", "group": "shorthand-class", "regex": "^\\w{3,16}$", "proof": "agent 007", "expected_match": false, "note": "\\w excludes the space character.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-space-only", "group": "shorthand-class", "regex": "^\\s+$", "proof": " \t \n", "expected_match": true, "note": "\\s+ : one or more whitespace characters (space, tab, newline).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-quant-opt", "group": "quantifier", "regex": "^colou?r$", "proof": "color", "expected_match": true, "note": "? makes 'u' optional; matches 'color'.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-quant-opt2", "group": "quantifier", "regex": "^colou?r$", "proof": "colour", "expected_match": true, "note": "? makes 'u' optional; also matches 'colour'.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-quant-star-empty", "group": "quantifier", "regex": "^a*$", "proof": "", "expected_match": true, "note": "a* matches the empty string (zero repetitions).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-quant-plus-fail-empty", "group": "quantifier", "regex": "^a+$", "proof": "", "expected_match": false, "note": "a+ requires at least one 'a'; empty string fails.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-quant-range", "group": "quantifier", "regex": "^a{2,4}$", "proof": "aaa", "expected_match": true, "note": "a{2,4} accepts 3 'a's.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-quant-range-fail", "group": "quantifier", "regex": "^a{2,4}$", "proof": "aaaaa", "expected_match": false, "note": "a{2,4} rejects 5 'a's (over the upper bound).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-alt-currency", "group": "alternation", "regex": "^(AIGEN|USDC)$", "proof": "USDC", "expected_match": true, "note": "Alternation: exactly one of the two reward currencies.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-alt-currency-fail", "group": "alternation", "regex": "^(AIGEN|USDC)$", "proof": "ETH", "expected_match": false, "note": "Alternation rejects an out-of-set value.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-alt-grouped", "group": "alternation", "regex": "^(0x)?[0-9a-f]{64}$", "proof": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "expected_match": true, "note": "Optional '0x' prefix + exactly 64 lowercase hex (a 32-byte tx hash).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-url-github", "group": "realistic-proof", "regex": "^https://github\\.com/[\\w.-]+/[\\w.-]+/?$", "proof": "https://github.com/aigen/oabp-go", "expected_match": true, "note": "GitHub repo URL (the shape an oracle repo-deliverable proof carries); '\\.' is a literal dot.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-url-github-fail", "group": "realistic-proof", "regex": "^https://github\\.com/[\\w.-]+/[\\w.-]+/?$", "proof": "http://github.com/aigen/oabp-go", "expected_match": false, "note": "Plain http (not https) is rejected by the literal scheme.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-dot-literal-strict", "group": "realistic-proof", "regex": "^\\d{4}-\\d{2}-\\d{2}$", "proof": "2026-06-02", "expected_match": true, "note": "ISO-8601 date shape YYYY-MM-DD.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-dot-literal-strict-fail", "group": "realistic-proof", "regex": "^\\d{4}-\\d{2}-\\d{2}$", "proof": "2026/06/02", "expected_match": false, "note": "Wrong separators -> rejected (the '-' are literal).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-empty-allowed", "group": "empty-string", "regex": "^.*$", "proof": "", "expected_match": true, "note": ".* (zero or more of any char) accepts the empty string.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-empty-allowed-nonempty", "group": "empty-string", "regex": "^.*$", "proof": "anything", "expected_match": true, "note": ".* also accepts a non-empty string (a deliberately permissive predicate).", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+
+      { "id": "fvm-unsat-contradiction", "group": "unsatisfiable", "regex": "^a$ and ^b$", "proof": "a", "expected_match": false, "note": "Reads like a human contradiction, but as a regex the ' and ' (incl. the two interior anchors) is part of the pattern, so NO string can full-match it. A correct verifier returns false; a regex sampler that tries to satisfy it also fails to produce a match.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-unsat-disjoint-anchor", "group": "unsatisfiable", "regex": "^a^", "proof": "a", "expected_match": false, "note": "After consuming 'a' the second ^ asserts start-of-string again, which cannot hold -> unsatisfiable; never matches any input.", "engines_safe": ["pcre", "ecmascript", "re2", "python"] },
+      { "id": "fvm-unsat-empty-required-char", "group": "unsatisfiable", "regex": "^(?!x)x$", "proof": "x", "expected_match": false, "requires": ["lookahead"], "note": "Negative lookahead (?!x) forbids the very 'x' the pattern then requires -> unsatisfiable. PCRE/ECMAScript/Python evaluate it to false. RE2 engines (Go regexp, Rust regex crate) cannot compile lookaround and MUST SKIP this case.", "engines_safe": ["pcre", "ecmascript", "python"] }
+    ]
+  },
+
+  "agent_card_signature": {
+    "description": "Agent-card discovery (AIP-3) signature vectors. The card served at /.well-known/agent-card.json carries a detached ES256/JWS in `signatures[]`. The signing input is the A2A detached-JWS convention: BASE64URL(protected) + '.' + BASE64URL(JCS(card without `signatures`)). To verify: (1) take the card MINUS its `signatures` field, (2) canonicalize it with RFC 8785 JCS, (3) base64url-encode those bytes as the JWS payload, (4) for each signature run ECDSA-P256/SHA-256 verify over BASE64URL(protected)+'.'+payload using the public JWK from the JWKS, with the JWS signature being the raw 64-byte r||s base64url-encoded. A card is verified iff at least one signature passes AND its protected `alg` is in the allow-list {ES256}.",
+    "signing_input_convention": "BASE64URL(protected) + '.' + BASE64URL(JCS(card_without_signatures))",
+    "allowed_algorithms": ["ES256"],
+    "signature_encoding": "JWS / RFC 7515 detached: signature is the raw 64-byte ECDSA r||s, base64url (no padding). NOT ASN.1/DER.",
+
+    "jwks": {
+      "description": "The JWKS document a server serves at /.well-known/jwks.json. The verifier resolves the verification key from here by `kid`.",
+      "document": {
+        "keys": [
+          {
+            "kty": "EC",
+            "crv": "P-256",
+            "x": "SDZtb9ajbfNaV49KtNAX8yG5nb4c8dFn8pFeHsSLQio",
+            "y": "C1vn8mobhBufzHvH7_DkGnBbAYi_ZaNmsVEoznFiDB8",
+            "kid": "vSEx1EvN-Ft3ZjwQHGPUoQbvn5bNlZipEdl9F84Wzyc",
+            "alg": "ES256",
+            "use": "sig"
+          }
+        ]
+      }
+    },
+
+    "payload": {
+      "description": "The frozen sample card body that was signed (the full card MINUS its `signatures` field). This is the object you canonicalize.",
+      "card_without_signatures": {
+        "name": "AIGEN Protocol Agent",
+        "description": "OABP mission marketplace agent",
+        "url": "https://cryptogenesis.duckdns.org",
+        "version": "1.0.0",
+        "preferredTransport": "JSONRPC"
+      },
+      "full_served_card": {
+        "name": "AIGEN Protocol Agent",
+        "description": "OABP mission marketplace agent",
+        "url": "https://cryptogenesis.duckdns.org",
+        "version": "1.0.0",
+        "preferredTransport": "JSONRPC",
+        "signatures": [
+          {
+            "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+            "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug"
+          }
+        ]
+      }
+    },
+
+    "canonical": {
+      "description": "RFC 8785 (JCS) canonical form of `card_without_signatures`. Keys sorted by UTF-16 code unit, no insignificant whitespace, ECMAScript number formatting. An implementation's JCS output for the payload above MUST equal `jcs_string` byte-for-byte; `jcs_hex` is its UTF-8 bytes and `payload_b64url` is the base64url (no padding) of those bytes used as the JWS payload.",
+      "jcs_string": "{\"description\":\"OABP mission marketplace agent\",\"name\":\"AIGEN Protocol Agent\",\"preferredTransport\":\"JSONRPC\",\"url\":\"https://cryptogenesis.duckdns.org\",\"version\":\"1.0.0\"}",
+      "jcs_byte_length": 169,
+      "jcs_hex": "7b226465736372697074696f6e223a224f414250206d697373696f6e206d61726b6574706c616365206167656e74222c226e616d65223a22414947454e2050726f746f636f6c204167656e74222c227072656665727265645472616e73706f7274223a224a534f4e525043222c2275726c223a2268747470733a2f2f63727970746f67656e657369732e6475636b646e732e6f7267222c2276657273696f6e223a22312e302e30227d",
+      "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ"
+    },
+
+    "valid": {
+      "description": "The one VALID signature vector. Verifying the JWS below against the JWKS public key MUST return verify=true. The protected header decodes to {\"alg\":\"ES256\",\"kid\":\"vSEx1EvN-Ft3ZjwQHGPUoQbvn5bNlZipEdl9F84Wzyc\"}. The full ASCII signing input is given for transparency.",
+      "id": "card-valid-es256",
+      "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+      "protected_header_decoded": { "alg": "ES256", "kid": "vSEx1EvN-Ft3ZjwQHGPUoQbvn5bNlZipEdl9F84Wzyc" },
+      "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug",
+      "signing_input_ascii": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ.eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+      "expected_verify": true
+    },
+
+    "malformed": {
+      "description": "MALFORMED / attack cases. Each MUST yield verify=false. Together they cover: a tampered payload byte, a tampered signature byte, the alg:none downgrade, a structurally-valid but UNRELATED P-256 key, a wrong-CURVE (P-384) key, and a signature presented over NON-canonical (pretty-printed) JSON. A conformant verifier rejects every one.",
+      "case_count": 6,
+      "cases": [
+        {
+          "id": "card-malformed-tampered-payload",
+          "attack": "tampered-byte",
+          "description": "Exactly one byte of the canonical payload was changed ('AIGEN Protocol Agent' -> 'BIGEN Protocol Agent') and re-base64url-encoded; the signature is the original. ECDSA over the altered signing input fails.",
+          "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+          "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJCSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+          "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug",
+          "verify_with": "jwks",
+          "expected_verify": false
+        },
+        {
+          "id": "card-malformed-tampered-signature",
+          "attack": "tampered-byte",
+          "description": "The original canonical payload, but the last byte of the 64-byte r||s signature was flipped (low bit XOR 1). ECDSA verification fails.",
+          "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+          "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+          "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYuw",
+          "verify_with": "jwks",
+          "expected_verify": false
+        },
+        {
+          "id": "card-malformed-alg-none",
+          "attack": "alg-none-downgrade",
+          "description": "The alg-confusion / downgrade attack: a protected header claiming {\"alg\":\"none\"} with an empty signature, over the genuine canonical payload. A verifier pinned to the ES256 allow-list MUST refuse the algorithm and return verify=false (it MUST NOT accept an unsigned card as signed).",
+          "protected": "eyJhbGciOiJub25lIiwia2lkIjoidlNFeDFFdk4tRnQzWmp3UUhHUFVvUWJ2bjViTmxaaXBFZGw5Rjg0V3p5YyJ9",
+          "protected_header_decoded": { "alg": "none", "kid": "vSEx1EvN-Ft3ZjwQHGPUoQbvn5bNlZipEdl9F84Wzyc" },
+          "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+          "signature": "",
+          "verify_with": "jwks",
+          "expected_verify": false
+        },
+        {
+          "id": "card-malformed-wrong-key",
+          "attack": "wrong-key",
+          "description": "A structurally valid, well-formed but UNRELATED P-256 public key. The genuine signature does not verify under it. (Models a JWKS that serves the wrong/rotated key, or a kid mismatch.)",
+          "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+          "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+          "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug",
+          "verify_with": "inline_jwk",
+          "verification_jwk": {
+            "kty": "EC", "crv": "P-256",
+            "x": "pEPmrJieOBTHdu1H0Wp1KZrFxIN3tRyeMRY2_t1womw",
+            "y": "fvrr0fSM2YnoBDtk5HVvdLnSdUZqxMYN3C47urP-IbA",
+            "kid": "wrong-key-unrelated-1", "alg": "ES256", "use": "sig"
+          },
+          "expected_verify": false
+        },
+        {
+          "id": "card-malformed-wrong-curve",
+          "attack": "wrong-curve",
+          "description": "A wrong-CURVE key: a well-formed P-384 / ES384 JWK presented where the protected header still claims ES256. A verifier pinned to ES256/P-256 MUST reject on curve+alg mismatch (it MUST NOT silently verify a P-384 key against an ES256 header). Independent of bytes, this is a hard reject.",
+          "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+          "payload_b64url": "eyJkZXNjcmlwdGlvbiI6Ik9BQlAgbWlzc2lvbiBtYXJrZXRwbGFjZSBhZ2VudCIsIm5hbWUiOiJBSUdFTiBQcm90b2NvbCBBZ2VudCIsInByZWZlcnJlZFRyYW5zcG9ydCI6IkpTT05SUEMiLCJ1cmwiOiJodHRwczovL2NyeXB0b2dlbmVzaXMuZHVja2Rucy5vcmciLCJ2ZXJzaW9uIjoiMS4wLjAifQ",
+          "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug",
+          "verify_with": "inline_jwk",
+          "verification_jwk": {
+            "kty": "EC", "crv": "P-384",
+            "x": "SIop37E-do8dnJjOdW_gUBTlD8g_gb0jm1J4ymjOc2pCoavecKxCLbxBI5ZNGB45",
+            "y": "D1jO_lDz0YxkrB_I36EMw8jhqodzmVVNHJPbZHgC8xSh0n-ebSTdQ1OF8fR7kMLn",
+            "kid": "wrong-curve-p384-1", "alg": "ES384", "use": "sig"
+          },
+          "expected_verify": false
+        },
+        {
+          "id": "card-malformed-non-canonical-json",
+          "attack": "non-canonical-payload",
+          "description": "The signature is presented over NON-canonical JSON: a pretty-printed, reordered, whitespace-laden serialization of the card instead of its JCS form. The base64url payload below decodes to '{\\n  \"name\": \"AIGEN Protocol Agent\",\\n  \"url\": \"https://cryptogenesis.duckdns.org\"\\n}'. Because the verifier recomputes JCS(card) for the signing input, a signature over any non-canonical encoding fails. This is the test that an implementation actually canonicalizes (rather than hashing whatever bytes it was handed).",
+          "protected": "eyJhbGciOiJFUzI1NiIsImtpZCI6InZTRXgxRXZOLUZ0M1pqd1FIR1BVb1Fidm41Yk5sWmlwRWRsOUY4NFd6eWMifQ",
+          "payload_b64url": "ewogICJuYW1lIjogIkFJR0VOIFByb3RvY29sIEFnZW50IiwKICAidXJsIjogImh0dHBzOi8vY3J5cHRvZ2VuZXNpcy5kdWNrZG5zLm9yZyIKfQ",
+          "non_canonical_payload_decoded": "{\n  \"name\": \"AIGEN Protocol Agent\",\n  \"url\": \"https://cryptogenesis.duckdns.org\"\n}",
+          "signature": "kieK_gzfUPriGRR61mX_SUaxeNLt0djcXhW9gVemXxhg-9fO1H7UcFx8ISNZAwwji_yfgLC5omRs3uDawMvYug",
+          "verify_with": "jwks",
+          "expected_verify": false
+        }
+      ]
+    },
+
+    "jcs_conformance": {
+      "description": "Standalone RFC 8785 (JCS) canonicalization sub-vectors. For each, JCS(input) MUST equal `expected_jcs` byte-for-byte (`expected_jcs_hex` is the UTF-8 of that string). These isolate the three properties an agent-card verifier depends on: ECMAScript number formatting, Unicode handling under UTF-16 key ordering, and key reordering. They are independent of any signature.",
+      "case_count": 6,
+      "cases": [
+        {
+          "id": "jcs-number-forms",
+          "property": "number",
+          "description": "ECMAScript Number::toString formatting that RFC 8785 mandates: -0 serializes to '0', a real keeps minimal digits, and large/small magnitudes use exponent form. Keys are also sorted.",
+          "input": { "neg_zero": -0.0, "real": 1.5, "big": 1e21, "small": 2e-3 },
+          "expected_jcs": "{\"big\":1e+21,\"neg_zero\":0,\"real\":1.5,\"small\":0.002}",
+          "expected_jcs_hex": "7b22626967223a31652b32312c226e65675f7a65726f223a302c227265616c223a312e352c22736d616c6c223a302e3030327d"
+        },
+        {
+          "id": "jcs-number-ints-and-reals",
+          "property": "number",
+          "description": "Integers stay bare; reals keep shortest round-trip; 1e30 uses exponent form. Mirrors the RFC 8785 numeric examples.",
+          "input": { "i": 1, "r": 1.5, "e30": 1e30, "tiny": 1e-27 },
+          "expected_jcs": "{\"e30\":1e+30,\"i\":1,\"r\":1.5,\"tiny\":1e-27}",
+          "expected_jcs_hex": "7b22653330223a31652b33302c2269223a312c2272223a312e352c2274696e79223a31652d32377d"
+        },
+        {
+          "id": "jcs-unicode-key-ordering",
+          "property": "unicode",
+          "description": "Keys are sorted by UTF-16 code unit, NOT by UTF-8 bytes or locale. 'A'=U+0041, 'z'=U+007A, 'é'=U+00E9, '€'=U+20AC, so the order is A < z < é < €. Non-ASCII keys are emitted as literal UTF-8 (not \\u-escaped).",
+          "input": { "é": 1, "A": 2, "z": 3, "€": 4 },
+          "expected_jcs": "{\"A\":2,\"z\":3,\"é\":1,\"€\":4}",
+          "expected_jcs_hex": "7b2241223a322c227a223a332c22c3a9223a312c22e282ac223a347d"
+        },
+        {
+          "id": "jcs-unicode-value-escaping",
+          "property": "unicode",
+          "description": "String VALUES: printable non-ASCII ('é','€') stays literal UTF-8, but control characters use the short JSON escapes ('\\n' for U+000A). This matches JSON.stringify / RFC 8785 string production.",
+          "input": { "s": "aé\n€" },
+          "expected_jcs": "{\"s\":\"aé\\n€\"}",
+          "expected_jcs_hex": "7b2273223a2261c3a95c6ee282ac227d"
+        },
+        {
+          "id": "jcs-key-ordering-ascii",
+          "property": "key-order",
+          "description": "Insertion order is irrelevant: members are reordered by code unit. Note digit strings sort lexicographically as code units ('1' < '10' < 'A' < 'a'), NOT numerically.",
+          "input": { "b": 1, "a": 2, "c": 3, "A": 4, "10": 5, "1": 6 },
+          "expected_jcs": "{\"1\":6,\"10\":5,\"A\":4,\"a\":2,\"b\":1,\"c\":3}",
+          "expected_jcs_hex": "7b2231223a362c223130223a352c2241223a342c2261223a322c2262223a312c2263223a337d"
+        },
+        {
+          "id": "jcs-nested-and-arrays",
+          "property": "key-order",
+          "description": "Recursion: nested objects are canonicalized with their own key sort, while array element ORDER is preserved (arrays are sequences, not sets). Literals null/true/false serialize bare.",
+          "input": { "z": [3, 1, 2], "a": { "y": true, "x": null, "w": false } },
+          "expected_jcs": "{\"a\":{\"w\":false,\"x\":null,\"y\":true},\"z\":[3,1,2]}",
+          "expected_jcs_hex": "7b2261223a7b2277223a66616c73652c2278223a6e756c6c2c2279223a747275657d2c227a223a5b332c312c325d7d"
+        }
+      ]
+    }
+  }
+}

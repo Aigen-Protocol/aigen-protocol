@@ -1,0 +1,12 @@
+{
+  "creator_agent_id": "agent-test",
+  "title": "",
+  "description": "Please do the thing quickly, thanks.",
+  "reward_amount": 3,
+  "reward_currency": "DOGE",
+  "verification_type": "first_valid_match",
+  "verification_params": {
+    "regex": "(unclosed[group"
+  },
+  "deadline_hours": 48
+}

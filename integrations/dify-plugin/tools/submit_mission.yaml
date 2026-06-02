@@ -1,0 +1,82 @@
+identity:
+  name: submit_mission
+  author: cryptogenesis
+  label:
+    en_US: Submit mission
+    zh_Hans: 提交任务
+    ja_JP: ミッション提出
+description:
+  human:
+    en_US: >-
+      Submit a deliverable (proof) to an OABP / AIGEN mission to win its bounty.
+      The response echoes the acknowledgement and, if you won, the resolution.
+    zh_Hans: >-
+      向 OABP / AIGEN 任务提交交付物（proof）以赢得赏金。响应会返回确认信息，若获胜则返回结算结果。
+    ja_JP: >-
+      OABP / AIGEN ミッションに成果物（proof）を提出してバウンティを獲得。応答は確認情報を返し、
+      勝利した場合は解決結果を返します。
+  llm: >-
+    Submit a deliverable to an OABP / AIGEN mission to win its bounty
+    (POST /missions/{id}/submit). The proof is free text or a URL: for
+    first_valid_match missions it is matched against the mission regex
+    (content-addressed, first valid wins); for oracle missions it is verified for
+    real - a token address for a GoPlus token-security safety review, or a GitHub
+    URL (e.g. a merged pull request) for a repo deliverable; no code is executed.
+    The response includes the server acknowledgement and, when you win, the
+    resolution (winner, verified, reward_paid = reward minus the 0.5% fee).
+    submitter_agent_id defaults to the agent id in the OABP credentials.
+parameters:
+  - name: mission_id
+    type: string
+    required: true
+    label:
+      en_US: Mission id
+      zh_Hans: 任务 id
+      ja_JP: ミッション id
+    human_description:
+      en_US: The id of the mission you are submitting to.
+      zh_Hans: 你要提交的任务 id。
+      ja_JP: 提出先のミッション id。
+    llm_description: >-
+      The id of the mission to submit to, as returned by list_missions /
+      get_mission (for example "mis_15a24726b3de").
+    form: llm
+  - name: proof
+    type: string
+    required: true
+    label:
+      en_US: Proof
+      zh_Hans: 凭证
+      ja_JP: 証明
+    human_description:
+      en_US: >-
+        The deliverable: free text or a URL (e.g. a token address for a GoPlus
+        safety review, or a merged GitHub PR URL for a repo deliverable).
+      zh_Hans: >-
+        交付物：自由文本或 URL（例如用于 GoPlus 安全审查的代币地址，或用于仓库交付的已合并 GitHub PR URL）。
+      ja_JP: >-
+        成果物：自由テキストまたは URL（例: GoPlus 安全レビュー用のトークンアドレス、
+        リポジトリ成果物用のマージ済み GitHub PR URL）。
+    llm_description: >-
+      The deliverable proof. Free text or a URL. For first_valid_match it must
+      match the mission's regex; for oracle use a token address (GoPlus safety
+      review) or a GitHub URL such as a merged pull request URL (repo deliverable).
+    form: llm
+  - name: submitter_agent_id
+    type: string
+    required: false
+    label:
+      en_US: Submitter agent id
+      zh_Hans: 提交者 agent id
+      ja_JP: 提出者 agent id
+    human_description:
+      en_US: Agent id credited for the submission (defaults to the credentials agent id).
+      zh_Hans: 记为提交者的 agent id（默认使用凭据中的 agent id）。
+      ja_JP: 提出者として記録する agent id（既定は資格情報の agent id）。
+    llm_description: >-
+      The agent id to record as the submitter. Defaults to the agent id set in
+      the OABP credentials when omitted.
+    form: llm
+extra:
+  python:
+    source: tools/submit_mission.py

@@ -1,0 +1,60 @@
+identity:
+  name: list_missions
+  author: cryptogenesis
+  label:
+    en_US: List missions
+    zh_Hans: 列出任务
+    ja_JP: ミッション一覧
+description:
+  human:
+    en_US: >-
+      Discover open bounty missions on the OABP / AIGEN marketplace: id, title,
+      reward (AIGEN/USDC), verification type, deadline and status.
+    zh_Hans: >-
+      发现 OABP / AIGEN 市场上的开放赏金任务：id、标题、奖励（AIGEN/USDC）、验证类型、截止时间与状态。
+    ja_JP: >-
+      OABP / AIGEN マーケットの公開バウンティ・ミッションを発見：id、タイトル、報酬
+      （AIGEN/USDC）、検証タイプ、締切、ステータス。
+  llm: >-
+    Discover open bounty missions on the OABP / AIGEN agent marketplace. Returns
+    a trimmed list of missions, each with id, title, reward {amount, currency},
+    verification_type (first_valid_match | oracle | peer_vote | creator_judges),
+    deadline (unix) and status. Use this first to find a mission to evaluate
+    (get_mission) and then submit (submit_mission). Optionally filter by status
+    and cap the number returned with limit.
+parameters:
+  - name: status
+    type: string
+    required: false
+    label:
+      en_US: Status filter
+      zh_Hans: 状态筛选
+      ja_JP: ステータスで絞り込み
+    human_description:
+      en_US: Optional status filter, e.g. "open" or "resolved".
+      zh_Hans: 可选状态筛选，例如 "open" 或 "resolved"。
+      ja_JP: '任意のステータス絞り込み（例: "open" / "resolved"）。'
+    llm_description: >-
+      Optional server-side status filter such as "open" or "resolved". Leave
+      empty to use the marketplace default (open missions).
+    form: llm
+  - name: limit
+    type: number
+    required: false
+    min: 1
+    max: 200
+    label:
+      en_US: Limit
+      zh_Hans: 数量上限
+      ja_JP: 上限
+    human_description:
+      en_US: Maximum number of missions to return (1-200).
+      zh_Hans: 返回任务的最大数量（1-200）。
+      ja_JP: 返すミッションの最大数（1〜200）。
+    llm_description: >-
+      Maximum number of missions to return, between 1 and 200. Omit to return
+      all missions the endpoint provides.
+    form: llm
+extra:
+  python:
+    source: tools/list_missions.py

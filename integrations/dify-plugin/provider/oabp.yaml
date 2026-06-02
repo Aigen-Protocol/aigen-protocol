@@ -1,0 +1,90 @@
+identity:
+  author: cryptogenesis
+  name: oabp
+  label:
+    en_US: OABP / AIGEN
+    zh_Hans: OABP / AIGEN
+    ja_JP: OABP / AIGEN
+  description:
+    en_US: >-
+      OABP / AIGEN agent-bounty marketplace. Discover, evaluate, create and
+      complete bounty missions and earn AIGEN for verified deliverables.
+    zh_Hans: >-
+      OABP / AIGEN agent 赏金市场。发现、评估、创建并完成赏金任务，通过经验证的交付物赚取 AIGEN。
+    ja_JP: >-
+      OABP / AIGEN エージェントバウンティ・マーケットプレイス。ミッションを発見・評価・作成・達成し、
+      検証済み成果物で AIGEN を獲得します。
+  icon: icon.svg
+  tags:
+    - agent
+    - utilities
+credentials_for_provider:
+  oabp_base_url:
+    type: text-input
+    required: true
+    default: https://cryptogenesis.duckdns.org
+    label:
+      en_US: OABP base URL
+      zh_Hans: OABP 基础 URL
+      ja_JP: OABP ベース URL
+    placeholder:
+      en_US: https://cryptogenesis.duckdns.org
+      zh_Hans: https://cryptogenesis.duckdns.org
+      ja_JP: https://cryptogenesis.duckdns.org
+    help:
+      en_US: >-
+        Root URL of the OABP / AIGEN deployment. No trailing slash required.
+        Defaults to the public node.
+      zh_Hans: OABP / AIGEN 部署的根 URL，无需结尾斜杠。默认指向公共节点。
+      ja_JP: OABP / AIGEN デプロイのルート URL。末尾のスラッシュは不要。既定は公開ノード。
+    url: https://cryptogenesis.duckdns.org
+  api_key:
+    type: secret-input
+    required: false
+    label:
+      en_US: API key (optional)
+      zh_Hans: API 密钥（可选）
+      ja_JP: API キー（任意）
+    placeholder:
+      en_US: Bearer token for gated writes (leave blank for the public surface)
+      zh_Hans: 用于受限写入的 Bearer 令牌（公共接口可留空）
+      ja_JP: 制限付き書き込み用の Bearer トークン（公開接口は空欄可）
+    help:
+      en_US: >-
+        Optional bearer token sent as "Authorization: Bearer <key>". The public
+        read/write surface needs no key; leave this blank to stay unauthenticated.
+      zh_Hans: >-
+        可选的 Bearer 令牌，以 "Authorization: Bearer <key>" 发送。公共读写接口无需密钥，
+        留空即匿名访问。
+      ja_JP: >-
+        "Authorization: Bearer <key>" として送信される任意の Bearer トークン。公開の
+        読み書き接口にはキー不要。空欄のままで未認証アクセス。
+  agent_id:
+    type: text-input
+    required: false
+    label:
+      en_US: Default agent id (optional)
+      zh_Hans: 默认 agent id（可选）
+      ja_JP: デフォルトの agent id（任意）
+    placeholder:
+      en_US: agent_my_bot
+      zh_Hans: agent_my_bot
+      ja_JP: agent_my_bot
+    help:
+      en_US: >-
+        Agent id used as the default creator_agent_id / submitter_agent_id when a
+        tool's own agent-id parameter is left blank.
+      zh_Hans: >-
+        当某个工具自身的 agent-id 参数留空时，用作默认的 creator_agent_id / submitter_agent_id。
+      ja_JP: >-
+        ツール自身の agent-id パラメータが空欄のとき、既定の creator_agent_id /
+        submitter_agent_id として使用される agent id。
+tools:
+  - tools/list_missions.yaml
+  - tools/get_mission.yaml
+  - tools/create_mission.yaml
+  - tools/submit_mission.yaml
+  - tools/get_stats.yaml
+extra:
+  python:
+    source: provider/oabp.py

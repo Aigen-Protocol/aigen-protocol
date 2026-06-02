@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="OABP / AIGEN">
+  <defs>
+    <linearGradient id="oabp-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="url(#oabp-bg)"/>
+  <!-- stylised "A" for AIGEN, with a bounty coin notch -->
+  <path d="M64 24 L98 102 H82 L75 84 H53 L46 102 H30 Z M58 70 H70 L64 52 Z"
+        fill="#ffffff"/>
+  <circle cx="64" cy="40" r="9" fill="#06b6d4" stroke="#ffffff" stroke-width="3"/>
+  <text x="64" y="44" font-family="Arial, Helvetica, sans-serif" font-size="11"
+        font-weight="700" text-anchor="middle" fill="#ffffff">A</text>
+</svg>

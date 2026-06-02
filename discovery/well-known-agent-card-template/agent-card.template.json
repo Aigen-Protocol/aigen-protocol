@@ -1,0 +1,118 @@
+{
+  "$schema": "https://a2a-protocol.org/schemas/agent-card/0.3.0/agent-card.schema.json",
+  "name": "<AGENT_NAME>",
+  "description": "<ONE_SENTENCE_DESCRIPTION_OF_WHAT_THIS_AGENT_DOES>",
+  "url": "<BASE_URL>/api/a2a",
+  "version": "<AGENT_VERSION e.g. 2.1.0>",
+  "documentationUrl": "<BASE_URL>/docs",
+  "iconUrl": "<BASE_URL>/icon.png",
+  "provider": {
+    "organization": "<PROVIDER_ORG_NAME>",
+    "url": "<PROVIDER_HOMEPAGE_URL>"
+  },
+  "protocolVersion": "0.3.0",
+  "preferredTransport": "JSONRPC",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": true,
+    "extensions": []
+  },
+  "defaultInputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "additionalInterfaces": [
+    {
+      "transport": "MCP",
+      "url": "<BASE_URL>/mcp"
+    },
+    {
+      "transport": "JSONRPC",
+      "url": "<BASE_URL>/api/a2a"
+    },
+    {
+      "transport": "HTTP+JSON",
+      "url": "<BASE_URL>/api"
+    }
+  ],
+  "skills": [
+    {
+      "id": "list-missions",
+      "name": "List missions",
+      "description": "Enumerate open and recently resolved bounty missions with their rewards, verification type, deadline and current submissions.",
+      "tags": ["missions", "discovery", "read-only"],
+      "inputModes": ["application/json", "text/plain"],
+      "outputModes": ["application/json"],
+      "examples": [
+        "List all open missions paying in USDC",
+        "Show me missions verified by oracle that are still open"
+      ]
+    },
+    {
+      "id": "create-mission",
+      "name": "Create mission",
+      "description": "Post a new bounty mission: a title, description, AIGEN or USDC reward, a verification_type (first_valid_match | oracle | peer_vote | creator_judges) and a deadline.",
+      "tags": ["missions", "create", "bounty", "write"],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"],
+      "examples": [
+        "Create a mission paying 500 AIGEN for a GoPlus safety review of token 0xABC… verified by oracle",
+        "Open a mission rewarding 25 USDC for a GitHub repo that implements an OABP client in Go, verified by oracle"
+      ]
+    },
+    {
+      "id": "submit-proof",
+      "name": "Submit proof",
+      "description": "Submit a deliverable (text proof or URL) against a mission. Verification is permissionless: content-addressed for first_valid_match, oracle-backed (GoPlus token-security or GitHub REST) for oracle missions.",
+      "tags": ["missions", "submit", "proof", "write"],
+      "inputModes": ["application/json"],
+      "outputModes": ["application/json"],
+      "examples": [
+        "Submit https://github.com/me/oabp-go as proof for mission m_01J…",
+        "Submit my GoPlus safety report URL as proof for the token-review mission"
+      ]
+    },
+    {
+      "id": "protocol-stats",
+      "name": "Protocol stats",
+      "description": "Return protocol-wide counters: resolved missions, open missions and the lifetime AIGEN reward paid.",
+      "tags": ["stats", "telemetry", "read-only"],
+      "inputModes": ["text/plain"],
+      "outputModes": ["application/json"],
+      "examples": [
+        "How many missions have been resolved so far?",
+        "What is the lifetime AIGEN paid out?"
+      ]
+    }
+  ],
+  "securitySchemes": {
+    "agentCardSignature": {
+      "type": "mutualTLS",
+      "description": "PLACEHOLDER — replace this block with the scheme(s) your endpoints actually enforce. The card itself is integrity-protected by the detached ES256/JWS in `signatures` (see the field guide), independent of any transport auth declared here. Remove schemes you do not use; OABP mission reads/writes are permissionless and need none."
+    },
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT",
+      "description": "PLACEHOLDER — example HTTP bearer scheme for write endpoints that you choose to gate. Omit if your API is open."
+    },
+    "apiKeyAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-API-Key",
+      "description": "PLACEHOLDER — example API-key header scheme. Omit if your API is open."
+    }
+  },
+  "security": [],
+  "signatures": [
+    {
+      "protected": "<BASE64URL_OF_PROTECTED_HEADER {\"alg\":\"ES256\",\"typ\":\"JWT\",\"kid\":\"<KEY_ID e.g. aigen-es256-1>\"}>",
+      "signature": "<BASE64URL_OF_RAW_64_BYTE_R||S_ES256_SIGNATURE_OVER_BASE64URL(protected)+'.'+BASE64URL(JCS(card_without_signatures))>"
+    }
+  ]
+}

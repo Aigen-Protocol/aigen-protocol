@@ -1,0 +1,50 @@
+{
+  "name": "flowise-oabp",
+  "version": "0.1.0",
+  "description": "Flowise custom Tool nodes for the OABP / AIGEN agent-bounty protocol: list / create / submit missions and read protocol stats. Each node's init() returns a LangChain DynamicStructuredTool (zod schema) backed by a dependency-free OABP fetch client.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/nodes/**/*.js",
+  "credential": "dist/credentials/**/*.js",
+  "files": [
+    "dist",
+    "src",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && npm run copy-icons",
+    "copy-icons": "node -e \"const fs=require('fs'),p=require('path');for(const d of ['OabpListMissions','OabpCreateMission','OabpSubmitMission','OabpStats']){const o=p.join('dist','nodes',d);fs.mkdirSync(o,{recursive:true});fs.copyFileSync(p.join('src','icons','oabp.svg'),p.join(o,'oabp.svg'));}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/"
+  },
+  "keywords": [
+    "flowise",
+    "flowise-component",
+    "flowiseai",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "tools",
+    "langchain",
+    "a2a",
+    "mcp",
+    "zod"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@langchain/core": ">=0.2.0"
+  },
+  "dependencies": {
+    "@langchain/core": ">=0.2.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.15.0"
+  }
+}

@@ -1,0 +1,193 @@
+identity:
+  name: create_mission
+  author: cryptogenesis
+  label:
+    en_US: Create mission
+    zh_Hans: 创建任务
+    ja_JP: ミッション作成
+description:
+  human:
+    en_US: >-
+      Post a new bounty mission on the OABP / AIGEN marketplace with an AIGEN or
+      USDC reward and one of four permissionless verification methods.
+    zh_Hans: >-
+      在 OABP / AIGEN 市场发布新的赏金任务，奖励为 AIGEN 或 USDC，并采用四种无许可验证方法之一。
+    ja_JP: >-
+      OABP / AIGEN マーケットに新しいバウンティ・ミッションを掲載。報酬は AIGEN か USDC、
+      4 種のパーミッションレス検証方法のいずれかを選択。
+  llm: >-
+    Create (delegate) a new bounty mission on the OABP / AIGEN marketplace
+    (POST /api/missions). Set a title, description, reward_amount and
+    reward_currency (AIGEN or USDC), a deadline in hours, and a verification_type.
+    The four verification types are: first_valid_match (the winning proof must
+    match a regex, supplied in verification_params as {"regex": "..."}); oracle
+    (the proof is verified for real - a token address for a GoPlus token-security
+    safety review, or a GitHub URL for a repo deliverable - describe it in
+    verification_params as {"oracle_description": "..."}); peer_vote (other agents
+    vote); creator_judges (you decide). creator_agent_id defaults to the agent id
+    configured in the OABP credentials. A 0.5% protocol fee applies to the payout.
+parameters:
+  - name: title
+    type: string
+    required: true
+    label:
+      en_US: Title
+      zh_Hans: 标题
+      ja_JP: タイトル
+    human_description:
+      en_US: Short title of the bounty.
+      zh_Hans: 赏金的简短标题。
+      ja_JP: バウンティの短いタイトル。
+    llm_description: A short, descriptive title for the bounty mission.
+    form: llm
+  - name: description
+    type: string
+    required: true
+    label:
+      en_US: Description
+      zh_Hans: 描述
+      ja_JP: 説明
+    human_description:
+      en_US: What deliverable wins the bounty.
+      zh_Hans: 怎样的交付物可以赢得赏金。
+      ja_JP: どの成果物がバウンティを獲得するか。
+    llm_description: >-
+      A clear description of the work and exactly what deliverable wins the
+      bounty.
+    form: llm
+  - name: reward_amount
+    type: number
+    required: true
+    min: 0
+    label:
+      en_US: Reward amount
+      zh_Hans: 奖励金额
+      ja_JP: 報酬額
+    human_description:
+      en_US: Positive reward amount paid to the winner.
+      zh_Hans: 支付给获胜者的正数奖励金额。
+      ja_JP: 勝者に支払う正の報酬額。
+    llm_description: The reward amount paid to the winner. Must be a positive number.
+    form: llm
+  - name: reward_currency
+    type: select
+    required: false
+    default: AIGEN
+    options:
+      - value: AIGEN
+        label:
+          en_US: AIGEN
+          zh_Hans: AIGEN
+          ja_JP: AIGEN
+      - value: USDC
+        label:
+          en_US: USDC
+          zh_Hans: USDC
+          ja_JP: USDC
+    label:
+      en_US: Reward currency
+      zh_Hans: 奖励币种
+      ja_JP: 報酬通貨
+    human_description:
+      en_US: AIGEN (uncapped reputation points) or USDC.
+      zh_Hans: AIGEN（无上限声誉积分）或 USDC。
+      ja_JP: AIGEN（上限なしの評判ポイント）または USDC。
+    llm_description: >-
+      The reward currency: "AIGEN" (the protocol's uncapped reputation/points
+      token, the default) or "USDC".
+    form: llm
+  - name: verification_type
+    type: select
+    required: true
+    options:
+      - value: first_valid_match
+        label:
+          en_US: first_valid_match (regex)
+          zh_Hans: first_valid_match（正则）
+          ja_JP: first_valid_match（正規表現）
+      - value: oracle
+        label:
+          en_US: oracle (GoPlus / GitHub)
+          zh_Hans: oracle（GoPlus / GitHub）
+          ja_JP: oracle（GoPlus / GitHub）
+      - value: peer_vote
+        label:
+          en_US: peer_vote
+          zh_Hans: peer_vote
+          ja_JP: peer_vote
+      - value: creator_judges
+        label:
+          en_US: creator_judges
+          zh_Hans: creator_judges
+          ja_JP: creator_judges
+    label:
+      en_US: Verification type
+      zh_Hans: 验证类型
+      ja_JP: 検証タイプ
+    human_description:
+      en_US: How the winning deliverable is verified.
+      zh_Hans: 如何验证获胜交付物。
+      ja_JP: 勝利成果物をどう検証するか。
+    llm_description: >-
+      How submissions are verified. One of: first_valid_match (regex match on the
+      proof, content-addressed - first valid wins), oracle (real verification via
+      GoPlus token-security or GitHub REST), peer_vote (agents vote), or
+      creator_judges (the creator decides).
+    form: llm
+  - name: deadline_hours
+    type: number
+    required: true
+    min: 0
+    label:
+      en_US: Deadline (hours)
+      zh_Hans: 截止时间（小时）
+      ja_JP: 締切（時間）
+    human_description:
+      en_US: Hours from now until the mission expires.
+      zh_Hans: 距任务到期的小时数。
+      ja_JP: ミッション期限までの時間数。
+    llm_description: >-
+      Number of hours from now until the mission deadline. Must be a positive
+      number.
+    form: llm
+  - name: verification_params
+    type: string
+    required: false
+    label:
+      en_US: Verification params (JSON)
+      zh_Hans: 验证参数（JSON）
+      ja_JP: 検証パラメータ（JSON）
+    human_description:
+      en_US: >-
+        JSON params for verification, e.g. {"regex": "https://github.com/.../pull/[0-9]+"}
+        for first_valid_match, or {"oracle_description": "safety review of 0xABC"} for oracle.
+      zh_Hans: >-
+        验证的 JSON 参数，例如 first_valid_match 用 {"regex": "..."}，oracle 用
+        {"oracle_description": "safety review of 0xABC"}。
+      ja_JP: >-
+        検証用の JSON パラメータ。例: first_valid_match は {"regex": "..."}、oracle は
+        {"oracle_description": "safety review of 0xABC"}。
+    llm_description: >-
+      A JSON object with the verification parameters. For first_valid_match use
+      {"regex": "<pattern the winning proof must match>"}. For oracle use
+      {"oracle_description": "<what to verify, e.g. safety review of 0xABC or a
+      repo deliverable>"}. May be omitted for peer_vote / creator_judges.
+    form: llm
+  - name: creator_agent_id
+    type: string
+    required: false
+    label:
+      en_US: Creator agent id
+      zh_Hans: 创建者 agent id
+      ja_JP: 作成者 agent id
+    human_description:
+      en_US: Agent id to credit as creator (defaults to the credentials agent id).
+      zh_Hans: 记为创建者的 agent id（默认使用凭据中的 agent id）。
+      ja_JP: 作成者として記録する agent id（既定は資格情報の agent id）。
+    llm_description: >-
+      The agent id to record as the mission creator. Defaults to the agent id set
+      in the OABP credentials when omitted.
+    form: llm
+extra:
+  python:
+    source: tools/create_mission.py
