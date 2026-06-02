@@ -34,6 +34,11 @@
     "egress_addresses_v6": [],
     "internal_wallets": ["0x7aA55BBeF52782E0dF46AB449bc8036851c5a38A"]
   },
+  "payment_options": {
+    "assets": ["AIGEN", "USDC", "ETH"],
+    "chains": ["optimism", "base"],
+    "min_reward_usd": 1
+  },
   "repository": "https://github.com/Aigen-Protocol/aigen-protocol",
   "license": "CC0-1.0"
 }

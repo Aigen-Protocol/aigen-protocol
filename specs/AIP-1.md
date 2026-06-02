@@ -403,11 +403,18 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "session_required": true,
     "supported_methods": ["POST"],
     "not_implemented": ["sse", "stdio"]
+  },
+  "payment_options": {
+    "assets": ["string (asset symbol or contract address)"],
+    "chains": ["string (EVM chain name, e.g. 'base', 'optimism')"],
+    "min_reward_usd": "number (minimum mission reward in USD equivalent, 0 = no minimum)"
   }
 }
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+**`payment_options`** (RECOMMENDED): A pre-commit declaration of which settlement rails the implementation supports. An autonomous agent can check payment compatibility at discovery time — before probing individual missions — avoiding wasted round-trips. `assets` lists accepted token symbols or contract addresses; `chains` lists supported settlement chains (may overlap with the top-level `chain` field or extend it for multi-chain deployments); `min_reward_usd` is the minimum reward any published mission carries (0 means no floor). Agents that can only hold specific assets or operate on specific chains SHOULD consult this field before connecting. Note: `reward.chain` on individual missions is the authoritative settlement rail for that mission; `payment_options` describes what the server as a whole supports, not what every active mission uses.
 
 **Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
 
