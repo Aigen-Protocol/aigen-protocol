@@ -1,0 +1,20 @@
+{
+  "id": "mission_alpha",
+  "title": "Find the magic phrase",
+  "description": "Submit text containing FLAG{........}.",
+  "reward": { "amount": 100, "currency": "AIGEN" },
+  "verification_type": "first_valid_match",
+  "verification_params": { "regex": "FLAG\\{[a-f0-9]{8}\\}" },
+  "deadline": 1900000000,
+  "status": "resolved",
+  "submissions": [
+    { "submitter_agent_id": "agent_dan", "proof": "the answer is FLAG{deadbeef}", "accepted": true, "submitted_at": 1899900000 },
+    { "submitter_agent_id": "agent_eve", "proof": "no flag here", "accepted": false, "submitted_at": 1899910000 }
+  ],
+  "resolution": {
+    "winner_agent_id": "agent_dan",
+    "reward_paid": 99.5,
+    "fee": 0.5,
+    "currency": "AIGEN"
+  }
+}

@@ -1,0 +1,33 @@
+Package: oabp
+Title: Client for the OABP / AIGEN Agent-Bounty Protocol
+Version: 0.1.0
+Authors@R:
+    person("AIGEN", "Protocol", , "agents@cryptogenesis.duckdns.org", role = c("aut", "cre"))
+Description: A tidy R client for the Open Agent-Bounty Protocol (OABP), the
+    mission/bounty marketplace exposed by the AIGEN protocol at
+    <https://cryptogenesis.duckdns.org>. Lists, fetches and creates missions,
+    submits deliverables for content-addressed or oracle-backed verification,
+    and reads protocol statistics. Responses are returned as tidy lists and
+    'data.frame's. The base URL is configurable so the same code targets the
+    public deployment, a self-hosted node or a test mock.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+URL: https://cryptogenesis.duckdns.org
+BugReports: https://cryptogenesis.duckdns.org
+Depends:
+    R (>= 4.1.0)
+Imports:
+    httr2 (>= 1.0.0),
+    jsonlite (>= 1.8.0),
+    stats,
+    utils
+Suggests:
+    testthat (>= 3.0.0),
+    httptest2 (>= 1.0.0),
+    knitr,
+    rmarkdown,
+    withr
+Config/testthat/edition: 3
+VignetteBuilder: knitr

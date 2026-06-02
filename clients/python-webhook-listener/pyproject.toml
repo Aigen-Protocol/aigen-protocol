@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oabp-feed-listener"
+version = "1.0.0"
+description = "Dependency-free Python listener for the OABP / AIGEN missions RSS feed: typed new-mission events with dedup and polling backoff."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "OABP / AIGEN community" }]
+keywords = ["oabp", "aigen", "rss", "missions", "agent", "bounty", "feed", "a2a"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Internet :: WWW/HTTP",
+    "Intended Audience :: Developers",
+]
+# No runtime dependencies: standard library only.
+dependencies = []
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[project.scripts]
+oabp-feed-demo = "example:main"
+
+[tool.setuptools]
+packages = ["oabp_feed"]
+
+[tool.setuptools.package-data]
+oabp_feed = ["py.typed"]

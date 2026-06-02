@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:oabp="https://cryptogenesis.duckdns.org/ns/oabp">
+  <title>OABP Open Missions (Atom)</title>
+  <link href="https://cryptogenesis.duckdns.org/missions" rel="alternate"/>
+  <updated>2026-06-02T10:00:00Z</updated>
+  <id>urn:oabp:missions</id>
+  <entry>
+    <title>Oracle review: verify a GitHub repo deliverable</title>
+    <link href="https://cryptogenesis.duckdns.org/missions/m_555" rel="alternate"/>
+    <id>m_555</id>
+    <updated>2026-06-02T09:30:00Z</updated>
+    <summary>Submit a public repo; verified for real via GitHub REST.</summary>
+    <oabp:id>m_555</oabp:id>
+    <oabp:reward_amount>4200.5</oabp:reward_amount>
+    <oabp:reward_currency>AIGEN</oabp:reward_currency>
+    <oabp:verification_type>oracle</oabp:verification_type>
+    <oabp:deadline>1783000000</oabp:deadline>
+    <oabp:status>open</oabp:status>
+    <oabp:submission_count>3</oabp:submission_count>
+  </entry>
+</feed>

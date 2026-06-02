@@ -1,0 +1,15 @@
+# Build output
+bin/
+obj/
+artifacts/
+*.nupkg
+*.snupkg
+
+# Local toolchain dirs used during CI/sandbox builds
+.dotnethome/
+.nuget/
+
+# IDE
+.vs/
+.idea/
+*.user

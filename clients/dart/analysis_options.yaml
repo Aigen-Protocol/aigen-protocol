@@ -1,0 +1,18 @@
+# Lints for the OABP Dart SDK. Builds on the community "recommended" set from
+# package:lints and turns on a few extras that matter for a published package.
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  exclude:
+    - lib/**.g.dart # generated; do not lint hand-tweaks against style rules
+
+linter:
+  rules:
+    - avoid_print
+    - prefer_final_locals
+    - prefer_const_constructors
+    - unawaited_futures
+    - directives_ordering

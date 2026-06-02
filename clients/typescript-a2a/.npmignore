@@ -1,0 +1,10 @@
+# Sources of truth for what to publish live in package.json "files".
+# This keeps tooling/config out of the tarball as a backstop.
+node_modules/
+coverage/
+test/
+vitest.config.ts
+tsconfig.test.json
+*.tsbuildinfo
+.gitignore
+*.log

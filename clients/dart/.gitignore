@@ -1,0 +1,17 @@
+# Dart / Flutter build + tool artifacts
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Coverage
+coverage/
+
+# For a published library, the lockfile is not committed (apps commit theirs).
+pubspec.lock
+
+# Editor
+.idea/
+*.iml
+.vscode/

@@ -1,0 +1,73 @@
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  SuggestExtensions: false
+  Exclude:
+    - "vendor/**/*"
+    - "bin/**/*"
+
+# This is a client library: methods that map a wide JSON payload onto a value
+# object are inherently long/parameter-heavy by design, and specs are big.
+# We intentionally do NOT depend on rubocop-rspec, so the base rubocop run
+# stays plugin-free and "rubocop clean" needs no extra gems.
+
+Metrics/MethodLength:
+  Max: 40
+  Exclude:
+    - "spec/**/*"
+
+Metrics/AbcSize:
+  Max: 40
+
+Metrics/ClassLength:
+  Max: 350
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Max: 12
+  MaxOptionalParameters: 12
+
+Metrics/CyclomaticComplexity:
+  Max: 12
+
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*"
+    - "*.gemspec"
+    - "Rakefile"
+
+Lint/EmptyBlock:
+  Exclude:
+    - "spec/**/*"
+
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - "spec/**/*"
+
+# Value objects keep their constructor keyword args explicit for clarity.
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Naming/MethodParameterName:
+  AllowedNames:
+    - id
+    - f
+    - k
+    - v
+    - m
+    - s
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false

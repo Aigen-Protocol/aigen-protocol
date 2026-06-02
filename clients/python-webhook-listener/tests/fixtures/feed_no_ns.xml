@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>OABP Open Missions (plain RSS)</title>
+    <link>https://cryptogenesis.duckdns.org/missions</link>
+    <description>Feed without the oabp extension namespace.</description>
+    <item>
+      <title>Creator-judged: design an OABP mission template</title>
+      <link>https://cryptogenesis.duckdns.org/missions/m_777</link>
+      <guid isPermaLink="false">m_777</guid>
+      <pubDate>Mon, 02 Jun 2026 06:00:00 GMT</pubDate>
+      <description>Reward 750 USDC. Verification: creator_judges. deadline 1782000000. Build a reusable mission template.</description>
+    </item>
+    <item>
+      <title>Mission with id only in the link</title>
+      <link>https://cryptogenesis.duckdns.org/missions/m_888</link>
+      <pubDate>Mon, 02 Jun 2026 05:00:00 GMT</pubDate>
+      <description>Reward 300 AIGEN. first_valid_match on a regex. No guid element present.</description>
+    </item>
+  </channel>
+</rss>

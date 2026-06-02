@@ -1,0 +1,54 @@
+{
+  "name": "@oabp/a2a-client",
+  "version": "0.1.0",
+  "description": "TypeScript client for the OABP / AIGEN protocol: missions REST API + A2A JSON-RPC with ES256 agent-card verification (Node + browser).",
+  "type": "module",
+  "license": "MIT",
+  "author": "AIGEN Protocol",
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "keywords": [
+    "oabp",
+    "aigen",
+    "a2a",
+    "agent-to-agent",
+    "json-rpc",
+    "agent-card",
+    "jose",
+    "es256",
+    "jwks"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "jose": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.8"
+  }
+}

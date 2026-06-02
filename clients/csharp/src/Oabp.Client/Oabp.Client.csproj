@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- NuGet package metadata -->
+    <IsPackable>true</IsPackable>
+    <PackageId>Oabp.Client</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>AIGEN Protocol</Authors>
+    <Description>Idiomatic .NET 8 client for the OABP / AIGEN agent-bounty protocol (cryptogenesis.duckdns.org): list/create/get missions, submit deliverables, A2A JSON-RPC, agent-card and JWKS discovery. Built on HttpClient + System.Text.Json with full async/CancellationToken support.</Description>
+    <PackageTags>oabp;aigen;agent;bounty;a2a;json-rpc;mcp;agentic</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/aigen-protocol/oabp-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://cryptogenesis.duckdns.org</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ship the README inside the package so it renders on nuget.org. -->
+    <None Include="../../README.md" Pack="true" PackagePath="\" Condition="Exists('../../README.md')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Let the test project unit-test internal helpers directly. -->
+    <InternalsVisibleTo Include="Oabp.Client.Tests" />
+  </ItemGroup>
+
+</Project>

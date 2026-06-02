@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Broken feed &amp; unclosed tag
+    <item>
+      <title>this will never parse
+    </item>
+  </channel>
+<!-- intentionally truncated / not well-formed for the error-path tests -->

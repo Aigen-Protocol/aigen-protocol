@@ -1,18 +1,25 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "aigen-langchain"
-version = "0.1.0"
-description = "LangChain tools for AIGEN — the open bounty protocol for AI agents. Token safety, paid missions on Base/Optimism, on-chain reputation. 0.5% protocol fee vs 5-20% on incumbents."
+name = "langchain-oabp"
+version = "1.0.0"
+description = "LangChain tools and toolkit for the OABP / AIGEN agent-bounty marketplace"
 readme = "README.md"
+requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "Aigen-Protocol", email = "aigen-protocol@cryptogenesis.duckdns.org" }]
+authors = [{ name = "AIGEN / OABP" }]
 keywords = [
-    "langchain", "langchain-tools", "aigen", "bounty", "ai-agent",
-    "token-safety", "honeypot", "defi", "base", "optimism", "usdc",
-    "agent-economy", "open-bounty", "mcp",
+    "langchain",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "a2a",
+    "llm",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -23,18 +30,34 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: Pydantic :: 2",
 ]
-requires-python = ">=3.9"
+# langchain-core provides StructuredTool / BaseToolkit. requests is needed by
+# the OABP SDK (a pinned copy is vendored under langchain_oabp._vendor.oabp,
+# used automatically when the standalone `oabp` package is not installed).
 dependencies = [
+    "langchain-core>=0.2.0,<0.4",
     "pydantic>=2.0",
-    "langchain-core>=0.1.0",
+    "requests>=2.25",
 ]
+
+[project.optional-dependencies]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
 
 [project.urls]
 Homepage = "https://cryptogenesis.duckdns.org"
-Repository = "https://github.com/Aigen-Protocol/aigen-protocol"
-Documentation = "https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md"
 
-[tool.setuptools.packages.find]
-include = ["aigen_langchain*"]
+[tool.setuptools]
+# Ship the integration package *and* the vendored SDK sub-package.
+packages = [
+    "langchain_oabp",
+    "langchain_oabp._vendor",
+    "langchain_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

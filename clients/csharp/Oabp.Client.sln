@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A6F6CA70-8BF8-4288-A00D-E4CA92BC494F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oabp.Client", "src\Oabp.Client\Oabp.Client.csproj", "{29D6F8F0-E5BD-4824-B932-659C0D88E718}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8FC5FC4B-8E19-41A6-8053-3C038091E436}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oabp.Client.Tests", "test\Oabp.Client.Tests\Oabp.Client.Tests.csproj", "{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{04EA09CF-6962-4D3F-8975-73A27D19A08D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oabp.Client.Example", "examples\Oabp.Client.Example\Oabp.Client.Example.csproj", "{7017B1A3-7C6F-4564-89D2-F28AD001A99A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29D6F8F0-E5BD-4824-B932-659C0D88E718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29D6F8F0-E5BD-4824-B932-659C0D88E718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29D6F8F0-E5BD-4824-B932-659C0D88E718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29D6F8F0-E5BD-4824-B932-659C0D88E718}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7017B1A3-7C6F-4564-89D2-F28AD001A99A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7017B1A3-7C6F-4564-89D2-F28AD001A99A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7017B1A3-7C6F-4564-89D2-F28AD001A99A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7017B1A3-7C6F-4564-89D2-F28AD001A99A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29D6F8F0-E5BD-4824-B932-659C0D88E718} = {A6F6CA70-8BF8-4288-A00D-E4CA92BC494F}
+		{CBC7F6C1-096D-4D5A-864C-B2F34D725DEF} = {8FC5FC4B-8E19-41A6-8053-3C038091E436}
+		{7017B1A3-7C6F-4564-89D2-F28AD001A99A} = {04EA09CF-6962-4D3F-8975-73A27D19A08D}
+	EndGlobalSection
+EndGlobal
