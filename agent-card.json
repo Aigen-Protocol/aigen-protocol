@@ -114,6 +114,12 @@
             "notes": "Per AIP-1 §7.3.4, GET /mcp is a liveness probe for endpoint readiness, not a tool call."
           },
           "sessionIdCoolingPeriodSeconds": 10
+        },
+        "transportPaths": {
+          "served": ["/mcp"],
+          "compatibilityServed": ["/mcp/sse", "/messages/"],
+          "notServed": ["/sse", "/v1/messages"],
+          "proposal": "AIP-1 §7.1.1 transport_paths: distinguish transport names from concrete legacy probe paths."
         }
       },
       {

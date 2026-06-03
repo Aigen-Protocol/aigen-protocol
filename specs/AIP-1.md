@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.10
+**Status:** v0.3.11
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.11 | 2026-06-03 | §7.1.1 (SHOULD): add `mcp.transport_paths.served` / `compatibility_served` / `not_served` to distinguish transport names from URL path variants. `not_implemented` identifies unsupported transport names (`sse`, `stdio`); `transport_paths` identifies concrete URL paths the implementation does or does not serve (e.g. `/mcp`, `/mcp/sse`, `/sse`, `/messages/`, `/v1/messages`). Lets directory crawlers and legacy MCP clients fail fast on path-level probes rather than re-deriving from transport names alone. Evidence: Internet Census AS21859 repeatedly completed Streamable HTTP lifecycle then probed bare `GET /sse`, showing legacy root-SSE path enumeration is not covered by `not_implemented: ["sse"]`. Co-authored with external contributor @zeroknowledge0x (issue #35, PR #68). |
 | v0.3.10 | 2026-06-03 | §7.3.5 (normative): Streamable HTTP MCP clients MUST echo `Mcp-Session-Id` on every follow-up request; servers MUST echo the active session header on successful follow-up responses and SHOULD return JSON-RPC `-32001` `session expired` for unknown/expired/terminated session IDs instead of a bare `400`. Discovery examples now advertise GET/POST/DELETE lifecycle methods, handshake timeout, session-ID cooling period, and lifecycle hints. Evidence: issue #25's step-2 trap shows clients can pass `initialize` but fail or loop when the session handoff is implicit. Co-authored with external contributor @zeroknowledge0x (issue #25, PR #70). |
 | v0.3.9 | 2026-06-03 | §7.4 (SHOULD): A2A-compatible `agent-card.json` documents that point at an MCP endpoint should embed a machine-copyable `transport` invocation contract, including JSON-RPC `initialize`, required headers, `Mcp-Session-Id` echo semantics, `notifications/initialized`, a steady-state example call, JSON-RPC error shape, and REST fallback endpoints. Evidence: directory crawlers observed via A2A cards repeatedly POSTed to `/mcp` without the initialize payload or without post-initialize session handling; sibling text recipes such as `/agents.txt` were insufficient because crawlers re-derived invocation behavior from the card itself. Co-authored with external contributor @zeroknowledge0x (issue #22, PR #71). |
 | v0.3.8 | 2026-06-03 | §6.1 (normative): portable mission-completion receipts. Resolved missions/submissions MAY expose a signed `oabp.mission_receipt` document (RFC 8785 JSON Canonicalization + ed25519) binding mission ID, submission ID, winning agent, content hash, verifier decision, and settlement proof. `/.well-known/oabp.json` SHOULD advertise `receipt_signing_keys[]` and `receipt_endpoint_template` so third-party buyers and registries can verify completed work without live database access or an AIGEN-specific SDK. Co-authored with external contributor @zeroknowledge0x (issue #28, PR #69). |
@@ -380,13 +381,34 @@ If a compliant implementation exposes an MCP surface, it MUST declare the transp
     "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
     "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
     "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+  },
+  "transport_paths": {
+    "served": ["/mcp"],
+    "compatibility_served": ["/mcp/sse", "/messages/"],
+    "not_served": ["/sse", "/v1/messages"]
   }
 }
 ```
 
 The `transport` field MUST be exactly one of: `streamable_http`, `sse`, `stdio`.
 
-The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `/mcp/sse`, `/messages/`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `sse`, `stdio`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+
+#### 7.1.1 MCP Transport Path Enumeration
+
+`not_implemented` identifies unsupported **transport names**. It is not sufficient to describe the concrete URL paths that legacy clients, catalog scanners, and research crawlers may probe while trying to map those transports. A compliant implementation that exposes an MCP surface SHOULD therefore add a `transport_paths` object to `/.well-known/oabp.json` under the `mcp` object (shape shown in the §7.1 example above).
+
+`transport_paths.served` lists canonical endpoint paths that actually serve the declared MCP transport. Each entry SHOULD be a path-only absolute path beginning with `/`; implementations MAY publish absolute URLs if their discovery document intentionally spans multiple origins.
+
+`transport_paths.compatibility_served` lists paths that are intentionally routed for legacy MCP clients, side-channel message buses, or compatibility shims even though they are not the canonical endpoint for the declared transport. For example, a FastMCP deployment may expose `/mcp/sse` as a legacy SSE endpoint and `/messages/` as its message-bus route while still declaring `/mcp` as the canonical `streamable_http` endpoint. Paths listed here MUST NOT also appear in `transport_paths.not_served`.
+
+`transport_paths.not_served` lists known fallback or legacy paths that an automated client may probe but that this implementation does not serve. For a `streamable_http` canonical server, the list SHOULD include root-level `/sse` and any known unserved message variants such as `/v1/messages` unless those paths are intentionally served as compatibility aliases. Servers MAY add implementation-specific paths observed in logs. A server MUST NOT list a path under `not_served` if that path returns a live MCP stream, a compatibility endpoint, or a session message-bus response.
+
+Clients MUST treat `transport_paths.not_served` as advisory negative discovery, not as a security policy. A client that sees its planned path in `not_served` SHOULD stop probing that path and retry the first compatible path in `served`. A client MUST NOT infer that paths omitted from `not_served` are supported; absence only means the implementation has not declared them.
+
+When a request reaches a path listed in `transport_paths.not_served`, the server SHOULD return the structured unsupported-transport response defined in §7.2. Bare `404` remains technically acceptable for unknown paths, but structured JSON gives retrying clients a canonical endpoint without requiring them to fetch discovery metadata again.
+
+**Falsifiability — observed path-level gap (2026-05-24 to 2026-05-29):** The AIGEN reference server declared `transport: streamable_http` and `not_implemented: ["sse", "stdio"]`, yet a research scanner from Internet Census / Zenlayer AS21859 repeatedly completed the Streamable HTTP lifecycle (`POST /mcp` initialize → `notifications/initialized` → `tools/list`) and then probed bare `GET /sse`, receiving `404`. Bursts came from two datacenters (`185.226.197.0/24` Lelystad and `185.180.141.0/24` Dallas). This shows that path-level probes can persist even after the transport name is clear: legacy MCP clients may distinguish root `/sse` from `/mcp/sse`, and `not_implemented` does not normatively tell them which concrete paths are intentionally absent.
 
 #### 7.2 Server Error Response for Unsupported Transport Paths
 
