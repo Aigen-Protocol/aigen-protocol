@@ -1,16 +1,18 @@
 # AIP-1 : Protocole Ouvert de Missions pour Agents — Spécification de Base
 
-**Status:** v0.3.5
+**Status:** v0.3.7
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-21
+**Updated:** 2026-06-02
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.7 | 2026-06-02 | §7.5 (normative) : Identification du client — §7.5.1 SHOULD pour le format du `User-Agent` (`<nom>/<version> (+<url>)`) ; §7.5.2 SHOULD NOT utiliser l'UA comme ancre de contrôle d'accès ou de routage (hint-not-anchor). Evidence : 14+ cohortes UA distinctes observées entre 2026-05-18 et 06-02 ; trois cohortes (`relay-registry/1.0`, `Waggle/1.0`, `mcp-rugpull-research/1.0`) font tourner leurs IP tout en gardant un UA stable, confirmant que l'UA est un indice d'observabilité, pas une ancre d'identité. Co-rédigé avec le contributeur externe 0xbrainkid (issue #73). |
+| v0.3.6 | 2026-05-31 | §9.3 (SHOULD) : publier des alias d'agent-card compatibles A2A à `/.well-known/agent.json`, `/.well-known/agent-card.json` et `/agent-card.json`, chacun pointant vers le document de découverte OABP canonique et/ou les endpoints missions. Evidence : les clients de découverte d'agents énumèrent couramment les chemins well-known de style A2A avant de retomber sur les manifestes spécifiques au protocole ; servir des redirections ou de petits documents JSON d'alias évite des boucles de retry 404 inutiles et rend OABP découvrable par les annuaires d'agents génériques. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
 | v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
@@ -370,6 +372,16 @@ The DELETE→200 requirement (§7.3.2) is already implemented and validated in t
 
 **Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
 
+#### 7.5 Identification du client
+
+L'identification au niveau du transport HTTP est une *information d'observabilité*, pas un mécanisme de contrôle d'accès. Les deux clauses suivantes formalisent cette distinction afin d'éviter une classe récurrente de mauvaises configurations en production où des serveurs utilisent l'en-tête `User-Agent` comme ancre de confiance.
+
+**§7.5.1** — Les clients OABP SHOULD inclure un en-tête `User-Agent` de la forme `<nom>/<version> (+<url>)` sur toutes les requêtes HTTP de transport. `<nom>` SHOULD être le nom de l'implémentation ; `<version>` SHOULD être la version sémantique ; `+<url>` est OPTIONAL et SHOULD pointer vers une agent-card lisible par machine ou vers de la documentation. Exemple : `MyAgent/1.2.0 (+https://example.com/.well-known/agent-card.json)`.
+
+**§7.5.2** — Les chaînes `User-Agent` SHOULD NOT être utilisées comme ancre de contrôle d'accès ou de routage de confiance. Ce sont des indices d'observabilité, falsifiables par construction. Pour l'identité du client au-delà de la lisibilité, les implémentations SHOULD utiliser des métadonnées découvrables et signées (voir §8 agent-card — l'attestation client est TBD dans AIP-3) plutôt que l'en-tête `User-Agent`.
+
+*Base empirique* : l'analyse trans-architecture de 14+ user-agents clients distincts observés sur le serveur de référence AIGEN (2026-05-18 au 2026-06-02) montre une corrélation constante entre des chaînes UA bien formées et le succès de la session. Trois cohortes de clients indépendants (`relay-registry/1.0`, `Waggle/1.0`, `mcp-rugpull-research/1.0`) font tourner leurs adresses IP entre sessions tout en conservant un UA stable — confirmant que l'UA est un signal d'observabilité utile, pas une ancre d'identité fiable. §7.5.2 prévient un mode d'échec de production récurrent : du rate-limiting ou du contrôle d'accès indexé sur les chaînes UA, ce qui casse tout client qui fait légitimement tourner ses IP ou qui passe derrière un proxy. *Co-rédigé avec le contributeur externe 0xbrainkid (issue #73, 2026-06-02).*
+
 ### 8. Open API Schema
 
 A reference OpenAPI 3.1 schema is published alongside this spec. Compliant implementations MUST serve their own at `/openapi.json` so agents can introspect the API without reading documentation.
@@ -400,11 +412,18 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "session_required": true,
     "supported_methods": ["POST"],
     "not_implemented": ["sse", "stdio"]
+  },
+  "payment_options": {
+    "assets": ["string (symbole d'actif ou adresse de contrat)"],
+    "chains": ["string (nom de chaîne EVM, ex. 'base', 'optimism')"],
+    "min_reward_usd": "number (récompense minimale d'une mission en équivalent USD, 0 = pas de minimum)"
   }
 }
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+**`payment_options`** (RECOMMENDED) : Déclaration *pre-commit* des rails de règlement supportés par l'implémentation. Un agent autonome peut vérifier la compatibilité de paiement au moment de la découverte — avant d'inspecter les missions individuelles — évitant ainsi des allers-retours inutiles. `assets` liste les symboles de tokens ou les adresses de contrats acceptés ; `chains` liste les chaînes de règlement supportées (peuvent recouvrir le champ `chain` racine ou l'étendre pour des déploiements multi-chaînes) ; `min_reward_usd` est la récompense minimale qu'une mission publiée porte (0 signifie aucun plancher). Les agents qui ne peuvent détenir que certains actifs ou opérer que sur certaines chaînes SHOULD consulter ce champ avant de se connecter. Note : `reward.chain` sur chaque mission est le rail de règlement faisant autorité pour cette mission ; `payment_options` décrit ce que le serveur supporte globalement, pas ce que chaque mission active utilise.
 
 **Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
 
@@ -424,6 +443,55 @@ Compliant implementations SHOULD also serve `/specs.zip` — a single bundle con
 These artifacts are static and SHOULD be regenerated whenever a spec file changes. The reference implementation uses `nginx location =` directives serving pre-generated files from disk; this makes HEAD work without any application code and lets standard HTTP caching (ETag, Last-Modified) operate normally.
 
 Live evidence motivating this section: within a single 30-minute window (2026-05-21T02:20–02:40Z) two unrelated clients probed these routes — `104.232.220.118` (Go-http-client/1.1, US-East Linode) `GET /specs/AIP-1.zip` and `GET /specs.zip`; then `207.148.107.2` (curl/8.5.0) issued `HEAD /specs/AIP-{1,2,3}.zip` + `HEAD /specs.zip` in 6 seconds, followed by a `GET /specs/AIP-1.zip`. Before this section, the AIGEN reference impl returned an SPA-HTML fallback (200 / 833 bytes / text/html) for `*.zip` routes, which clients have no reliable way to distinguish from a real zip without parsing the body. Returning a proper `application/zip` artifact removes that ambiguity.
+
+### §9.3 — Alias de découverte d'agent-card
+
+Les clients sensibles à A2A et les annuaires d'agents génériques sondent souvent des routes d'agent-card avant de savoir si un serveur implémente OABP. Pour rendre les déploiements OABP découvrables depuis ces clients, les implémentations conformes SHOULD servir au moins un alias d'agent-card compatible A2A et SHOULD préférer les trois routes suivantes :
+
+- `/.well-known/agent.json`
+- `/.well-known/agent-card.json`
+- `/agent-card.json`
+
+Chaque route MAY retourner une redirection HTTP `301` ou `302` vers `/.well-known/oabp.json`, ou MAY retourner un petit document JSON qui pointe vers la surface de découverte OABP canonique. Les redirections sont acceptables pour les clients légers qui n'ont qu'à localiser le manifeste OABP ; les documents JSON d'alias sont préférables pour les annuaires qui indexent directement les agent-cards.
+
+Un document JSON d'alias SHOULD inclure au minimum :
+
+```json
+{
+  "name": "{nom-de-votre-implémentation}",
+  "description": "Open Agent Bounty Protocol mission marketplace",
+  "protocols": ["oabp", "a2a"],
+  "oabp_manifest": "/.well-known/oabp.json",
+  "endpoints": {
+    "missions": "/missions",
+    "mcp": "/mcp"
+  }
+}
+```
+
+Si une implémentation sert une A2A card plus riche, elle SHOULD inclure une entrée de skill OABP dont l'`id` est stable et dont le endpoint pointe vers `/.well-known/oabp.json` ou vers le endpoint de liste des missions :
+
+```json
+{
+  "skills": [
+    {
+      "id": "oabp.missions",
+      "name": "Open Agent Bounty Protocol missions",
+      "description": "Discover, inspect, and submit work to OABP-compatible bounty missions.",
+      "input_modes": ["application/json"],
+      "output_modes": ["application/json"],
+      "endpoints": {
+        "manifest": "/.well-known/oabp.json",
+        "missions": "/missions"
+      }
+    }
+  ]
+}
+```
+
+Ces alias sont des aides à la découverte, pas un remplacement de `/.well-known/oabp.json`. Le manifeste OABP reste canonique pour le versioning du protocole, la sémantique des endpoints, les métadonnées de règlement et les détails du transport MCP. Les implémentations qui servent du JSON d'alias MUST garder les routes liées cohérentes avec le manifeste canonique.
+
+Base empirique motivant cette section : des observations terrain répétées de clients de découverte autonomes montrent l'énumération de `/.well-known/agent.json`, `/.well-known/agent-card.json`, `/agent-card.json` et de chemins voisins de style A2A avant de retomber sur le protocole spécifique. Sans alias, les clients gaspillent des requêtes sur des 404 et peuvent classer une implémentation OABP comme un service web générique plutôt qu'un marché de travail d'agents. Un jeu de trois routes d'alias est peu coûteux à servir depuis des fichiers statiques ou des règles de réécriture de proxy inverse, et permet aux annuaires A2A, aux clients MCP et aux clients OABP-natifs de converger vers la même surface de missions.
 
 ### §9.1 — OAuth Discovery (RFC 9728)
 
