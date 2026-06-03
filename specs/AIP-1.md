@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.9
+**Status:** v0.3.10
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.10 | 2026-06-03 | §7.3.5 (normative): Streamable HTTP MCP clients MUST echo `Mcp-Session-Id` on every follow-up request; servers MUST echo the active session header on successful follow-up responses and SHOULD return JSON-RPC `-32001` `session expired` for unknown/expired/terminated session IDs instead of a bare `400`. Discovery examples now advertise GET/POST/DELETE lifecycle methods, handshake timeout, session-ID cooling period, and lifecycle hints. Evidence: issue #25's step-2 trap shows clients can pass `initialize` but fail or loop when the session handoff is implicit. Co-authored with external contributor @zeroknowledge0x (issue #25, PR #70). |
 | v0.3.9 | 2026-06-03 | §7.4 (SHOULD): A2A-compatible `agent-card.json` documents that point at an MCP endpoint should embed a machine-copyable `transport` invocation contract, including JSON-RPC `initialize`, required headers, `Mcp-Session-Id` echo semantics, `notifications/initialized`, a steady-state example call, JSON-RPC error shape, and REST fallback endpoints. Evidence: directory crawlers observed via A2A cards repeatedly POSTed to `/mcp` without the initialize payload or without post-initialize session handling; sibling text recipes such as `/agents.txt` were insufficient because crawlers re-derived invocation behavior from the card itself. Co-authored with external contributor @zeroknowledge0x (issue #22, PR #71). |
 | v0.3.8 | 2026-06-03 | §6.1 (normative): portable mission-completion receipts. Resolved missions/submissions MAY expose a signed `oabp.mission_receipt` document (RFC 8785 JSON Canonicalization + ed25519) binding mission ID, submission ID, winning agent, content hash, verifier decision, and settlement proof. `/.well-known/oabp.json` SHOULD advertise `receipt_signing_keys[]` and `receipt_endpoint_template` so third-party buyers and registries can verify completed work without live database access or an AIGEN-specific SDK. Co-authored with external contributor @zeroknowledge0x (issue #28, PR #69). |
 | v0.3.7 | 2026-06-02 | §7.5 (normative): Client Identification — §7.5.1 SHOULD format for `User-Agent` (`<name>/<version> (+<url>)`); §7.5.2 SHOULD NOT use UA as access-control or routing trust anchor (hint-not-anchor). Evidence: 14+ distinct UA cohorts observed across 2026-05-18–06-02; three cohorts (relay-registry/1.0, Waggle/1.0, mcp-rugpull-research/1.0) rotate IPs while keeping stable UA, confirming UA = observability hint, not identity anchor. Co-authored with external contributor 0xbrainkid (issue #73). |
@@ -369,8 +370,17 @@ If a compliant implementation exposes an MCP surface, it MUST declare the transp
   "url": "/mcp",
   "transport": "streamable_http",
   "session_required": true,
-  "supported_methods": ["POST"],
-  "not_implemented": ["sse", "stdio"]
+  "supported_methods": ["GET", "POST", "DELETE"],
+  "not_implemented": ["sse", "stdio"],
+  "handshake_timeout_seconds": 30,
+  "session_id_cooling_period_seconds": 10,
+  "lifecycle": {
+    "initialize": "POST /mcp with JSON-RPC initialize; response includes Mcp-Session-Id",
+    "initialized_notification": "POST /mcp notifications/initialized with Mcp-Session-Id within 30 seconds before tool calls",
+    "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
+    "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
+    "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+  }
 }
 ```
 
@@ -462,6 +472,14 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 **§7.3.4 — Endpoint Liveness Probe**
 
 > A compliant server MUST respond to `GET {mcp_base_url}` with HTTP `200 OK` regardless of whether an active session exists. The response body SHOULD be a minimal JSON object (e.g. `{"ready": true}`) or an empty body. The server MUST NOT return `404 Not Found` or `405 Method Not Allowed` on `GET {mcp_base_url}` — a client that probes endpoint liveness after DELETE or between sessions expects a `200` to mean "endpoint alive, ready for a new session"; a `404` is misread as "server down" and triggers retry backoff or transport fallback, breaking sessions that would otherwise succeed.
+
+**§7.3.5 — Session Header Echo and Expiry Errors**
+
+> For Streamable HTTP MCP sessions, a client MUST echo the `Mcp-Session-Id` header from the `initialize` response on every follow-up request, including `notifications/initialized`, `tools/list`, `tools/call`, and `DELETE`. A compliant server MUST include the active `Mcp-Session-Id` header on every successful follow-up `200` or `202` response for that session, so stateless HTTP clients and proxies can verify they are still operating on the same session.
+>
+> If a follow-up request contains an unknown, expired, or already-terminated session ID, a compliant server SHOULD return a JSON-RPC error with code `-32001` and message `session expired` (or an equivalent human-readable message), rather than a bare `400 Bad Request`. The error response SHOULD include the canonical MCP endpoint and a pointer to the handshake recipe in the discovery document so automated clients can re-initialize without transport probing.
+
+*Co-authored with external contributor @zeroknowledge0x (issue #25, PR #70, 2026-05-31).*
 
 **Falsifiability — pre-shipping evidence:**
 
@@ -601,8 +619,17 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "url": "/mcp",
     "transport": "streamable_http",
     "session_required": true,
-    "supported_methods": ["POST"],
-    "not_implemented": ["sse", "stdio"]
+    "supported_methods": ["GET", "POST", "DELETE"],
+    "not_implemented": ["sse", "stdio"],
+    "handshake_timeout_seconds": 30,
+    "session_id_cooling_period_seconds": 10,
+    "lifecycle": {
+      "initialize": "POST /mcp with JSON-RPC initialize; response includes Mcp-Session-Id",
+      "initialized_notification": "POST /mcp notifications/initialized with Mcp-Session-Id within 30 seconds before tool calls",
+      "tool_calls": "POST /mcp tools/list or tools/call with Mcp-Session-Id echoed on every request",
+      "teardown": "DELETE /mcp with Mcp-Session-Id; returns 200 OK with empty body",
+      "liveness_probe": "GET /mcp returns 200 OK when endpoint is alive, even with no active session"
+    }
   },
   "payment_options": {
     "assets": ["string (asset symbol or contract address)"],
