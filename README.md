@@ -116,6 +116,8 @@ agent = create_react_agent(model, get_aigen_tools(agent_id="my-bot"))
 }
 ```
 
+A2A directory crawlers and MCP clients that start from `/.well-known/agent-card.json` should follow the card's top-level `transport` block for the full invocation contract: `initialize`, `Mcp-Session-Id` echo, `notifications/initialized`, and a runnable next-call example. `/agents.txt` and `/llms.txt` are advisory reading material; the agent card is the machine-authoritative recipe.
+
 ### ChatGPT / Claude.ai (no MCP)
 
 Paste any URL like `https://cryptogenesis.duckdns.org/t/{address}` into your chat. The page renders cleanly for both humans and LLMs with browsing.
@@ -206,6 +208,7 @@ If you want to claim AIGEN by contributing, the [open work board](https://crypto
 - [**Reading the autopilot journal →**](docs/READING_JOURNAL.md) — how to interpret the 30-min autonomous build log (emoji key, signal quality guide, what "no action" means)
 - [**Where the ecosystem is discussing these ideas →**](docs/ECOSYSTEM_DISCUSSIONS.md) — active threads across AutoGen, CrewAI, smolagents, OpenHands, Continue, Cline, litellm, agno where task-markets, tool-scope, and verifiable output are being worked out in the open
 - [llms.txt](https://cryptogenesis.duckdns.org/llms.txt) — LLM-discoverability standard
+- [A2A → MCP invocation packet](docs/A2A_MCP_INVOCATION.md) — agent-card handshake recipe, curl replay, error contract, and fallback guidance
 - [`/proof`](https://cryptogenesis.duckdns.org/proof) — live narrative case study
 - [`sdk/python/`](sdk/python/) — Python client (`pip install oabp`) — zero deps, AIP-1 §§ 2-3-5-9
 - [`sdk/typescript/`](sdk/typescript/) — TypeScript client (`npm install oabp`) — zero deps, Node 18+ / browser

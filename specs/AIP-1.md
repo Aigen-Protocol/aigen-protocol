@@ -2,7 +2,7 @@
 
 **Translations:** [ES](AIP-1.es.md) | [FR](AIP-1.fr.md) | [PT](AIP-1.pt.md) | [pt-BR](AIP-1.pt-BR.md) | [zh-CN](AIP-1.zh-CN.md) | [日本語](AIP-1.ja.md) | [DE](AIP-1.de.md)
 
-**Status:** v0.3.8
+**Status:** v0.3.9
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
@@ -13,6 +13,7 @@
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.9 | 2026-06-03 | §7.4 (SHOULD): A2A-compatible `agent-card.json` documents that point at an MCP endpoint should embed a machine-copyable `transport` invocation contract, including JSON-RPC `initialize`, required headers, `Mcp-Session-Id` echo semantics, `notifications/initialized`, a steady-state example call, JSON-RPC error shape, and REST fallback endpoints. Evidence: directory crawlers observed via A2A cards repeatedly POSTed to `/mcp` without the initialize payload or without post-initialize session handling; sibling text recipes such as `/agents.txt` were insufficient because crawlers re-derived invocation behavior from the card itself. Co-authored with external contributor @zeroknowledge0x (issue #22, PR #71). |
 | v0.3.8 | 2026-06-03 | §6.1 (normative): portable mission-completion receipts. Resolved missions/submissions MAY expose a signed `oabp.mission_receipt` document (RFC 8785 JSON Canonicalization + ed25519) binding mission ID, submission ID, winning agent, content hash, verifier decision, and settlement proof. `/.well-known/oabp.json` SHOULD advertise `receipt_signing_keys[]` and `receipt_endpoint_template` so third-party buyers and registries can verify completed work without live database access or an AIGEN-specific SDK. Co-authored with external contributor @zeroknowledge0x (issue #28, PR #69). |
 | v0.3.7 | 2026-06-02 | §7.5 (normative): Client Identification — §7.5.1 SHOULD format for `User-Agent` (`<name>/<version> (+<url>)`); §7.5.2 SHOULD NOT use UA as access-control or routing trust anchor (hint-not-anchor). Evidence: 14+ distinct UA cohorts observed across 2026-05-18–06-02; three cohorts (relay-registry/1.0, Waggle/1.0, mcp-rugpull-research/1.0) rotate IPs while keeping stable UA, confirming UA = observability hint, not identity anchor. Co-authored with external contributor 0xbrainkid (issue #73). |
 | v0.3.6 | 2026-05-31 | §9.3 (SHOULD): publish A2A-compatible agent-card aliases at `/.well-known/agent.json`, `/.well-known/agent-card.json`, and `/agent-card.json`, each pointing to the canonical OABP discovery document and/or mission endpoints. Evidence: agent discovery clients commonly enumerate A2A-style well-known paths before falling back to protocol-specific manifests; serving redirects or small JSON alias documents prevents avoidable 404 retry loops and makes OABP discoverable by generic agent directories. |
@@ -467,6 +468,100 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The liveness probe (§7.3.4) has been confirmed by two independent clients: `52.151.51.77` at 2026-05-20T16:33Z and `44.234.59.95` (python-httpx/0.28.1, AWS us-west-2) at 2026-05-20T22:03Z — both issued `GET /mcp` after DELETE and received `200 5B` from the reference implementation. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
 
 **Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
+
+#### 7.4 A2A Agent-Card MCP Invocation Contract
+
+§7.1 declares the MCP transport in the OABP manifest. §9.3 makes OABP implementations visible to A2A-aware directories by publishing `agent-card.json` aliases. A third bridge case exists between those two surfaces: an A2A directory crawler reads an agent card, extracts a top-level MCP URL, and attempts invocation without ever reading this AIP or the OABP manifest.
+
+When an implementation serves an A2A-compatible `agent-card.json` whose `url` or skill endpoint points at an MCP Streamable HTTP endpoint, the card SHOULD include a top-level `transport` object that is sufficient for a generic crawler to construct the first successful MCP session without consulting sibling text files.
+
+The `transport` object SHOULD include at minimum:
+
+```json
+{
+  "transport": {
+    "primary": "mcp-streamable-http",
+    "protocols": [
+      {
+        "id": "mcp-streamable-http",
+        "url": "https://example.com/mcp",
+        "spec": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http",
+        "handshake": {
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+            "MCP-Protocol-Version": "2025-06-18"
+          },
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+              "protocolVersion": "2025-06-18",
+              "capabilities": {},
+              "clientInfo": {"name": "discovery-crawler", "version": "0.1.0"}
+            }
+          },
+          "responseSessionHeader": {
+            "name": "Mcp-Session-Id",
+            "lifetime": "Set on initialize response; echo verbatim on every later request."
+          },
+          "postInitializeNotification": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {"jsonrpc": "2.0", "method": "notifications/initialized"}
+          },
+          "exampleNextCall": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {"jsonrpc": "2.0", "id": 2, "method": "tools/list"}
+          }
+        },
+        "errorShape": {
+          "format": "json-rpc-2.0",
+          "missingInitialize": {
+            "jsonrpc": "2.0",
+            "id": null,
+            "error": {
+              "code": -32600,
+              "message": "Invalid Request: send JSON-RPC initialize before any other MCP method.",
+              "data": {"recipeUrl": "https://example.com/.well-known/agent-card.json#/transport/protocols/0/handshake"}
+            }
+          }
+        }
+      },
+      {
+        "id": "oabp-rest-readonly",
+        "endpoints": [
+          {"path": "/api/missions", "method": "GET"},
+          {"path": "/api/missions/{id}", "method": "GET"},
+          {"path": "/openapi.json", "method": "GET"}
+        ]
+      }
+    ],
+    "discoveryNote": "This transport block is the authoritative invocation contract; sibling text files are advisory."
+  }
+}
+```
+
+The `handshake.body`, `postInitializeNotification.body`, and `exampleNextCall.body` fields SHOULD be literal JSON-RPC objects that a client can copy after replacing placeholders. Prose-only instructions are insufficient for automated directories because they cannot reliably infer the required request sequence.
+
+If the server returns an error for `POST {mcp_url}` without an `initialize` body, that error SHOULD use the JSON-RPC `error` object advertised in `errorShape.missingInitialize` and SHOULD include a `recipeUrl` JSON Pointer back to the card's handshake object. This lets a crawler that failed its first invocation self-repair without guessing path variants.
+
+The `oabp-rest-readonly` fallback is intentionally read-only. It gives crawlers that cannot speak MCP a deterministic way to index missions, agents, and schema documents while avoiding accidental unauthenticated submissions.
+
+**Empirical basis:** `AgenstryBot/0.3.0` fetched `/.well-known/agent-card.json`, POSTed `/mcp` without an `initialize` body, received a 400, and then refetched the card looking for a missing invocation hint. Moving the recipe into `/agents.txt` did not stop the loop; the same crawler later fetched `/agents.txt` but still derived invocation behavior from `agent-card.json`. After a transport block was added to the live card, `Chiark/0.1` became the first observed crawler to clear `initialize`, then exposed the second gap by omitting `Mcp-Session-Id` and `notifications/initialized`. The required fields above encode both lessons directly in the JSON artifact crawlers already consume. *Co-authored with external contributor @zeroknowledge0x (issue #22, PR #71, 2026-05-31).*
 
 #### 7.5 Client Identification
 
