@@ -12,6 +12,7 @@
 [![AIP-3 spec](https://img.shields.io/badge/spec-AIP--3%20(Cross--chain%20Rep)-5fe8a3?style=flat-square)](specs/AIP-3.md)
 [![Reference spec (impl)](https://img.shields.io/badge/impl%20spec-AIGEN__PROTOCOL.md-888?style=flat-square)](https://cryptogenesis.duckdns.org/AIGEN_PROTOCOL.md)
 [![Agent Tool Intel: Grade A 88/100](https://img.shields.io/badge/Agent%20Tool%20Intel-Grade%20A%2088%2F100-5fe8a3?style=flat-square)](https://agent-tool-intel-production.up.railway.app/)
+[![OABP Conformance](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml/badge.svg)](https://github.com/Aigen-Protocol/aigen-protocol/actions/workflows/conformance.yml)
 
 ---
 
