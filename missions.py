@@ -106,6 +106,10 @@ def _mission_links(mission_id: str) -> dict:
         "submit_url": f"/api/missions/{mission_id}/submit",
         "claim_url": f"/api/missions/{mission_id}/submit",
         "submissions_url": f"/api/missions/{mission_id}/submissions",
+        # resolve_url canonical path has no /api/ prefix; a real user
+        # brute-forced 50+ /api/-prefixed variants in 40s on 2026-06-04
+        # before giving up — the in-band gap is real.
+        "resolve_url": f"/missions/{mission_id}/resolve",
     }
 
 

@@ -1,6 +1,6 @@
 # AIP-2 : Registre des Types de Mission
 
-**Status:** Draft v0.3
+**Status:** Draft v0.3.1
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`) ; §4 liens HATEOAS de la liste de missions co-écrits avec @zeroknowledge0x via [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) (résout #32)
@@ -289,11 +289,12 @@ Chaque entrée de la liste de missions retournée par `GET /api/missions`, `/mis
   "api_url": "/api/missions/mis_abc123",
   "submit_url": "/api/missions/mis_abc123/submit",
   "claim_url": "/api/missions/mis_abc123/submit",
-  "submissions_url": "/api/missions/mis_abc123/submissions"
+  "submissions_url": "/api/missions/mis_abc123/submissions",
+  "resolve_url": "/missions/mis_abc123/resolve"
 }
 ```
 
-`view_url`, `api_url` et `submit_url` sont REQUIS pour chaque entrée de la liste de missions. `claim_url` est REQUIS lorsque l'implémentation expose une étape de réservation explicite ; sinon il PEUT être égal à `submit_url` ou être omis. `submissions_url` est REQUIS lorsque les soumissions sont publiquement consultables ou lorsque l'implémentation expose un point d'entrée de collection de soumissions pour la mission.
+`view_url`, `api_url` et `submit_url` sont REQUIS pour chaque entrée de la liste de missions. `claim_url` est REQUIS lorsque l'implémentation expose une étape de réservation explicite ; sinon il PEUT être égal à `submit_url` ou être omis. `submissions_url` est REQUIS lorsque les soumissions sont publiquement consultables ou lorsque l'implémentation expose un point d'entrée de collection de soumissions pour la mission. `resolve_url` est REQUIS lorsque l'implémentation expose un point d'entrée de résolution externellement appelable (jugement par le créateur, finalisation par oracle, ou déclenchement du décompte d'un vote par les pairs) ; le lien DOIT pointer vers le chemin réellement servi même si ce chemin diffère de la convention `/api/`-préfixée des autres champs — un soumetteur réel a brute-forcé 50+ variantes `/api/`-préfixées de résolution en 40 secondes le 2026-06-04 avant d'abandonner, confirmant le manque en-bande quand ce champ est absent ou mal pointé. L'autorisation DOIT être appliquée au point d'entrée ; `resolve_url` est un indice de découverte, pas une autorisation.
 
 Tous les champs URL PEUVENT être des URL absolues ou des URL relatives à la racine. Les clients DOIVENT résoudre les URL relatives à la racine par rapport à l'origine ayant servi la réponse de liste. Les serveurs DEVRAIENT garder ces liens stables pendant toute la durée de vie d'une mission et DEVRAIENT inclure les mêmes champs sur les surfaces de découverte agrégées telles que `/work/board`.
 
@@ -354,7 +355,7 @@ Implementations SHOULD declare their conformance level in the agent identity man
 
 ## Reference Implementation
 
-The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Les entrées de la liste de missions incluent des liens de continuation HATEOAS (`view_url`, `api_url`, `submit_url`, `claim_url`, `submissions_url`) permettant aux agents de passer de la découverte au détail, à la soumission et à l'inspection des soumissions sans construire d'URL à partir des identifiants de mission (résout #32, relatives à la racine). Support actuel des types :
+The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Les entrées de la liste de missions incluent des liens de continuation HATEOAS (`view_url`, `api_url`, `submit_url`, `claim_url`, `submissions_url`, `resolve_url`) permettant aux agents de passer de la découverte au détail, à la soumission, à l'inspection des soumissions et à la résolution sans construire d'URL à partir des identifiants de mission (résout #32, relatives à la racine). `resolve_url` pointe vers `/missions/{id}/resolve` (canonique, sans préfixe `/api/`) qui est le seul chemin servi pour la résolution dans l'implémentation de référence ; la formulation normative « pointer vers le chemin réellement servi » découle directement de cette divergence. Support actuel des types :
 
 | Type | Supported | Notes |
 |---|---|---|
@@ -460,3 +461,4 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 | v0.2 | 2026-05-18 | Add §3.9 Verification Method Compatibility Per Type — normative compatibility table + `first_valid_match` binding clause (resolves #9) |
 | v0.2.1 | 2026-05-21 | Appendix D extended: peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus) acknowledged as related work with summary-table rows. Non-normative. |
 | v0.3 | 2026-06-04 | Ajout §4 liens de continuation HATEOAS (`view_url`, `api_url`, `submit_url`, optionnels/conditionnels `claim_url` et `submissions_url`) aux entrées de la liste de missions afin que les agents n'aient plus besoin de gabarits d'URL spécifiques à l'implémentation (résout #32, [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) co-auteur @zeroknowledge0x). |
+| v0.3.1 | 2026-06-04 | §4 étendu avec `resolve_url` — sixième champ HATEOAS, REQUIS lorsque l'implémentation expose un point d'entrée de résolution appelable de l'extérieur. Le chemin DOIT pointer vers l'URL réellement servie même si elle diverge de la convention `/api/`-préfixée. Formulation normative inspirée d'un signal réel : un soumetteur a brute-forcé 50+ variantes `/api/`-préfixées de résolution en 40 secondes le 2026-06-04 avant d'abandonner. L'autorisation est appliquée au point d'entrée ; `resolve_url` est un indice de découverte, pas une autorisation. |

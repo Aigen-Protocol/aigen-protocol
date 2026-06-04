@@ -1,6 +1,6 @@
 # AIP-2: Mission Type Registry
 
-**Status:** Draft v0.3
+**Status:** Draft v0.3.1
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`); §4 mission-list HATEOAS co-authored with @zeroknowledge0x via [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) (resolves #32)
@@ -289,11 +289,12 @@ Each mission list item returned by `GET /api/missions`, `/missions/active`, or a
   "api_url": "/api/missions/mis_abc123",
   "submit_url": "/api/missions/mis_abc123/submit",
   "claim_url": "/api/missions/mis_abc123/submit",
-  "submissions_url": "/api/missions/mis_abc123/submissions"
+  "submissions_url": "/api/missions/mis_abc123/submissions",
+  "resolve_url": "/missions/mis_abc123/resolve"
 }
 ```
 
-`view_url`, `api_url`, and `submit_url` are REQUIRED for every mission list item. `claim_url` is REQUIRED when the implementation exposes an explicit claim step; otherwise it MAY equal `submit_url` or be omitted. `submissions_url` is REQUIRED when submissions are publicly inspectable or when the implementation exposes a submissions collection endpoint for the mission.
+`view_url`, `api_url`, and `submit_url` are REQUIRED for every mission list item. `claim_url` is REQUIRED when the implementation exposes an explicit claim step; otherwise it MAY equal `submit_url` or be omitted. `submissions_url` is REQUIRED when submissions are publicly inspectable or when the implementation exposes a submissions collection endpoint for the mission. `resolve_url` is REQUIRED when the implementation exposes an externally-callable resolution endpoint (creator-judging, oracle finalisation, or peer-vote tally trigger); the link MUST point at the actual served path even when that path differs from the `/api/`-prefixed convention used by the other fields — a real submitter on 2026-06-04 brute-forced 50+ `/api/`-prefixed resolve variants in 40 seconds before giving up, confirming the in-band gap when this field is absent or mis-pointed. Authorization MUST be enforced at the endpoint; `resolve_url` is a discovery hint, not an authorization grant.
 
 All URL fields MAY be absolute URLs or root-relative URLs. Clients MUST resolve root-relative URLs against the origin that served the list response. Servers SHOULD keep these links stable for the lifetime of a mission and SHOULD include the same fields on aggregated discovery surfaces such as `/work/board`.
 
@@ -354,7 +355,7 @@ Implementations SHOULD declare their conformance level in the agent identity man
 
 ## Reference Implementation
 
-The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Mission list items include HATEOAS continuation links (`view_url`, `api_url`, `submit_url`, `claim_url`, `submissions_url`) so agents can move from discovery to detail, submission, and submission inspection without constructing URLs from mission IDs (resolves #32, root-relative). Current type support:
+The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Mission list items include HATEOAS continuation links (`view_url`, `api_url`, `submit_url`, `claim_url`, `submissions_url`, `resolve_url`) so agents can move from discovery to detail, submission, submission inspection, and resolution without constructing URLs from mission IDs (resolves #32, root-relative). `resolve_url` points at `/missions/{id}/resolve` (canonical, no `/api/` prefix) which is the only served path for resolution in the reference implementation; the spec language about "point at the actual served path" is direct from this divergence. Current type support:
 
 | Type | Supported | Notes |
 |---|---|---|
@@ -460,3 +461,4 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 | v0.2 | 2026-05-18 | Add §3.9 Verification Method Compatibility Per Type — normative compatibility table + `first_valid_match` binding clause (resolves #9) |
 | v0.2.1 | 2026-05-21 | Appendix D extended: peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus) acknowledged as related work with summary-table rows. Non-normative. |
 | v0.3 | 2026-06-04 | Add §4 HATEOAS continuation links (`view_url`, `api_url`, `submit_url`, optional/conditional `claim_url` and `submissions_url`) to mission list items so agents do not need implementation-specific URL templates (resolves #32, [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) co-author @zeroknowledge0x). |
+| v0.3.1 | 2026-06-04 | §4 extended with `resolve_url` — sixth HATEOAS field, REQUIRED when implementation exposes an externally-callable resolution endpoint. Path MUST point at the actual served URL even when it diverges from `/api/`-prefixed convention. Spec language drafted directly from real-world signal: a submitter brute-forced 50+ `/api/`-prefixed resolve variants in 40 seconds on 2026-06-04 before giving up. Authorization is endpoint-enforced; `resolve_url` is a discovery hint, not a grant. |
