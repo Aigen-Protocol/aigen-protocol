@@ -123,6 +123,18 @@ def with_discovery_links(m: dict) -> dict:
         return m
     out = dict(m)
     out.update({k: out.get(k) or v for k, v in _mission_links(mid).items()})
+    # AIP-2 §4.1: surface reputation gate so an agent learns the tier
+    # requirement before POSTing /submit. A real external agent on
+    # 2026-06-05 hit the gate 4 times in 2h on a 337-AIGEN mission
+    # without ever seeing the requirement; the rejection error names
+    # the gate but the discovery surface didn't.
+    if "required_submitter_tier" not in out:
+        try:
+            t = _required_tier_for_mission(m)
+            out["required_submitter_tier"] = t
+            out["required_submitter_tier_name"] = _TIER_NAMES[t]
+        except Exception:
+            pass
     return out
 
 
