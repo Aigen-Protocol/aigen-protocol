@@ -1219,24 +1219,27 @@ def _refund_creator_onchain(m: dict, full_amount: bool = True, fraction: int = 1
 # ---------- judge (creator_judges only) ----------
 
 def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> dict:
-    """Creator picks the winner. Only valid for creator_judges missions during the
-    judging window (between deadline and judge_deadline). Pays winner in mission's
-    reward currency (AIGEN off-chain, or USDC/ETH on-chain). Protocol fee deducted."""
+    """Creator picks the winner. Valid for creator_judges missions (judging window only)
+    and oracle missions (anytime — oracle can judge while the mission is still open).
+    Pays winner in mission's reward currency. Protocol fee deducted."""
     d = load()
     for m in d["missions"]:
         if m["id"] != mission_id:
             continue
-        if m["verification_type"] != "creator_judges":
-            return {"error": f"verification is {m['verification_type']}"}
+        vt = m["verification_type"]
+        if vt not in ("creator_judges", "oracle"):
+            return {"error": f"verification is {vt}; judge() only applies to creator_judges or oracle missions"}
         if m["creator"] != creator_agent_id:
             return {"error": "only creator can judge"}
         if m["status"] != "open":
             return {"error": f"mission is {m['status']}"}
         now = int(time.time())
-        if now < m["deadline"]:
-            return {"error": "submission window still open; wait until deadline"}
-        if now > m["judge_deadline"]:
-            return {"error": "judging window expired; call resolve for auto-refund"}
+        if vt == "creator_judges":
+            if now < m["deadline"]:
+                return {"error": "submission window still open; wait until deadline"}
+            if now > m["judge_deadline"]:
+                return {"error": "judging window expired; call resolve for auto-refund"}
+        resolution_type = "oracle_judged" if vt == "oracle" else "creator_judged"
 
         winner = next((s for s in m["submissions"] if s["id"] == winner_submission_id), None)
         if not winner:
@@ -1251,7 +1254,7 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
                 s["status"] = "rejected"
 
         m["status"] = "resolved"
-        m["resolution"] = {"type": "creator_judged",
+        m["resolution"] = {"type": resolution_type,
                            "winner_submission_id": winner["id"],
                            "winner_agent_id": winner["submitter"],
                            "payout": pay,
@@ -1269,7 +1272,7 @@ def judge(creator_agent_id: str, mission_id: str, winner_submission_id: str) -> 
                 "event": "mission.resolved",
                 "mission_id": mission_id,
                 "mission_title": m.get("title"),
-                "resolution_type": "creator_judged",
+                "resolution_type": resolution_type,
                 "winner_agent_id": winner["submitter"],
                 "winner_submission_id": winner["id"],
                 "payout": pay,
