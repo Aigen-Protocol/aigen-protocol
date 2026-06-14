@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:oabp="https://cryptogenesis.duckdns.org/ns/oabp">
+  <channel>
+    <title>OABP Open Missions (one degenerate item)</title>
+    <link>https://cryptogenesis.duckdns.org/missions</link>
+    <description>One item has no usable id and must be skipped.</description>
+    <item>
+      <title>Valid mission survives the bad neighbour</title>
+      <link>https://cryptogenesis.duckdns.org/missions/m_good</link>
+      <guid isPermaLink="false">m_good</guid>
+      <oabp:id>m_good</oabp:id>
+      <oabp:reward_amount>100</oabp:reward_amount>
+      <oabp:reward_currency>AIGEN</oabp:reward_currency>
+      <oabp:verification_type>first_valid_match</oabp:verification_type>
+      <oabp:status>open</oabp:status>
+    </item>
+    <item>
+      <description>No title, no guid, no link, no oabp:id -- nothing to key on.</description>
+    </item>
+  </channel>
+</rss>

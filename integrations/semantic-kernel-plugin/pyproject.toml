@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sk-oabp"
+version = "1.0.0"
+description = "Semantic Kernel native plugin (OabpPlugin) for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "semantic-kernel",
+    "semantic_kernel",
+    "kernel-function",
+    "plugin",
+    "planner",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "a2a",
+    "llm",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+# `requests` is needed by the OABP SDK (a pinned copy is vendored under
+# sk_oabp._vendor.oabp, used automatically when the standalone `oabp` package is
+# not installed). `semantic-kernel` is intentionally OPTIONAL: the package
+# imports and the OabpPlugin methods work as plain callables without it — the
+# `@kernel_function` decorator falls back to a no-op (see the [semantic-kernel]
+# extra below and sk_oabp._compat).
+dependencies = [
+    "requests>=2.25",
+]
+
+[project.optional-dependencies]
+# Microsoft Semantic Kernel — install to register the plugin on a real Kernel and
+# let a function-calling chat completion / planner invoke it.
+semantic-kernel = ["semantic-kernel>=1.0"]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+# Ship the plugin package *and* the vendored SDK sub-package.
+packages = [
+    "sk_oabp",
+    "sk_oabp._vendor",
+    "sk_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

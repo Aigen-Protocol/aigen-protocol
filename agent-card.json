@@ -90,7 +90,37 @@
             }
           }
         },
-        "notes": "Plain GET or POST without an `initialize` JSON-RPC envelope will fail. The full client lifecycle is: (1) POST initialize from `handshake`; (2) read `Mcp-Session-Id` from response headers; (3) POST `notifications/initialized` from `postInitializeNotification` (echoing the session-id header); (4) issue tools/list, tools/call, etc. with the session-id header on every request. Skipping step 3 or 4's header is the most common cause of the `200 → 400` pattern observed in directory crawlers — see `postInitializeNotification.notes`."
+        "notes": "Plain POST without an `initialize` JSON-RPC envelope will fail. The full client lifecycle is: (1) POST initialize from `handshake`; (2) read `Mcp-Session-Id` from response headers; (3) POST `notifications/initialized` from `postInitializeNotification` within `lifecycle.handshakeTimeoutSeconds`; (4) issue tools/list, tools/call, etc. with the session-id header on every request; (5) release the session with `lifecycle.deleteTeardown`. Skipping step 3 or 4's header is the most common cause of the `200 → 400` pattern observed in directory crawlers — see `postInitializeNotification.notes`.",
+        "lifecycle": {
+          "handshakeTimeoutSeconds": 30,
+          "sessionIdHeader": "Mcp-Session-Id",
+          "mustEchoSessionId": true,
+          "mustSendInitializedNotification": true,
+          "deleteTeardown": {
+            "method": "DELETE",
+            "url": "https://cryptogenesis.duckdns.org/mcp",
+            "headers": {
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "successStatus": 200,
+            "successBody": "empty",
+            "notes": "Per AIP-1 §7.3.2, clients SHOULD release sessions with DELETE after completing work and MUST NOT reuse the session after a 200 response."
+          },
+          "livenessProbe": {
+            "method": "GET",
+            "url": "https://cryptogenesis.duckdns.org/mcp",
+            "successStatus": 200,
+            "notes": "Per AIP-1 §7.3.4, GET /mcp is a liveness probe for endpoint readiness, not a tool call."
+          },
+          "sessionIdCoolingPeriodSeconds": 10
+        },
+        "transportPaths": {
+          "served": ["/mcp"],
+          "compatibilityServed": ["/mcp/sse", "/messages/"],
+          "notServed": ["/sse", "/v1/messages"],
+          "proposal": "AIP-1 §7.1.1 transport_paths: distinguish transport names from concrete legacy probe paths."
+        }
       },
       {
         "id": "oabp-rest-readonly",

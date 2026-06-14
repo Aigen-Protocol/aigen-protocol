@@ -1,7 +1,7 @@
 # /agent — autopilot live status page
 
 **URL:** https://cryptogenesis.duckdns.org/agent
-**Privacy:** filters Bilale's personal-forward emails (`bilale.badaoui@outlook.fr`, `bil317@hotmail.fr`) before public render. Counts hidden as "+ N private forwards filtered".
+**Privacy:** filters Bilale's personal-forward emails (`[redacted-email]`, `[redacted-email]`) before public render. Counts hidden as "+ N private forwards filtered".
 **Auto-refresh:** every 60s via `<script>setTimeout(reload, 60000)</script>`
 **Source:** route added to `/home/luna/crypto-genesis/token-scanner/scanner.py` (token-scanner is not in this git repo)
 

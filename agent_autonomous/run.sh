@@ -62,142 +62,7 @@ fi
 
 # --- REFRESH dashboard ---
 echo "[STATE] refreshing dashboard..." >> "$LOGFILE"
-python3 << 'PYEOF' > state/dashboard.json 2>>"$LOGFILE"
-import json, time, urllib.request, subprocess, os
-out = {
-    "_note": "Refreshed by run.sh",
-    "last_refresh_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-}
-try:
-    r = urllib.request.urlopen("http://127.0.0.1:4444/missions/stats", timeout=5)
-    out["missions"] = json.loads(r.read())
-except Exception as e:
-    out["missions_error"] = str(e)
-try:
-    body = json.dumps({"jsonrpc":"2.0","method":"eth_call","params":[
-        {"to":"0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
-         "data":"0x70a08231000000000000000000000000Da429f2034b62b8722713873dE3C045eec390d8F"}, "latest"],
-        "id":1}).encode()
-    req = urllib.request.Request("https://mainnet.base.org", method="POST", data=body,
-                                 headers={"Content-Type":"application/json","User-Agent":"agent/1.0"})
-    with urllib.request.urlopen(req, timeout=5) as r:
-        d = json.loads(r.read())
-    out["treasury_usdc"] = int(d.get("result","0x0"),16)/1e6
-except Exception as e:
-    out["treasury_error"] = str(e)
-try:
-    res = subprocess.run(["sudo","tail","-100","/var/log/nginx/access.log"],
-                         capture_output=True, text=True, timeout=5)
-    paths = {}; ips = set()
-    for line in res.stdout.split("\n"):
-        parts = line.split()
-        if len(parts) > 6:
-            paths[parts[6]] = paths.get(parts[6], 0) + 1
-            ips.add(parts[0])
-    out["recent_top_paths"] = sorted(paths.items(), key=lambda x: -x[1])[:8]
-    out["recent_unique_ips"] = len(ips)
-    out["hustlerops_recent"] = "89.213.118.44" in ips
-except Exception as e:
-    out["nginx_error"] = str(e)
-try:
-    out["recent_commits"] = subprocess.run(
-        ["git","-C","/home/luna/crypto-genesis/aigen","log","--oneline","-5"],
-        capture_output=True, text=True, timeout=5).stdout.strip().split("\n")
-except Exception as e:
-    out["git_error"] = str(e)
-try:
-    res = subprocess.run(
-        ["gh","api","notifications","--jq",
-         "[.[] | {repo: .repository.full_name, type: .subject.type, title: .subject.title, url: .subject.url, reason: .reason, updated_at: .updated_at, unread: .unread}]"],
-        capture_output=True, text=True, timeout=10)
-    out["github_notifications"] = json.loads(res.stdout) if res.stdout.strip() else []
-    out["github_notifications_count"] = len(out["github_notifications"])
-except Exception as e:
-    out["github_notifications_error"] = str(e)
-try:
-    if os.path.exists("state/triggers.log"):
-        with open("state/triggers.log") as f:
-            lines = f.readlines()
-        out["recent_webhook_triggers"] = [l.strip() for l in lines[-5:]]
-except Exception:
-    pass
-
-# Fresh context: pull a few high-leverage external snapshots (rate-limited)
-fresh = {}
-try:
-    # Our own GitHub repo: stars + open issues (cheap, single API call)
-    res = subprocess.run(["gh", "api", "repos/Aigen-Protocol/aigen-protocol",
-                          "--jq", "{stars: .stargazers_count, forks: .forks_count, open_issues: .open_issues_count, watchers: .subscribers_count}"],
-                         capture_output=True, text=True, timeout=8)
-    if res.returncode == 0:
-        fresh["repo_stats"] = json.loads(res.stdout)
-except Exception as e:
-    fresh["repo_stats_err"] = str(e)[:120]
-try:
-    # Recent commits to awesome-mcp-servers (signal: who's submitting today)
-    res = subprocess.run(["gh", "api", "repos/punkpeye/awesome-mcp-servers/commits",
-                          "--jq", "[.[0:5] | .[] | {sha: .sha[0:8], msg: .commit.message[0:80], when: .commit.author.date}]"],
-                         capture_output=True, text=True, timeout=8)
-    if res.returncode == 0:
-        fresh["awesome_mcp_recent"] = json.loads(res.stdout)
-except Exception as e:
-    fresh["awesome_mcp_err"] = str(e)[:120]
-try:
-    # HN top 30 stories — filter for agent / mcp / bounty keywords
-    r = urllib.request.urlopen("https://hacker-news.firebaseio.com/v0/topstories.json", timeout=6)
-    top_ids = json.loads(r.read())[:30]
-    hits = []
-    for sid in top_ids:
-        try:
-            rs = urllib.request.urlopen(f"https://hacker-news.firebaseio.com/v0/item/{sid}.json", timeout=4)
-            st = json.loads(rs.read())
-            title = (st.get("title", "") or "").lower()
-            if any(k in title for k in ["agent", "mcp", "anthropic", "bounty", "claude", "open ai", "openai", "model context"]):
-                hits.append({"id": sid, "title": st.get("title"), "score": st.get("score"),
-                             "url": st.get("url"), "comments": st.get("descendants", 0)})
-                if len(hits) >= 5: break
-        except Exception:
-            continue
-    fresh["hn_relevant"] = hits
-except Exception as e:
-    fresh["hn_err"] = str(e)[:120]
-out["fresh_context"] = fresh
-try:
-    import imaplib, email as email_mod
-    from email.header import decode_header
-    creds = open("/home/luna/crypto-genesis/credentials/zoho_mail.txt").read()
-    user = "Cryptogen@zohomail.eu"
-    pw = creds.split("Password:")[1].split("\n")[0].strip()
-    M = imaplib.IMAP4_SSL("imap.zoho.eu", 993)
-    M.login(user, pw)
-    M.select("INBOX")
-    # Look at the last 14 days of emails
-    typ, data = M.search(None, '(SINCE "01-May-2026")')
-    msg_ids = data[0].split()[-15:]
-    inbox = []
-    for mid in msg_ids:
-        typ, msg_data = M.fetch(mid, '(BODY.PEEK[HEADER])')
-        if typ != "OK": continue
-        msg = email_mod.message_from_bytes(msg_data[0][1])
-        subject = msg.get("Subject", "")
-        try:
-            decoded = decode_header(subject)
-            subject = "".join(s.decode(c or "utf-8") if isinstance(s, bytes) else s for s, c in decoded)
-        except Exception:
-            pass
-        inbox.append({
-            "from": msg.get("From", ""),
-            "subject": subject[:140],
-            "date": msg.get("Date", ""),
-            "uid": mid.decode() if isinstance(mid, bytes) else str(mid),
-        })
-    out["inbox_recent"] = inbox[-15:]
-    out["inbox_count"] = len(msg_ids)
-    M.close(); M.logout()
-except Exception as e:
-    out["inbox_error"] = str(e)[:200]
-print(json.dumps(out, indent=2))
-PYEOF
+python3 dashboard_refresh.py > state/dashboard.json 2>>"$LOGFILE"
 
 # --- COST-AWARE: pick model based on today's spend ---
 # Default: opus (best). If today's api-equiv > $30 OR degraded mode: sonnet (5× cheaper).
@@ -211,10 +76,77 @@ fi
 # --- INVOKE Claude ---
 echo "[CLAUDE] invoking with --dangerously-skip-permissions $MODEL_FLAG --output-format json..." >> "$LOGFILE"
 
-PROMPT="It's $NOW_ISO. You are AIGEN-AUTOPILOT, invoked by cron. Read state files (chat.jsonl FIRST, then always_available_work.md, focus.md, journal.md, lessons.md, dashboard.json, outreach_status.json). If degraded mode env var AIGEN_DEGRADED_MODE=1 is set, observation-only. Pick highest-leverage action per your system prompt, execute it, update tasks.json + post to chat + append to journal, exit."
+# Operator overrides (read at every invocation — added 2026-05-22)
+# Operator can exclude/add/comment/approve tasks via /agent dashboard. JSON at state/operator_overrides.json.
+OVERRIDES_JSON=""
+if [ -f state/operator_overrides.json ]; then
+    OVERRIDES_JSON=$(cat state/operator_overrides.json 2>/dev/null)
+fi
+
+PROMPT="It'\''s $NOW_ISO. You are AIGEN-AUTOPILOT, invoked by cron.
+
+ROADMAP — Read state/roadmap.json FIRST. Contains:
+  - standing: routine duties (github PRs, DMs, oracle missions, stay-active) — DO THESE EVERY CYCLE, mark .last_done=$NOW_ISO
+  - missions: discrete operator-tracked goals — work on TOP 5 active
+  - completed_today: append what you finished this cycle
+
+CRITICAL RULE — operator_blocked field per mission:
+  - operator_blocked=true ONLY IF you genuinely cannot proceed without operator answer (decision, credentials, browser-only). Examples: 'Accept lobsterai agent? need decision', 'Which channel for outreach?'
+  - operator_blocked=false (default) → JUST DO IT YOURSELF. Examples: review PR, respond to issue, judge oracle mission, post chat, send queued DM if drafted.
+  - When in doubt, set operator_blocked=false. Operator complained you ask too much.
+
+OPERATOR OVERRIDES — $OVERRIDES_JSON
+  - excluded_task_ids → REMOVE matching items
+  - added_tasks → operator-created missions at top priority
+  - comments {id: text} → operator notes per task — surface + respect
+  - approved_task_ids → boost priority
+
+READ also: chat.jsonl, always_available_work.md, focus.md, journal.md, lessons.md, dashboard.json, outreach_status.json.
+
+EXECUTE & EVOLVE ROADMAP:
+1. Pick highest-leverage action (standing duty first; if all standing done recently <2h, work on active mission).
+2. Execute it.
+3. UPDATE state/roadmap.json:
+   - standing[i].last_done = NOW for executed standing duty
+   - completed_today += [{id, title, done_ts, evidence}] for what you finished
+   - missions[i].status = "done" → remove from missions[], it auto-archives via completed_today
+   - Add NEW missions you identified (don'\''t hesitate: short title + priority + next_step)
+   - Update next_step / status for missions in_progress
+4. Post chat, append journal, exit.
+ROADMAP EVOLVES: keep missions[] forward-looking (max 10 active). Completed missions go to completed_today, then archived nightly to completed_history.
+
+If AIGEN_DEGRADED_MODE=1 → observation-only."
 
 # stdout (JSON) → .last_response.json
 # stderr (warnings) → log
+# === GUARD (added 2026-06-01): protect live core code + clean garbage on ANY exit ===
+GUARD_CORE="/home/luna/crypto-genesis/aigen/missions.py /home/luna/crypto-genesis/aigen/oabp_verifier.py /home/luna/crypto-genesis/token-scanner/scanner.py"
+mkdir -p state/code_snapshot 2>/dev/null || true
+for _gf in $GUARD_CORE; do cp -p "$_gf" "state/code_snapshot/$(basename "$_gf").pre" 2>/dev/null || true; done
+_guard_run() {
+    set +e
+    for _gf in $GUARD_CORE; do
+        _snap="state/code_snapshot/$(basename "$_gf").pre"
+        [ -f "$_snap" ] || continue
+        cmp -s "$_gf" "$_snap" && continue
+        _bad=0
+        python3 -m py_compile "$_gf" 2>/dev/null || _bad=1
+        case "$(basename "$_gf")" in
+            missions.py)      grep -q "anti-farm guards" "$_gf" || _bad=1 ;;
+            oabp_verifier.py) grep -q "verify_safety_review" "$_gf" || _bad=1 ;;
+        esac
+        if [ "$_bad" = "1" ]; then
+            cp -p "$_snap" "$_gf" 2>/dev/null
+            echo "[GUARD] reverted unsafe change to $_gf; arming kill_switch" >> "$LOGFILE"
+            echo "GUARD halt $(date -u +%FT%TZ): unsafe core-code change to $(basename "$_gf") auto-reverted" > state/kill_switch
+        fi
+    done
+    find . -maxdepth 1 -type f \( -name '*[{}]*' -o -name '*:' \) 2>/dev/null | while read -r _g; do
+        rm -f -- "$_g" 2>/dev/null && echo "[GUARD] removed garbage file: $_g" >> "$LOGFILE"
+    done
+}
+trap _guard_run EXIT
+
 claude --print \
     --append-system-prompt "$(cat system_prompt.md)" \
     --add-dir /home/luna/crypto-genesis/aigen \

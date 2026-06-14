@@ -239,7 +239,7 @@ Pour cette phase, on étend Tier A à :
 - DM Twitter/Telegram comme Bilale
 - OAuth flows requiring human
 - Fundraising / contracts / legal
-- Mentions de "Pandiums" (privacy rule éternelle)
+- Mentions de "[redacted]" (privacy rule éternelle)
 - Surf/MEV pivot
 
 ---

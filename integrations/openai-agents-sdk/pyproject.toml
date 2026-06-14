@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openai-agents-oabp"
+version = "1.0.0"
+description = "OpenAI Agents SDK function_tool wrappers + Agent for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "openai",
+    "openai-agents",
+    "agents",
+    "function-tool",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "a2a",
+    "llm",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+# `requests` is needed by the OABP SDK (a pinned copy is vendored under
+# openai_agents_oabp._vendor.oabp, used automatically when the standalone `oabp`
+# package is not installed). `openai-agents` is intentionally OPTIONAL: the
+# package imports and the tools work as plain callables without it (see the
+# [agents] extra below and openai_agents_oabp._compat).
+dependencies = [
+    "requests>=2.25",
+]
+
+[project.optional-dependencies]
+# The OpenAI Agents SDK — install to get real FunctionTool/Agent/Runner.
+agents = ["openai-agents>=0.0.1"]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+# Ship the integration package *and* the vendored SDK sub-package.
+packages = [
+    "openai_agents_oabp",
+    "openai_agents_oabp._vendor",
+    "openai_agents_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

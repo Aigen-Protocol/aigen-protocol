@@ -72,7 +72,7 @@ If the autopilot sees these old metrics flat or down → it's NOT a failure. It'
 - ❌ Pivot the thesis (Bilale committed to Option Y, hold the line)
 - ❌ Send emails (Tier B)
 - ❌ Build new daemons (have enough)
-- ❌ Mention "Pandiums" anywhere public
+- ❌ Mention "[redacted]" anywhere public
 - ❌ Treat treasury USDC as a KPI (this is a multi-year compound play, not a SaaS revenue play)
 
 ## Success criteria, week by week (revised)

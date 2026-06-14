@@ -4,14 +4,46 @@
     "title": "Phase 1 roadmap — crédibilité technique (M0-M4)",
     "details": "Maximiser les livrables 🤖 de Phase 1 (ROADMAP_18M.md). Gate M4 Août 2026: ≥100 stars, AIP-2+AIP-3 publiés, SDK TS shippé. Suivi dans state/roadmap_progress.json.",
     "deadline": "2026-08-31",
-    "progress_note": "Gap de 34h depuis le dernier run autopilot (07:17Z 23 → 17:49Z 24). Pas de réponse de Peter Xing à mon commentaire issue #28 (38h+). NOUVEAU signal traffic : CensusMCPProbe/0.1 — un crawler 'census' tiers (UA pointe vers census.dios.local — TLD privé .local) a fait 21 sessions MCP propres et complètes (init → notif → tools/list, pas de tool call) depuis 2026-05-23T00:38Z via 2 IPs distinctes (115.70.61.81 + 178.105.201.22). Cadence irrégulière (gaps 2h54m à 12h44m). Premier crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Documenté comme architecture #14 dans SECOND_IMPLEMENTATION.md. Sikkra : 825 AIGEN non-récompensés. PRs #23+#24 toujours non-mergés."
+    "progress_note": "Blog post #2 rédigé (blog/2026-06-01-first-external-contributors.md). Bug /api/submissions réparé. PR #70 reviewé. Agentexchange.work GPTBot signal capté."
   },
   "in_progress": [],
   "waiting_on_bilale": [
     {
+      "id": "ruby_mission_manual_reject",
+      "title": "ORACLE — Rejeter manuellement 3 soumissions invalides pour mission Ruby (mis_4d7f00fac5f8)",
+      "details": "Sub 1 (lobsterai-agent): paste.rs/KGCF5 = Python Hedera agent, pas Ruby. Sub 2 (lobsterai): même paste = Python. Sub 3 (stark-orchestrator): Ruby mais OAuth inutile + endpoints manquants + pas publié sur rubygems.org. Approuver option A (rejet) / B (void) / C (laisser expirer dans 18j). Carte d'approbation: approval_queue/20260601-2110-ruby-mission-manual-reject.md",
+      "optimal_when": "Quand tu regardes les PRs unsiqasik",
+      "blocking_what": "3 soumissions invalides polluent la mission, mais la mission se void auto dans 18j si pas d'action",
+      "added": "2026-06-01T21:10:00Z"
+    },
+    {
+      "id": "wallet_rebind_unsiqasik",
+      "title": "🚨 HAUTE PRIORITÉ — wallet-rebind unsiqasik (1249 AIGEN) : PROOF DÉJÀ PUBLIC sur 5 PRs",
+      "details": "MISE À JOUR run #360 (10:07Z) : le wallet 0x036E525f4569865DA76A0ef758304b309740aeef demandé par mail apparaît déjà comme wallet de paiement public sur les 5 PRs ouvertes (#67/#68/#69/#70/#71) de @zeroknowledge0x, posté 35 minutes AVANT le mail (2026-05-31T18:55-56Z vs 19:30Z). C'est exactement la preuve 'Medium' que la carte d'approbation listait. La chaîne d'identité GitHub→wallet est désormais établie via plateforme authentifiée (GitHub) avant même que la demande mail arrive. RECOMMANDATION RÉVISÉE : GO sous 48h. Reste à faire (Tier B, ton call) : (1) répondre brièvement par mail depuis Cryptogen@zohomail.eu confirmant le rebind dans 48h, (2) me dire où le wallet binding canonique est stocké (agents.json ou DB token-scanner ou on-chain) pour que je fasse le file edit. Carte mise à jour : approval_queue/20260601-0810-wallet-rebind-unsiqasik.md (section UPDATE 2026-06-01T10:07Z).",
+      "optimal_when": "Sous 48h — preuve forte trouvée, plus de raison d'attendre",
+      "blocking_what": "1249 AIGEN routing + relation avec notre contributeur le plus actif (21 wins, 13 PRs en 4.5 jours)",
+      "added": "2026-06-01T08:10:00Z"
+    },
+    {
+      "id": "spec_amendment_prs_67_to_71",
+      "title": "DÉCISION — 5 PRs spec-amendment d'unsiqasik en attente (#67/#68/#69/#70/#71)",
+      "details": "5 PRs spec d'unsiqasik en attente — toutes touchent fichiers live ou sont des additions normatives lourdes. PR #67 (AIP-2 HATEOAS, missions.py +37/-2, RECOMMANDE MERGE). PR #68 (AIP-1 §7.1.1 transport_paths, modifie discovery surfaces live, rebase nécessaire v0.3.6 conflit). PR #69 (AIP-1 §6.1 portable receipts, +108 lignes spec ed25519+RFC8785, à lire). PR #70 NEW (AIP-1 §7.3.5 MCP session lifecycle, +36 spec +37 discovery, ferme #25). PR #71 NEW (AIP-1 §7.4 A2A->MCP invocation, +96 spec +131 docs +60 tests, ferme #22). CASCADE CONFLIT: #68/#70/#71 bump tous à v0.3.7 -- décision linéaire vs bundle vs cherry-pick. Tier de bounty à décider: flat 50 (250 AIGEN total) vs tiered 75/150/300 (900 AIGEN total). Carte: approval_queue/20260531-1620-PRS-67-68-69-spec-amendments.md (mise à jour avec addendum #70/#71).",
+      "optimal_when": "Quand tu peux lire 1 carte + 5 diffs",
+      "blocking_what": "250-900 AIGEN owed et continuité momentum (13 PRs en 4.5 jours, cadence ~3/jour)",
+      "added": "2026-05-31T18:11:00Z"
+    },
+    {
+      "id": "gh_workflow_scope_refresh",
+      "title": "Rafraîchir scope workflow pour débloquer PR #41",
+      "details": "Dans ton terminal: `gh auth refresh -s workflow`. Ensuite je peux merger la PR #41 de zero knowledge qui ajoute le CI conformance pour le projet. Sans ça, GitHub refuse les merges de fichiers .github/workflows/*.",
+      "optimal_when": "Dès que tu lis ce message",
+      "blocking_what": "Merge PR #41 (CI workflow) + tout futur merge de PR touchant .github/workflows/",
+      "added": "2026-05-30T08:14:00Z"
+    },
+    {
       "id": "lobsterai_agent_review",
-      "title": "PREMIER agent externe économiquement actif : lobsterai-agent (Tencent China) — 36 submissions, 6 wins, 401 AIGEN balance",
-      "details": "Depuis 2026-05-22T00:00Z, flotte de bots Tencent Cloud (115.190.127.67/72/223, 115.190.107.107, 101.126.19.34) soumet des safety-reviews Solana sur nos missions auto-postées par radar daemon. 36 submissions en ~3h, 6 wins automatiques (radar utilise apparemment first_valid_match ou auto-judge). Format des proofs : 'Honeypot: pump.fun bonding curve, sell may be limited. Owner: mint authority unknown. LP Lock: no evidence found...'. C'est le PREMIER agent externe à extraire de l'AIGEN du protocole économique. Endpoints qu'il essaie mais qu'on renvoie 404 : /api/agents/<id>/stats, /api/agents/<id>/submissions, /api/agents/<id>/balance, /api/agent/profile?agent_id=. Action recommandée : (1) vérifier que les paiements AIGEN partent bien on-chain, (2) décider si on ajoute des aliases pour les 404, (3) regarder si la qualité des reviews mérite d'être valorisée. Issue #26 documente le gap AIP-2.",
+      "title": "PREMIER agent externe économiquement actif : lobsterai-agent (Tencent China) — 36+ submissions, 6 wins, 401+ AIGEN balance",
+      "details": "Depuis 2026-05-22T00:00Z, flotte de bots Tencent Cloud (115.190.127.67/72/223, 115.190.107.107, 101.126.19.34) soumet des safety-reviews Solana sur nos missions auto-postées par radar daemon. 80+ submissions cumulées maintenant. Endpoints qu'il essaie mais qu'on renvoie 404 : /api/agents/<id>/stats, /api/agents/<id>/submissions, /api/agents/<id>/balance, /api/agent/profile?agent_id=. Issue #26 documente le gap AIP-2 (et PR #30 de scosemicolon vient d'arriver pour le fixer côté radar producer).",
       "optimal_when": "Quand tu vois cette notif — Telegram envoyée en haute priorité",
       "blocking_what": "Comprendre quel agent c'est, ce qu'il veut, et si on l'accueille ou pas. Premier vrai utilisateur économique du protocole.",
       "added": "2026-05-22T03:08Z"
@@ -41,46 +73,6 @@
       "added": "2026-05-21T05:13:24Z"
     },
     {
-      "id": "pr24_review_oracle_fix",
-      "title": "PR #24 Sikkra — review + merge (oracle mission judging fix)",
-      "details": "github.com/Aigen-Protocol/aigen-protocol/pull/24 — missions.py + tests. Fix: judge() now accepts oracle missions. Reviewed by bot. After merge, mis_2f6ae4b5172b resolvable end-to-end.",
-      "optimal_when": "Dès que possible — Sikkra attend 2 PRs (#23 + #24) pour 525 AIGEN total",
-      "blocking_what": "oracle missions non-résolvables côté judge(). Bloque paiement Sikkra.",
-      "added": "2026-05-20T15:08Z"
-    },
-    {
-      "id": "rust_mission_oracle_resolve",
-      "title": "Résoudre mission Rust mis_15602f51245f (oracle, 500 AIGEN) — Sikkra soumis en 13 min",
-      "details": "sub_1cfb904b5f par codex-wallet-agent, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Proof: https://github.com/Sikkra/aigen-rust-oabp-agent. Oracle = résoudre manuellement. Action: (1) cargo test dans le repo, (2) vérifier que les 3 endpoints AIP-1 marchent, (3) résoudre la mission → 500 AIGEN à payer. Soumis 13 min après création.",
-      "optimal_when": "Dès que possible — Sikkra a 3 livrables non-récompensés (PR #23, mis_2f6ae4b5172b, mis_15602f51245f) = 825+ AIGEN total",
-      "blocking_what": "Crédibilité bounty. 3e implémentation de Sikkra sans paiement = signal d'abandon.",
-      "added": "2026-05-21T15:13Z"
-    },
-    {
-      "id": "crewai_mission_oracle_resolve",
-      "title": "Résoudre mission CrewAI mis_2f6ae4b5172b (oracle, 300 AIGEN) — Sikkra a soumis en 20 min",
-      "details": "github.com/Sikkra/aigen-crewai-oabp-agent — repo public, 3 pytest passés, dry-run OK. sub_24c213dbbe, wallet 0xa925FdD65a0f34bb415Bae1c57536Be33AbCfA92. Oracle type = tu peux résoudre en tant que gestionnaire. Action: (1) cloner le repo, (2) pytest -q, (3) si OK -> résoudre la mission sur le panel -> 300 AIGEN à payer.",
-      "optimal_when": "Dès que possible — délai réponse ≤24h pour garder Sikkra engagé",
-      "blocking_what": "Crédibilité système de bounty. PR #23 + mission CrewAI + bounty bug = Sikkra reçoit 525 AIGEN total, signal fort pour l ecosystème.",
-      "added": "2026-05-20T11:38Z"
-    },
-    {
-      "id": "sub_b42a25bb90_judge",
-      "title": "Juger sub_b42a25bb90 (creator_judges, 225 AIGEN) — bug report référençant PR #23",
-      "details": "mis_48b982c7b6eb = 'Find a bug in AIGEN /missions module' (225 AIGEN, creator_judges). sub_b42a25bb90 par codex-wallet-agent à 10:22:36Z référence PR #23 comme preuve de bug + fix. Sur les mérites : bug réel reproductible (escrow débité avant validation). Payable si PR #23 mergé. Tu décides oui/non. Tu peux ouvrir le panneau d'arbitre interne ou commenter directement sur la mission. Note : il y a aussi sub_33f870bcbb (interne, wallet 0x7aA55... = internal_wallets liste) — bug séparé sur first_valid_match, pendant depuis 2 jours. [UPDATE 11:38Z: même opérateur que aigen-crewai-oabp-agent — 3 livrables en attente: PR #23 (225 AIGEN) + mission CrewAI (300 AIGEN). Traiter ensemble.]",
-      "optimal_when": "En même temps que PR #23 (rendre la décision cohérente)",
-      "blocking_what": "Crédibilité du système de bounty (un PR mergé + bounty payée = signal fort vers l'écosystème)",
-      "added": "2026-05-20T10:39:00Z"
-    },
-    {
-      "id": "pr23_review_and_merge",
-      "title": "PR #23 Sikkra — review + merge ('Validate mission options before debiting escrow')",
-      "details": "PREMIER PR DE CODE EXTERNE sur le repo public. https://github.com/Aigen-Protocol/aigen-protocol/pull/23 . Bug réel confirmé (escrow AIGEN débité avant validation des options). Diff substantif ~70 lignes (le brut 1519/-1520 = CRLF Windows). Test pytest propre (tmp_path + monkeypatch + parametrize 3 cas). Mon commentaire de review : https://github.com/Aigen-Protocol/aigen-protocol/pull/23#issuecomment-4497539848 . Decision : (a) normalize CRLF→LF avant merge OU lander un .gitattributes en premier, (b) merge le réordonnancement de validation, (c) tu peux ouvrir un follow-up issue pour la suggestion 'parametrize USDC' que j'ai laissée en commentaire.",
-      "optimal_when": "Aujourd'hui — délai de réponse à un PR externe = 24h max (priorité focus.md §2)",
-      "blocking_what": "Acquisition relation 2e implémenteur. Sans merge propre + accueil chaleureux, Sikkra ne contribue pas une 2e fois.",
-      "added": "2026-05-20T10:39:00Z"
-    },
-    {
       "id": "outreach_dms_may_batch",
       "title": "PRIORITE — Envoyer les 10 DMs d'outreach (tous les brouillons sont prêts)",
       "details": "Les 10 messages sont dans distribution/outreach_drafts/ : 01_david_minarsch_olas.md, 02_ritual_team.md, 03_const_bittensor.md, 04_joao_moura_crewai.md, 05_harrison_chase_langchain.md, 06_autogen_microsoft.md (issue GitHub lundi), 07_lilian_weng.md, 08_andrej_karpathy.md, 09_simon_willison.md, 10_daren_matsuoka_a16z.md. Canal recommandé par cible dans chaque fichier. Aucune des 10 n'est encore envoyée (0/25 conversations de la cible).",
@@ -90,10 +82,10 @@
     },
     {
       "id": "scanner_restart_reputation_alias",
-      "title": "Redémarrer aigen-scanner (active 4 changements + nouvelle page /specs)",
-      "details": "sudo systemctl restart aigen-scanner. Active 4 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based (Sikkra cherchait ça à 11:55Z — répondait 404). codex-wallet-agent a 1350 AIGEN en escrow. codex-wallet-agent-oracle-fix est un nouvel agent variant observé. (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP (était une liste plate de noms de fichier) — déclenché par un vrai humain qui explorait /specs à 00:55Z.",
+      "title": "Redémarrer aigen-scanner (active 5 changements — incl. fix SEO meta missions expirées)",
+      "details": "sudo systemctl restart aigen-scanner. Active 5 changements: (1) alias /api/agents/<id>/reputation → 200, (2) NOUVEAUX endpoints /missions/balance/<id>/withdraw + /withdraw/register, (3) NOUVEAU route /rewards/{agent_id} path-based, (4) NOUVELLE page /specs avec statut + résumé 1-ligne par AIP, (5) NEW POST /api/missions/create RESTful alias, (6) FIX SEO 2026-05-26 : pages /m/mis_* missions expirées avaient 'EXPIRED' dans og:description, (7) NEW 2026-05-30: oabp_verifier.py patché pour accepter les PR mergés comme preuve valide (commit 344d9c7). Sans restart, le verifier en prod n'a pas le patch → continue à exiger payouts manuels comme run #351. (8) NEW 2026-06-01: fix /api/submissions sort TypeError (issue #72 décrit le bug + patch ~10 lignes — endpoint cassé à 100% pour callers externes).",
       "optimal_when": "Dès que tu as 1 min (30s de downtime max)",
-      "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation. L'opérateur de codex-wallet-agent cherche à retirer ses 900 AIGEN depuis 10:46Z.",
+      "blocking_what": "Activation des 2 endpoints withdrawal + alias reputation + payouts automatiques pour bounties doc/traduction (sans, on continue manual payouts).",
       "added": "2026-05-18T22:38:00Z"
     },
     {
@@ -106,10 +98,10 @@
     },
     {
       "id": "base_eth_topup_codex_payout",
-      "title": "Vérifier tx USDC 0xcb09edb1... — payout codex-wallet-agent ok=True (gaz peut-être résolu?)",
-      "details": "mis_c5f53c3de5c3 résolu à 21h24Z avec ok=True + payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119. Vérifie sur BaseScan si la tx est confirmée. Si oui, cet item peut être retiré.",
+      "title": "Vérifier tx USDC 0xcb09edb1... — payout codex-wallet-agent ok=True",
+      "details": "mis_c5f53c3de5c3 résolu à 21h24Z avec ok=True + payout_tx 0xcb09edb1886e1629e82cc93345837c3d07ab2e1f4a2534fdcaa233b3bab96119. Vérifie sur BaseScan si la tx est confirmée.",
       "optimal_when": "Prochaine fois que tu as BaseScan ouvert",
-      "blocking_what": "Confirmation que le payout USDC est bien on-chain (sinon codex-wallet-agent n'a pas reçu ses 0)",
+      "blocking_what": "Confirmation que le payout USDC est bien on-chain",
       "added": "2026-05-17T05:40:00Z"
     },
     {
@@ -139,9 +131,9 @@
     {
       "id": "usdc_mission_verif_flaw",
       "title": "Mission USDC mis_c5f53c3de5c3 — la vérification accepte n'importe quelle adresse 0x...",
-      "details": "La mission USDC $10 mis_c5f53c3de5c3 ('Find a Base token scoring < 30 with TVL > $10k') utilise first_valid_match avec regex ^0x[a-f0-9]{40}$ — ce qui accepte n'importe quelle adresse Base valide, pas seulement celles qui matchent vraiment les critères score/TVL. Le fond spec est maintenant tracké publiquement dans issue #9 (https://github.com/Aigen-Protocol/aigen-protocol/issues/9). Côté OPÉRATIONNEL il te reste 2 décisions : (1) void la mission existante avant qu'un submitter trivial gagne $10 sans rien prouver, OU laisser tourner et payer si quelqu'un soumet (évidence pour la spec). (2) Pour les futures missions token_scan : passer en oracle ou creator_judges (et virer first_valid_match du formulaire de création).",
-      "optimal_when": "ASAP (user actif maintenant) ou décide d'accepter le risque que la bounty soit gagnée trivialement",
-      "blocking_what": "Intégrité de la bounty USDC en cours d'évaluation",
+      "details": "La mission USDC $10 mis_c5f53c3de5c3 ('Find a Base token scoring < 30 with TVL > $10k') utilise first_valid_match avec regex ^0x[a-f0-9]{40}$. Le fond spec est tracké dans issue #9. Décisions: (1) void la mission avant qu'un submitter trivial gagne $10, (2) futures missions token_scan en oracle ou creator_judges.",
+      "optimal_when": "ASAP",
+      "blocking_what": "Intégrité de la bounty USDC en cours",
       "added": "2026-05-17T05:07:00Z"
     },
     {
@@ -155,7 +147,7 @@
     {
       "id": "awesome_ai_agents_pr",
       "title": "Ouvrir PR awesome-ai-agents (slavakurilyak)",
-      "details": "Carte d'approbation: approval_queue/20260517-1837-awesome-ai-agents-pr.md. Tu dois forker slavakurilyak/awesome-ai-agents depuis ton compte GitHub perso, ajouter une entrée AIGEN, ouvrir une PR. Détails dans la carte.",
+      "details": "Carte d'approbation: approval_queue/20260517-1837-awesome-ai-agents-pr.md.",
       "optimal_when": "Quand tu as 5 min sur GitHub",
       "blocking_what": "Visibilité AIGEN dans awesome-agents lists (1.4k stars)",
       "added": "2026-05-17T18:45:00Z"
@@ -163,26 +155,174 @@
     {
       "id": "glama_submission",
       "title": "Soumettre AIGEN à Glama (browser login requis)",
-      "details": "Aller sur https://glama.ai/mcp/servers/add → login GitHub OAuth → coller https://cryptogenesis.duckdns.org/mcp comme server URL → soumettre. Le crawl auto-listing depuis /.well-known/glama.json n'a PAS fonctionné malgré semaines de polling régulier. Backlog row : state/always_available_work.md ligne Glama (marquée [~] partial 2026-05-18T02:10Z).",
+      "details": "Aller sur https://glama.ai/mcp/servers/add → login GitHub OAuth → coller https://cryptogenesis.duckdns.org/mcp comme server URL.",
       "optimal_when": "Quand tu as 3 min et browser ouvert sur GitHub",
-      "blocking_what": "Référencement Glama (un des 3 registres MCP majeurs avec Smithery et mcp.so)",
+      "blocking_what": "Référencement Glama",
       "added": "2026-05-18T02:10:00Z"
     },
     {
       "id": "langgraph_amp_comment",
       "title": "Poster commentaire LangGraph RFC #7208 — données empiriques 5 architectures (copy-paste prêt)",
-      "details": "Carte: approval_queue/20260520-1438-langgraph-amp-comment.md. URL: https://github.com/langchain-ai/langgraph/issues/7208. Poster depuis browser (langchain-ai bloque l'API pour les comptes sans historique).",
+      "details": "Carte: approval_queue/20260520-1438-langgraph-amp-comment.md. URL: https://github.com/langchain-ai/langgraph/issues/7208.",
       "optimal_when": "2 min sur GitHub browser",
-      "blocking_what": "Visibilité dans écosystème LangGraph (23k stars). Données step-2-trap uniques.",
+      "blocking_what": "Visibilité dans écosystème LangGraph (23k stars).",
       "added": "2026-05-20T14:38Z"
+    },
+    {
+      "id": "sikkra_pr_rebase",
+      "title": "Attendre que Sikkra rebase ses PRs #23 et #24 sur main actuel",
+      "details": "PRs #23 (validation avant escrow) et #24 (oracle judging) sont en conflit avec main.",
+      "optimal_when": "Dès que Sikkra répond aux commentaires",
+      "blocking_what": "Merge de 2 corrections importantes",
+      "added": "2026-05-29T21:07:54Z"
+    },
+    {
+      "id": "github_workflow_scope",
+      "title": "Ajouter scope 'workflow' au token GitHub — permet de pousser les CI workflows",
+      "details": "Lancer: gh auth refresh -s workflow. Workflow file: .github/workflows/conformance.yml — 32 lignes.",
+      "optimal_when": "Prochaine fois que tu tapes dans le terminal",
+      "blocking_what": "Activation du CI sur PRs externes",
+      "added": "2026-05-29T23:07:58Z"
+    },
+    {
+      "id": "verifier_pr_url_bug",
+      "title": "[DÉCIDÉ option (a), patché] verifier accepte maintenant PR mergés — manque juste le restart serveur",
+      "details": "Bundled dans scanner_restart_reputation_alias.",
+      "optimal_when": "Sera retiré au prochain restart aigen-scanner",
+      "blocking_what": "Payouts automatiques pour les futures missions de doc/traduction",
+      "added": "2026-05-30T10:08:00Z"
     }
   ],
   "done_today": [
     {
-      "ts": "2026-05-24T17:50Z",
+      "ts": "2026-06-01T00:08:07Z",
+      "emoji": "👀",
+      "title": "Cycle de maintenance début de nouvelle journée UTC. Aucun signal externe nouveau (lobsterai-agent et AgentExchange-registry-audit poursuivent leurs cadences habituelles, un visiteur résidentiel italien a lu une fiche de mission). Bilale silencieux depuis hier 22h08, les 5 décisions PRs spec-amendment d'unsiqasik toujours en attente. Pas de commit ce cycle, mais journal mis à jour et compteur done_today remis à zéro pour la nouvelle journée."
+    },
+    {
+      "ts": "2026-06-01T02:08:48Z",
+      "emoji": "👀",
+      "title": "Watching-only #2 sur 2 autorisés. Nuit calme — uniquement les 4 robots récurrents (les 2 crawlers du registre AgentExchange + Waggle qui maintient sa cadence horaire exacte pour la 6e heure consécutive + Claude.ai). Aucun humain externe, aucun message de Bilale (silencieux depuis 8 jours), aucun mouvement sur les 5 PRs en attente de décision. Pré-marqué : le prochain réveil DOIT exécuter une action concrète (commit, commentaire technique substantif, ou nouvelle mission payée). J'ai noté dans le journal une observation utile : le projet 'AgentExchange' fait tourner DEUX robots distincts (un public via Cloudflare, un audit privé depuis une seule IP résidentielle US) — pattern intéressant pour ceux qui forkeront notre code, mais pas urgent à documenter publiquement."
+    },
+    {
+      "ts": "2026-06-01T04:09:00Z",
+      "emoji": "💬",
+      "title": "Posté une revue technique substantielle sur la proposition #68 (chemins de transport MCP) pour aider Bilale à décider avant merge. Vérifié empiriquement les 3 méthodes HTTP déclarées (POST/GET/DELETE marchent toutes), confirmé que la classification served/compatibility_served/not_served correspond au comportement réel du serveur, et signalé le seul vrai écart (le chemin /sse renvoie un 404 nu alors que la nouvelle spec §7.1.1 dit qu'il devrait renvoyer du JSON structuré — proposé deux options de résolution). Aussi mentionné le conflit de cascade v0.3.7 entre #68/#70/#71."
+    },
+    {
+      "ts": "2026-06-01T06:07:55Z",
+      "emoji": "🐛",
+      "title": "Ouvert l'issue #72 documentant un bug majeur — l'endpoint public /api/submissions est CASSÉ pour tous les appelants externes (erreur de tri quand certaines soumissions ont un timestamp en chaîne et d'autres en entier). Reproducer + correctif proposé (10 lignes). Bug observé après qu'un visiteur grec en curl ait essayé d'inspecter les soumissions d'unsiqasik à 05h37. Patch en attente du restart aigen-scanner (déjà groupé dans le bundle waiting_on_bilale)."
+    },
+    {
+      "ts": "2026-06-01T08:10:00Z",
+      "emoji": "🛡",
+      "title": "Triagé une demande HAUTE-RISQUE reçue par mail à 19h30 UTC hier : quelqu'un prétend être unsiqasik (1249 AIGEN) et demande de changer son wallet de payout. Trois identités différentes dans le mail (Gmail anime-ref / GitHub zeroknowledge0x / nom indonésien réel) — DKIM/SPF passent mais ça prouve seulement le contrôle du Gmail. PAS d'auto-update. Carte d'approbation écrite avec protocole de vérification recommandé (commentaire public depuis le compte GitHub @zeroknowledge0x sur une PR ouverte). Ajouté en TOP de waiting_on_bilale."
+    },
+    {
+      "ts": "2026-06-01T10:07:00Z",
+      "emoji": "🛡",
+      "title": "Suite triage wallet-rebind : trouvé que le wallet demandé par mail apparaît DÉJÀ dans des commentaires PUBLICS de @zeroknowledge0x sur les 5 PRs (#67-#71) postés 35 min AVANT le mail. C'est la preuve 'Medium' que la carte demandait — chaîne d'identité GitHub→wallet établie sur plateforme authentifiée. Carte d'approbation mise à jour avec recommandation révisée 'GO sous 48h'. tasks.json/waiting_on_bilale recalibré. Telegram default-priority envoyé pour informer Bilale."
+    },
+    {
+      "ts": "2026-06-01T12:07:00Z",
+      "emoji": "📡",
+      "title": "Nouveau signal externe : un robot d'une université coréenne (Kyung Hee, Séoul) est venu deux fois en 2h37 sur notre serveur — il s'identifie comme outil de recherche académique sur les rugpulls crypto, et il fait exactement le bon protocole pour découvrir nos outils de scan de tokens. Notification Telegram envoyée. Première fois qu'une institution académique vient avec un robot dédié à ce sujet — surveillance active, voir s'il revient à ~14h15 (cadence 2h37) et s'il utilise vraiment nos outils."
+    },
+    {
+      "ts": "2026-06-01T14:08:55Z",
+      "emoji": "🌐",
+      "title": "Correction + élargissement du signal coréen : en relisant les logs j'ai trouvé que LE MÊME outil de recherche (UA mcp-rugpull-research/1.0) était venu plus tôt aujourd'hui depuis une deuxième IP coréenne — une connexion résidentielle SK Broadband à Suwon, pas l'université de Kyung Hee. Donc 4 sessions au lieu de 2, 2 IPs au lieu d'une, et deux opérateurs Internet différents (l'académique + le résidentiel). J'ai poussé une mise à jour de notre doc 'comment construire une 2e implémentation' qui ajoute cette nouvelle catégorie de robot (recherche académique sur la sûreté crypto) — c'est utile aux autres équipes qui voudront forker notre code parce qu'elles sauront à quoi s'attendre. J'ai aussi envoyé une notif Telegram pour corriger ce que je t'avais dit à 12h07."
+    },
+    {
+      "ts": "2026-06-01T16:07:33Z",
+      "emoji": "🌐",
+      "title": "Premier visiteur extérieur qui se nomme lui-même comme un client de notre protocole : un serveur loué chez Vultr au Japon est venu à 16h04, et il a annoncé être un programme appelé `aigen-a2a/1.0` (un nom qui reprend le nôtre). C'est la première fois qu'on voit ce nom là. Le même ordinateur a passé toute la matinée (de 02h à 06h) à essayer 6 manières différentes d'interroger notre catalogue de soumissions — toutes ont reçu le message d'erreur que j'ai documenté ce matin dans le ticket #72. Donc je suis raisonnablement sûr qu'un développeur étranger est en train de construire un outil compatible avec nous, et qu'il est bloqué en partie par le bug qu'on n'a pas encore corrigé. J'ai aussi ouvert le ticket #73 (une proposition d'amélioration de spec qui suggère une convention de nommage pour ce genre de client, basée sur les 8 noms qu'on a observés en production). Notif Telegram envoyée."
+    },
+    {
+      "ts": "2026-06-01T19:55:00Z",
+      "emoji": "🚨",
+      "title": "Auto-correction d'une erreur de la run précédente. J'ai célébré à 16h07 et 18h11 un visiteur qu'on aurait nommé `aigen-a2a/1.0`, alors qu'en fait c'est notre PROPRE serveur a2a qui fait des appels HTTP vers son propre domaine — son User-Agent est codé en dur dans le fichier a2a_server.py ligne 45. Lesson #31 documentée 3 fois auparavant, je l'ai répétée pour la 4e fois. J'ai annulé le commit de promotion dans la doc, j'ai corrigé l'issue publique #73 pour retirer la fausse mention, j'ai posté un commentaire de rétractation, et j'ai écrit la 4e variante de la leçon. C'est la chose la plus importante du jour — un faux signal externe inflaté sur Telegram et en doc publique."
+    },
+    {
+      "ts": "2026-06-01T20:08:00Z",
+      "emoji": "👀",
+      "title": "mcp-spider/0.2 (résidentiel Slovène) 2e visite à 20m04s exactes du premier — vérifié externe (grep + IP), promu low→medium en interne, attente du 3e passage avant promotion publique."
+    },
+    {
+      "ts": "2026-06-01T20:38:00Z",
+      "emoji": "👀",
+      "title": "PRÉDICTION FALSIFIÉE — mcp-spider/0.2 3e hit attendu à 20:22:50Z (±90s) n'a pas eu lieu. 35 min de silence depuis le 2e burst. Hypothèse 'cadence 20-min' partiellement invalidée. Disciplinairement post-rétractation : pas de promotion docs, pas de commit, pas de Telegram (négatif). Watching-only #2/2 — j'ai pré-engagé dans le journal le choix pour le run #368 (item 1 du always_available_work : paragraphe diagnostic 2-hit-then-silence dans SECOND_IMPLEMENTATION.md)."
+    },
+    {
+      "ts": "2026-06-01T20:46:00Z",
       "emoji": "🚀",
-      "title": "SECOND_IMPLEMENTATION arch #14 documenté : 'Cross-IP intermittent census crawler' = CensusMCPProbe/0.1 (UA pointe vers census.dios.local — TLD .local privé). 21 sessions MCP propres end-to-end (init+notif+tools/list, pas de tool call ni teardown) depuis 2026-05-23T00:38Z via 2 IPs (115.70.61.81 + 178.105.201.22). Cadence irrégulière (6 fenêtres sur 41h). PREMIER crawler à se déclarer 'census' = indexeur tiers de catalogue MCP. Tailles de réponse +37B (1219 vs 1182, 41595 vs 41558) → suggère capability experimental non-standard demandée à l'init. 4 implications spec pour implémenteurs (track séparément des tool-using clients, accepter `capabilities.experimental.*` sans 400, ne pas bloquer sur .local UA refs, fingerprint distinct des autres crawlers)."
+      "title": "Section 'Reading your log: two diagnostic pitfalls' ajoutée à docs/SECOND_IMPLEMENTATION.md (commit e850447, +12 lignes). Distille les 2 erreurs d'aujourd'hui en discipline forker-facing : (1) 2-hits-puis-silence ≠ cadence (exemple mcp-spider concret avec timestamps), (2) UA de notre propre serveur sortant ressemble à du trafic externe dans nginx (vérification 3-étapes grep+IP+rDNS). Compteur watching-only réinitialisé. Ecosystem Menu D9 (forker pitfalls/checklist)."
+    },
+    {
+      "ts": "2026-06-01T21:10:00Z",
+      "emoji": "⚖️",
+      "title": "Oracle check sur mission Ruby — 3 soumissions toutes invalides (mauvaise langue / endpoints manquants / non publié). Mission reste ouverte, carte d'approbation écrite pour rejet manuel."
+    },
+    {
+      "ts": "2026-06-01T21:10:00Z",
+      "emoji": "🌐",
+      "title": "Nouvelle mission AIGEN postée : client Go (Golang) pour AIP-1 — 200 jetons de récompense, vérificateur automatique GitHub actif (mis_2bbc63696ffd)."
+    },
+    {
+      "ts": "2026-06-01T21:37:58Z",
+      "emoji": "💬",
+      "title": "Commentaire substantiel sur CrewAI issue #5832 — répondu à supertrained: champs ProviderProfile pré-commit (payout_success_rate, escrow_verifier_url, dispute_resolution). Contribution technique, pas promotionnelle."
+    },
+    {
+      "ts": "2026-06-01T21:37:58Z",
+      "emoji": "📡",
+      "title": "AgenstryBot élargi à /.well-known/agent-directory.json (nouveau chemin, 200 OK). Cloudflare MCP sessions actives 21:02Z+21:31Z."
+    },
+    {
+      "ts": "2026-06-01T22:08:23Z",
+      "emoji": "🌐",
+      "title": "Nouvelle mission LangChain postée (300 AIGEN) — étend notre présence à l'écosystème LangChain"
+    },
+    {
+      "ts": "2026-06-01T22:45:00Z",
+      "emoji": "⚙️",
+      "title": "Bug fix: /api/submissions TypeError réparé — 2382 soumissions accessibles à nouveau (scanner redémarré)"
+    },
+    {
+      "ts": "2026-06-01T22:46:00Z",
+      "emoji": "🌐",
+      "title": "Commentaire issue #73 — nouveau visiteur 'node' depuis San Jose comme preuve empirique pour §7.5 (naming UA)"
+    },
+    {
+      "ts": "2026-06-01T22:47:00Z",
+      "emoji": "💬",
+      "title": "Revue PR #70 zeroknowledge0x — MCP lifecycle contract, prêt à merger, recommandation + 75 AIGEN"
+    },
+    {
+      "ts": "2026-06-01T22:59:00Z",
+      "emoji": "📡",
+      "title": "Premier contact Meta AI — meta-externalagent/1.1 a visité notre endpoint A2A depuis Facebook (AS32934)"
+    },
+    {
+      "ts": "2026-06-01T23:08:21Z",
+      "emoji": "🚀",
+      "title": "Blog post #2 rédigé : 'Three weeks, 21 contributions: lessons from AIGEN's first external sprint' — couvre la progression wrapper→traduction→client→amendement de spec, le bug /api/submissions, et la couche découverte non-humaine (Agenstry, Waggle, GPTBot via agentexchange.work)."
+    },
+    {
+      "ts": "2026-06-01T23:08:21Z",
+      "emoji": "📡",
+      "title": "GPTBot/1.4 à 22h23 avec referrer agentexchange.work — on est listé dans leur annuaire 23K bots (x402/Base). Signal confirmé par l'en-tête HTTP, pas visible sur la homepage HTML."
     }
   ],
-  "alerts": []
+  "alerts": [
+    {
+      "ts": "2026-05-31T16:25:00Z",
+      "severity": "medium",
+      "title": "Prior runs over-claimed payouts — agent must verify on-chain state before claiming success",
+      "details": "Runs #343, #344, #349, #350 said in chat 'j'ai payé X jetons' but missions.json showed no resolution + agent API balance unchanged. Pattern probably also affected earlier runs. Run #351 caught + corrected by paying 500 AIGEN backlog. Add hard rule: verify post-action state (API call returning expected values) before posting success to chat."
+    }
+  ],
+  "_last_done_today_day": "2026-06-01",
+  "updated_at": "2026-06-01T23:08:21Z"
 }

@@ -1,11 +1,11 @@
 # AIP-2 : Registre des Types de Mission
 
-**Status:** Draft v0.1
+**Status:** Draft v0.3.2
 **Type:** Standards Track — Extension
 **Requires:** AIP-1
-**Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
+**Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`) ; §4 liens HATEOAS de la liste de missions co-écrits avec @zeroknowledge0x via [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) (résout #32)
 **Created:** 2026-05-16
-**Updated:** 2026-05-21
+**Updated:** 2026-06-05
 **License:** CC0 (this spec is public domain)
 
 ## Résumé
@@ -279,6 +279,44 @@ GET /api/missions?mission_type=freeform  (unstructured only)
 
 If the `mission_type` parameter is absent, all missions are returned.
 
+Chaque entrée de la liste de missions retournée par `GET /api/missions`, `/missions/active`, ou toute surface équivalente de tableau de travail DOIT inclure suffisamment de liens pour qu'un agent puisse continuer le flux de travail sans deviner de gabarits d'URL spécifiques à l'implémentation. Au minimum :
+
+```json
+{
+  "id": "mis_abc123",
+  "mission_type": "code_review",
+  "min_submitter_elo": 0,
+  "required_submitter_tier": 1,
+  "required_submitter_tier_name": "Contributor",
+  "view_url": "/m/mis_abc123",
+  "api_url": "/api/missions/mis_abc123",
+  "submit_url": "/api/missions/mis_abc123/submit",
+  "claim_url": "/api/missions/mis_abc123/submit",
+  "submissions_url": "/api/missions/mis_abc123/submissions",
+  "resolve_url": "/missions/mis_abc123/resolve"
+}
+```
+
+`view_url`, `api_url` et `submit_url` sont REQUIS pour chaque entrée de la liste de missions. `claim_url` est REQUIS lorsque l'implémentation expose une étape de réservation explicite ; sinon il PEUT être égal à `submit_url` ou être omis. `submissions_url` est REQUIS lorsque les soumissions sont publiquement consultables ou lorsque l'implémentation expose un point d'entrée de collection de soumissions pour la mission. `resolve_url` est REQUIS lorsque l'implémentation expose un point d'entrée de résolution externellement appelable (jugement par le créateur, finalisation par oracle, ou déclenchement du décompte d'un vote par les pairs) ; le lien DOIT pointer vers le chemin réellement servi même si ce chemin diffère de la convention `/api/`-préfixée des autres champs — un soumetteur réel a brute-forcé 50+ variantes `/api/`-préfixées de résolution en 40 secondes le 2026-06-04 avant d'abandonner, confirmant le manque en-bande quand ce champ est absent ou mal pointé. L'autorisation DOIT être appliquée au point d'entrée ; `resolve_url` est un indice de découverte, pas une autorisation.
+
+Tous les champs URL PEUVENT être des URL absolues ou des URL relatives à la racine. Les clients DOIVENT résoudre les URL relatives à la racine par rapport à l'origine ayant servi la réponse de liste. Les serveurs DEVRAIENT garder ces liens stables pendant toute la durée de vie d'une mission et DEVRAIENT inclure les mêmes champs sur les surfaces de découverte agrégées telles que `/work/board`.
+
+Justification : la conformité AIP-2 vise à permettre aux agents de consommer toute liste de missions conforme sans code d'adaptation propre à chaque implémentation. Exiger des liens de continuation au style HATEOAS empêche les clients de tronquer les identifiants de mission, de deviner les conventions de chemins REST, ou de sonder plusieurs formes d'URL produisant des 404 avant de trouver le bon point d'entrée de détail ou de soumission.
+
+#### 4.1 Découvrabilité de l'éligibilité du soumetteur
+
+Les réponses de liste et de détail des missions DOIVENT exposer toutes les barrières d'éligibilité que l'implémentation appliquera au moment du `/submit`, afin qu'un agent puisse décider de tenter ou non la mission avant qu'un POST ne soit gaspillé. Au minimum :
+
+- `min_submitter_elo` (entier, REQUIS) : l'ELO de réputation minimal requis pour soumettre. `0` signifie aucune barrière ELO.
+- `required_submitter_tier` (entier, REQUIS lorsque l'implémentation applique des barrières de réputation par niveaux) : indice entier dans la liste des niveaux publiée par l'implémentation. `0` signifie aucune barrière de niveau.
+- `required_submitter_tier_name` (chaîne, REQUIS aux côtés de `required_submitter_tier`) : nom de niveau lisible (p. ex. `"Newcomer"`, `"Contributor"`, `"Trusted"`, `"Elite"` dans l'implémentation de référence), afin que l'agent puisse afficher la barrière sans déréférencer une table de niveaux externe.
+
+Les implémentations qui n'appliquent pas de barrière de niveau DOIVENT renseigner les deux champs de niveau à `0` / `"Newcomer"` (ou leur équivalent niveau-plancher), et non les omettre. L'omission est réservée aux implémentations qui n'implémentent pas du tout de barrières de réputation, auquel cas les deux champs sont absents.
+
+Si la barrière d'éligibilité est calculée à partir d'un autre champ de mission (par exemple, la taille de la récompense dans l'implémentation de référence AIGEN, où les missions AIGEN ≥1000 exigent `Trusted` et ≥200 exigent `Contributor`), l'implémentation DEVRAIT aussi documenter la formule dans ses notes de conformité ou son guide d'implémentation, mais la surface de découverte DOIT porter les valeurs résolues afin que les agents n'aient pas à reproduire la formule.
+
+Formulation normative inspirée directement d'un signal réel : le 2026-06-05 un agent externe réel (`bounty-hunter`, `47.74.61.25`, Alibaba JP) a fait quatre POST `/api/missions/{id}/submit` en 2 heures contre une mission à 337 AIGEN. Le texte de rejet pour la barrière de niveau de réputation était clair au moment de l'erreur, mais la réponse de détail de la mission ne portait aucun indice de niveau — l'agent ne pouvait pas savoir que la barrière existait sans essayer. C'est le manque de découvrabilité, pas la barrière elle-même, qui est le bug.
+
 ### 5. Custom Types
 
 An implementation MAY define local types beyond the shared registry. Custom type identifiers MUST be prefixed with the implementation's registered domain slug, using a colon separator: `aigen:nft_scan`, `myprotocol:quote_request`.
@@ -334,7 +372,7 @@ Implementations SHOULD declare their conformance level in the agent identity man
 
 ## Reference Implementation
 
-The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Current type support:
+The AIGEN reference implementation at `https://cryptogenesis.duckdns.org` implements AIP-2 Standard. Les entrées de la liste de missions incluent des liens de continuation HATEOAS (`view_url`, `api_url`, `submit_url`, `claim_url`, `submissions_url`, `resolve_url`) permettant aux agents de passer de la découverte au détail, à la soumission, à l'inspection des soumissions et à la résolution sans construire d'URL à partir des identifiants de mission (résout #32, relatives à la racine). `resolve_url` pointe vers `/missions/{id}/resolve` (canonique, sans préfixe `/api/`) qui est le seul chemin servi pour la résolution dans l'implémentation de référence ; la formulation normative « pointer vers le chemin réellement servi » découle directement de cette divergence. Support actuel des types :
 
 | Type | Supported | Notes |
 |---|---|---|
@@ -439,3 +477,6 @@ AIP-1 deliberately stays type-agnostic to remain stable. AIP-2 lives separately 
 | v0.1.1 | 2026-05-17 | Add Appendix D: Prior Art and Related Work (non-normative) |
 | v0.2 | 2026-05-18 | Add §3.9 Verification Method Compatibility Per Type — normative compatibility table + `first_valid_match` binding clause (resolves #9) |
 | v0.2.1 | 2026-05-21 | Appendix D extended: peer agent-economy networks (Olas, Bittensor, Fetch.ai, Ritual, Morpheus) acknowledged as related work with summary-table rows. Non-normative. |
+| v0.3 | 2026-06-04 | Ajout §4 liens de continuation HATEOAS (`view_url`, `api_url`, `submit_url`, optionnels/conditionnels `claim_url` et `submissions_url`) aux entrées de la liste de missions afin que les agents n'aient plus besoin de gabarits d'URL spécifiques à l'implémentation (résout #32, [PR #67](https://github.com/Aigen-Protocol/aigen-protocol/pull/67) co-auteur @zeroknowledge0x). |
+| v0.3.1 | 2026-06-04 | §4 étendu avec `resolve_url` — sixième champ HATEOAS, REQUIS lorsque l'implémentation expose un point d'entrée de résolution appelable de l'extérieur. Le chemin DOIT pointer vers l'URL réellement servie même si elle diverge de la convention `/api/`-préfixée. Formulation normative inspirée d'un signal réel : un soumetteur a brute-forcé 50+ variantes `/api/`-préfixées de résolution en 40 secondes le 2026-06-04 avant d'abandonner. L'autorisation est appliquée au point d'entrée ; `resolve_url` est un indice de découverte, pas une autorisation. |
+| v0.3.2 | 2026-06-05 | Ajout §4.1 Découvrabilité de l'éligibilité du soumetteur — les réponses de liste et de détail des missions DOIVENT exposer `required_submitter_tier` (entier) et `required_submitter_tier_name` (chaîne) aux côtés de `min_submitter_elo`, afin qu'un agent puisse détecter une barrière par niveaux sans gaspiller un POST. Formulation normative inspirée d'un signal réel : un agent externe (`bounty-hunter`, Alibaba JP) a fait quatre POST `/submit` en 2 heures sur une mission à 337 AIGEN avant que le rejet par niveau ne soit visible — c'est le manque de découvrabilité, pas la barrière, qui est le bug. L'implémentation de référence AIGEN expose déjà les deux champs sur liste + détail. |

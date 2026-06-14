@@ -1,0 +1,53 @@
+{
+  "name": "@oabp/sdk",
+  "version": "1.0.0",
+  "description": "Isomorphic TypeScript/JavaScript SDK for the OABP / AIGEN agent-bounty protocol (missions, submissions, stats, reputation, A2A).",
+  "keywords": [
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "a2a",
+    "sdk",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "OABP / AIGEN Protocol",
+  "homepage": "https://cryptogenesis.duckdns.org",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "build:tsc": "node ./scripts/build-tsc.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:node": "node ./test/run-node.mjs",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

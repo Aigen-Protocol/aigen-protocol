@@ -1,76 +1,121 @@
 {
   "agent_id": "aigen",
   "schema_version": 2,
-  "updated_at": "2026-05-24T17:50:00Z",
-  "updated_by": "autopilot-run-279",
-  "last_archive_day": "2026-05-24",
+  "updated_at": "2026-06-01T23:08:21Z",
+  "updated_by": "run373",
+  "last_archive_day": "2026-06-01",
   "standing": [
     {
       "id": "github_pr_review",
-      "title": "\ud83d\udccb Review + merge PRs externes (Sikkra, autres contributeurs)",
+      "title": "📋 Review + merge PRs externes (Sikkra, autres contributeurs)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": null,
+      "last_done": "2026-06-01T22:38:21Z",
       "evidence_required": "PR comment or merge"
     },
     {
       "id": "github_issue_respond",
-      "title": "\ud83d\udcac R\u00e9pondre aux issues GitHub ouvertes",
+      "title": "💬 Répondre aux issues GitHub ouvertes",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-23T03:12:00Z",
+      "last_done": "2026-06-01T22:38:21Z",
       "evidence_required": "comment posted"
     },
     {
       "id": "dms_check_respond",
-      "title": "\ud83d\udce8 Check + r\u00e9pondre aux DMs re\u00e7ues (X, Discord, email)",
+      "title": "📨 Check + répondre aux DMs reçues (X, Discord, email)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": null,
+      "last_done": "2026-06-01T21:37:58Z",
       "evidence_required": "reply sent"
     },
     {
       "id": "missions_oracle_resolve",
-      "title": "\u2696\ufe0f R\u00e9soudre missions oracle en attente (Sikkra Rust/CrewAI)",
+      "title": "⚖️ Résoudre missions oracle en attente (Sikkra Rust/CrewAI)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": null,
+      "last_done": "2026-06-01T21:10:00Z",
       "evidence_required": "mission resolved on panel"
     },
     {
       "id": "growth_metrics_track",
-      "title": "\ud83d\udcca Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
+      "title": "📊 Tracker daily: # agents register, # missions posted/resolved, AIGEN circulating",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-24T17:50:00Z",
+      "last_done": "2026-06-01T23:08:21Z",
       "evidence_required": "dashboard.json updated"
     },
     {
       "id": "outreach_followup",
-      "title": "\ud83d\udce4 Relancer contacts outreach > 48h sans r\u00e9ponse (10 DMs en cours)",
+      "title": "📤 Relancer contacts outreach > 48h sans réponse (10 DMs en cours)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": null,
+      "last_done": "2026-06-01T21:37:58Z",
       "evidence_required": "outreach_status.json updated"
     },
     {
       "id": "stay_active_post",
-      "title": "\ud83d\udfe2 Garder une pr\u00e9sence (1 post chat/journal par cycle si rien d'autre)",
+      "title": "🟢 Garder une présence (1 post chat/journal par cycle si rien d'autre)",
       "frequency": "every_cycle",
       "self_doable": true,
-      "last_done": "2026-05-24T17:50:00Z",
+      "last_done": "2026-06-01T23:08:21Z",
       "evidence_required": "chat.jsonl appended"
     }
   ],
   "missions": [
     {
-      "id": "ms_aigen_first_paid",
-      "title": "Acqu\u00e9rir le premier agent payeur (revenue > 0 sur AIGEN)",
-      "priority": "critical",
-      "status": "open",
-      "added_ts": "2026-05-22T21:35:00Z",
+      "id": "ms_agentexchange_mass_outreach_third_ua",
+      "title": "AgentExchange — third UA variant (mass-outreach/1.0) joins registry-audit + daily-pulse fleet, active POST posture",
+      "priority": "medium",
+      "status": "watching",
+      "added_ts": "2026-06-01T16:07:33Z",
       "operator_blocked": false,
-      "next_step": "test pay flow with lobsterai or another active agent"
+      "next_step": "Run #363 (16:07Z): 71.223.216.116 (AS209 CenturyLink residential Phoenix AZ US, hostname `71-223-216-116.phnx.qwest.net`) added a 3rd UA today — `AgentExchange-mass-outreach/1.0`. Sequence at 16:04:00-03Z: POST /aigen → 405, POST /a2a → 404, POST /api/a2a → 200/555B (JSON-RPC error envelope for unknown method, but they got 200), then 2s later same IP fired daily-pulse UA POST /api/a2a → 200/2057B (longer response, possibly tools/list or capability discovery). Same operator now runs role-specific UA per task: registry-audit/1.0 (passive crawl /.well-known/agent-card.json hourly), daily-pulse/1.0 (periodic /api/a2a active probe), mass-outreach/1.0 (multi-endpoint POST burst targeting many agents). The 3-UA fleet from a single residential IP suggests a builder running a workbench, not a production service. Counter-watch: (a) if mass-outreach UA returns within 7d on canonical /api/a2a only (not /aigen + /a2a 404 probes) → they've crawled our endpoint manifest and refined; (b) if outreach POST body invokes real JSON-RPC method (not just unknown) → product graduation; (c) if any agent in our agents.json reports back having been contacted by AgentExchange = federation evidence."
+    },
+    {
+      "id": "ms_mcp_rugpull_research_kyung_hee",
+      "title": "mcp-rugpull-research/1.0 (KR multi-IP) — EXPANDED to 4 textbook MCP sessions across 2 IPs / 2 ASNs (AS9318 SK Broadband residential Suwon + AS17870 Kyung Hee University Seoul), academic crypto-safety research scanner",
+      "priority": "high",
+      "status": "watching",
+      "added_ts": "2026-06-01T12:07:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #362 (14:08Z) CORRECTION + EXPANSION: re-grepped today's nginx log and found 180.71.27.251 had ALREADY hit twice earlier with the SAME UA — sessions at 04:40:55Z (3 reqs) + 05:22:30Z (3 reqs), identical 3-step lifecycle (POST init 200/1182B → POST 202/0B → POST tools/list 200/41557B). ipinfo: AS9318 SK Broadband, Suwon Gyeonggi-do KR (residential/SMB broadband, not academic). Combined with the 09:01Z+11:38Z Kyung Hee sessions = 4 textbook sessions / 2 IPs / 2 ASNs in 7h. SAME UA across home-ISP + university IPs = either one researcher operating from two locations or a small KR team. Added new taxonomy row 'academic crypto-safety research probers' to docs/SECOND_IMPLEMENTATION.md (commit 3703ee0). Counter-watch: (a) if 5th session lands ~14:16Z on Kyung Hee IP (2h37m cadence holds) → predictable scheduled prober; (b) if SK Broadband returns with different IP in same /16 (180.71.x) → likely productized tool with multiple deployments; (c) if any session invokes /scan tools (varied response sizes, not just 41557-58B catalog) → real ecosystem integration; (d) arxiv/KR paper citation within 30d → academic reference; (e) other ASN appears with same UA → tool is being distributed. T2 outreach candidate (inbound_discovered), no contact yet."
+    },
+    {
+      "id": "ms_wallet_rebind_unsiqasik",
+      "title": "Wallet-rebind unsiqasik — PROOF FOUND in public PRs, awaiting Bilale GO/NO-GO",
+      "priority": "critical",
+      "status": "awaiting_operator",
+      "added_ts": "2026-06-01T08:10:00Z",
+      "operator_blocked": true,
+      "next_step": "Run #360 (10:07Z) update: identity proof ALREADY exists. The wallet 0x036E525f4569865DA76A0ef758304b309740aeef requested by email is publicly declared as payout wallet by @zeroknowledge0x on PRs #67/#68/#69/#70/#71, posted 35min BEFORE the email request (2026-05-31T18:55-56Z vs 19:30Z). GitHub-authenticated chain-of-custody = 'Medium proof' from the original triage card. Approval card updated with revised recommendation GO within 48h. Remaining Tier B actions for Bilale: (1) reply briefly from Cryptogen@zohomail.eu to misakamikoto8x@gmail.com confirming rebind, (2) tell me where the canonical wallet binding lives (agents.json vs token-scanner DB vs on-chain) and I edit the file. NO auto-act until you say go — funds routing is irreversible."
+    },
+    {
+      "id": "ms_agenstry_live_a2a_validation",
+      "title": "Agenstry registry — UPGRADED from passive crawl to live A2A POST validation (3 today, 0 before)",
+      "priority": "high",
+      "status": "watching",
+      "added_ts": "2026-05-30T14:11:35Z",
+      "operator_blocked": false,
+      "next_step": "Run #370 (2026-06-01T21:37:58Z): AgenstryBot expanded path enumeration to include /.well-known/agent-directory.json (NEW path never seen in prior sweeps). Full HTTPS sweep at 21:25:46Z from 35.205.139.4 (GCP Belgium): /.well-known/agent-directory.json 200/878B, /.well-known/agents.json 200/878B, /agent-directory.json 200/878B, /agents.json 200/878B, /.well-known/mcp.json 200/376B, /mcp.json 200/376B, /.well-known/mcp/server-card.json 200/7046B, /.well-known/mcp 200/376B, /llms.txt 200/7388B, /agents.txt 200/3720B. All 200 OK. Also ran HTTP sweep first (all 301) before HTTPS -- new dual-protocol behavior. Prior next_step from run #339 still valid for A2A POST watch."
+    },
+    {
+      "id": "ms_autogen_7724_aip1",
+      "title": "AutoGen #7724 — AIP-1 spec discussion opened by external dev, supertrained settlement-rail proposal",
+      "priority": "high",
+      "status": "in_progress",
+      "added_ts": "2026-05-29T21:07:54Z",
+      "operator_blocked": false,
+      "next_step": "Run #372 22:38Z: no new reply from supertrained. Still awaiting. No action this run."
+    },
+    {
+      "id": "ms_sisyphus_agent_001",
+      "title": "sisyphus-agent-001 (Linode USA) — 30+ mission wins en 6min, Hello World MCP réussi, token scans Base+Solana actifs",
+      "priority": "high",
+      "status": "watching",
+      "added_ts": "2026-05-29T16:08:32Z",
+      "operator_blocked": false,
+      "next_step": "Run #315 (17:07Z): 4 paste.rs translation submissions RESOLVED — oracle payout 200 AIGEN (50 each × AIP-1 French v0.2 / AIP-1 Chinese v0.2 / AIP-2 French / AIP-3 French). All translations verified real (24-47KB each, complete spec translations, vs lobsterai boilerplate stubs). missions.json updated, specs pushed to GitHub (commit e0705aa rebased). sisyphus-agent-001 now has 34 total wins (30 winner + 4 newly resolved). Next: watch if sisyphus returns with new submissions or begins polling pattern (cadence unknown — only 6min burst observed so far). Check if they re-register in agents.json after winning."
     },
     {
       "id": "ms_aigen_50_agents",
@@ -80,39 +125,292 @@
       "added_ts": "2026-05-22T21:35:00Z",
       "operator_blocked": false,
       "next_step": "outreach + ecosystem listings"
+    },
+    {
+      "id": "ms_agentseo_second_visit_phase_split",
+      "title": "AgentSEO/0.5 2nd visit +14d (Railway NL) — confirms event-driven re-audit cadence, new sub-UA phase split",
+      "priority": "medium",
+      "status": "watching",
+      "added_ts": "2026-05-31T08:13:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #347 (08:13Z): AgentSEO/0.5 returned 2026-05-31 07:20:30Z from 208.77.244.102 (AS400940 Railway Amsterdam NL), zero prior hits except the original 2026-05-17 audit. 21 hits in 70s burst across 15 unique paths. New behavior vs v1: requests now split UA by phase — `AgentSEO/0.5 (mcp-handshake)` for POST /mcp + POST /mcp/sse/mcp init-notif-tools/list lifecycle (3 successful lifecycles), and `AgentSEO/0.5 (trust-scoring-cli)` for GET sweep (.well-known/agent.json 200/500B, .well-known/mcp.json 200/376B, llms.txt 200/7388B, openapi.json 200/1482B, health 200/77B, docs 200/573B, mcp/sse 200/87B, performance 404, performance/reputation 404). Path 404 candidates: /mcp/.well-known/mcp.json, /mcp/sse/.well-known/mcp.json, /mcp/mcp, /mcp/mcp/stream — all rejected naturally. Documented in docs/SECOND_IMPLEMENTATION.md (commit f621af1) under 'Discovery surfaces beyond AIP-1' /performance paragraph. Watch: (a) if 3rd visit lands at ~2026-06-14 (consistent 14d cadence), promote to 'periodic re-audit class' in arch catalogue alongside Chiark/Agenstry; (b) if a 4th sub-UA appears (e.g. `submission-trial`, `reputation-write`), they may be productizing a multi-step audit—worth a GitHub interest comment on manavaga/agent-seo. Counter-watch: if no 3rd visit within 30d window (cible 2026-06-30), reclass as ad-hoc audit not periodic scorer."
+    },
+    {
+      "id": "ms_waggle_aer_recurring_validated",
+      "title": "Waggle/1.0 + agent-exchange-register/1.0 — VALIDATED as recurring A2A agent-card registries",
+      "priority": "medium",
+      "status": "watching",
+      "created_at": "2026-05-31T22:08:26Z",
+      "updated_at": "2026-05-31T22:08:26Z",
+      "next_step": "Watch for >7 days; if cadence holds (Waggle hourly XX:35Z, AER 30-60min variable) add to PROTOCOL_COMPARISON.md as competitive landscape entry. If either stops within 48h, downgrade documentation. Counter-watch ends 2026-06-07T22:08Z.",
+      "context": "First contact 2026-05-31T03:16Z (Waggle) and 03:41Z (AER). At 18:02Z onwards both BEGAN recurring crawls. Waggle: 5 returns in 4h from 6 distinct AWS us-east IPs, exact :35Z minute marker. AER: subpath /aigen/.well-known/agent-card.json (03:41-17:16Z) then switched to canonical /.well-known/agent-card.json (17:49Z+). Documented in SECOND_IMPLEMENTATION.md crawler table commit 5fcd768.",
+      "operator_blocked": false
+    },
+    {
+      "id": "ms_issue35_aip1_transport_paths",
+      "title": "Issue #35 AIP-1 §7.1 transport_paths block proposal — observe spec-thread engagement + counter-watch /sse probes from new ASNs",
+      "priority": "medium",
+      "status": "in_progress",
+      "added_ts": "2026-05-29T11:08:00Z",
+      "operator_blocked": false,
+      "next_step": "Update 2026-05-29T14:08Z: Internet Census AS21859 now probing from SECOND Zenlayer datacenter (Dallas 185.180.141.22/24, same Chrome+python-httpx+GET /sse 404 pattern, 14:01Z). Still 1 ASN — counter-watch criterion (2+ distinct ASNs) NOT YET MET. Data update posted at issuecomment-4576198748. Continue watching: 60-day window 2026-07-28. Predict 3rd Zenlayer datacenter next week. Check spec-thread engagement from peterxing/scosemicolon/productmakerjason 5-7d (cible 2026-06-04). If 2+ new ASNs → draft §7.1 amendment PR."
+    },
+    {
+      "id": "ms_aigen_first_paid",
+      "title": "Acquérir le premier agent payeur (revenue > 0 sur AIGEN)",
+      "priority": "critical",
+      "status": "open",
+      "added_ts": "2026-05-22T21:35:00Z",
+      "operator_blocked": false,
+      "next_step": "test pay flow with lobsterai or another active agent"
+    },
+    {
+      "id": "ms_aip_translations_continue",
+      "title": "Inviter atlas-global-health-ai/hikaruhuimin à traduire AIP-2 et AIP-3",
+      "priority": "medium",
+      "status": "in_progress",
+      "added_ts": "2026-05-24T18:10:30Z",
+      "operator_blocked": false,
+      "next_step": "Run #351 (16:25Z): VERIFIED + CORRECTED backlog — 8 translation PRs from runs #349/#350 had NOT actually been paid despite chat claims. Caught via /api/agents/unsiqasik (wins:11 instead of expected 19). Created 6 retroactive missions + resolved 2 existing bounties (mis_daa6569a91d7 AIP-4 fr via PR #58, mis_86a3cc1c17d2 AIP-3 zh-cn via PR #64). Paid 400 AIGEN. unsiqasik now at 19 wins / 1149 balance. After spec amendments (next mission): 21 wins / 1249 balance. AIP-3 coverage complete (8 langs), AIP-4 complete (8 langs)."
+    },
+    {
+      "id": "ms_aip2_view_url_followup",
+      "title": "Issue #32 AIP-2 view_url HATEOAS gap — surveiller engagement + possible amendment PR",
+      "priority": "medium",
+      "status": "in_progress",
+      "added_ts": "2026-05-28T19:04:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #351 (16:25Z): unsiqasik OPENED PR #67 closing #32 with AIP-2 §4 HATEOAS continuation links (view_url, api_url, submit_url, claim_url, submissions_url) + missions.py implementation. Spec change matches my proposal exactly. Held PR for Bilale review (modifies missions.py live). Posted substantive technical comment (issuecomment-4587276180). Awaiting merge decision."
+    },
+    {
+      "id": "ms_redsift_a2a_discovery_scan",
+      "title": "a2a-discovery-scan (Red Sift PKI-PQC) — fresh A2A discovery client, UA version-bumped 2.0→3.0 in 58min same IP",
+      "priority": "medium",
+      "status": "watching",
+      "added_ts": "2026-05-28T19:10:00Z",
+      "operator_blocked": false,
+      "next_step": "2 hits today (18:11:35Z v2.0 + 19:09:53Z v3.0) from 178.191.93.147, both GET /.well-known/agent-card.json → 200/12996B. Self-id'd referrer: github.com/redsift/pki-pqc-mcp (Red Sift = real cybersecurity vendor, DMARC/post-quantum-crypto compliance space, MCP suffix suggests their first MCP-adjacent project). Version bump mid-session = active iteration, not stale CI. Below 3-session arch-catalogue threshold. Next steps: (a) if 3rd visit lands in next 24h → catalogue as SECOND_IMPLEMENTATION arch #17 (first A2A-only PKI-aware discovery scanner observed); (b) if version-bump cadence continues (v4.0+), WebFetch github.com/redsift/pki-pqc-mcp readme to understand scan target shape; (c) note that our agent-card.json carries no PKI/PQC fields today — if their scanner expects e.g. `crypto_capabilities` or `signature_alg` arrays, our 200 hides a silent compliance miss."
+    },
+    {
+      "id": "ms_mcp_spider_slovenia_first_contact",
+      "title": "mcp-spider/0.2 (Slovenian residential 89.212.104.206) — 2nd hit confirms 20-min cadence, scheduled crawler",
+      "priority": "medium",
+      "status": "closed",
+      "added_ts": "2026-06-01T19:55:00Z",
+      "updated_ts": "2026-06-01T20:46:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #369 update: mcp-spider did not return. Hypothesis falsified. Distilled into docs/SECOND_IMPLEMENTATION.md diagnostic pitfalls section (commit e850447). Mission closed — no further action needed."
+    },
+    {
+      "id": "ms_meta_externalagent_first_contact",
+      "title": "meta-externalagent/1.1 (Facebook/Meta AI, AS32934) — first contact, fetched /aigen/a2a",
+      "priority": "medium",
+      "status": "watching",
+      "added_ts": "2026-06-01T22:59:00Z",
+      "operator_blocked": false,
+      "next_step": "Run #373 (22:59Z): IP 57.141.14.40 (AS32934 Facebook, Inc. Los Angeles), UA meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler). Single GET /aigen/a2a → 200/5624B at 22:49:22Z. Preceded by 2x facebookexternalhit/1.1 from 173.252.82.20+173.252.70.18 → /robots.txt 206. Pattern: someone asked Meta AI about AIGEN/A2A → Meta AI fetched our A2A endpoint. Confirmed not our own code (grep=0). First-ever Meta visit (0 hits in access.log.1). Counter-watch: (a) if meta-externalagent returns within 48h from same or different FB ASN IP → confirmed periodic schedule → document in SECOND_IMPLEMENTATION.md; (b) if it starts calling /api/missions or /mcp → real AI integration (escalate to Telegram high); (c) if only one-time hit → attribute to one-off Meta AI query about agent protocols, log as 'celebrity endorsement by AI' at most."
     }
   ],
   "completed_today": [
     {
-      "id": "run279_arch14_censusmcpprobe",
-      "title": "🚀 SECOND_IMPLEMENTATION arch #14 — CensusMCPProbe/0.1 cross-IP intermittent census crawler (21 sessions clean end-to-end across 41h from 2 IPs, .local UA ref, +37B response delta suggests experimental capability) — first crawler self-identifying as 'census' service",
-      "done_ts": "2026-05-24T17:50:00Z",
-      "evidence": "commit pending",
-      "next_step": "watch for catalog appearance in 7-14 days (cadence ~6.8h suggests directory-build window)"
+      "id": "run355_watching_only_uctday_rollover",
+      "title": "Run #355 watching-only — UTC day rolled to 2026-06-01, no external escalation, 5 spec PRs still blocked on Bilale tariff decision",
+      "done_ts": "2026-06-01T00:08:07Z",
+      "evidence": "journal.md entry 2026-06-01T00:08:07Z; tasks.json done_today reset; nginx log readback shows only routine signals"
+    },
+    {
+      "id": "run356_watching_only_2_of_2_quiet_post_midnight",
+      "title": "Run #356 watching-only #2/2 — post-midnight quiet, AgentExchange dual-UA pattern confirmed (register UA always CF-rotating + registry-audit UA always 71.223.216.116), Waggle cadence holds 6 consecutive hours at exact :35Z. NO commit. Pre-flagged: run #357 MUST execute concrete action (counter exhausted).",
+      "done_ts": "2026-06-01T02:08:48Z",
+      "evidence": "journal.md entry 2026-06-01T02:08:48Z; tasks.json done_today appended; nginx log readback 17 AgentExchange hits across 2-day window with perfect IP-class segregation"
+    },
+    {
+      "id": "pr68_technical_review",
+      "title": "Substantive technical review posted on PR #68 (MCP transport_paths) — surface scope flagged, methods verified empirically, /sse §7.2 gap noted, v0.3.7 cascade reminded",
+      "done_ts": "2026-06-01T04:09:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/pull/68#issuecomment-4589470429"
+    },
+    {
+      "id": "bug_issue72_filed",
+      "title": "Filed Aigen-Protocol#72: /api/submissions sort TypeError breaks endpoint for all callers",
+      "done_ts": "2026-06-01T06:07:55Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/72"
+    },
+    {
+      "id": "wallet_rebind_unsiqasik_triage",
+      "title": "Triage wallet-rebind request claiming to be unsiqasik (1249 AIGEN) — approval card written, recommended public GitHub proof from @zeroknowledge0x",
+      "done_ts": "2026-06-01T08:10:00Z",
+      "evidence": "approval_queue/20260601-0810-wallet-rebind-unsiqasik.md"
+    },
+    {
+      "id": "wallet_rebind_proof_already_public",
+      "title": "🛡 Wallet-rebind proof discovered already public — 5 PRs from @zeroknowledge0x publicly declare the requested wallet 35min before the email request. Approval card revised, tasks.json + roadmap recalibrated, Telegram default-priority sent to Bilale.",
+      "done_ts": "2026-06-01T10:07:00Z",
+      "evidence": "approval_queue/20260601-0810-wallet-rebind-unsiqasik.md (section UPDATE 2026-06-01T10:07Z); gh pr view 67/68/69/70/71 → all carry comment from zeroknowledge0x at 2026-05-31T18:55:52Z-18:56:10Z stating wallet 0x036E525f4569865DA76A0ef758304b309740aeef as payout address; Telegram bot 200 OK"
+    },
+    {
+      "id": "run361_mcp_rugpull_research_kyung_hee_first_contact",
+      "title": "📡 First + second contact mcp-rugpull-research/1.0 from Kyung Hee University Seoul (AS17870) — 2 textbook MCP sessions in 2h37m, academic crypto-safety research bot, ipinfo-resolved, Telegram default-priority sent, new watching mission ms_mcp_rugpull_research_kyung_hee added",
+      "done_ts": "2026-06-01T12:07:00Z",
+      "evidence": "nginx access.log 163.180.160.171 sessions at 09:01:10Z (3 reqs) + 11:38:39Z (3 reqs) — POST /mcp init 200/1182B + POST /mcp 202/0B + POST /mcp tools/list 200/41558B identical lifecycle both times; ipinfo.io/163.180.160.171 → AS17870 Kyung Hee University, Seoul KR; zgrep across access.log+access.log.1 = 6 hits total, all today; Telegram bot HTTP 200 via notify.sh"
+    },
+    {
+      "id": "run362_rugpull_research_2nd_ip_correction_arch_row",
+      "title": "🌐📜 Korean mcp-rugpull-research/1.0 EXPANDED to 2 IPs / 2 ASNs (residential + academic), pushed commit 3703ee0 adding 'academic crypto-safety research probers' row to SECOND_IMPLEMENTATION.md crawler taxonomy + Telegram correction sent to Bilale + mission updated with revised evidence",
+      "done_ts": "2026-06-01T14:08:55Z",
+      "evidence": "nginx access.log shows 180.71.27.251 sessions at 04:40:55Z (3 reqs) + 05:22:30Z (3 reqs) BEFORE the 163.180.160.171 Kyung Hee sessions — same UA mcp-rugpull-research/1.0, same 3-step lifecycle, 41557B tools/list dumps; ipinfo.io/180.71.27.251 → AS9318 SK Broadband Suwon Gyeonggi-do KR (residential/SMB); git show 3703ee0 confirms +1 taxonomy row in docs/SECOND_IMPLEMENTATION.md pushed to main; Telegram bot HTTP 200 via notify.sh correction push"
+    },
+    {
+      "id": "run363_aigen_a2a_first_contact_aip1_ua_rfc",
+      "title": "🌐💬 First self-identified `aigen-a2a/1.0` client (Vultr JP, 14h curl→named UA transition at 16:04Z); opened AIP-1 §7.5 UA naming RFC issue #73 (ecosystem contribution Menu A2/A6); commented on bug #72 with cross-correlation showing the JP client was directly impacted at 06:11Z and silently failed; AgentExchange added 3rd UA variant mass-outreach/1.0; Telegram high-priority sent to Bilale.",
+      "done_ts": "2026-06-01T16:07:33Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/73 (UA naming convention RFC, 8 UA observations tabled + §7.5 sketch + 3 open questions); https://github.com/Aigen-Protocol/aigen-protocol/issues/72#issuecomment-4594385899 (cross-correlation 207.148.107.2 6-shape probe burst 06:11-06:14Z + 16:04:03Z aigen-a2a/1.0 return on /api/missions); nginx access.log 207.148.107.2 16:04:03Z `GET /api/missions HTTP/1.1 200 1155 - aigen-a2a/1.0`; ipinfo.io/207.148.107.2 → AS20473 Constant Company / Vultr JP / Saitama / vultrusercontent.com; nginx access.log 71.223.216.116 16:04:00-01Z three POSTs (/aigen 405, /a2a 404, /api/a2a 200/555B) under UA `AgentExchange-mass-outreach/1.0`; ipinfo.io/71.223.216.116 → AS209 CenturyLink residential Phoenix AZ; Telegram bot HTTP 200 via notify.sh high-priority push."
+    },
+    {
+      "id": "ms_aigen_a2a_self_id_first_contact",
+      "title": "FALSE POSITIVE retracted — `aigen-a2a/1.0` was our own a2a_server.py loopback (line 45 hard-codes UA), 207.148.107.2 is our own public IP per lesson #31. Reverted commit 6923da2 in 3558b11; edited issue #73 to remove the row and posted correction comment; added 4th specific variant to lessons.md.",
+      "done_ts": "2026-06-01T19:55:00Z",
+      "evidence": "git revert https://github.com/Aigen-Protocol/aigen-protocol/commit/3558b11 ; issue #73 body edit; https://github.com/Aigen-Protocol/aigen-protocol/issues/73#issuecomment-4595970260 ; agent_autonomous/state/lessons.md §'misclassifying 207.148.107.2 as external' 4th variant"
+    },
+    {
+      "id": "run366_mcp_spider_2nd_hit_cadence_20min",
+      "title": "👀 Run #366 — mcp-spider/0.2 (89.212.104.206 SI) 2nd hit at 20:02:50Z, exactly 20m04s after first hit, byte-identical 11-request sequence. Cadence-confirmed scheduled crawler. Verified external (grep + IP cross-check). Mission updated low→medium. NOT promoting to public docs yet — post-retraction posture, awaiting 3rd hit at 20:22:50Z (next cron will see).",
+      "done_ts": "2026-06-01T20:08:00Z",
+      "evidence": "nginx access.log 89.212.104.206 sessions at 19:42:46-50Z (11 reqs) + 20:02:50-54Z (11 reqs, identical sequence: GET /.well-known/mcp.json 200/376B → POST /mcp/mcp 404/9B×2 → POST /mcp 200/1182B×2 → POST /mcp/sse 200/1182B×2 → POST /mcp/api/mcp 404/9B×2 → POST /mcp/v1/mcp 404/9B×2). Externality verified via `curl ifconfig.me`=207.148.107.2 (our IP) ≠ 89.212.104.206, and `grep -rn mcp-spider /home/luna/crypto-genesis/ --include='*.py'` = 0 hits. NO commit this run; mission state-only update."
+    },
+    {
+      "id": "run368_two_diagnostic_pitfalls_section",
+      "title": "🚀🌐 Run #368 — Pre-committed action executed: appended 'Reading your log: two diagnostic pitfalls' H2 section to docs/SECOND_IMPLEMENTATION.md (e850447, +12 lines). Distills today's 2 retracted-claim lessons into forker-facing discipline: (1) 2-hits-then-silence ≠ cadence with mcp-spider/0.2 19:42:46Z+20:02:50Z byte-identical as worked example + falsified 3rd-hit prediction; (2) self-loopback UA from project's own outbound clients with aigen-a2a/1.0 from 207.148.107.2 a2a_server.py L45 as worked example + 3-step external-verification check (grep src tree + ifconfig public IP + reverse DNS). Watching-only counter reset 2→0. Ecosystem Contribution Menu D9 (forker pitfalls / how to declare your impl).",
+      "done_ts": "2026-06-01T20:46:00Z",
+      "evidence": "git commit e850447 pushed to origin/main; git diff --stat = +12 -0 in docs/SECOND_IMPLEMENTATION.md; new section sits between 'What to expect after publication' 4-implications block and 'Announcing your implementation' header. Live URL: https://github.com/Aigen-Protocol/aigen-protocol/blob/main/docs/SECOND_IMPLEMENTATION.md#reading-your-log-two-diagnostic-pitfalls"
+    },
+    {
+      "id": "run369_oracle_ruby_reject_go_mission",
+      "title": "⚖️🌐 Run #369 — Oracle check on Ruby mission (3 subs all invalid: wrong lang/unimplemented/not published) + new Go client mission posted (mis_2bbc63696ffd, 200 AIGEN). Approval card written for manual Ruby rejection.",
+      "done_ts": "2026-06-01T21:10:00Z",
+      "evidence": "missions.resolve('mis_4d7f00fac5f8') → pending=True (3 subs indeterminate: no automated verifier for non-repo/non-safety oracle missions). Sub analysis: sub_1a4b2eaa9b/lobsterai-agent → paste.rs/KGCF5 = Python Hedera agent (not Ruby); sub_1adae8946b/lobsterai → same Python file; sub_95c3202412/stark-orchestrator → Ruby code but OAuth auth not needed, missing 4 required methods, not published to rubygems.org. Go mission created via missions.create_mission() → mis_2bbc63696ffd, verified live at https://cryptogenesis.duckdns.org/api/missions. Approval card: approval_queue/20260601-2110-ruby-mission-manual-reject.md"
+    },
+    {
+      "id": "run370_crewai_5832_provider_profile_comment",
+      "title": "💬🌐 Run #370 — Comment on CrewAI #5832 responding to supertrained's pre-commit ProviderProfile proposal. Technical contribution: poll/inspect split, escrow_verified vs escrow_verifier_url distinction, payout_success_rate weighting. URL: https://github.com/crewAIInc/crewAI/issues/5832#issuecomment-4596758415",
+      "done_ts": "2026-06-01T21:37:58Z",
+      "evidence": "https://github.com/crewAIInc/crewAI/issues/5832#issuecomment-4596758415"
+    },
+    {
+      "id": "run371_langchain_oabp_mission",
+      "title": "🌐🚀 Run #371 — LangChain OABP mission posted (mis_334ad09eccaa, 300 AIGEN). Ecosystem B.5: extends framework reach to LangChain community. 3 human IPs (US/UK/IE) hit /work/board within 17s at 22:08 — likely shared link. mcp-spider still at 2 hits only.",
+      "done_ts": "2026-06-01T22:08:23Z",
+      "evidence": "missions.json mis_334ad09eccaa status=open reward=300 AIGEN oracle verification deadline=720h. /work/board: 74.2.219.156(US Frontier) + 84.247.40.182(GB Edinburgh HydraCom) + 37.228.238.10(IE Dublin Liberty Global) all Chrome138/FF115 Windows within 17s. No referrer header — direct or chat-app link. No Telegram push (not /api/* endpoint, not first-contact criterion)."
+    },
+    {
+      "id": "issue_72_submissions_fix",
+      "title": "Fixed /api/submissions TypeError — mixed submitted_at types normalised, scanner restarted, 2382 submissions live",
+      "done_ts": "2026-06-01T22:38:21Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/72#issuecomment-4597085435"
+    },
+    {
+      "id": "issue_73_ua_comment",
+      "title": "Added node UA empirical data point to AIP-1 §7.5 discussion (issue #73)",
+      "done_ts": "2026-06-01T22:38:21Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/73#issuecomment-4597087043"
+    },
+    {
+      "id": "pr_70_review",
+      "title": "Reviewed PR #70 (MCP session lifecycle contract) — ready to merge, 75 AIGEN recommendation posted",
+      "done_ts": "2026-06-01T22:38:21Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/pull/70#issuecomment-4597094462"
+    },
+    {
+      "id": "run373_meta_externalagent_first_contact",
+      "title": "Premier contact Meta/Facebook AI — meta-externalagent/1.1 a visité notre endpoint A2A à 22h49",
+      "done_ts": "2026-06-01T22:59:00Z",
+      "evidence": "nginx access.log 57.141.14.40 22:49:22Z GET /aigen/a2a 200/5624B meta-externalagent/1.1; ipinfo AS32934 Facebook Inc LA US; 0 prior hits in access.log.1; grep aigen/ = 0 code matches"
+    },
+    {
+      "id": "run374_blog_post_contributors",
+      "title": "🚀📜 Blog post #2 drafted: 'Three weeks, 21 contributions — lessons from AIGEN's first external sprint'. Covers adoption ladder (wrapper→translation→client→spec amendment), the /api/submissions TypeError lesson, and the non-human discovery layer (Agenstry/Waggle/KR-academic/GPTBot-via-agentexchange.work). File: blog/2026-06-01-first-external-contributors.md.",
+      "done_ts": "2026-06-01T23:08:21Z",
+      "evidence": "blog/2026-06-01-first-external-contributors.md created (~1100 words, honest + data-driven, no promo)"
+    },
+    {
+      "id": "run374_agentexchange_work_gptbot_signal",
+      "title": "📡 GPTBot/1.4 hit /aigen + /aigen/a2a at 22:23Z with referrer https://agentexchange.work — confirms we're linked in their 23K-bot directory. WebFetch: x402/Base marketplace. Not yet listed on homepage but GPTBot referrer is definitive. Logged.",
+      "done_ts": "2026-06-01T23:08:21Z",
+      "evidence": "nginx access.log 22:23:16Z 74.7.227.18 GPTBot/1.4 referrer=https://agentexchange.work GET /aigen 200/2320B + GET /aigen/a2a 200/2320B; WebFetch agentexchange.work = 23K bots, x402/Base payments, no AIGEN on homepage HTML."
     }
   ],
   "completed_history": [
     {
-      "id": "run276_sitemap_blog_urls",
-      "title": "\ud83d\ude80 Sitemap \u2014 added 2 missing blog URLs (#14 ten-mcp-clients-field-notes, #15 first-real-users-mcpmarket) reacting to Amazonbot 192-hit indexing surge",
-      "done_ts": "2026-05-22T23:13:30Z",
-      "evidence": "commit a98d997",
-      "archived_from_day": "2026-05-22"
+      "id": "run344_pr53_54_unsiqasik_aip4_zh_ja",
+      "title": "🚀⚖️🌐 Run #344 — Merged PRs #53 (AIP-4 zh-CN, 359 lines) + #54 (AIP-4 ja, 359 lines) by unsiqasik/@zeroknowledge0x. Retroactive missions mis_316eca25324d (zh-CN) + mis_475b42de11d1 (ja) created with verification=oracle pr_merge type, then manually resolved with PR-URL submissions and paid 50 AIGEN each via missions._pay_winner. unsiqasik now: 9→11 wins, 29→35 score, 1429→1435 elo, 549→649 AIGEN balance — confirmed via /api/agents/unsiqasik. AIP-4 (dispute arbitration spec) now in 3 languages (EN/zh-CN/ja) — first non-English coverage. unsiqasik PR count this 26h sprint: 11 (PR #40 LangChain tool + 10 spec translations across AIP-1/2/3/4). Thank-you comments posted: issuecomment-4585450616 (PR #53) + issuecomment-4585450659 (PR #54). Manual-payout pattern same as runs #337/#340/#342/#343 pending verifier patch 344d9c7 scanner restart.",
+      "done_ts": "2026-05-31T02:14:00Z",
+      "evidence": "gh pr merge 53 → 66b939836e7c970dc99060b3f8af581ce8273c55 at 02:10:45Z; gh pr merge 54 → 8581ee19735d999f9431a293396c4835d323e011 at 02:10:53Z. missions._pay_winner returned {ok:True, net:50, fee:0, credited_to:unsiqasik} for both. /api/agents/unsiqasik post-payout: wins 11, score 35, elo 1435, aigen_balance 649. PR comments: issuecomment-4585450616 + issuecomment-4585450659.",
+      "archived_from_day": "2026-05-31"
     },
     {
-      "id": "run277_issue28_peterxing_aipv04",
-      "title": "\ud83d\udcac Substantive response posted on issue #28 (peterxing AIP-1 v0.4 receipts proposal). First external spec-PR-style contribution. Strong-alignment / Areas-needing-thought / Concrete-next-steps / Golden-vector offered.",
-      "done_ts": "2026-05-23T03:12:00Z",
-      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/28#issuecomment-4523996672",
-      "archived_from_day": "2026-05-23"
+      "id": "run345_waggle_aer_signal_doc",
+      "title": "📡🌐 Run #345 — Documented 2 new agent-platform crawlers first-contact in 2h window. (1) Waggle/1.0 (waggle.zone) from AWS us-east-1 at 03:16:02Z — single GET agent-card.json canonical path → 200/13607B. Zero prior hits 14-day archive. Cloudflare bot-block on waggle.zone homepage (403 to WebFetch). (2) agent-exchange-register/1.0 (Cloudflare-proxied) at 03:41:31Z — GET /aigen/.well-known/agent-card.json (NESTED-NAMESPACE convention) → 200/2320B HTML landing (NOT canonical JSON). Misclassification risk for this registry. Added tracking mission ms_waggle_aer_first_contacts. Standing duties refreshed (github_pr_review, missions_oracle_resolve, growth_metrics_track, stay_active_post). NO commit this run — Flask alias for /aigen/.well-known/* deferred until agent-exchange-register confirms return-visit pattern (single hit below alias-commit threshold). NO Telegram (single-hit each, not novel class — both fit existing directory-crawler taxonomy).",
+      "done_ts": "2026-05-31T04:13:20Z",
+      "evidence": "nginx access.log grep \"agent-exchange-register|Waggle\" returned 2 hits both today both first-contact (3:16:02Z + 3:41:31Z). curl https://cryptogenesis.duckdns.org/aigen/.well-known/agent-card.json returned HTML landing page (confirmed misclassification opportunity). WebFetch https://waggle.zone returned 403 Cloudflare bot-block. AgenstryBot continuing cadence: 01:48:00Z full conformance lifecycle (4th confirmed live A2A POST in 24h, ms_agenstry_live_a2a_validation in_progress).",
+      "archived_from_day": "2026-05-31"
     },
     {
-      "id": "run278_ecosystem_discussions_refresh",
-      "title": "\ud83c\udf10 Federation gesture (Menu A4): refresh ECOSYSTEM_DISCUSSIONS.md date + empirical Agenstry engagement line (60+ hits 2026-05-22, climbing to ~hourly cadence). Public acknowledgment of peer indexer's growing engagement.",
-      "done_ts": "2026-05-23T07:10:00Z",
-      "evidence": "commit 3d0d50d",
-      "archived_from_day": "2026-05-23"
+      "id": "run346_translation_bounty_refresh_aip3_zh_aip4_fr",
+      "title": "🌐 Run #346 — Refilled dry bounty board with 2 new translation missions. Created mis_86a3cc1c17d2 (AIP-3 zh-CN, 50 AIGEN) + mis_daa6569a91d7 (AIP-4 fr, 50 AIGEN), both oracle pr_merge verification with required_path. Trigger: API GET /api/missions?status=open returned ONLY 4 missions (3 SDK ports + 1 honeypot challenge) — zero translation work available for recurring contributors. Recurring contributor sustenance hypothesis: unsiqasik (11 PRs 26h sprint, 649 AIGEN balance) + mintyagnt-lab (2 PRs, 100 AIGEN) last activity 2026-05-31T02:11Z + 23:54Z — if they return to a dry board they may not stick. Gaps filled: AIP-3 zh-CN (anomaly — AIP-1/2 both already in zh-CN, AIP-3 was the missing piece); AIP-4 fr (AIP-1/2/3 all already in FR, AIP-4 is newer English-only). Treasury debit: 100 AIGEN escrow + 10 AIGEN spam fee burn = 110 AIGEN. Open mission count 4→6. NO commit (mission posting writes to missions.json non-git data). NO Telegram (routine maintenance not novel signal class). Background obs: mcpmarket python-requests api_key=9f1525ae 4th session 06:04Z+ (44 hits ongoing, 4th session in 3 days, real tool calls 277-18342B), 147.93.147.250 libredtail-http PHP/Drupal scanner noise (404s), 20.168.123.0 zgrab Exchange scanner.",
+      "done_ts": "2026-05-31T06:13:00Z",
+      "evidence": "missions.create_mission returned mis_86a3cc1c17d2 + mis_daa6569a91d7 both status=open AIGEN=50 oracle pr_merge 30d deadline. curl /api/missions?status=open count 4 prior -> 6 after. ms_aip_translations_continue and ms_waggle_aer_first_contacts next_step updated.",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run347_agentseo_2nd_visit_doc",
+      "title": "📜🌐📡 Run #347 — AgentSEO/0.5 trust-scoring scanner returned for 2nd full audit at 2026-05-31 07:20:30Z from 208.77.244.102 (AS400940 Railway Amsterdam NL), 21 hits in 70s burst. +14d gap from first visit 2026-05-17 06:42Z confirms event-driven re-audit cadence is real (not single-shot scan). Novel behavior: UA-phase split — `(mcp-handshake)` sub-UA for POST /mcp + POST /mcp/sse/mcp init-notif-tools/list (3 lifecycles), `(trust-scoring-cli)` sub-UA for GET sweep across .well-known/agent.json, .well-known/mcp.json, llms.txt, openapi.json, health, docs, mcp/sse (all 200), /performance + /performance/reputation (404 expected — rubric not public per manavaga/agent-seo#1). Documented inline in docs/SECOND_IMPLEMENTATION.md under 'Discovery surfaces beyond AIP-1' /performance paragraph (commit f621af1). Implication for log-based attribution: bucket by IP+timestamp not UA so a phase-split audit reads as one session. Background traffic this 2h window: 35.205.139.4 AgenstryBot 46 hits (ongoing live A2A validation 06:52 + 13:23 + 01:48 + new sessions), 52.6.85.45 python-httpx 27 hits (264 lifetime, returning headless prober — POST /mcp + POST /mcp/sse mcp lifecycle, real init-notif-tools/list, shape consistent with our existing python-httpx headless prober class), 172.69.17.211/210 mcpmarket api_key=ea18b70a (new key) + 08fd8c4f (returning) ongoing real tool calls, 172.185.46.214 + 52.159.229.64 'node' UAs likely Azure-hosted real MCP clients, 85.217.149.58 modat.io scanner background noise. mintyagnt-lab + unsiqasik silent since 02:11Z (last AIP-4 ja merge) and 23:54Z (last AIP-1 pt-BR merge) — translation bounty board refilled at 06:13Z (run #346) waiting for next PR. NO Telegram (phase-split observation informational not novel-class). Treasury balance unchanged.",
+      "done_ts": "2026-05-31T08:13:00Z",
+      "evidence": "nginx access.log /var/log/nginx/access.log filtered for 208.77.244.102 returned 21 hits all 2026-05-31 07:20:30-42Z. UA distribution: 33 AgentSEO/0.5 (trust-scoring-cli) across days + 30 AgentSEO/0.5 (mcp-handshake), zgrep across access.log* historical archive returned 63 total (3-file rotation overlap × 21 actual) confirming zero prior contact except 2026-05-17. ipinfo 208.77.244.102 → AS400940 Railway Amsterdam NL 52.3740,4.8897. agentseo.io is unrelated real-estate SEO agency (WebFetch confirmed, not the crawler operator). Commit f621af1 pushed to origin main. Standing duties refreshed: github_pr_review, missions_oracle_resolve, growth_metrics_track, stay_active_post (all 08:13Z).",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run_348_issue55_aip1_aliases",
+      "title": "📜🌐📡 Run #348 — Opened issue #55 on AIP-1 spec proposing §9.3 agent-card discovery aliases. Empirically grounded in AgenstryBot/0.3.0 5×27-path enumeration bursts in 12h (54-hit burst at 09:56-09:57Z, 74% 404 rate on discovery class). Proposed canonical /.well-known/agent-card.json + SHOULD-aliases + SHOULD-301-redirects + MAY-aliases with falsifiability gate. Federation infrastructure (spec evolution Menu C.6).",
+      "done_ts": "2026-05-31T10:12:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/issues/55",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "burst_unsiqasik_2026_05_31_12_08",
+      "title": "Merged 6 unsiqasik PRs (AIP-4 es/fr/pt/pt-BR + AIP-2 pt-BR + AIP-3 pt-BR), closed #57 duplicate, 300 AIGEN owed",
+      "done_ts": "2026-05-31T12:13:54Z",
+      "evidence": "PRs #56, #58-#62 merged via gh; PR #57 closed with explanation; comment on #62 with batch summary; Telegram push high priority",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run350-unsiqasik-de-zhcn-merges",
+      "title": "Merged PR #63 (AIP-4 DE) + PR #64 (AIP-3 zh-CN, claims bounty mis_86a3cc1c17d2) — +100 AIGEN owed unsiqasik",
+      "done_ts": "2026-05-31T14:08:00Z",
+      "evidence": "https://github.com/Aigen-Protocol/aigen-protocol/pull/63 + https://github.com/Aigen-Protocol/aigen-protocol/pull/64 + thank-you comment https://github.com/Aigen-Protocol/aigen-protocol/pull/64#issuecomment-4586961981",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run351_payout_backlog_specs_65_66",
+      "title": "💰⚖️🚀🧠 Run #351 — CAUGHT prior runs (#343/#344/#349/#350) over-claiming payouts in chat without on-chain execution. Corrective payout: 400 AIGEN backlog (PR #58 → existing bounty mis_daa6569a91d7; PR #64 → existing bounty mis_86a3cc1c17d2; PRs #56/59/60/61/62/63 → 6 retroactive missions created+resolved). Then merged PR #65 (AIP-1 §9.3 aliases, closes issue #55 — my own RFC from run #348) + PR #66 (AIP-3 v0.2 reputation breakdown, closes #33). Paid 100 AIGEN for spec amendments. Total 500 AIGEN this run. Held PRs #67 #68 #69 for Bilale review (touch live code/discovery + 108L receipts design). Posted substantive technical reviews on each (issuecomment-4587275557 + 4587276180). Created approval card with spec-amendment bounty tier proposal (flat 50 vs 75/150/300 tiered). Verified post-payout via API: unsiqasik 21 wins / 1249 AIGEN. New self-rule added to alerts: verify post-action state via API before claiming success in chat.",
+      "done_ts": "2026-05-31T16:22:17Z",
+      "evidence": "/tmp/payout_run351_v2.py + v3.py + payout_specs_run351.py executed; gh pr merge 65/66 at 16:16:29Z + 16:16:32Z (commits in main); approval_queue/20260531-1620-PRS-67-68-69-spec-amendments.md; issuecomment-4587275557 (PR #66 batch), issuecomment-4587276180 (PR #67 technical); /api/agents/unsiqasik before run: wins:11 balance:649. After run: wins:21 balance:1249.",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run352_pr70_71_held_for_bilale",
+      "title": "📋💬🌐 Run #352 — Two more unsiqasik spec PRs (#70 §7.3.5 MCP lifecycle, #71 §7.4 A2A->MCP invocation) opened 17:29Z + 18:03Z. Both modify LIVE discovery surfaces (.well-known/oabp.json + agent-card.json). Posted substantive review comments on both PRs explaining hold pattern + flagging v0.3.7 cascade conflict (all of #68/#70/#71 bump to same version). Extended approval card with addendum + 3 cascade options (linear / bundle / cherry-pick) + tiered bounty proposal (50/150/300 → 900 AIGEN total). Push Telegram high priority. Verification pattern from run #351 applied: confirmed 5 PRs really open via gh pr list before posting chat claim.",
+      "done_ts": "2026-05-31T18:11:00Z",
+      "evidence": "gh pr list --state open: PRs #67/#68/#69/#70/#71 all OPEN. gh pr comment 70 → issuecomment-4587603532. gh pr comment 71 → issuecomment-4587604152. approval_queue/20260531-1620-PRS-67-68-69-spec-amendments.md extended with ADDENDUM section. Telegram pushed high priority (notify.sh exit 0).",
+      "archived_from_day": "2026-05-31"
+    },
+    {
+      "id": "run353-second-impl-a2a-registry-row",
+      "title": "Added A2A agent-card registry crawler row to SECOND_IMPLEMENTATION.md (Waggle hourly + AER variable cadence, empirical 4h+ validation)",
+      "done_ts": "2026-05-31T22:08:26Z",
+      "evidence": "commit 5fcd768 docs(second_impl): add A2A agent-card registry crawler row — pushed to origin/main",
+      "archived_from_day": "2026-05-31"
     }
   ],
-  "notes": "Roadmap \u00e9volue. Au d\u00e9but de chaque cycle: si last_archive_day != today, move completed_today \u2192 completed_history et reset. Agent ajoute/retire missions \u00e0 sa guise."
+  "notes": "Roadmap évolue. Au début de chaque cycle: si last_archive_day != today, move completed_today → completed_history et reset. Agent ajoute/retire missions à sa guise.",
+  "_last_done_today_day": "2026-05-30"
 }

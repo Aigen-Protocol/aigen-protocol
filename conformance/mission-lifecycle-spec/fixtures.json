@@ -1,0 +1,288 @@
+{
+  "$schema_note": "Inputs and expected outputs for mission-lifecycle.feature. Not a JSON-Schema file; the $-prefixed keys are human metadata. A runner loads `base_url` and `economic_schedule` for Background, the `create.*` objects as POST /api/missions bodies, and the `expected.*` blocks to assert against responses. All mis_*/sub_*/agt_* values are placeholders; generate unique agent ids per run for isolation against the live append-only ledger.",
+  "base_url": "https://cryptogenesis.duckdns.org",
+  "endpoints": {
+    "list_missions": "GET /api/missions",
+    "list_open": "GET /api/missions?status=open",
+    "create_mission": "POST /api/missions",
+    "get_mission": "GET /api/missions/{id}",
+    "submit": "POST /missions/{id}/submit",
+    "submit_api_alias": "POST /api/missions/{id}/submit",
+    "stats": "GET /api/stats",
+    "reputation": "GET /api/agents/{id}/reputation"
+  },
+  "economic_schedule": {
+    "$source": "GET /api/stats — authoritative live values; asserted in Background.",
+    "protocol_fee_bps": 50,
+    "protocol_fee_pct": 0.5,
+    "fee_multiplier_net": 0.995,
+    "spam_fee_burn_aigen": 5,
+    "min_reward_aigen": 10,
+    "min_reward_usdc_micros": 10000,
+    "peer_vote_quorum_aigen": 50
+  },
+  "id_placeholders": {
+    "mission_id_pattern": "^mis_[A-Za-z0-9]+$",
+    "submission_id_pattern": "^sub_[A-Za-z0-9]+$",
+    "example_mission_id": "mis_15a24726b3de",
+    "example_submission_id": "sub_9f31c0e4"
+  },
+
+  "create": {
+    "$comment": "Bodies for POST /api/missions (CreateMissionRequest). reward is flat (reward_amount + reward_currency); deadline is hours-from-now (deadline_hours).",
+
+    "first_valid_match_250": {
+      "creator_agent_id": "agt_puzzle_master",
+      "title": "Recover the magic constant",
+      "description": "Submit the secret phrase; first matching proof wins.",
+      "reward_amount": 250,
+      "reward_currency": "AIGEN",
+      "verification_type": "first_valid_match",
+      "verification_params": { "regex": "^AIGEN-[0-9a-f]{12}$" },
+      "deadline_hours": 48
+    },
+
+    "detail_oracle_github": {
+      "creator_agent_id": "agt_orchestrator_01",
+      "title": "Implement an OABP client in Go",
+      "description": "Deliver a public GitHub repository implementing an OABP REST client in Go, with a README and passing tests. An oracle checks the repo via the GitHub REST API.",
+      "reward_amount": 25,
+      "reward_currency": "USDC",
+      "verification_type": "oracle",
+      "verification_params": {
+        "oracle_description": "GitHub repo deliverable: a Go module that lists, creates and submits to OABP missions; repo exists, non-empty, and primary language is Go."
+      },
+      "deadline_hours": 168
+    },
+
+    "oracle_goplus_200": {
+      "creator_agent_id": "agt_treasury_guard",
+      "title": "GoPlus safety review of token 0xdAC1...1ec7",
+      "description": "Submit a GoPlus token-security report URL for the token; an oracle re-queries GoPlus to verify.",
+      "reward_amount": 200,
+      "reward_currency": "AIGEN",
+      "verification_type": "oracle",
+      "verification_params": {
+        "oracle_description": "GoPlus token-security review of 0xdAC17F958D2ee523a2206206994597C13D831ec7 (USDT); is_open_source=1 and honeypot=0 required."
+      },
+      "deadline_hours": 48
+    },
+
+    "expiring_1h": {
+      "$comment": "Used by runners that CAN fast-forward / wait. deadline_hours minimum is 1; the runner waits past it before asserting expiry. Runners that cannot wait use fixtures.expired.mission_id instead.",
+      "creator_agent_id": "agt_puzzle_master",
+      "title": "Recover the magic constant (short fuse)",
+      "description": "First proof matching the pattern wins. Intentionally short-lived to exercise expiry.",
+      "reward_amount": 250,
+      "reward_currency": "AIGEN",
+      "verification_type": "first_valid_match",
+      "verification_params": { "regex": "^AIGEN-[0-9a-f]{12}$" },
+      "deadline_hours": 1
+    }
+  },
+
+  "submit": {
+    "$comment": "Bodies for POST /missions/{id}/submit (SubmitRequest).",
+    "matching_proof": { "submitter_agent_id": "agt_solver_alice", "proof": "AIGEN-15a24726b3de" },
+    "matching_proof_via_alias": { "submitter_agent_id": "agt_solver_carol", "proof": "AIGEN-15a24726b3de" },
+    "non_matching_proof": { "submitter_agent_id": "agt_solver_bob", "proof": "not-the-secret" },
+    "spam_proof": { "submitter_agent_id": "agt_spammer", "proof": "lolol gimme the money" },
+    "oracle_goplus_proof": { "submitter_agent_id": "agt_security_scanner", "proof": "https://gopluslabs.io/token-security/1/0xdAC17F958D2ee523a2206206994597C13D831ec7" },
+    "late_proof": { "submitter_agent_id": "agt_latecomer", "proof": "AIGEN-15a24726b3de" }
+  },
+
+  "scenarios": {
+    "1_create_then_list": {
+      "feature_tag": "@create @list",
+      "create": "first_valid_match_250",
+      "expected_create_response": {
+        "$status": 201,
+        "id": { "$matches": "^mis_[A-Za-z0-9]+$" },
+        "status": "open",
+        "reward": { "amount": 250, "currency": "AIGEN" },
+        "verification_type": "first_valid_match",
+        "verification_params": { "regex": "^AIGEN-[0-9a-f]{12}$" },
+        "submissions": []
+      },
+      "expected_in_listing": {
+        "$endpoint": "GET /api/missions?status=open",
+        "$find": "the one mission whose id == captured created.id",
+        "status": "open",
+        "reward": { "amount": 250, "currency": "AIGEN" },
+        "verification_type": "first_valid_match"
+      }
+    },
+
+    "2_get_detail": {
+      "feature_tag": "@detail",
+      "create": "detail_oracle_github",
+      "expected_detail": {
+        "$status": 200,
+        "creator_agent_id": "agt_orchestrator_01",
+        "status": "open",
+        "submissions": [],
+        "resolution": null,
+        "deadline_echoes_deadline_hours": {
+          "deadline_hours_posted": 168,
+          "rule": "deadline (absolute unix seconds) == now_at_create + deadline_hours*3600",
+          "tolerance_seconds": 60
+        }
+      }
+    },
+
+    "3_submit_first_valid_match_winner": {
+      "feature_tag": "@submit @first_valid_match @payout",
+      "create": "first_valid_match_250",
+      "submit": "matching_proof",
+      "expected_submit_ack": {
+        "$status": 200,
+        "accepted": true,
+        "submission": { "submitter_agent_id": "agt_solver_alice", "verified": true },
+        "resolution": {
+          "winner_agent_id": "agt_solver_alice",
+          "winning_proof": "AIGEN-15a24726b3de",
+          "verified": true,
+          "reward_currency": "AIGEN",
+          "reward_paid": 248.75,
+          "protocol_fee": 1.25
+        }
+      },
+      "payout_math": {
+        "gross_reward": 250,
+        "fee_multiplier_net": 0.995,
+        "reward_paid": 248.75,
+        "protocol_fee": 1.25,
+        "invariant": "reward_paid == reward * (1 - 0.005)  AND  reward_paid + protocol_fee == gross_reward"
+      },
+      "expected_detail_after": { "$status": 200, "status": "resolved", "resolution": { "winner_agent_id": "agt_solver_alice", "reward_paid": 248.75 } }
+    },
+
+    "4_submit_non_matching": {
+      "feature_tag": "@submit @first_valid_match @negative",
+      "create": "first_valid_match_250",
+      "submit": "non_matching_proof",
+      "expected_submit_ack": {
+        "$status": 200,
+        "accepted": true,
+        "submission": { "verified": false },
+        "resolution": null
+      },
+      "expected_detail_after": {
+        "$status": 200,
+        "status": "open",
+        "resolution": null,
+        "rule": "no submission in submissions[] has verified == true"
+      }
+    },
+
+    "5_spam_submission": {
+      "feature_tag": "@submit @spam @economics",
+      "create": "first_valid_match_250",
+      "submit": "spam_proof",
+      "stats_before": { "$endpoint": "GET /api/stats", "capture": ["spam_fee_burn_aigen", "lifetime_spam_fees_burned"], "expect": { "spam_fee_burn_aigen": 5 } },
+      "expected_submit_ack": {
+        "$status": 200,
+        "accepted": true,
+        "submission": { "verified": false },
+        "message": { "$contains": ["spam", "5"], "$example": "submission recorded; 5 AIGEN spam fee burned" },
+        "resolution": null
+      },
+      "stats_after": {
+        "$endpoint": "GET /api/stats",
+        "invariant": "lifetime_spam_fees_burned increased by spam_fee_burn_aigen (== 5) vs stats_before"
+      },
+      "expected_detail_after": { "status": "open", "rule": "junk never wins; no verified submission" }
+    },
+
+    "6_oracle_mission": {
+      "feature_tag": "@submit @oracle @payout @async",
+      "create": "oracle_goplus_200",
+      "submit": "oracle_goplus_proof",
+      "expected_submit_ack": {
+        "$status": 200,
+        "accepted": true,
+        "submission": { "submitter_agent_id": "agt_security_scanner", "verified": false },
+        "resolution": null,
+        "note": "oracle missions are NOT resolved inline; no regex shortcut. verified stays false until an independent oracle re-check."
+      },
+      "expected_detail_pending": { "$status": 200, "status": "open", "submission_verified": false },
+      "independent_oracle_recheck": {
+        "$trigger": "the oracle re-queries GoPlus out of band (no code execution); runner polls GET /api/missions/{id} until terminal",
+        "effect": "the winning submission's verified flips false -> true and the mission resolves"
+      },
+      "expected_detail_resolved": {
+        "$status": 200,
+        "status": "resolved",
+        "submission_verified": true,
+        "resolution": {
+          "verified": true,
+          "winner_agent_id": "agt_security_scanner",
+          "winning_proof": "https://gopluslabs.io/token-security/1/0xdAC17F958D2ee523a2206206994597C13D831ec7",
+          "reward_paid": 199,
+          "protocol_fee": 1,
+          "reward_currency": "AIGEN",
+          "verifier_detail": { "$contains": "GoPlus" }
+        }
+      },
+      "payout_math": {
+        "gross_reward": 200,
+        "fee_multiplier_net": 0.995,
+        "reward_paid": 199,
+        "protocol_fee": 1,
+        "invariant": "reward_paid == reward * (1 - 0.005)  AND  reward_paid + protocol_fee == gross_reward"
+      }
+    },
+
+    "7_expiry": {
+      "feature_tag": "@expiry @negative @terminal",
+      "preconditions": {
+        "option_a_seeded": "use fixtures.expired.mission_id — a pre-existing mission whose deadline has already passed with no verified submission",
+        "option_b_wait": "create fixtures.create.expiring_1h, then wait/fast-forward past deadline_hours (1h)"
+      },
+      "expected_detail": {
+        "$status": 200,
+        "status": { "$one_of": ["expired", "voided"] },
+        "status_not": "resolved",
+        "resolution": null,
+        "rule": "no submission in submissions[] has verified == true; nothing was paid"
+      },
+      "late_submit": {
+        "submit": "late_proof",
+        "expected_ack": {
+          "$status": 409,
+          "error": "mission_not_open",
+          "message": { "$example": "mission mis_... is expired and no longer accepts submissions" }
+        }
+      },
+      "expected_detail_unchanged": { "status": { "$one_of": ["expired", "voided"] }, "resolution": null }
+    },
+
+    "8_submit_alias_parity": {
+      "feature_tag": "@submit @alias",
+      "create": "first_valid_match_250",
+      "submit_via": "POST /api/missions/{id}/submit",
+      "submit": "matching_proof_via_alias",
+      "expected_submit_ack": {
+        "$status": 200,
+        "accepted": true,
+        "resolution": { "winner_agent_id": "agt_solver_carol", "reward_paid": 248.75, "protocol_fee": 1.25 }
+      },
+      "rule": "byte-for-byte identical body and SubmitAck vs the bare POST /missions/{id}/submit route, including the 5-AIGEN spam burn"
+    }
+  },
+
+  "expired": {
+    "$comment": "Optional pre-seeded already-expired mission for runners that cannot fast-forward time. Replace mission_id with a real expired mis_* on the target deployment, or leave null and use the expiring_1h create + wait path.",
+    "mission_id": null,
+    "expected_status_one_of": ["expired", "voided"],
+    "expected_resolution": null
+  },
+
+  "error_shapes": {
+    "$comment": "Structured error bodies a runner may assert on negative paths (all share {error, message}).",
+    "mission_not_open": { "error": "mission_not_open", "message": "mission mis_... is resolved/expired and no longer accepts submissions" },
+    "not_found": { "error": "not_found", "message": "mission mis_deadbeef not found" },
+    "reward_below_floor": { "error": "reward_below_floor", "message": "reward_amount 4 is below min_reward_aigen (10)" },
+    "invalid_request": { "error": "invalid_request", "message": "verification_type must be one of: first_valid_match, oracle, peer_vote, creator_judges" }
+  }
+}

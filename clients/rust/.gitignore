@@ -1,0 +1,7 @@
+# Rust build artifacts
+/target
+**/*.rs.bk
+
+# The library is published with a committed lockfile only for binaries; for a
+# library crate Cargo.lock is conventionally not committed.
+Cargo.lock

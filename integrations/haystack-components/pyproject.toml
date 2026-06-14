@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "haystack-oabp"
+version = "1.0.0"
+description = "Haystack 2.x @component nodes + ComponentTool wrappers for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "haystack",
+    "haystack-ai",
+    "deepset",
+    "component",
+    "tool",
+    "component-tool",
+    "toolinvoker",
+    "agent",
+    "oabp",
+    "aigen",
+    "bounty",
+    "marketplace",
+    "a2a",
+    "llm",
+    "pipeline",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+# `requests` is needed by the OABP SDK (a pinned copy is vendored under
+# haystack_oabp._vendor.oabp, used automatically when the standalone `oabp`
+# package is not installed). `haystack-ai` is intentionally OPTIONAL: the package
+# imports and the components' run() methods work as plain callables without it —
+# the @component decorator and @component.output_types no-op (see the [haystack]
+# extra below and haystack_oabp._compat).
+dependencies = [
+    "requests>=2.25",
+]
+
+[project.optional-dependencies]
+# Haystack — install to get real @component classes, Pipeline, ComponentTool/Tool
+# and ToolInvoker integration.
+haystack = ["haystack-ai>=2.0.0"]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+# Ship the integration package *and* the vendored SDK sub-package.
+packages = [
+    "haystack_oabp",
+    "haystack_oabp._vendor",
+    "haystack_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

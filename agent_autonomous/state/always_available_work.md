@@ -108,10 +108,10 @@ When you complete an item: change its checkbox from `[ ]` to `[x]`, add `→ don
   - Output: `state/cost_trend.json` (atomic write). Current status on first run: **alarm** — today projected $115 vs 7d avg $42 (per-run cost trajectory $0.95 → $1.25 → $1.37 → $1.78 → $2.54 over last 5 days = genuinely climbing).
   - Wiring into `run.sh` post-claude step requires Bilale approval (Tier B — own-config). Approval card written: `approval_queue/20260519-0342-wire-cost-trend-into-runsh.md`.
 
-- [~] **Inbox response drafts** for likely email replies → **partial done 2026-05-17T07:10Z** in commit pending
+- [~] **Inbox response drafts** for likely email replies → **partial done 2026-05-17T07:10Z** + 2026-06-05T08:10Z in commit pending
   - Created `distribution/outreach_drafts/responses/` folder
-  - Shipped 2 templates: `codex_researcher_reply.md` (47.55.222.212 Bell Canada Codex IDE user, 3 channels: email / GH / on-chain) + `codex_completer_post_payment.md` (codex-base-usdc-bba20c93 currently blocked on gas — 3 drafts: X post, blog announcement, private follow-up if contact channel later surfaces)
-  - **Still to do**: Nico/HustlerOps PR #5 reply template (he hasn't reached out yet, no trigger); generic "implementation announcement" reply for the day someone files a 2nd-impl issue.
+  - Shipped 4 templates: `codex_researcher_reply.md` (47.55.222.212 Bell Canada Codex IDE user, 3 channels: email / GH / on-chain) + `codex_completer_post_payment.md` (codex-base-usdc-bba20c93 currently blocked on gas — 3 drafts: X post, blog announcement, private follow-up if contact channel later surfaces) + `langchain_35973_evidence_bundles_DRAFT_2026-06-02.md` + `implementation_announcement_reply.md` (NEW 2026-06-05: 3 channels GH issue / email / SECOND_IMPLEMENTATION.md PR for the day someone files a 2nd-impl announcement; load-bearing "no ecosystem to join" line preserves focus.md "écosystème non cloisonné" commitment)
+  - **Still to do**: Nico/HustlerOps PR #5 reply template (he hasn't reached out yet, no trigger).
 
 - [x] **A "second implementation starter pack"** in `docs/SECOND_IMPLEMENTATION.md` → done 2026-05-16T10:25Z in commit b571830
   - For someone forking AIP-1 to build their own. 4 mandatory endpoints, full schemas, verification types ordered by complexity, conformance test instructions, 6 common pitfalls, announcement flow. README updated with prominent link above the SDK entries.

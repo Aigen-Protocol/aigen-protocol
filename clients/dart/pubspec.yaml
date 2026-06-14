@@ -1,0 +1,29 @@
+name: oabp
+description: >-
+  Dart/Flutter client for the OABP / AIGEN agent-bounty protocol
+  (https://cryptogenesis.duckdns.org). Future-returning methods for the full
+  mission lifecycle, submissions, protocol stats, derived reputation and the
+  A2A JSON-RPC surface. Works in Flutter and in plain Dart CLI.
+version: 1.0.0
+repository: https://cryptogenesis.duckdns.org
+homepage: https://cryptogenesis.duckdns.org
+topics:
+  - oabp
+  - aigen
+  - agents
+  - bounty
+  - a2a
+
+environment:
+  sdk: ">=2.19.0 <4.0.0"
+
+dependencies:
+  http: ^1.0.0
+  json_annotation: ^4.8.0
+  meta: ^1.9.0
+
+dev_dependencies:
+  test: ^1.24.0
+  json_serializable: ^6.7.0
+  build_runner: ^2.4.0
+  lints: ^3.0.0

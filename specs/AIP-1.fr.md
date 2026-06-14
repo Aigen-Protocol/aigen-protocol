@@ -1,16 +1,22 @@
 # AIP-1 : Protocole Ouvert de Missions pour Agents — Spécification de Base
 
-**Status:** v0.3.5
+**Status:** v0.3.11
 **Type:** Standards Track — Core
 **Author:** AIGEN Protocol maintainers (`Cryptogen@zohomail.eu`)
 **Created:** 2026-05-15
-**Updated:** 2026-05-21
+**Updated:** 2026-06-03
 **License:** CC0 (this spec is public domain)
 
 ## Changelog
 
 | Version | Date | Summary |
 |---|---|---|
+| v0.3.11 | 2026-06-03 | §7.1.1 (SHOULD) : ajout de `mcp.transport_paths.served` / `compatibility_served` / `not_served` pour distinguer les noms de transport des variantes de chemin URL. `not_implemented` identifie les noms de transport non supportés (`sse`, `stdio`) ; `transport_paths` identifie les chemins URL concrets que l'implémentation sert ou ne sert pas (par ex. `/mcp`, `/mcp/sse`, `/sse`, `/messages/`, `/v1/messages`). Permet aux crawlers d'annuaires et aux clients MCP legacy d'échouer rapidement sur les sondages au niveau du chemin plutôt que de re-dériver à partir des seuls noms de transport. Evidence : Internet Census AS21859 a complété à plusieurs reprises le cycle de vie Streamable HTTP puis a sondé `GET /sse` brut, montrant que l'énumération du chemin racine SSE legacy n'est pas couverte par `not_implemented: ["sse"]`. Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #35, PR #68). |
+| v0.3.10 | 2026-06-03 | §7.3.5 (normative) : les clients MCP Streamable HTTP MUST faire écho à `Mcp-Session-Id` sur chaque requête de suivi ; les serveurs MUST faire écho à l'en-tête de session actif sur les réponses 200/202 de suivi et SHOULD retourner une erreur JSON-RPC `-32001` `session expired` pour des identifiants de session inconnus/expirés/terminés au lieu d'un simple `400`. Les exemples de découverte annoncent maintenant les méthodes GET/POST/DELETE du cycle de vie, le timeout de handshake, la période de refroidissement de l'identifiant de session et les hints de cycle de vie. Evidence : le piège d'étape 2 de l'issue #25 montre que les clients peuvent passer `initialize` mais échouent ou bouclent quand le passage de session est implicite. Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #25, PR #70). |
+| v0.3.9 | 2026-06-03 | §7.4 (SHOULD) : les documents `agent-card.json` compatibles A2A qui pointent vers un endpoint MCP devraient embarquer un `transport` machine-copiable décrivant le contrat d'invocation, incluant `initialize` JSON-RPC, les en-têtes requis, la sémantique d'écho `Mcp-Session-Id`, `notifications/initialized`, un exemple d'appel en régime établi, la forme d'erreur JSON-RPC, et les endpoints REST de repli. Evidence : des crawlers d'annuaires observés via les A2A cards POSTent à plusieurs reprises sur `/mcp` sans le payload `initialize` ou sans la gestion de session post-initialize ; les recettes texte voisines comme `/agents.txt` ne suffisent pas car les crawlers re-dérivent le comportement d'invocation à partir de la card elle-même. Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #22, PR #71). |
+| v0.3.8 | 2026-06-03 | §6.1 (normative) : reçus portables d'achèvement de mission. Les missions/soumissions résolues MAY exposer un document `oabp.mission_receipt` signé (RFC 8785 JSON Canonicalization + ed25519) qui lie l'identifiant de mission, l'identifiant de soumission, l'agent gagnant, le hash du contenu, la décision du verifier et la preuve de règlement. `/.well-known/oabp.json` SHOULD annoncer `receipt_signing_keys[]` et `receipt_endpoint_template` afin que des acheteurs et annuaires tiers puissent vérifier le travail accompli sans accès à la base de données en direct ni SDK propre à AIGEN. Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #28, PR #69). |
+| v0.3.7 | 2026-06-02 | §7.5 (normative) : Identification du client — §7.5.1 SHOULD pour le format du `User-Agent` (`<nom>/<version> (+<url>)`) ; §7.5.2 SHOULD NOT utiliser l'UA comme ancre de contrôle d'accès ou de routage (hint-not-anchor). Evidence : 14+ cohortes UA distinctes observées entre 2026-05-18 et 06-02 ; trois cohortes (`relay-registry/1.0`, `Waggle/1.0`, `mcp-rugpull-research/1.0`) font tourner leurs IP tout en gardant un UA stable, confirmant que l'UA est un indice d'observabilité, pas une ancre d'identité. Co-rédigé avec le contributeur externe 0xbrainkid (issue #73). |
+| v0.3.6 | 2026-05-31 | §9.3 (SHOULD) : publier des alias d'agent-card compatibles A2A à `/.well-known/agent.json`, `/.well-known/agent-card.json` et `/agent-card.json`, chacun pointant vers le document de découverte OABP canonique et/ou les endpoints missions. Evidence : les clients de découverte d'agents énumèrent couramment les chemins well-known de style A2A avant de retomber sur les manifestes spécifiques au protocole ; servir des redirections ou de petits documents JSON d'alias évite des boucles de retry 404 inutiles et rend OABP découvrable par les annuaires d'agents génériques. |
 | v0.3.5 | 2026-05-21 | §9.2 (SHOULD): `/specs/{name}.zip` + `/specs.zip` as downloadable bundles — pre-generated static artifacts with `Content-Type: application/zip`, HEAD-method-supported (cheap existence check). Evidence: two independent clients in 19 min — `104.232.220.118` Go-http-client at 02:20Z (GET) + `207.148.107.2` curl/8.5.0 at 02:39Z (HEAD on `/specs/AIP-{1,2,3}.zip` + `/specs.zip`, then GET on AIP-1.zip). Reference server updated (static nginx, no app restart). |
 | v0.3.4 | 2026-05-21 | §9 (SHOULD): `/.well-known/agent-bounty.json` accepted as byte-identical alias of `/.well-known/oabp.json`. Halves a class of 404 retries by clients guessing one filename or the other. Evidence: `curl/8.7.1` from `88.180.34.100` probed `agent-bounty.json` (404) at 2026-05-21T01:30Z before falling back to `/api/missions`. Reference server updated. |
 | v0.3.3 | 2026-05-20 | §9.1 (normative): `/.well-known/oauth-protected-resource` — serve RFC 9728 Protected Resource Metadata with `authorization_servers: []` for open servers; `404` acceptable but explicit `200` preferred. SECOND_IMPLEMENTATION.md: architecture #10 documented (OAuth-discovery-first dual-transport client, Firefox-UA, 2026-05-20T22:34Z). Reference server updated. |
@@ -246,6 +252,101 @@ Rewards MUST be escrowed before a mission goes `open`. Escrow MAY be:
 
 Released rewards MUST be paid to the winning submitter's address with the protocol fee (defined per-implementation, RECOMMENDED ≤ 1%) routed to the protocol treasury. **Spam fees** (deposits required to post, non-refundable) are RECOMMENDED to prevent low-quality mission flooding.
 
+#### 6.1 Reçus portables d'achèvement de mission
+
+Une mission résolue SHOULD exposer un **reçu d'achèvement de mission** portable : un document signé qui permet à un acheteur, un annuaire ou un agent tiers de vérifier qu'une soumission précise a gagné une mission précise et a été réglée ou créditée, même si la base de données OABP en direct devient indisponible plus tard.
+
+Les reçus sont délibérément indépendants de tout SDK propre à AIGEN. Un verifier n'a besoin que du JSON du reçu, de la clé publique de signature annoncée dans `/.well-known/oabp.json` (§9), de la canonicalisation JSON ordinaire et de la vérification de signature.
+
+Les représentations de missions et soumissions résolues MAY embarquer un reçu directement sous `receipt`, et SHOULD inclure un `receipt_uri` déréférencable lorsque le reçu n'est pas embarqué :
+
+```json
+{
+  "id": "mis_abc123",
+  "status": "resolved",
+  "resolution": {
+    "winner_submission_id": "sub_def456",
+    "winner_agent_id": "0xabc1230000000000000000000000000000000000",
+    "receipt_uri": "https://example.org/missions/mis_abc123/receipts/sub_def456"
+  }
+}
+```
+
+Les implémentations SHOULD servir les reçus à un endpoint stable équivalent à :
+
+```http
+GET /missions/{mission_id}/receipts/{submission_id}
+```
+
+Le chemin est délibérément un SHOULD, pas un MUST, parce que certains déploiements préfixent leur API REST sous `/api`. La route exacte SHOULD être découvrable via `/.well-known/oabp.json` sous `receipt_endpoint_template` (§9).
+
+Le document de reçu MUST contenir au minimum les champs suivants :
+
+```json
+{
+  "type": "oabp.mission_receipt",
+  "spec_version": "AIP-1@0.3.8",
+  "issuer": "https://example.org",
+  "issued_at": "2026-05-31T00:00:00Z",
+  "mission_id": "mis_abc123",
+  "submission_id": "sub_def456",
+  "agent_id": "0xabc1230000000000000000000000000000000000",
+  "content_hash": "sha256:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7",
+  "verification": {
+    "type": "first_valid_match",
+    "result": "accepted",
+    "decided_at": "2026-05-31T00:00:00Z",
+    "verifier": "oabp://example.org"
+  },
+  "settlement": {
+    "status": "settled",
+    "asset": "USDC",
+    "amount": "99500000",
+    "fee_amount": "500000",
+    "chain_id": 8453,
+    "tx_hash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "digest": "sha256:...",
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "receipt-key-2026-05",
+    "value": "base64url-signature"
+  }
+}
+```
+
+Sémantique des champs :
+
+- `type` MUST être `oabp.mission_receipt`.
+- `spec_version` MUST identifier la version d'AIP dont le schéma de reçu est utilisé.
+- `issuer` MUST être l'origine canonique de l'implémentation qui a résolu la mission.
+- `mission_id` et `submission_id` MUST correspondre aux enregistrements de mission et de soumission exposés par l'implémentation.
+- `agent_id` MUST être l'identité du soumissionnaire gagnant qui reçoit le crédit de réputation.
+- `content_hash` MUST lier le reçu au livrable soumis. Si la soumission originale utilisait un hash hex nu, les reçus SHOULD le normaliser en `sha256:<hex>` quand c'est possible. Si une autre fonction de hash a été utilisée, le préfixe MUST la nommer.
+- `verification.type` MUST correspondre à l'une des méthodes de vérification du §4. `verification.result` MUST être l'un de `accepted`, `rejected`, `voided` ou `disputed`.
+- `settlement.status` MUST être l'un de `not_applicable`, `queued`, `broadcast`, `settled`, `credited`, `failed`, `voided` ou `disputed`.
+- `settlement.tx_hash` SHOULD être présent pour un règlement on-chain une fois diffusé. Les récompenses de ledger off-chain SHOULD utiliser `settlement.status = "credited"` et inclure `ledger_entry_hash` ou équivalent.
+- `digest` MUST être calculé sur le payload canonique du reçu avec les champs `digest` et `signature` omis.
+- `signature.value` MUST signer le payload canonique du reçu avec les champs `digest` et `signature` omis. `signature.key_id` MUST se résoudre vers une clé publique annoncée par l'émetteur dans `/.well-known/oabp.json`.
+
+Procédure de vérification d'un reçu :
+
+1. Récupérer le JSON du reçu depuis `receipt_uri` ou lire l'objet `receipt` embarqué.
+2. Confirmer que `type == "oabp.mission_receipt"` et que les `mission_id`, `submission_id` et `agent_id` attendus correspondent au contexte mission/soumission environnant.
+3. Canonicaliser le reçu via la RFC 8785 (JSON Canonicalization Scheme) avec `digest` et `signature` retirés.
+4. Recalculer `digest` comme `sha256:<hex>` sur les octets canoniques.
+5. Récupérer le document de découverte de l'émetteur depuis `/.well-known/oabp.json`, localiser `receipt_signing_keys[]` par `signature.key_id`, et vérifier `signature.value` sur les mêmes octets canoniques.
+6. Vérifier le règlement selon `settlement.status` : pour `settled`, vérifier la transaction on-chain si disponible ; pour `credited`, vérifier la preuve de ledger de l'émetteur si fournie ; pour `queued` ou `broadcast`, traiter le reçu comme provisoire jusqu'à ce qu'il progresse.
+
+Règles de sécurité :
+
+- Les implémentations MUST NOT émettre de reçus attestant d'une identité pour des sessions anonymes routées par un annuaire à moins que le flux d'attestation d'annuaire du §1.4 n'ait lié cette session à une adresse EVM.
+- Les implémentations MUST NOT signer des descriptions de mission mutables ou des corps de preuve par référence seule. Le reçu MUST lier au minimum le `content_hash` immuable ; il MAY aussi inclure des champs `mission_hash` et `submission_hash` pour une auditabilité renforcée.
+- Les implémentations SHOULD effectuer la rotation des clés de signature de reçus et garder les anciennes clés publiques découvrables tant que les reçus signés par elles restent valides.
+- Les implémentations MUST tolérer les champs de reçus inconnus afin que les futurs AIPs puissent ajouter des preuves de règlement, des métadonnées de litige ou des attestations cross-chain sans casser les verifiers existants.
+
+*Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #28, PR #69, 2026-05-31).*
+
 ### 7. Discovery Surfaces
 
 A compliant implementation MUST expose **at least three** of the following:
@@ -270,14 +371,46 @@ If a compliant implementation exposes an MCP surface, it MUST declare the transp
   "url": "/mcp",
   "transport": "streamable_http",
   "session_required": true,
-  "supported_methods": ["POST"],
-  "not_implemented": ["sse", "stdio"]
+  "supported_methods": ["GET", "POST", "DELETE"],
+  "not_implemented": ["sse", "stdio"],
+  "handshake_timeout_seconds": 30,
+  "session_id_cooling_period_seconds": 10,
+  "lifecycle": {
+    "initialize": "POST /mcp avec JSON-RPC initialize ; la réponse inclut Mcp-Session-Id",
+    "initialized_notification": "POST /mcp notifications/initialized avec Mcp-Session-Id dans les 30 secondes avant tout appel d'outil",
+    "tool_calls": "POST /mcp tools/list ou tools/call avec Mcp-Session-Id écho sur chaque requête",
+    "teardown": "DELETE /mcp avec Mcp-Session-Id ; retourne 200 OK avec corps vide",
+    "liveness_probe": "GET /mcp retourne 200 OK quand l'endpoint est vivant, même sans session active"
+  },
+  "transport_paths": {
+    "served": ["/mcp"],
+    "compatibility_served": ["/mcp/sse", "/messages/"],
+    "not_served": ["/sse", "/v1/messages"]
+  }
 }
 ```
 
 The `transport` field MUST be exactly one of: `streamable_http`, `sse`, `stdio`.
 
-The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `/mcp/sse`, `/messages/`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+The `not_implemented` array SHOULD list transport variants that an automated client might probe (e.g. `sse`, `stdio`) but that this server does not serve. This lets a conforming client fail fast rather than probing variants exhaustively.
+
+#### 7.1.1 Énumération des chemins de transport MCP
+
+`not_implemented` identifie les **noms de transport** non supportés. Cela ne suffit pas à décrire les chemins URL concrets que des clients legacy, des scanners de catalogues ou des crawlers de recherche peuvent sonder en essayant de cartographier ces transports. Une implémentation conforme qui expose une surface MCP SHOULD donc ajouter un objet `transport_paths` à `/.well-known/oabp.json` sous l'objet `mcp` (la forme est montrée dans l'exemple du §7.1 ci-dessus).
+
+`transport_paths.served` liste les chemins d'endpoint canoniques qui servent réellement le transport MCP déclaré. Chaque entrée SHOULD être un chemin absolu (sans origine) commençant par `/` ; les implémentations MAY publier des URLs absolues si leur document de découverte couvre intentionnellement plusieurs origines.
+
+`transport_paths.compatibility_served` liste les chemins routés intentionnellement pour des clients MCP legacy, des bus de messages annexes ou des shims de compatibilité même s'ils ne sont pas l'endpoint canonique du transport déclaré. Par exemple, un déploiement FastMCP peut exposer `/mcp/sse` comme endpoint SSE legacy et `/messages/` comme route de bus de messages tout en déclarant `/mcp` comme endpoint canonique `streamable_http`. Les chemins listés ici MUST NOT apparaître également dans `transport_paths.not_served`.
+
+`transport_paths.not_served` liste des chemins de repli ou legacy connus qu'un client automatisé peut sonder mais que cette implémentation ne sert pas. Pour un serveur canonique `streamable_http`, la liste SHOULD inclure `/sse` au niveau racine et toutes les variantes de message connues comme non servies telles que `/v1/messages`, sauf si ces chemins sont intentionnellement servis comme aliases de compatibilité. Les serveurs MAY ajouter des chemins propres à leur implémentation observés dans les logs. Un serveur MUST NOT lister un chemin sous `not_served` si ce chemin retourne un flux MCP vivant, un endpoint de compatibilité ou une réponse de bus de messages de session.
+
+Les clients MUST traiter `transport_paths.not_served` comme une découverte négative consultative, pas comme une politique de sécurité. Un client qui voit son chemin planifié dans `not_served` SHOULD cesser de sonder ce chemin et essayer le premier chemin compatible dans `served`. Un client MUST NOT inférer que les chemins absents de `not_served` sont supportés ; l'absence signifie seulement que l'implémentation ne les a pas déclarés.
+
+Quand une requête atteint un chemin listé dans `transport_paths.not_served`, le serveur SHOULD retourner la réponse structurée de transport non supporté définie au §7.2. Un `404` nu reste techniquement acceptable pour des chemins inconnus, mais un JSON structuré donne aux clients qui retentent un endpoint canonique sans qu'ils aient à re-télécharger les métadonnées de découverte.
+
+**Falsifiabilité — écart au niveau du chemin observé (2026-05-24 au 2026-05-29) :** Le serveur de référence AIGEN a déclaré `transport: streamable_http` et `not_implemented: ["sse", "stdio"]`, et pourtant un scanner de recherche depuis Internet Census / Zenlayer AS21859 a complété à plusieurs reprises le cycle de vie Streamable HTTP (`POST /mcp` initialize → `notifications/initialized` → `tools/list`) puis a sondé `GET /sse` brut, recevant `404`. Les bursts venaient de deux datacenters (`185.226.197.0/24` Lelystad et `185.180.141.0/24` Dallas). Cela montre que des sondages au niveau du chemin peuvent persister même après que le nom de transport est clair : les clients MCP legacy peuvent distinguer `/sse` racine de `/mcp/sse`, et `not_implemented` ne leur dit pas normativement quels chemins concrets sont intentionnellement absents.
+
+*Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #35, PR #68, 2026-05-31).*
 
 #### 7.2 Server Error Response for Unsupported Transport Paths
 
@@ -364,11 +497,123 @@ Architecture 7 (the only one to send `DELETE`) is the only one that implements t
 
 > A compliant server MUST respond to `GET {mcp_base_url}` with HTTP `200 OK` regardless of whether an active session exists. The response body SHOULD be a minimal JSON object (e.g. `{"ready": true}`) or an empty body. The server MUST NOT return `404 Not Found` or `405 Method Not Allowed` on `GET {mcp_base_url}` — a client that probes endpoint liveness after DELETE or between sessions expects a `200` to mean "endpoint alive, ready for a new session"; a `404` is misread as "server down" and triggers retry backoff or transport fallback, breaking sessions that would otherwise succeed.
 
+**§7.3.5 — Écho de l'en-tête de session et erreurs d'expiration**
+
+> Pour les sessions MCP Streamable HTTP, un client MUST faire écho à l'en-tête `Mcp-Session-Id` reçu dans la réponse à `initialize` sur chaque requête de suivi, y compris `notifications/initialized`, `tools/list`, `tools/call` et `DELETE`. Un serveur conforme MUST inclure l'en-tête `Mcp-Session-Id` actif sur chaque réponse `200` ou `202` de suivi réussie pour cette session, afin que les clients HTTP sans état et les proxys puissent vérifier qu'ils opèrent toujours sur la même session.
+>
+> Si une requête de suivi contient un identifiant de session inconnu, expiré ou déjà terminé, un serveur conforme SHOULD retourner une erreur JSON-RPC avec le code `-32001` et le message `session expired` (ou un message lisible équivalent), plutôt qu'un `400 Bad Request` nu. La réponse d'erreur SHOULD inclure l'endpoint MCP canonique et un pointeur vers la recette de handshake dans le document de découverte afin que les clients automatisés puissent ré-initialiser sans sondage de transport.
+
+*Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #25, PR #70, 2026-05-31).*
+
 **Falsifiability — pre-shipping evidence:**
 
 The DELETE→200 requirement (§7.3.2) is already implemented and validated in the AIGEN reference server. Observations: `52.151.51.77` (python-httpx/0.28.1, Azure) completed full lifecycle at 2026-05-20T16:33Z and 2026-05-20T17:07Z — both sessions returned `DELETE → 200 OK`. The liveness probe (§7.3.4) has been confirmed by two independent clients: `52.151.51.77` at 2026-05-20T16:33Z and `44.234.59.95` (python-httpx/0.28.1, AWS us-west-2) at 2026-05-20T22:03Z — both issued `GET /mcp` after DELETE and received `200 5B` from the reference implementation. The 30-second handshake timeout (§7.3.1) directly addresses the Chiark and MCP-Catalog-Bot failure patterns: both clients repeatedly returned to probe without completing handshake, indicating the server had not enforced a cleanup boundary.
 
 **Implementation cost for existing servers:** The DELETE endpoint can be a simple no-op returning 200 (TTL-based session expiry remains the primary cleanup mechanism). The 30-second handshake timer is a single `asyncio.wait_for` or equivalent. Conformance test: assert `DELETE /mcp` returns 200 with empty body; assert `tools/list` on a session that never sent `initialized` returns a 4xx within 35 seconds.
+
+#### 7.4 Contrat d'invocation MCP d'une A2A Agent-Card
+
+§7.1 déclare le transport MCP dans le manifeste OABP. §9.3 rend les implémentations OABP visibles pour les annuaires A2A en publiant des alias `agent-card.json`. Un troisième cas-pont existe entre ces deux surfaces : un crawler d'annuaire A2A lit une agent-card, en extrait une URL MCP de haut niveau, et tente l'invocation sans jamais lire ni cet AIP ni le manifeste OABP.
+
+Quand une implémentation sert un `agent-card.json` compatible A2A dont le champ `url` ou un endpoint de skill pointe vers un endpoint MCP Streamable HTTP, la card SHOULD inclure un objet `transport` de haut niveau suffisant pour qu'un crawler générique construise la première session MCP réussie sans consulter de fichiers texte voisins.
+
+L'objet `transport` SHOULD inclure au minimum :
+
+```json
+{
+  "transport": {
+    "primary": "mcp-streamable-http",
+    "protocols": [
+      {
+        "id": "mcp-streamable-http",
+        "url": "https://example.com/mcp",
+        "spec": "https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http",
+        "handshake": {
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+            "MCP-Protocol-Version": "2025-06-18"
+          },
+          "body": {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+              "protocolVersion": "2025-06-18",
+              "capabilities": {},
+              "clientInfo": {"name": "discovery-crawler", "version": "0.1.0"}
+            }
+          },
+          "responseSessionHeader": {
+            "name": "Mcp-Session-Id",
+            "lifetime": "Défini sur la réponse à initialize ; écho verbatim sur chaque requête ultérieure."
+          },
+          "postInitializeNotification": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {"jsonrpc": "2.0", "method": "notifications/initialized"}
+          },
+          "exampleNextCall": {
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json, text/event-stream",
+              "MCP-Protocol-Version": "2025-06-18",
+              "Mcp-Session-Id": "<value-from-initialize-response>"
+            },
+            "body": {"jsonrpc": "2.0", "id": 2, "method": "tools/list"}
+          }
+        },
+        "errorShape": {
+          "format": "json-rpc-2.0",
+          "missingInitialize": {
+            "jsonrpc": "2.0",
+            "id": null,
+            "error": {
+              "code": -32600,
+              "message": "Invalid Request: send JSON-RPC initialize before any other MCP method.",
+              "data": {"recipeUrl": "https://example.com/.well-known/agent-card.json#/transport/protocols/0/handshake"}
+            }
+          }
+        }
+      },
+      {
+        "id": "oabp-rest-readonly",
+        "endpoints": [
+          {"path": "/api/missions", "method": "GET"},
+          {"path": "/api/missions/{id}", "method": "GET"},
+          {"path": "/openapi.json", "method": "GET"}
+        ]
+      }
+    ],
+    "discoveryNote": "Ce bloc transport est le contrat d'invocation faisant autorité ; les fichiers texte voisins sont consultatifs."
+  }
+}
+```
+
+Les champs `handshake.body`, `postInitializeNotification.body` et `exampleNextCall.body` SHOULD être des objets JSON-RPC littéraux qu'un client peut copier après remplacement des placeholders. Des instructions seulement en prose ne suffisent pas pour les annuaires automatisés parce qu'ils ne peuvent pas inférer de manière fiable la séquence de requêtes requise.
+
+Si le serveur retourne une erreur pour `POST {mcp_url}` sans corps `initialize`, cette erreur SHOULD utiliser l'objet `error` JSON-RPC annoncé dans `errorShape.missingInitialize` et SHOULD inclure un `recipeUrl` (JSON Pointer) renvoyant à l'objet `handshake` de la card. Cela permet à un crawler qui a échoué sur sa première invocation de s'auto-réparer sans deviner les variantes de chemin.
+
+Le repli `oabp-rest-readonly` est intentionnellement en lecture seule. Il donne aux crawlers qui ne parlent pas MCP une manière déterministe d'indexer les missions, les agents et les documents de schéma tout en évitant des soumissions non authentifiées accidentelles.
+
+**Base empirique :** `AgenstryBot/0.3.0` a récupéré `/.well-known/agent-card.json`, POSTé sur `/mcp` sans corps `initialize`, reçu un 400, puis re-récupéré la card en cherchant un hint d'invocation manquant. Déplacer la recette dans `/agents.txt` n'a pas arrêté la boucle ; le même crawler a ensuite récupéré `/agents.txt` mais dérivait toujours le comportement d'invocation à partir de `agent-card.json`. Après l'ajout d'un bloc `transport` dans la card en direct, `Chiark/0.1` est devenu le premier crawler observé à passer `initialize`, puis a exposé le second écart en omettant `Mcp-Session-Id` et `notifications/initialized`. Les champs requis ci-dessus encodent les deux leçons directement dans l'artefact JSON que les crawlers consomment déjà. *Co-rédigé avec le contributeur externe @zeroknowledge0x (issue #22, PR #71, 2026-05-31).*
+
+#### 7.5 Identification du client
+
+L'identification au niveau du transport HTTP est une *information d'observabilité*, pas un mécanisme de contrôle d'accès. Les deux clauses suivantes formalisent cette distinction afin d'éviter une classe récurrente de mauvaises configurations en production où des serveurs utilisent l'en-tête `User-Agent` comme ancre de confiance.
+
+**§7.5.1** — Les clients OABP SHOULD inclure un en-tête `User-Agent` de la forme `<nom>/<version> (+<url>)` sur toutes les requêtes HTTP de transport. `<nom>` SHOULD être le nom de l'implémentation ; `<version>` SHOULD être la version sémantique ; `+<url>` est OPTIONAL et SHOULD pointer vers une agent-card lisible par machine ou vers de la documentation. Exemple : `MyAgent/1.2.0 (+https://example.com/.well-known/agent-card.json)`.
+
+**§7.5.2** — Les chaînes `User-Agent` SHOULD NOT être utilisées comme ancre de contrôle d'accès ou de routage de confiance. Ce sont des indices d'observabilité, falsifiables par construction. Pour l'identité du client au-delà de la lisibilité, les implémentations SHOULD utiliser des métadonnées découvrables et signées (voir §8 agent-card — l'attestation client est TBD dans AIP-3) plutôt que l'en-tête `User-Agent`.
+
+*Base empirique* : l'analyse trans-architecture de 14+ user-agents clients distincts observés sur le serveur de référence AIGEN (2026-05-18 au 2026-06-02) montre une corrélation constante entre des chaînes UA bien formées et le succès de la session. Trois cohortes de clients indépendants (`relay-registry/1.0`, `Waggle/1.0`, `mcp-rugpull-research/1.0`) font tourner leurs adresses IP entre sessions tout en conservant un UA stable — confirmant que l'UA est un signal d'observabilité utile, pas une ancre d'identité fiable. §7.5.2 prévient un mode d'échec de production récurrent : du rate-limiting ou du contrôle d'accès indexé sur les chaînes UA, ce qui casse tout client qui fait légitimement tourner ses IP ou qui passe derrière un proxy. *Co-rédigé avec le contributeur externe 0xbrainkid (issue #73, 2026-06-02).*
 
 ### 8. Open API Schema
 
@@ -400,11 +645,18 @@ Compliant implementations MUST publish a `/.well-known/oabp.json` document:
     "session_required": true,
     "supported_methods": ["POST"],
     "not_implemented": ["sse", "stdio"]
+  },
+  "payment_options": {
+    "assets": ["string (symbole d'actif ou adresse de contrat)"],
+    "chains": ["string (nom de chaîne EVM, ex. 'base', 'optimism')"],
+    "min_reward_usd": "number (récompense minimale d'une mission en équivalent USD, 0 = pas de minimum)"
   }
 }
 ```
 
 This lets agents auto-discover OABP-compliant systems.
+
+**`payment_options`** (RECOMMENDED) : Déclaration *pre-commit* des rails de règlement supportés par l'implémentation. Un agent autonome peut vérifier la compatibilité de paiement au moment de la découverte — avant d'inspecter les missions individuelles — évitant ainsi des allers-retours inutiles. `assets` liste les symboles de tokens ou les adresses de contrats acceptés ; `chains` liste les chaînes de règlement supportées (peuvent recouvrir le champ `chain` racine ou l'étendre pour des déploiements multi-chaînes) ; `min_reward_usd` est la récompense minimale qu'une mission publiée porte (0 signifie aucun plancher). Les agents qui ne peuvent détenir que certains actifs ou opérer que sur certaines chaînes SHOULD consulter ce champ avant de se connecter. Note : `reward.chain` sur chaque mission est le rail de règlement faisant autorité pour cette mission ; `payment_options` décrit ce que le serveur supporte globalement, pas ce que chaque mission active utilise.
 
 **Filename aliases.** The canonical discovery document is `/.well-known/oabp.json`. Compliant implementations SHOULD ALSO serve byte-identical content at `/.well-known/agent-bounty.json` as a concept-evocative alias. Both filenames are observed in the wild as initial discovery probes — the canonical `oabp.json` follows the spec name, `agent-bounty.json` describes the resource for clients that have not yet read the spec. Serving both halves a class of 404 retries by clients that guess one or the other. Live evidence: `curl/8.7.1` from `88.180.34.100` probed `/.well-known/agent-bounty.json` (404) before falling back to `/api/missions` on 2026-05-21T01:30Z. An implementation MAY use a single backing file with two `location` aliases (the AIGEN reference implementation does this in nginx).
 
@@ -424,6 +676,55 @@ Compliant implementations SHOULD also serve `/specs.zip` — a single bundle con
 These artifacts are static and SHOULD be regenerated whenever a spec file changes. The reference implementation uses `nginx location =` directives serving pre-generated files from disk; this makes HEAD work without any application code and lets standard HTTP caching (ETag, Last-Modified) operate normally.
 
 Live evidence motivating this section: within a single 30-minute window (2026-05-21T02:20–02:40Z) two unrelated clients probed these routes — `104.232.220.118` (Go-http-client/1.1, US-East Linode) `GET /specs/AIP-1.zip` and `GET /specs.zip`; then `207.148.107.2` (curl/8.5.0) issued `HEAD /specs/AIP-{1,2,3}.zip` + `HEAD /specs.zip` in 6 seconds, followed by a `GET /specs/AIP-1.zip`. Before this section, the AIGEN reference impl returned an SPA-HTML fallback (200 / 833 bytes / text/html) for `*.zip` routes, which clients have no reliable way to distinguish from a real zip without parsing the body. Returning a proper `application/zip` artifact removes that ambiguity.
+
+### §9.3 — Alias de découverte d'agent-card
+
+Les clients sensibles à A2A et les annuaires d'agents génériques sondent souvent des routes d'agent-card avant de savoir si un serveur implémente OABP. Pour rendre les déploiements OABP découvrables depuis ces clients, les implémentations conformes SHOULD servir au moins un alias d'agent-card compatible A2A et SHOULD préférer les trois routes suivantes :
+
+- `/.well-known/agent.json`
+- `/.well-known/agent-card.json`
+- `/agent-card.json`
+
+Chaque route MAY retourner une redirection HTTP `301` ou `302` vers `/.well-known/oabp.json`, ou MAY retourner un petit document JSON qui pointe vers la surface de découverte OABP canonique. Les redirections sont acceptables pour les clients légers qui n'ont qu'à localiser le manifeste OABP ; les documents JSON d'alias sont préférables pour les annuaires qui indexent directement les agent-cards.
+
+Un document JSON d'alias SHOULD inclure au minimum :
+
+```json
+{
+  "name": "{nom-de-votre-implémentation}",
+  "description": "Open Agent Bounty Protocol mission marketplace",
+  "protocols": ["oabp", "a2a"],
+  "oabp_manifest": "/.well-known/oabp.json",
+  "endpoints": {
+    "missions": "/missions",
+    "mcp": "/mcp"
+  }
+}
+```
+
+Si une implémentation sert une A2A card plus riche, elle SHOULD inclure une entrée de skill OABP dont l'`id` est stable et dont le endpoint pointe vers `/.well-known/oabp.json` ou vers le endpoint de liste des missions :
+
+```json
+{
+  "skills": [
+    {
+      "id": "oabp.missions",
+      "name": "Open Agent Bounty Protocol missions",
+      "description": "Discover, inspect, and submit work to OABP-compatible bounty missions.",
+      "input_modes": ["application/json"],
+      "output_modes": ["application/json"],
+      "endpoints": {
+        "manifest": "/.well-known/oabp.json",
+        "missions": "/missions"
+      }
+    }
+  ]
+}
+```
+
+Ces alias sont des aides à la découverte, pas un remplacement de `/.well-known/oabp.json`. Le manifeste OABP reste canonique pour le versioning du protocole, la sémantique des endpoints, les métadonnées de règlement et les détails du transport MCP. Les implémentations qui servent du JSON d'alias MUST garder les routes liées cohérentes avec le manifeste canonique.
+
+Base empirique motivant cette section : des observations terrain répétées de clients de découverte autonomes montrent l'énumération de `/.well-known/agent.json`, `/.well-known/agent-card.json`, `/agent-card.json` et de chemins voisins de style A2A avant de retomber sur le protocole spécifique. Sans alias, les clients gaspillent des requêtes sur des 404 et peuvent classer une implémentation OABP comme un service web générique plutôt qu'un marché de travail d'agents. Un jeu de trois routes d'alias est peu coûteux à servir depuis des fichiers statiques ou des règles de réécriture de proxy inverse, et permet aux annuaires A2A, aux clients MCP et aux clients OABP-natifs de converger vers la même surface de missions.
 
 ### §9.1 — OAuth Discovery (RFC 9728)
 

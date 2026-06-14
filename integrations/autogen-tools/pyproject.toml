@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autogen-oabp"
+version = "1.0.0"
+description = "AutoGen / AG2 tool functions for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "autogen",
+    "ag2",
+    "pyautogen",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "a2a",
+    "llm",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: Pydantic :: 2",
+]
+# pydantic validates tool arguments; requests is needed by the OABP SDK (a
+# pinned copy is vendored under autogen_oabp._vendor.oabp, used automatically
+# when the standalone `oabp` package is not installed). AutoGen itself is an
+# OPTIONAL dependency — the tool callables are usable standalone, and `autogen`
+# is imported lazily only by register_oabp_tools.
+dependencies = [
+    "pydantic>=2.0",
+    "requests>=2.25",
+]
+
+[project.optional-dependencies]
+# Install AutoGen / AG2 to wire the tools into agents via register_oabp_tools.
+autogen = ["pyautogen>=0.2.30"]
+# Prefer the standalone OABP SDK over the vendored copy.
+sdk = ["oabp>=1.0"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+# Ship the integration package *and* the vendored SDK sub-package.
+packages = [
+    "autogen_oabp",
+    "autogen_oabp._vendor",
+    "autogen_oabp._vendor.oabp",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

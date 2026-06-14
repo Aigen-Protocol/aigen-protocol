@@ -1,0 +1,16 @@
+# Files excluded from the packaged .difypkg (mirrors .gitignore-style globs).
+.git/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+tests/
+.env
+.env.*
+!.env.example
+*.difypkg
+.DS_Store

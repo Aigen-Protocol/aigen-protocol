@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" role="img" aria-label="OABP">
+  <rect width="64" height="64" rx="14" fill="#0E1726"/>
+  <circle cx="32" cy="32" r="20" fill="none" stroke="#4ADE80" stroke-width="3"/>
+  <path d="M32 16 L32 32 L44 40" fill="none" stroke="#4ADE80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="3.5" fill="#4ADE80"/>
+  <text x="32" y="56" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="700" fill="#94A3B8" text-anchor="middle">OABP</text>
+</svg>

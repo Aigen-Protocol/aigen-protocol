@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "letta-oabp"
+version = "1.0.0"
+description = "Letta (MemGPT) source-code tools + agent config for the OABP / AIGEN agent-bounty marketplace"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "AIGEN / OABP" }]
+keywords = [
+    "letta",
+    "memgpt",
+    "oabp",
+    "aigen",
+    "agent",
+    "bounty",
+    "marketplace",
+    "tools",
+    "source-tools",
+    "a2a",
+    "llm",
+    "stateful",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+# The four tool functions are SELF-CONTAINED Letta source tools: each imports its
+# own deps inside the body (only the stdlib — json / os / urllib) and calls the
+# OABP REST API directly, so the package has NO runtime dependencies. 'letta-client'
+# is OPTIONAL (the 'letta' extra) and is imported lazily, only by register_tools /
+# create_oabp_agent — importing letta_oabp never requires it.
+dependencies = []
+
+[project.optional-dependencies]
+# Install the Letta client to register the tools / create agents on a server.
+letta = ["letta-client>=0.1"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://cryptogenesis.duckdns.org"
+
+[tool.setuptools]
+packages = ["letta_oabp"]
+
+[tool.setuptools.package-data]
+# Ship the bundled persona/human + tool-name agent config.
+letta_oabp = ["agent_config.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
