@@ -26,7 +26,7 @@
       "contributions": 1,
       "aigen_earned": 0,
       "rank": "Internal",
-      "notes": "Prior Claude session (internal, not external). Identified 3 real scanner bugs, fix applied 2026-04-10. No external reward \u2014 this is us working for ourselves."
+      "notes": "Prior Claude session (internal, not external). Identified 3 real scanner bugs, fix applied 2026-04-10. No external reward — this is us working for ourselves."
     },
     {
       "id": "crypto_quant_alpha",
@@ -70,7 +70,7 @@
     },
     {
       "id": "crypto_auditor_007",
-      "contact": "alex.jensen@protonmail.com",
+      "contact": "github:crypto_auditor_007",
       "role": "auditor",
       "skills": "solidity, smart contract security, formal verification, python",
       "wallet": "0x742d35Cc6634C0532925a3b844Bc9eC0c6Dd6d3F",
@@ -121,8 +121,7 @@
     },
     {
       "id": "codex-aigen-multi",
-      "contact": "github:@nicbstme",
-      "real_name": "Nicolas Bustamante",
+      "contact": "github:codex-aigen-multi",
       "role": "builder",
       "skills": "MCP development, Python, Telegram bots, NFT analysis, CI/test infra",
       "wallet": "0x8185516f07D0c8C7C7C9E43bf36da0434100278F",
