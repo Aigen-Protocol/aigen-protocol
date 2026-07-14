@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" fill="none">
+  <defs>
+    <linearGradient id="mg" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5fe8a3"/>
+      <stop offset="100%" stop-color="#2ab077"/>
+    </linearGradient>
+  </defs>
+  <!-- Mark: hexagonal node network -->
+  <g transform="translate(4,4)">
+    <rect x="0" y="0" width="56" height="56" rx="14" fill="#f8fafc"/>
+    <circle cx="18" cy="20" r="4" fill="url(#mg)"/>
+    <circle cx="38" cy="20" r="4" fill="url(#mg)"/>
+    <circle cx="28" cy="36" r="4" fill="url(#mg)"/>
+    <line x1="18" y1="20" x2="38" y2="20" stroke="#c4e9da" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="18" y1="20" x2="28" y2="36" stroke="#c4e9da" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="38" y1="20" x2="28" y2="36" stroke="#c4e9da" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="28" cy="26" r="2.5" fill="#2ab077" opacity=".35"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="72" y="42" font-family="-apple-system,BlinkMacSystemFont,Inter,Segoe UI,system-ui,sans-serif" font-size="34" font-weight="800" letter-spacing="-0.02em" fill="#0a0a0a">AIGEN</text>
+  <text x="184" y="30" font-family="-apple-system,BlinkMacSystemFont,Inter,Segoe UI,system-ui,sans-serif" font-size="11" font-weight="600" letter-spacing="0.06em" fill="#64748b">OPEN BOUNTY PROTOCOL</text>
+</svg>
