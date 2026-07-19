@@ -235,6 +235,9 @@ def dedupe_lessons():
         with open(LESSONS + ".tmp", "w") as f:
             f.write(new_content)
         os.rename(LESSONS + ".tmp", LESSONS)
+        print(f"deduped lessons: {len(sections)} -> {len(deduped)} sections")
+    else:
+        print("lessons already deduped")(LESSONS + ".tmp", LESSONS)
         print(f"deduped lessons: {len(sections)} → {len(deduped)} sections")
 
 
